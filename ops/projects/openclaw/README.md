@@ -4,8 +4,8 @@ This directory is the operator-facing surface for OpenClaw.
 
 ## Stable Docs
 
-- `OPENCLAW_DEPLOYMENT_LEDGER.md`
-- `OPENCLAW_ARCHITECTURE_TODO.md`
+- `DEPLOYMENT_LEDGER.md`
+- `ARCHITECTURE_TODO.md`
 
 ## Subdirectories
 

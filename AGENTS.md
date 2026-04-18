@@ -4,10 +4,10 @@ This root is a workspace-index, not a primary product repository.
 
 ## Canonical Project Paths
 
-- Current OpenClaw mainline: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/openclaw/main/nas-openclaw-v22`
-- OpenClaw migration reference: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/openclaw/migration/openclaw-mac-migration`
-- OpenClaw sidecar state: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/openclaw/sidecar-state`
-- OpenClaw operator docs and mirrors: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/ops/openclaw`
+- Current OpenClaw mainline: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/openclaw/nas-openclaw-v22`
+- OpenClaw migration reference: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/migrations/openclaw-mac-migration`
+- OpenClaw sidecar state: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/state/project-data/openclaw`
+- OpenClaw operator docs and mirrors: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/ops/projects/openclaw`
 
 ## Root Responsibilities
 
@@ -17,10 +17,12 @@ The root repository should only track:
 - `README.md`
 - `WORKSPACE_MAP.md`
 - `docs/`
-- `ops/openclaw/README.md`
-- `ops/openclaw/OPENCLAW_DEPLOYMENT_LEDGER.md`
-- `ops/openclaw/OPENCLAW_ARCHITECTURE_TODO.md`
-- `ops/openclaw/manifests/`
+- `ops/README.md`
+- `ops/projects/README.md`
+- `ops/projects/openclaw/README.md`
+- `ops/projects/openclaw/DEPLOYMENT_LEDGER.md`
+- `ops/projects/openclaw/ARCHITECTURE_TODO.md`
+- `ops/projects/openclaw/manifests/`
 
 The root repository must not track:
 
@@ -28,21 +30,24 @@ The root repository must not track:
 - `scratch/`
 - `archive/`
 - `state/`
-- `ops/openclaw/mirrors/`
-- `ops/openclaw/evidence/`
-- `ops/openclaw/logs/`
-- `ops/openclaw/quarantine/`
+- `ops/projects/openclaw/mirrors/`
+- `ops/projects/openclaw/evidence/`
+- `ops/projects/openclaw/logs/`
+- `ops/projects/openclaw/quarantine/`
+- `ops/projects/openclaw/rollback/`
 
 ## Placement Rules
 
-- New OpenClaw mainline work goes in `projects/openclaw/main/<name>/`
-- OpenClaw migration or import/export work goes in `projects/openclaw/migration/<name>/`
-- Platform projects go in `projects/platform/<name>/`
-- Non-OpenClaw projects go in `projects/non-openclaw/<name>/`
-- OpenClaw temporary outputs go in `scratch/openclaw/`
-- Non-OpenClaw temporary outputs go in `scratch/misc/`
+- Product projects go in `projects/products/<name>/`
+- Infrastructure projects go in `projects/infrastructure/<name>/`
+- Research work goes in `projects/research/<name>/`
+- Migration or import/export work goes in `projects/migrations/<name>/`
+- Project operator materials go in `ops/projects/<name>/`
+- Project-specific state goes in `state/project-data/<name>/`
+- Project temporary outputs go in `scratch/projects/<name>/`
+- Shared temporary outputs go in `scratch/shared/`
 - Local machine state, staging residue, and review residue go in `state/`
 
 ## Working Rule
 
-When asked to modify OpenClaw code, enter the main project repository directly and work there instead of treating this root as the codebase.
+When asked to modify project code, enter the relevant project repository directly and work there instead of treating this root as the codebase.
