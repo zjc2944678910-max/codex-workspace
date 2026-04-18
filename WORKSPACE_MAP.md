@@ -45,3 +45,14 @@ This file maps the old workspace root to the new `codex-workspace` layout.
 - Use `ops/projects/<project>/` for operator docs and mirrors.
 - Use `state/project-data/<project>/` for sidecar or project data that is not project source.
 - Treat the legacy root as read-only reference until the new workspace is verified.
+
+## New Project Rules
+
+- If it is an actively developed product or service, place it under `projects/products/`.
+- If it is infrastructure, deployment, or operational platform work, place it under `projects/infrastructure/`.
+- If it is research, benchmarking, or competition work, place it under `projects/research/`.
+- If it is a migration, import/export, or transition reference tree, place it under `projects/migrations/`.
+- If it is project-specific ops material, place it under `ops/projects/<project>/`.
+- If it is project-specific data or sidecar state rather than code, place it under `state/project-data/<project>/`.
+- If it is temporary project output, place it under `scratch/projects/<project>/`.
+- If it is temporary but not clearly tied to one project, place it under `scratch/shared/`.

@@ -27,4 +27,16 @@ It is designed to keep project code, operator evidence, temporary outputs, and m
 - Project data/state: `state/project-data/openclaw`
 - Operator truth and mirrors: `ops/projects/openclaw`
 
+## Placement Rules
+
+- New product codebases go in `projects/products/<name>/`
+- New infrastructure or deployment projects go in `projects/infrastructure/<name>/`
+- New research, benchmark, or competition work goes in `projects/research/<name>/`
+- New import/export or migration trees go in `projects/migrations/<name>/`
+- Project-specific operator material goes in `ops/projects/<name>/`
+- Project-specific state that is not source code goes in `state/project-data/<name>/`
+- Temporary project output goes in `scratch/projects/<name>/`
+- Shared temporary material that is not clearly project-owned goes in `scratch/shared/`
+- Cleanup records, snapshots, and retired material go in `archive/`
+
 See `WORKSPACE_MAP.md` for legacy-to-current path mapping.
