@@ -27,6 +27,12 @@ It is designed to keep project code, operator evidence, temporary outputs, and m
 - Project data/state: `state/project-data/openclaw`
 - Operator truth and mirrors: `ops/projects/openclaw`
 
+## Default Daily Root
+
+- Use `codex-workspace` as the default root for future Codex sessions.
+- Treat the old `-/` workspace as legacy reference only.
+- Return to the old root only when you need to verify migration completeness or inspect historical residue that has not been promoted into the new workspace.
+
 ## Placement Rules
 
 - New product codebases go in `projects/products/<name>/`

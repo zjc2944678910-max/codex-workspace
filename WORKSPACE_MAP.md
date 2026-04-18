@@ -46,6 +46,21 @@ This file maps the old workspace root to the new `codex-workspace` layout.
 - Use `state/project-data/<project>/` for sidecar or project data that is not project source.
 - Treat the legacy root as read-only reference until the new workspace is verified.
 
+## Legacy Root Status
+
+- Legacy root: `/Users/zhangjincheng/Documents/GitHub/-/`
+- Current role: historical reference and migration fallback surface
+- Default rule: do not start new daily work there
+- Allowed uses:
+  - compare old vs new paths
+  - recover missed documents or state references
+  - audit whether a legacy-only artifact still matters
+- Disallowed default use:
+  - new feature work
+  - new cleanup work
+  - new scratch generation
+  - new project placement
+
 ## New Project Rules
 
 - If it is an actively developed product or service, place it under `projects/products/`.
