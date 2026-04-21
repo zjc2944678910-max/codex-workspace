@@ -6973,3 +6973,325 @@ Validation:
   - session-review queue empty
   - stable-trim queue empty
   - retry-tail historical debt cleared from active operator surface
+
+2026-04-20 benben/adminAI cloud-local hard split and memory-lane repair:
+
+- target of this repair:
+  - close the remaining benben cloud/local contamination that still made cloud `/new` behave like local-lite memory and answer `不知道。`
+  - make local image turns actually route to `ollama/qwen2.5vl:7b` without silent cloud fallback
+  - keep benben and adminAI as separate services with separate state/memory policy behavior
+- live files changed in this pass:
+  - `/usr/lib/node_modules/openclaw/dist/agent-command-8TL7BESJ.js`
+  - `/usr/lib/node_modules/openclaw/dist/reply-BwK-bN2w.js`
+  - `/usr/lib/node_modules/openclaw/dist/server.impl-BxLfE9ri.js`
+  - `/var/lib/openclaw/.openclaw/workspace/tools/memory-phase1-helper.mjs`
+  - `/var/lib/openclaw/.openclaw/workspace/tools/memory-review-send.py`
+  - `/var/lib/openclaw/.openclaw/workspace/tools/session-memory-review.mjs`
+  - `/var/lib/openclaw-adminai/.openclaw/workspace/tools/memory-phase1-helper.mjs`
+  - `/var/lib/openclaw-adminai/.openclaw/workspace/tools/memory-review-send.py`
+  - `/var/lib/openclaw-adminai/.openclaw/workspace/tools/session-memory-review.mjs`
+- authoritative backups created before live writes:
+  - benben runtime/tools:
+    - `/var/backups/openclaw/20260420T023603+0800/`
+  - adminAI tools:
+    - `/var/backups/openclaw-adminai/20260420T030409+0800/`
+- confirmed root causes closed:
+  - the remaining cloud-memory break was not an empty memory base
+    - `memory/stable/self/life-planning.verified.md` was already present on live benben
+    - the real bug was lane-state contamination: after `/local`, the anchor session could keep `memoryPolicy=static_only`
+    - a later `/new` cloud session then inherited the old policy instead of recomputing `cloud_full`
+  - local image turns were not reliably reaching vision
+    - reply/agent-command now read inbound local image files and send Ollama-native `messages[].images=[base64]`
+    - local image turns skip cloud pre-session media understanding
+    - local image turns fail closed with explicit local-mode text if image read/model call fails
+  - local vision availability gating was too strict
+    - old behavior required `qwen2.5vl:7b` to already appear in `/api/ps`
+    - live host had `qwen2.5vl:7b` installed in `/api/tags` but not always preheated in `/api/ps`
+    - repaired behavior now treats `installed in /api/tags` as sufficient to attempt first-load local vision
+  - session identity metadata is now persisted as first-class routing truth
+    - `serviceId`
+    - `sessionClass`
+    - `routingLane`
+    - `memoryPolicy`
+    - `subjectKey`
+    - `sessionIdentityKey`
+- live verification completed in this pass:
+  - syntax/loader verification:
+    - `node --check` passed on all deployed runtime files
+    - `python3 -m py_compile` passed on both deployed `memory-review-send.py`
+    - `node --check` passed on both benben/adminAI memory helper scripts
+  - service verification:
+    - `openclaw-gateway.service` restarted cleanly and stayed `active`
+    - `openclaw-adminai-gateway.service` restarted cleanly and stayed `active`
+  - local model verification:
+    - `127.0.0.1:11436/api/tags` on live host confirms both:
+      - `huihui_ai/qwen3.5-abliterated:9b`
+      - `qwen2.5vl:7b`
+  - route-control verification with an isolated synthetic benben session:
+    - `/local` returned:
+      - `本地模式已开启：文字走 ollama/huihui_ai/qwen3.5-abliterated:9b，图片自动走 ollama/qwen2.5vl:7b`
+    - `/new` returned:
+      - `✅ New session started. Default model: openai-codex/gpt-5.4.`
+    - resulting live `sessions.json` rows proved hard split:
+      - local lane row:
+        - `routingLane=local`
+        - `memoryPolicy=static_only`
+        - key suffix `:__lane_local`
+      - cloud lane row:
+        - `routingLane=cloud`
+        - `memoryPolicy=cloud_full`
+        - separate `sessionIdentityKey`
+  - cross-service verification:
+    - the same synthetic probe key did not appear in adminAI session state
+    - benben/adminAI remained separated by service-specific state roots
+- known residual issue discovered during internal smoke:
+  - a direct in-process `getReplyFromConfig(...)` cloud-memory smoke from shell failed on
+    - `reply: failed to resolve secrets from the active gateway snapshot`
+  - this did not indicate memory regression in user traffic
+    - it was a local shell-invoked secret-resolution path against loopback gateway state
+    - route-control and session metadata verification still passed
+  - follow-up user-facing memory smoke should be done through the normal ingress path, not via isolated shell import
+
+2026-04-20 live outage restore after hard-split rollout:
+
+- user-visible incident:
+  - benben stopped replying entirely
+  - adminAI also stopped replying
+  - Telegram canary continued reporting `sendMessage` transport failure
+- confirmed live root cause for the no-reply outage:
+  - shared runtime entrypoint `/usr/lib/node_modules/openclaw/dist/server.impl-BxLfE9ri.js` had become `0` bytes on NAS
+  - both services entered the same restart loop:
+    - `openclaw-gateway.service`
+    - `openclaw-adminai-gateway.service`
+  - startup failure was:
+    - `TypeError: (intermediate value).startGatewayServer is not a function`
+- live repair performed:
+  - preserved the broken live file as a timestamped snapshot on NAS before replacement
+  - restored `/usr/lib/node_modules/openclaw/dist/server.impl-BxLfE9ri.js` from the tracked repaired source:
+    - `projects/products/openclaw/nas-openclaw-v22/runtime-live/server.impl-BxLfE9ri.js`
+  - restored file checksum on NAS:
+    - `a9bb87c247ea4148e9b7282cd92d18e33e450cadf3e3d300dc661ec48f0c8fd3`
+  - reset failed state and restarted:
+    - `openclaw-gateway.service`
+    - `openclaw-adminai-gateway.service`
+- post-repair live verification:
+  - both services stayed `active (running)`
+  - ports came back:
+    - benben `127.0.0.1:18789`
+    - adminAI `127.0.0.1:18889`
+  - both health endpoints returned live status:
+    - `curl http://127.0.0.1:18789/health` => `{"ok":true,"status":"live"}`
+    - `curl http://127.0.0.1:18889/health` => `{"ok":true,"status":"live"}`
+  - benben cloud agent execution was re-smoked through the repaired gateway path:
+    - `openclaw-cli-wrapper.sh agent --session-id 17f13260-d10a-4974-b496-22b73d27c616 --message "只回复OK" --json`
+    - returned `OK`
+  - this confirmed the current benben no-reply symptom was caused by the gateway crash loop, not by the cloud/local memory-lane repair itself
+- Telegram status after gateway restore:
+  - Telegram still failed from the live benben send path:
+    - `openclaw-cli-wrapper.sh tool channel-delivery-canary --channel telegram --force --json`
+    - `openclaw-cli-wrapper.sh message send --channel telegram --target 8421829242 ...`
+    - both still returned `HttpError: Network request for 'sendMessage' failed!`
+  - current transport truth is narrower than the earlier full-outage diagnosis:
+    - direct raw SOCKS5 with credentials to the upstream proxy still works for Telegram `getMe`
+    - local HTTP proxy layers do not:
+      - existing service bridge on `127.0.0.1:18988`
+      - a temporary clean `xray` HTTP inbound on `127.0.0.1:18989`
+    - observed failure at the HTTP-proxy layer is:
+      - `OpenSSL SSL_connect: SSL_ERROR_SYSCALL`
+    - Node-side Telegram fetch over proxy also still fails
+- operational truth after this repair:
+  - benben/adminAI reply outage is closed
+  - Telegram remains a separate live transport incident
+  - the remaining Telegram blocker is not the lane-split memory policy work; it is the current HTTP-proxy-over-SOCKS transport path used by the Telegram send/runtime flow
+
+2026-04-20 Feishu real-session collision repair:
+
+- user-visible residual bug after gateway restore:
+  - benben could answer a synthetic cloud probe, but the real Feishu owner chat still replied `不知道。` after `/new`
+- confirmed live root cause:
+  - the current live owner chat had not been landing in a dedicated Feishu DM session
+  - instead, direct traffic was still using the default direct-message main scope:
+    - `session.dmScope` was effectively defaulting to `main`
+  - heartbeat runs were also still using the main session key by default
+  - as a result, the generic main row was being overwritten by heartbeat traffic:
+    - `sessionKey=agent:main:main`
+    - `origin.provider=heartbeat`
+    - `subjectKey=heartbeat:direct:user:ou_618ab2d13189630519294960ad40b5c0`
+  - the corresponding transcript file proved this row was heartbeat-only, not a user DM transcript:
+    - `bb5f8687-3238-4e14-a0ef-f603bc2762d8.jsonl`
+    - contained `Read HEARTBEAT.md ... reply HEARTBEAT_OK`
+- live repair applied:
+  - enabled isolated heartbeat sessions in both live configs:
+    - `/var/lib/openclaw/.openclaw/openclaw.json`
+    - `/var/lib/openclaw-adminai/.openclaw/openclaw.json`
+    - `agents.defaults.heartbeat.isolatedSession=true`
+  - enabled direct-message peer scoping in both live configs:
+    - `session.dmScope=per-account-channel-peer`
+  - quarantined the polluted benben main row because it was confirmed heartbeat-only:
+    - removed `agent:main:main` from benben `sessions.json`
+    - copied the row + transcript into:
+      - `/var/lib/openclaw/.openclaw/agents/main/sessions-quarantine/`
+    - removed the active transcript file for that quarantined heartbeat-only main row:
+      - `bb5f8687-3238-4e14-a0ef-f603bc2762d8.jsonl`
+  - restarted:
+    - `openclaw-gateway.service`
+    - `openclaw-adminai-gateway.service`
+- post-repair live state:
+  - both gateways returned to `active (running)`
+  - both health endpoints returned `{"ok":true,"status":"live"}`
+  - benben main row is now absent again until a real user DM recreates it under the new scope:
+    - `agent:main:main` => missing
+  - direct-message routing config now persists as:
+    - benben `/var/lib/openclaw/.openclaw/openclaw.json` => `{"dmScope":"per-account-channel-peer"}`
+    - adminAI `/var/lib/openclaw-adminai/.openclaw/openclaw.json` => `{"dmScope":"per-account-channel-peer"}`
+- current judgment:
+  - the `不知道。` bug on the real Feishu owner chat was not just a retrieval miss
+  - it was caused by session-key collision between real DM traffic and heartbeat traffic on the generic main session lane
+  - the live route is now configured to split direct chats by account/channel/peer and to keep heartbeat isolated from the user lane
+
+2026-04-20 benben user-visible memory citation suppression:
+
+- user-visible request:
+  - benben memory replies should keep working, but must not append visible `Source: ...` lines into the chat bubble
+- confirmed live behavior before repair:
+  - direct-memory answers were exposing paths such as:
+    - `Source: memory_v2/facts/stable/owner.yaml#L111`
+  - this came from the memory citations pipeline, not from the Feishu client
+- minimal live repair applied:
+  - updated benben live config:
+    - `/var/lib/openclaw/.openclaw/openclaw.json`
+    - `memory.citations = "off"`
+  - authoritative backup created before edit:
+    - `/var/lib/openclaw/.openclaw/openclaw.json.bak-memory-citations-off-*`
+  - restarted:
+    - `openclaw-gateway.service`
+- live verification:
+  - benben health returned `{"ok":true,"status":"live"}`
+  - benben cloud agent smoke:
+    - `openclaw-cli-wrapper.sh agent --session-id 17f13260-d10a-4974-b496-22b73d27c616 --message "你记得我要考什么试吗" --json`
+    - reply still recalled the exam facts
+    - reply no longer included any visible `Source:` footer
+- architectural truth:
+  - retrieval remains enabled
+  - only user-visible citation decoration was disabled for benben via config
+
+2026-04-20 Telegram bridge recovery:
+
+- residual incident:
+  - Telegram canary and Telegram plugin sends were still intermittently failing with:
+    - `HttpError: Network request for 'sendMessage' failed!`
+  - direct Feishu/cloud behavior was already healthy at this point
+- confirmed live root cause:
+  - the long-running local bridge process behind:
+    - `openclaw-socks-bridge.service`
+    - `127.0.0.1:18988`
+    had drifted into a bad state
+  - evidence:
+    - raw SOCKS5 through the upstream proxy still worked for Telegram:
+      - `curl --proxy socks5h://<user>:<pass>@45.56.183.242:8564 https://api.telegram.org/bot.../getMe`
+    - the same request through the stale local bridge failed before recovery
+    - launching the exact same bridge script manually on an alternate port restored successful Telegram `getMe`
+  - this proved the upstream SOCKS5 service and bot token were still valid; the stale bridge process was the broken layer
+- live repair applied:
+  - restarted:
+    - `openclaw-socks-bridge.service`
+  - then restarted gateways so Telegram provider startup reused the recovered bridge:
+    - `openclaw-gateway.service`
+    - `openclaw-adminai-gateway.service`
+- post-repair live verification:
+  - bridge service returned to:
+    - `listening on 127.0.0.1:18988 via socks://45.56.183.242:8564`
+  - raw bridge checks succeeded again:
+    - `curl -x http://127.0.0.1:18988 https://api.telegram.org/bot.../getMe`
+    - `curl -x http://127.0.0.1:18988 -X POST https://api.telegram.org/bot.../sendMessage ...`
+  - direct Telegram send via benben wrapper succeeded:
+    - `openclaw-cli-wrapper.sh message send --channel telegram --target 8421829242 ... --json`
+    - payload returned `ok=true`
+  - forced Telegram canary succeeded again:
+    - `openclaw-cli-wrapper.sh tool channel-delivery-canary --channel telegram --force --json`
+    - returned:
+      - `ok=true`
+      - `status=healthy`
+      - `telegram.status=sent`
+- operational truth:
+  - Telegram transport recovery did not require code changes
+  - the broken component was the stale live bridge process, not the SOCKS5 upstream credentials and not the Telegram bot token
+
+2026-04-21 adminAI heartbeat / canary / wrapper repair:
+
+- live baselines captured before repair:
+  - adminAI rollback bundle:
+    - `/var/backups/openclaw-adminai/20260420T185013+0800/`
+  - shared runtime rollback bundle:
+    - `/var/backups/openclaw-shared/20260420T185013+0800/`
+  - confirmed live breakage before repair:
+    - adminAI `openclaw-adminai-healthcheck.service` failed on missing `mempalace-sidecar.mjs`
+    - after restoring that file, the next blocker was missing `memory-noise-filter.mjs`
+    - adminAI had no dedicated `openclaw-adminai-channel-canary.service` / `.timer`
+    - adminAI `channel-delivery-canary-state.json` was stale on `2026-04-12`
+    - adminAI `sessions.json` still contained heartbeat-only pollution:
+      - `agent:main:main`
+      - `agent:main:main:heartbeat`
+      - `agent:main:main:heartbeat:heartbeat`
+      - deeper repeated `:heartbeat` variants
+- live repair applied:
+  - synced the missing adminAI workspace tool closure required by healthcheck / session review:
+    - `mempalace-sidecar.mjs`
+    - `memory-noise-filter.mjs`
+    - refreshed `channel-delivery-canary.mjs`, `deployment-verify.mjs`, `memory-health-summary.mjs`, `rollout-instance-config.sh`, `workspace-source-manifest.mjs`
+  - installed and enabled adminAI dedicated channel canary systemd units:
+    - `/etc/systemd/system/openclaw-adminai-channel-canary.service`
+    - `/etc/systemd/system/openclaw-adminai-channel-canary.timer`
+  - updated shared runtime dist:
+    - `/usr/lib/node_modules/openclaw/dist/server.impl-BxLfE9ri.js`
+    - `/usr/lib/node_modules/openclaw/dist/session-key-BMb3Kc4r.js`
+    - `/usr/lib/node_modules/openclaw/dist/heartbeat-runner-B1G6t3fn.js`
+  - repaired operator launcher behavior:
+    - `/usr/local/bin/openclaw`
+    - `/usr/local/sbin/openclaw`
+    - wrapper now keeps normal Telegram send on the native path when it succeeds and falls back to validated raw `curl + 127.0.0.1:18988` only when the known OpenClaw Telegram send failure appears
+  - quarantined and removed confirmed heartbeat-only polluted session rows:
+    - adminAI:
+      - `/var/lib/openclaw-adminai/.openclaw/agents/main/sessions-quarantine/20260420T185013+0800/`
+    - benben:
+      - `/var/lib/openclaw/.openclaw/agents/main/sessions-quarantine/20260420T185013+0800-benben-cleanup/`
+  - cleaned stale benben canary residue:
+    - removed historical `qqbot_c2c` row from `/var/lib/openclaw/.openclaw/workspace/memory-admin/meta/channel-delivery-canary-state.json`
+- post-repair live verification:
+  - health:
+    - `openclaw-healthcheck.service => Result=success ExecMainStatus=0`
+    - `openclaw-adminai-healthcheck.service => Result=success ExecMainStatus=0`
+    - both `memory/heartbeat-state.json` files refreshed on `2026-04-21`
+  - gateway:
+    - `127.0.0.1:18789/health => {"ok":true,"status":"live"}`
+    - `127.0.0.1:18889/health => {"ok":true,"status":"live"}`
+  - route semantics:
+    - benben `/new` and adminAI `/new` both returned synthetic cloud reset replies with `provider=openai-codex`, `model=gpt-5.4`, `durationMs=0`
+    - benben `/lite` and adminAI `/lite` both entered local lane and follow-up turns reported `provider=ollama`, `model=huihui_ai/qwen3.5-abliterated:9b`, `routingMode=local_direct`
+    - benben `/main` and adminAI `/main` both returned to `openai-codex/gpt-5.4`
+  - current heartbeat/session truth:
+    - adminAI recent sessions now show isolated heartbeat keys such as:
+      - `agent:main:heartbeat:none:direct:system`
+      - `agent:main:heartbeat:none:direct:heartbeat`
+    - benben recent sessions now show isolated heartbeat keys such as:
+      - `agent:main:heartbeat:none:direct:system`
+    - active `agent:main:main(:heartbeat)+` pollution is now absent from both live stores
+  - channel delivery:
+    - benben Telegram send via `/usr/local/bin/openclaw message send --channel telegram ... --json` succeeded
+    - adminAI Telegram send via `/usr/local/bin/openclaw-adminai message send --channel telegram ... --json` succeeded
+    - benben forced channel canary returned `ok=true`, `status=healthy`
+    - adminAI forced channel canary returned `ok=true`, `status=healthy`
+    - adminAI canary state now reflects current targets:
+      - Telegram bot `8750784570`
+      - Feishu target `ou_e8e8a1bdbcce86cac7ea579bdd754aa3`
+    - benben canary state now reflects only active required channels:
+      - `telegram`
+      - `feishu`
+- operational truth after repair:
+  - the 2026-04-20 heartbeat isolation config alone was not sufficient because shared runtime/session-key generation still appended `:heartbeat` recursively in live dist
+  - the real heartbeat pollution source was the isolated heartbeat key construction path in shared runtime, not only the session identity metadata patch in `server.impl`
+  - Telegram transport itself was healthy enough through:
+    - raw `curl -x http://127.0.0.1:18988 .../getMe`
+    - raw `curl -x http://127.0.0.1:18988 .../sendMessage`
+    - a minimal Node `fetch(...)` probe under service env
+  - the remaining Telegram outage after bridge recovery was in the generic OpenClaw operator send path, so the wrapper fallback was added as a live-safe mitigation and also backported to source

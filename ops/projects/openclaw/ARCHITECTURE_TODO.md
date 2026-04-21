@@ -5029,3 +5029,157 @@ Current architecture state after this correction:
   - the session-review pending/debt path should prefer real external channel/origin context (`deliveryContext`, `lastChannel`, `origin.surface/provider`, concrete `agent:main:feishu:*` / `agent:main:telegram:*`) over broad `agent:main:*` pattern matching
   - if `stable-trim` resurfaces later on compat files, first check for ownership drift or freshly created manual backup files inside active `memory/stable/compat/`; the 2026-04-18 cleanup proved that a root-owned compat file and a temporary `.bak-codex-trimfix-*` rollback copy can both create false follow-up trim recommendations without indicating a live memory bug
   - retry-tail debt is now closed again (`historical_tail_count=0`); if it reappears later, treat it as a fresh audit signal and confirm whether it is truly active retry backlog or just another low-signal historical sample before retiring it
+
+2026-04-20 cloud/local hard split truth:
+
+The remaining benben `不知道。` regression was not caused by an empty memory base. It was caused by lane-policy contamination after `/local`.
+
+- architecture truth now locked:
+  - benben and adminAI remain separate services
+    - shared package runtime under `/usr/lib/node_modules/openclaw/dist`
+    - separate service env, service user, HOME, session store, transcript tree, and workspace tools
+  - user-session identity must be derived from:
+    - `serviceId`
+    - `sessionClass`
+    - `routingLane`
+    - `channel`
+    - `subjectKey`
+  - `sessionIdentityKey` is the persisted dedupe/quarantine truth for lane reuse decisions
+  - local lane and cloud lane are separate user lanes, not a model toggle inside one session
+    - benben cloud user lane => `memoryPolicy=cloud_full`
+    - benben local user lane => `memoryPolicy=static_only`
+    - adminAI cloud/local user lanes => `memoryPolicy=static_only`
+    - heartbeat / cron => `memoryPolicy=none`
+- critical pitfall now documented:
+  - do not inherit `memoryPolicy` from an old session entry when routing lane changes
+  - recompute `memoryPolicy` from `serviceId + sessionClass + routingLane`
+  - otherwise `/local` can poison the anchor row with `static_only`, and a later `/new` cloud session will look memory-empty even though cloud memory exists
+- local vision truth now locked:
+  - local image requests must bypass cloud pre-session media understanding
+  - inbound local image files must be read and sent to Ollama as native base64 `messages[].images`
+  - no silent cloud fallback for local image requests
+  - local vision availability must not require the model to already be hot in `/api/ps`
+  - if `qwen2.5vl:7b` exists in `/api/tags`, the runtime should attempt the first-load local vision request
+- verified live metadata shape from an isolated benben probe after repair:
+  - local lane row:
+    - key suffix `:__lane_local`
+    - `routingLane=local`
+    - `memoryPolicy=static_only`
+    - `sessionIdentityKey=benben:user:local:...`
+  - cloud lane row:
+    - canonical key without local suffix
+    - `routingLane=cloud`
+    - `memoryPolicy=cloud_full`
+    - `sessionIdentityKey=benben:user:cloud:...`
+- regression checks that must remain mandatory after any future runtime upgrade:
+  - isolated `/local -> /new` probe must produce:
+    - local row `memoryPolicy=static_only`
+    - cloud row `memoryPolicy=cloud_full`
+  - local image request when `qwen2.5vl:7b` is installed but not yet hot must still attempt local vision rather than fail at the preheat gate
+  - benben probe session key must never appear in adminAI `sessions.json`
+  - adminAI memory helper copies under `/var/lib/openclaw-adminai/.openclaw/workspace/tools/` must stay aligned with the shared runtime’s memory-policy contract
+
+2026-04-20 live transport truth after outage restore:
+
+- shared runtime file integrity is now an explicit production dependency:
+  - if `/usr/lib/node_modules/openclaw/dist/server.impl-BxLfE9ri.js` is truncated or replaced with an empty file, both benben and adminAI die together because they share the same package runtime
+  - the failure signature is:
+    - `TypeError: (intermediate value).startGatewayServer is not a function`
+  - first checks for any future "suddenly no reply anywhere" incident:
+    - `stat /usr/lib/node_modules/openclaw/dist/server.impl-BxLfE9ri.js`
+    - `systemctl status openclaw-gateway.service`
+    - `systemctl status openclaw-adminai-gateway.service`
+    - `curl 127.0.0.1:18789/health`
+    - `curl 127.0.0.1:18889/health`
+- current confirmed separation of concerns:
+  - benben/adminAI no-reply outage was caused by the shared `server.impl` corruption and is now closed after restore
+  - Telegram failure persisted after gateway restore, so it is a separate transport-layer incident
+- Telegram transport truth currently locked:
+  - upstream SOCKS5 endpoint credentials are still valid enough to answer a direct raw SOCKS5 `getMe` probe
+  - the failure is in the HTTP-proxy-over-SOCKS path used by the current NAS runtime:
+    - live bridge on `127.0.0.1:18988` fails Telegram TLS with `SSL_ERROR_SYSCALL`
+    - a temporary clean `xray` HTTP inbound on `127.0.0.1:18989` reproduced the same failure
+  - therefore the remaining blocker is not limited to the custom Python bridge implementation; it affects the current HTTP-proxy strategy itself
+- practical implication:
+  - benben cloud agent execution is healthy again
+  - Telegram channel recovery likely requires one of:
+    - a direct SOCKS-aware runtime path for Node/OpenClaw
+    - a different local proxy layer that can carry Telegram TLS successfully
+    - or a temporary Telegram-specific transport shim outside the current HTTP bridge design
+
+2026-04-20 direct-message scope truth:
+
+- the cloud/local lane repair is not sufficient if direct-message routing still collapses to `main`
+- current live lesson:
+  - if `session.dmScope` is left at its effective default `main`, a real external DM can still land in `agent:main:main`
+  - if heartbeat also targets the same chat and is not isolated, heartbeat can overwrite the generic main row with:
+    - `origin.provider=heartbeat`
+    - `subjectKey=heartbeat:direct:user:<chat-id>`
+  - this can make real user memory turns look like retrieval failures even when cloud memory is present
+- live baseline now required for benben/adminAI:
+  - `agents.defaults.heartbeat.isolatedSession=true`
+  - `session.dmScope=per-account-channel-peer`
+- operational rule now locked:
+  - system heartbeat delivery may reuse user-facing targets for outbound delivery
+  - but heartbeat transcripts and session rows must never reuse the user's direct-message session key
+  - generic `agent:main:main` heartbeat contamination should be treated as a routing bug, not as normal session reuse
+
+2026-04-20 benben memory-citation UX rule:
+
+- benben user-facing couple-memory replies should not expose raw storage provenance such as `Source: memory_v2/facts/...`
+- current live baseline for benben:
+  - `memory.citations = "off"`
+- this disables user-visible citation decoration while preserving retrieval itself
+
+2026-04-20 Telegram bridge truth:
+
+- when Telegram fails while raw SOCKS5 still works, first suspect the long-running local bridge process before changing upstream proxy credentials
+- first recovery sequence for this class of incident:
+  - restart `openclaw-socks-bridge.service`
+  - re-test:
+    - `curl -x http://127.0.0.1:18988 https://api.telegram.org/bot.../getMe`
+    - Telegram `message send`
+    - forced `channel-delivery-canary`
+  - only if those still fail should the investigation escalate to proxy/provider/runtime code
+
+2026-04-21 heartbeat/session/canary hardening truth:
+
+- shared runtime heartbeat isolation required two layers, not one:
+  - config layer:
+    - `agents.defaults.heartbeat.isolatedSession=true`
+    - `session.dmScope=per-account-channel-peer`
+  - runtime key-construction layer:
+    - isolated heartbeat sessions must not be created by naive string append `sessionKey + ":heartbeat"`
+    - the wake path must first strip any prior heartbeat suffix and then build a stable heartbeat-specific key from agent + lane + delivery target
+- current live architecture truth after repair:
+  - benben/adminAI recent heartbeat rows now live under isolated heartbeat-prefixed keys rather than `agent:main:main(:heartbeat)+`
+  - `agent:main:main(:heartbeat)+` rows are now treated as legacy pollution and quarantined when confirmed `origin.provider=heartbeat`
+  - adminAI and benben each keep separate quarantine trees for these rows
+- adminAI canary truth now locked:
+  - adminAI must own its own systemd canary surface:
+    - `openclaw-adminai-channel-canary.service`
+    - `openclaw-adminai-channel-canary.timer`
+  - reusing only benben's canary timer leaves adminAI state stale even when adminAI live routing has changed
+- current canary/channel semantics now locked:
+  - default `channel-delivery-canary --channel all` should only cover the active required channels:
+    - `telegram`
+    - `feishu`
+  - disabled QQBot should remain available as prepared tooling, but must not be part of default canary health judgment or default requested-channel summaries
+  - explicit `--channel qqbot` remains valid when operator intentionally wants to test QQ tooling
+- operator launcher transport truth now locked:
+  - raw Telegram transport through the local bridge can be healthy while the generic OpenClaw operator send path still fails
+  - the practical mitigation is:
+    - keep the normal Telegram send path first
+    - if and only if the known OpenClaw Telegram send failure is detected, fall back to a validated raw `curl + 127.0.0.1:18988` send path
+  - this fallback is an operator-surface mitigation, not a model/runtime routing change
+- adminAI healthcheck dependency truth:
+  - the `openclaw-adminai-healthcheck.service` path is sensitive to missing workspace tool closure, not just one script
+  - if adminAI healthcheck starts failing on import errors again, check this closure as a unit:
+    - `memory-phase1-helper.mjs`
+    - `mempalace-sidecar.mjs`
+    - `session-memory-review.mjs`
+    - `memory-noise-filter.mjs`
+    - `memory-v2-helper.mjs`
+    - `safe-file-write.mjs`
+    - `memory-governance-helper.mjs`
+  - partial hot-sync of only one helper can leave the service red even when the first missing import has been restored
