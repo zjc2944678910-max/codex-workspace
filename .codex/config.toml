@@ -1,0 +1,37 @@
+#:schema https://developers.openai.com/codex/config-schema.json
+
+model = "gpt-5.4"
+review_model = "gpt-5.4"
+model_reasoning_effort = "xhigh"
+
+developer_instructions = """
+Use the project workflow by default: explore -> review -> implement -> verify.
+Treat an ordinary task request as authorization to analyze, route subagents, execute, and verify end-to-end.
+Do not wait for the user to specify how to split the work unless the ambiguity is material and risky.
+Treat every new user turn as a fresh routing checkpoint.
+Re-evaluate whether subagents would help on every turn, including follow-ups in the same thread.
+Do not anchor to the previous turn's routing decision if the task becomes broader, deeper, or enters a new stage.
+Messages like "continue", "继续", "再看看", or scope expansions still require a new routing judgment.
+Codex must choose and invoke the needed subagents on its own. Do not wait for the user to name an agent.
+Only skip subagents for tiny, isolated, low-risk tasks where routing would add no value.
+For anything beyond a tiny isolated task, start with repo_mapper.
+If routing is unclear, prefer repo_mapper first instead of asking the user which agent to use.
+For complex, long, or multi-threaded tasks, Codex may create temporary fit-for-purpose subagents beyond the standard set.
+Prefer the standard agents first. Create a temporary specialist only when the current agents do not fit cleanly.
+Each temporary specialist must have one explicit role, a narrow scope, and a clear stop condition.
+Do not create overlapping write-capable specialists. Keep one write owner at a time.
+Use temporary read-only specialists for parallel analysis when it reduces uncertainty materially.
+Before editing, ask review_guard for correctness, regression, edge-case, security, and test risk review.
+When framework, library, API, or version semantics are unclear, ask docs_checker.
+Prefer surgical_fixer for bug fixes and scoped changes.
+Use refactor_worker only after explicit refactor approval.
+After changes, hand off to verifier for reproduction or tests.
+When a task naturally spans analysis, review, implementation, and verification, run those stages proactively.
+Keep concurrency conservative. Use at most one write-capable agent at a time. Parallelize only independent read-only work.
+Default to the smallest change that solves confirmed facts.
+"""
+
+[agents]
+max_threads = 4
+max_depth = 1
+job_max_runtime_seconds = 1800

@@ -8,12 +8,15 @@ This root is a workspace-index, not a primary product repository.
 - OpenClaw migration reference: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/migrations/openclaw-mac-migration`
 - OpenClaw sidecar state: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/state/project-data/openclaw`
 - OpenClaw operator docs and mirrors: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/ops/projects/openclaw`
+- Current live OpenClaw SSH alias for audits/repairs: `oc-nas`
 
 ## Root Responsibilities
 
 The root repository should only track:
 
 - `AGENTS.md`
+- `.codex/config.toml`
+- `.codex/agents/`
 - `README.md`
 - `WORKSPACE_MAP.md`
 - `docs/`
@@ -51,3 +54,61 @@ The root repository must not track:
 ## Working Rule
 
 When asked to modify project code, enter the relevant project repository directly and work there instead of treating this root as the codebase.
+
+## Codex Subagent Workflow
+
+- Default workflow: `探索 -> 审查 -> 实施 -> 验证`
+- Treat an ordinary task request as permission for Codex to analyze, split, execute, and verify on its own.
+- Do not wait for the user to describe the agent split unless the ambiguity is material and risky.
+- Treat every new user turn as a fresh routing checkpoint.
+- Re-evaluate whether subagents would help on every turn, including follow-ups in the same thread.
+- Do not anchor to the previous turn's routing decision if the task becomes broader, deeper, or enters a new stage.
+- Messages like `continue`、`继续`、`再看看` or scope expansions still require a new routing judgment.
+- Codex should choose and invoke the needed subagents proactively. The user does not need to name agents.
+- Only skip subagents for tiny, isolated, low-risk tasks.
+- Non-trivial tasks should start with `repo_mapper`.
+- If the route is unclear, default to `repo_mapper` first instead of asking the user which agent to use.
+- For complex, long, or multi-threaded tasks, Codex may create temporary fit-for-purpose subagents beyond the standard set.
+- Prefer the standard agents first. Create temporary specialists only when the standard roles do not fit cleanly.
+- Every temporary specialist must have one explicit role, a narrow scope, and a clear stop condition.
+- Do not let temporary write-capable specialists overlap on the same files or responsibility.
+- Temporary read-only specialists may run in parallel when they reduce uncertainty materially.
+- Before any code change, run `review_guard`.
+- If framework, library, API, or version semantics are unclear, run `docs_checker` first.
+- Default to `surgical_fixer` and the smallest defensible change.
+- Use `refactor_worker` only with explicit refactor approval. Preserve behavior unless the task says otherwise.
+- After changes, use `verifier` to reproduce or run the smallest useful tests.
+- Keep concurrency conservative: at most one write-capable agent at a time. Parallelize only independent read-only work.
+- Separate confirmed facts, hypotheses, and recommendations.
+
+## Agent Boundaries
+
+- `repo_mapper`: read-only mapping of entry points, execution chain, impact surface, related files, and nearby tests. No code changes.
+- `review_guard`: read-only review of correctness, regressions, edge cases, security, and missing tests. No implementation.
+- `docs_checker`: read-only verification of framework, library, API, and version semantics. No code changes.
+- `surgical_fixer`: minimal fix only. Avoid refactors and unrelated cleanup.
+- `refactor_worker`: bounded structural refactor only when approved. Preserve behavior by default.
+- `verifier`: reproduction and validation only. Do not lead fix design.
+
+## Temporary Specialists
+
+- Use a temporary specialist only for a clearly bounded gap that the standard agents do not cover well.
+- Good examples: log triage, schema tracing, build break isolation, migration diff review, test gap mapping.
+- A temporary specialist should usually be read-only unless one bounded write task clearly benefits from isolation.
+- A temporary specialist must not silently expand into broad refactoring or cross-cutting edits.
+
+## Default Invocation
+
+- Short default phrase: `按项目默认协作流自行分析、拆解、执行和验证。`
+- Equivalent short phrase: `你自己分析并选择合适子 agent 处理。`
+- Equivalent short phrase: `按默认工作流处理，必要时自行创建临时 specialist。`
+
+## Final Output Format
+
+Use this fixed order:
+
+- `已确认事实`
+- `修改内容`
+- `验证结果`
+- `剩余风险`
+- `下一步建议`
