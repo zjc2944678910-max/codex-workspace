@@ -25,6 +25,14 @@ const TRACKABLE_PREFIXES = [
   "ops/projects/openclaw/manifests/",
 ];
 
+const THEME_PRIORITY = new Map([
+  ["workspace", 0],
+  ["codex-config", 1],
+  ["docs", 2],
+  ["ops", 3],
+  ["hygiene", 4],
+]);
+
 function parseArgs(argv = []) {
   const options = {
     repo: "",
@@ -178,7 +186,21 @@ function summarizeCheckpointScope(summary = {}) {
     ...(summary.untrackedSource || []),
     ...(summary.otherTracked || []),
   ];
-  const labels = [...new Set(pendingPaths.map((entry) => summarizePathForCheckpoint(entry)).filter(Boolean))];
+  const counts = new Map();
+  for (const entry of pendingPaths) {
+    const label = summarizePathForCheckpoint(entry);
+    if (!label) continue;
+    counts.set(label, (counts.get(label) || 0) + 1);
+  }
+  const labels = [...counts.entries()]
+    .sort((left, right) => {
+      if (right[1] !== left[1]) return right[1] - left[1];
+      const leftPriority = THEME_PRIORITY.get(left[0]) ?? 99;
+      const rightPriority = THEME_PRIORITY.get(right[0]) ?? 99;
+      if (leftPriority !== rightPriority) return leftPriority - rightPriority;
+      return left[0].localeCompare(right[0]);
+    })
+    .map(([label]) => label);
   if (labels.length === 0) return "";
   if (labels.length <= 2) return labels.join(", ");
   return `${labels.slice(0, 2).join(", ")} +${labels.length - 2}`;
