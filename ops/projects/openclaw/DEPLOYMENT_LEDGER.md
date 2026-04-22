@@ -1,6 +1,6 @@
 # OpenClaw Deployment Ledger
 
-Last updated: 2026-04-16
+Last updated: 2026-04-22
 Maintainer context: this file is the canonical runtime and deployment ledger for the production OpenClaw instance on `home-nas`.
 Companion architecture board: `OPENCLAW_ARCHITECTURE_TODO.md`
 
@@ -34,6 +34,31 @@ Use this contract as a hard operating rule:
 - architecture status and next steps belong in `OPENCLAW_ARCHITECTURE_TODO.md`
 - if a task changes both operational facts and architecture state, update both files
 - if docs are not updated, the task is incomplete even if code already works
+
+## Current Truth Snapshot
+
+- host: `home-nas`
+- instances:
+  - benben: `openclaw-gateway.service`
+  - adminAI: `openclaw-adminai-gateway.service`
+- runtime package: `2026.4.9`
+- main default lane on both instances: `anyone/gpt-5.4`
+- explicit cloud routes:
+  - bare `/codex` -> `openai-codex/gpt-5.4`
+  - bare `/anyone` -> `anyone/gpt-5.4`
+  - bare `/main`, `/new`, `/reset` -> `anyone/gpt-5.4`
+- main-session fallbacks:
+  - `deepseek/deepseek-chat`
+  - `mimo/mimo-v2-flash`
+  - `openrouter/xiaomi/mimo-v2-pro`
+- local-direct lane:
+  - bare `/lite` / `/local` enable `routingModeOverride="local_direct"`
+  - request-scoped local failures fail-soft to `anyone/gpt-5.4`
+  - session-scoped local failures fail-closed with a visible local-unavailable reply
+- status truth:
+  - ordinary fresh cloud turns now run `anyone/gpt-5.4` on both benben/adminAI
+  - bare `/codex` still switches to `openai-codex/gpt-5.4`
+  - fresh Anyone-default `/status` now reports `anyone/gpt-5.4` on both benben/adminAI
 
 ## Production Topology
 
@@ -130,8 +155,27 @@ Those `cc`-side copies were identified as stale local/runtime copies and were cl
 ## Current Model / Runtime Notes
 
 - Observed package version: `2026.4.9`
-- Main configured default model on benben/adminAI: `openai-codex/gpt-5.4`
-- Main configured main-session fallbacks on benben/adminAI: `[]`
+- Main configured default model on benben/adminAI: `anyone/gpt-5.4`
+- Benben memory-review/session-review/Class-B default provider on 2026-04-22:
+  - `/etc/openclaw/gateway.env` now sets `OPENCLAW_MEMORY_LLM_PROVIDER=anyone`
+  - `OPENCLAW_SESSION_MEMORY_REVIEW_MODEL=anyone/gpt-5.4`
+  - `OPENCLAW_MEMORY_LIGHT_MODEL=anyone/gpt-5.4`
+  - `OPENCLAW_MEMORY_DEEP_MODEL=anyone/gpt-5.4`
+- Benben transcript/session-journal repair on 2026-04-22:
+  - live transcript update paths now refresh `memory-admin/session-journal/*` again
+  - live `memory-admin/trace/2026-04-21.jsonl` now records new `session_journal` events
+  - `memory-admin/meta/session-journal-latest.json` now refreshes again for `agent:main:main`
+- Benben gateway transport-noise follow-up on 2026-04-22:
+  - symptom narrowed to repeated pre-auth websocket closes with `reason=gateway tls fingerprint mismatch`, `remote=127.0.0.1`, `host=node.nodezjc12348888.xyz`, `ua=n/a`
+  - live benben config still remains `gateway.mode=local` with no `gateway.remote.url`; live plugin allowlist still does not enable `device-pair`
+  - live `server.impl` now keeps the first matching close at `WARN`, but rate-limits repeated matches for the same host/reason to `DEBUG` for 5 minutes
+  - the suppress predicate is intentionally narrow: no authenticated client, `handshake=pending`, no close-cause, no frame seen, loopback remote, empty `Origin`, empty proxy headers, empty `User-Agent`, and a non-loopback `Host`
+  - this pass does not change benben handshake/auth behavior, adminAI `ops-only`, bare `/codex`, `/status`, `Anyone` defaults, or the repaired memory/session-journal paths
+- adminAI remains `ops-only`; its conversational cloud default is `anyone/gpt-5.4`, but personal/couple memory retrieval stays disabled
+- Main configured main-session fallbacks on benben/adminAI:
+  - `deepseek/deepseek-chat`
+  - `mimo/mimo-v2-flash`
+  - `openrouter/xiaomi/mimo-v2-pro`
 - Main configured timeout/LLM idle timeout on benben/adminAI: `180s` / `180s`
 - Lightweight local lane plugin on benben/adminAI: `local-lite-lane` for request-scoped local turns; session-scoped `local_direct` ordinary turns now bypass the plugin and use the dedicated raw local-direct runtime path
 - Lightweight local lane model: `ollama/huihui_ai/qwen3.5-abliterated:9b`
@@ -139,10 +183,14 @@ Those `cc`-side copies were identified as stale local/runtime copies and were cl
 - Lightweight local lane plugin base URL: `http://127.0.0.1:11436`
 - Lightweight local lane force prefixes: `/local`, `/lite`, `本地`, `日常`
 - Lightweight local lane cloud-force prefixes: `/main`, `/codex`, `复杂`
+- Main cloud route semantics on benben/adminAI:
+  - bare `/main`, bare `/new`, and bare `/reset` return to `anyone/gpt-5.4`
+  - bare `/codex` explicitly switches to legacy `openai-codex/gpt-5.4`
+  - bare `/anyone` explicitly switches to `anyone/gpt-5.4`
 - Mac Qwen 9B local payload guardrail parity: request-scoped `local-lite-lane`, reply-runtime `local_direct`, and gateway agent RPC `local_direct` all explicitly send top-level `think:false`, top-level `keep_alive=24h`, and `options.num_ctx=32768`
 - Lightweight local lane payload mode: near-raw pass-through user chat to Mac Qwen 9B; no local summary injection, no temperature override, and no `numPredict` clamp. The only extra note now allowed is a tiny trusted-facts system message derived from `workspace/local-lite/profile.json`
-- Lightweight local lane success requires non-empty `message.content`; thinking-only or empty-content replies fall through to `openai-codex/gpt-5.4` only for request-scoped turns, while session-scoped `local_direct` turns fail closed with a visible local-unavailable reply
-- Bare `/lite` and bare `/local` now persist `routingModeOverride="local_direct"` instead of `providerOverride/modelOverride`; bare `/main`, bare `/codex`, bare `/new`, and bare `/reset` clear that marker
+- Lightweight local lane success requires non-empty `message.content`; thinking-only or empty-content replies fall through to `anyone/gpt-5.4` only for request-scoped turns, while session-scoped `local_direct` turns fail closed with a visible local-unavailable reply
+- Bare `/lite` and bare `/local` now persist `routingModeOverride="local_direct"` instead of `providerOverride/modelOverride`; bare `/main`, bare `/codex`, bare `/anyone`, bare `/new`, and bare `/reset` clear that marker
 - Session-scoped `local_direct` ordinary turns use the minimal direct Mac Qwen 9B payload, not the full `main` agent prompt
 - Session-scoped `local_direct` reply-runtime and gateway RPC guardrails: raw single-turn `user` payload, hot probe timeout `5000ms`, chat timeout disabled (`0` = no OpenClaw-side abort), `keep_alive=24h`, and timeout logs that include the failing pathname when a timeout is actually configured
 - Main configured default image model on benben/adminAI: `ollama/qwen2.5vl:7b`
@@ -163,7 +211,7 @@ Those `cc`-side copies were identified as stale local/runtime copies and were cl
 - both service users now have `sudo -n` via `/etc/sudoers.d/openclaw-agents`
   - current policy is broad `NOPASSWD:ALL` for both `openclaw` and `openclaw-adminai`; this is an accepted live capability for now and should not be narrowed without an explicit operator decision
 
-## 2026-04-16 Codex OAuth Account Split Incident
+## Historical 2026-04-16 Codex OAuth Account Split Incident
 
 - There are two independent live gateway auth stores:
   - benben: `openclaw-gateway.service`, service user `openclaw`, HOME `/var/lib/openclaw`, live auth `/var/lib/openclaw/.openclaw/agents/main/agent/auth-profiles.json`
@@ -191,7 +239,7 @@ Those `cc`-side copies were identified as stale local/runtime copies and were cl
   - future Codex OAuth switches must first identify which live gateway the user-facing bot hit
   - do not assume changing `/var/lib/openclaw` affects adminAI; verify and update `/var/lib/openclaw-adminai` separately when adminAI is in scope
 
-## 2026-04-16 local_direct gateway keep_alive alignment
+## Historical 2026-04-16 local_direct gateway keep_alive alignment
 
 - Audit conclusion before this fix:
   - no cloud `main` / local `profile.json` memory leakage was found
@@ -231,7 +279,7 @@ Those `cc`-side copies were identified as stale local/runtime copies and were cl
   - this change does not alter memory boundaries, model selection, route semantics, configured timeout values, or fallback policy
   - it only aligns transport/stability fields and makes the already-documented `0 = no OpenClaw-side abort` behavior true for gateway RPC too
 
-## 2026-04-16 adminAI lifecycle and host-status repair
+## Historical 2026-04-16 adminAI lifecycle and host-status repair
 
 - User-visible symptoms:
   - adminAI Feishu bare `/new` replied with the tiny local-lite profile facts instead of the normal lifecycle reply
@@ -278,7 +326,7 @@ Those `cc`-side copies were identified as stale local/runtime copies and were cl
   - adminAI live journals still show QQBot `/gateway` failures with `接口访问源IP不在白名单`
   - that is an external QQBot gateway source-IP whitelist problem; it is separate from the fixed Feishu `/new` and host-status defects
 
-## 2026-04-16 QQBot operator/status/proxy alignment
+## Historical 2026-04-16 QQBot operator/status/proxy alignment
 
 - User-visible symptoms:
   - adminAI and benben operator status commands could claim `QQ Bot not configured` even though the live gateway service was starting QQBot and obtaining QQ access tokens
@@ -336,7 +384,7 @@ Those `cc`-side copies were identified as stale local/runtime copies and were cl
   - add the proxy egress IP `45.56.183.242` to the QQBot production source-IP whitelist for both benben/adminAI apps, or intentionally whitelist the direct NAS egress `182.119.180.190` if the platform must use direct routing
   - `openclaw-healthcheck.service` and `openclaw-adminai-healthcheck.service` correctly remain failed with `qqbot_probe_attention` until the QQ production gateway connects
 
-## 2026-04-16 QQ optionalization and Feishu/Telegram health stabilization
+## Historical 2026-04-16 QQ optionalization and Feishu/Telegram health stabilization
 
 - Operator decision:
   - QQ is not a normal-use channel for this deployment
@@ -363,7 +411,7 @@ Those `cc`-side copies were identified as stale local/runtime copies and were cl
   - gateway journals should stop the repeated QQBot production `/gateway` source-IP whitelist loop after service restart
   - QQBot can be restored later by re-enabling `channels.qqbot.enabled`, adding `qqbot` back to required channels/health only if desired, and fixing QQ platform source-IP whitelist first
 
-## 2026-04-15 OpenClaw Audit Remediation
+## Historical 2026-04-15 OpenClaw Audit Remediation
 
 - Audit target:
   - both live OpenClaw instances on `oc-nas`
@@ -422,7 +470,7 @@ Those `cc`-side copies were identified as stale local/runtime copies and were cl
   - channel status at the time of this 2026-04-15 remediation: Telegram running, QQBot running/connected, Feishu running
   - superseded 2026-04-16 evidence shows QQBot production gateway later regressed to `接口访问源IP不在白名单`; see the 2026-04-16 QQBot operator/status/proxy alignment entry above
 
-## 2026-04-15 Local-Direct Latency Repair
+## Historical 2026-04-15 Local-Direct Latency Repair
 
 - Incident trigger:
   - Feishu `local_direct` sessions intermittently returned `本地模型当前不可用 ... (request failed)` even though the first turn in the same session had already answered from `ollama/huihui_ai/qwen3.5-abliterated:9b`
@@ -451,7 +499,7 @@ Those `cc`-side copies were identified as stale local/runtime copies and were cl
   - shared cloud API keys were not rotated; key separation is a separate credential-management task
   - swap remains historically high at about `6.5GiB`, but `vmstat` showed no active swap in/out during verification
 
-## 2026-04-15 `local_direct` Duplicate-Executor Removal
+## Historical 2026-04-15 `local_direct` Duplicate-Executor Removal
 
 - Incident trigger:
   - after the raw-pass-through/no-abort rollout, the user still saw `本地模型当前不可用 ... (chat failed)`
@@ -473,7 +521,7 @@ Those `cc`-side copies were identified as stale local/runtime copies and were cl
   - the `2026-04-15 22:19-22:22 CST` restart loop with `plugins.entries.local-lite-lane.config.chatTimeoutMs: invalid config: must be >= 100` was a separate schema/config drift during the no-abort rollout
   - after copying the updated plugin schema that allows `chatTimeoutMs = 0`, both gateways returned to `active`; that config drift was distinct from the duplicate-executor bug above
 
-## 2026-04-15 Tiny Trusted Facts For Local Lite / Local Direct
+## Historical 2026-04-15 Tiny Trusted Facts For Local Lite / Local Direct
 
 - Operator request:
   - keep the Mac Qwen 9B path mostly raw, but let it remember only a tiny amount of verified personal context such as who the user is and who the partner is
@@ -500,7 +548,7 @@ Those `cc`-side copies were identified as stale local/runtime copies and were cl
   - the local Mac model can now answer short identity/relationship questions more consistently
   - this is still not full OpenClaw memory; it is an explicitly curated local-only micro-profile layer
 
-## 2026-04-15 Feishu Bare `/lite` Reply-Path Repair
+## Historical 2026-04-15 Feishu Bare `/lite` Reply-Path Repair
 
 - User-visible symptom:
   - Feishu screenshot at `2026-04-15 12:25 CST` showed:
@@ -555,7 +603,7 @@ Those `cc`-side copies were identified as stale local/runtime copies and were cl
     - `/lite` returns the synthetic local-direct control reply
     - the ordinary follow-up answers from `ollama/huihui_ai/qwen3.5-abliterated:9b`, not `openai-codex/gpt-5.4`
 
-## 2026-04-15 Feishu `local_direct` Ordinary-Turn Repair
+## Historical 2026-04-15 Feishu `local_direct` Ordinary-Turn Repair
 
 - User-visible symptom after the `13:19 CST` control-plane fix:
   - a later Feishu screenshot at `2026-04-15 13:31 CST` showed:
@@ -604,7 +652,7 @@ Those `cc`-side copies were identified as stale local/runtime copies and were cl
     - `/lite` returns the synthetic local-direct control reply
     - the ordinary follow-up answers from `ollama/huihui_ai/qwen3.5-abliterated:9b`
 
-## 2026-04-15 Feishu `local_direct` Body-Source Fix
+## Historical 2026-04-15 Feishu `local_direct` Body-Source Fix
 
 - User-visible symptom after the `16:26 CST` reply-path direct-call patch:
   - the `2026-04-15 16:36 CST` Feishu screenshot still showed:
@@ -638,7 +686,7 @@ Those `cc`-side copies were identified as stale local/runtime copies and were cl
   - expected result:
     - the second turn answers from `ollama/huihui_ai/qwen3.5-abliterated:9b`
 
-## 2026-04-15 Feishu bare `/new` lifecycle-export Fix
+## Historical 2026-04-15 Feishu bare `/new` lifecycle-export Fix
 
 - User-visible symptom:
   - a later Feishu bare `/new` at `2026-04-15 16:46 CST` produced no visible reply
@@ -672,7 +720,7 @@ Those `cc`-side copies were identified as stale local/runtime copies and were cl
   - expected result:
     - it returns the synthetic lifecycle reply instead of disappearing silently
 
-## 2026-04-15 NAS-Local Ollama Disablement
+## Historical 2026-04-15 NAS-Local Ollama Disablement
 
 - Reason:
   - after the local-lite backend moved to Mac `huihui_ai/qwen3.5-abliterated:9b` via NAS `127.0.0.1:11436`, NAS-local Ollama no longer serves the active text/image route
@@ -703,7 +751,7 @@ Those `cc`-side copies were identified as stale local/runtime copies and were cl
   - restore the unit from the backup if the local NAS Ollama service is needed again
   - re-enable with `systemctl enable --now ollama.service`
 
-## 2026-04-15 Local-Direct `/lite` Semantics Restoration
+## Historical 2026-04-15 Local-Direct `/lite` Semantics Restoration
 
 This section supersedes the earlier 2026-04-15 bare `/lite` `/model local` hotfix notes. The final target is the 2026-04-12/13 style local-only entry, with the backend model replaced by Mac `ollama/huihui_ai/qwen3.5-abliterated:9b`.
 
@@ -726,7 +774,7 @@ This section supersedes the earlier 2026-04-15 bare `/lite` `/model local` hotfi
   - payload is minimal: local-direct system prompt, one user message, `think:false`, `num_ctx=32768`
   - it bypasses the full `main` agent prompt, tools, memory search, planning, code/file paths, and session-review surface
   - failure policy is fail-closed: tunnel down, cold model, empty content, thinking-only, or chat failure returns “本地模型当前不可用” and keeps the session in `local_direct`
-  - request-scoped `/lite <message>` and `/local <message>` remain fail-soft and may fall through to `openai-codex/gpt-5.4`
+  - request-scoped `/lite <message>` and `/local <message>` remain fail-soft and may fall through to `anyone/gpt-5.4`
 - Mac reverse tunnel hardening:
   - LaunchAgent `ai.openclaw.ollama-reverse-tunnel` was changed from a bare `ssh -N -R` ProgramArguments list to wrapper `/Users/zhangjincheng/.openclaw/bin/ollama-reverse-tunnel-loop.sh`
   - the wrapper runs the same reverse forward `127.0.0.1:11436:127.0.0.1:11434` to `oc-nas` and reconnects every `3s` after SSH/proxy-chain disconnects
@@ -745,7 +793,7 @@ This section supersedes the earlier 2026-04-15 bare `/lite` `/model local` hotfi
   - NAS was still heavily loaded during verification (`load1≈193`, swap nearly full), so CLI smoke can be slow and SSH can disconnect under pressure
   - the local-direct runtime behavior is now correct; the operational risk is mainly NAS load and Mac reverse-tunnel continuity
 
-## 2026-04-14 Cloud Main + Mac Qwen 9B Local-Lite Pivot
+## Historical 2026-04-14 Cloud Main + Mac Qwen 9B Local-Lite Pivot
 
 This section supersedes the earlier same-day e2b-default / qwen-default pivot notes below. Those older sections remain as historical breadcrumbs only.
 
@@ -795,8 +843,8 @@ Production truth after the local-lite rollout and follow-up live verification:
   - relay `POST /api/chat` to `huihui_ai/qwen3.5-abliterated:9b` with `think:false` now returns non-empty `message.content`
 - local-lite routing behavior follow-up:
   - plugin hot probe and chat now intentionally use `11436` directly because relay `/api/ps` is not the authoritative hot-state surface for the Mac model
-  - local success is now defined as non-empty visible content; thinking-only and empty-content replies are treated as local failure and must fall through to `openai-codex/gpt-5.4`
-  - default complex lane remains `openai-codex/gpt-5.4`; `/new` and `/reset` return to that cloud lane, not to local-lite
+  - local success is now defined as non-empty visible content; thinking-only and empty-content replies are treated as local failure and must fall through to `anyone/gpt-5.4`
+  - default complex lane now remains `anyone/gpt-5.4`; `/new` and `/reset` return to that cloud lane, not to local-lite
   - ordinary bare chat still belongs to the cloud `main` lane; the Mac Qwen 9B route is request-scoped unless the user explicitly sends bare `/lite` or bare `/local`, which now enable persistent `routingModeOverride="local_direct"`
   - bare `/lite` and `/lite <message>` are intentionally split:
     - bare `/lite` is the persistent local-direct session-mode shortcut to `ollama/huihui_ai/qwen3.5-abliterated:9b`
@@ -855,7 +903,7 @@ Production truth after the local-lite rollout and follow-up live verification:
   - transport `NAS 11435 <- NAS 11436 <- Mac 11434`
   - fallback `openrouter/xiaomi/mimo-v2-omni`
 
-## 2026-04-14 E2B Fast-Fail + Mac Vision Relay Recovery
+## Historical 2026-04-14 E2B Fast-Fail + Mac Vision Relay Recovery
 
 Production truth after repairing the slow-reply path without reverting to larger Ollama chat models:
 
@@ -895,7 +943,7 @@ Production truth after repairing the slow-reply path without reverting to larger
   - benben `openclaw-healthcheck.sh` now honors `OPENCLAW_HEALTH_EXTRA_CHECK_ARGS`
   - adminAI health env now exports instance-safe temp-dir context so `qqbot-runtime-health.mjs` does not fall back to `/tmp/openclaw/openclaw-994`
 
-## 2026-04-14 NAS Local Gemma E2B Default Follow-up
+## Historical 2026-04-14 NAS Local Gemma E2B Default Follow-up
 
 Production truth after replacing the Qwen 9B default with the NAS-local Gemma e2b lane:
 
@@ -916,7 +964,7 @@ Production truth after replacing the Qwen 9B default with the NAS-local Gemma e2
 - live workspace/operator docs were re-aligned so `/new` and `/reset` return to the NAS-local e2b default on both instances
 - `ollama show huihui_ai/gemma-4-abliterated:e2b` still reports the NAS model as present and healthy
 
-## 2026-04-14 Qwen 9B 64K Main-Chat Default Stability Pivot
+## Historical 2026-04-14 Qwen 9B 64K Main-Chat Default Stability Pivot
 
 Production truth after replacing the Gemma default with the smaller desktop-local Qwen lane:
 
@@ -6974,324 +7022,191 @@ Validation:
   - stable-trim queue empty
   - retry-tail historical debt cleared from active operator surface
 
-2026-04-20 benben/adminAI cloud-local hard split and memory-lane repair:
+2026-04-21 Anyone.ai provider enablement:
 
-- target of this repair:
-  - close the remaining benben cloud/local contamination that still made cloud `/new` behave like local-lite memory and answer `不知道。`
-  - make local image turns actually route to `ollama/qwen2.5vl:7b` without silent cloud fallback
-  - keep benben and adminAI as separate services with separate state/memory policy behavior
-- live files changed in this pass:
-  - `/usr/lib/node_modules/openclaw/dist/agent-command-8TL7BESJ.js`
-  - `/usr/lib/node_modules/openclaw/dist/reply-BwK-bN2w.js`
+- live scope in this session:
+  - host: `oc-nas`
+  - instances:
+    - benben: `openclaw-gateway.service`
+    - adminAI: `openclaw-adminai-gateway.service`
+- live files changed:
+  - `/var/lib/openclaw/.openclaw/openclaw.json`
+  - `/var/lib/openclaw-adminai/.openclaw/openclaw.json`
+  - `/etc/openclaw/gateway.env`
+  - `/etc/openclaw/adminai-gateway.env`
+- backups created:
+  - `/var/lib/openclaw/.openclaw/openclaw.json.bak-anyone-20260421T092024Z`
+  - `/var/lib/openclaw-adminai/.openclaw/openclaw.json.bak-anyone-20260421T092024Z`
+  - `/etc/openclaw/gateway.env.bak-anyone-20260421T092024Z`
+  - `/etc/openclaw/adminai-gateway.env.bak-anyone-20260421T092024Z`
+- runtime truth after change:
+  - both live instances now include `models.providers.anyone`
+  - provider base URL: `https://api.anyone.ai/v1`
+  - provider auth env id: `ANYONE_API_KEY`
+  - configured Anyone models:
+    - `anyone/gpt-5.4`
+    - `anyone/gpt-5.3-codex`
+  - default main route was intentionally left unchanged:
+    - benben primary still resolves to `openai-codex/gpt-5.4`
+    - adminAI primary still resolves to `openai-codex/gpt-5.4`
+- verification completed:
+  - both gateway env files contain a managed `ANYONE_API_KEY` block
+  - both gateway services restarted and returned `active`
+  - startup logs after restart show:
+    - benben gateway ready with `agent model: openai-codex/gpt-5.4`
+    - adminAI gateway ready with `agent model: openai-codex/gpt-5.4`
+  - direct NAS-side Anyone responses smoke using each live env returned `OK` for `gpt-5.4`
+- non-blocking note:
+  - benben journal still shows pre-existing Telegram command-sync / gateway TLS fingerprint noise after startup; this change did not alter the default route or channel configuration surface
+
+2026-04-21 Anyone.ai default-route cutover:
+
+- this note supersedes the earlier same-day “Anyone.ai provider enablement” entry where the provider was added but the main lane was intentionally left unchanged
+- final live routing truth after the full repair:
+  - benben main default: `anyone/gpt-5.4`
+  - adminAI main default: `anyone/gpt-5.4`
+  - legacy official Codex route remains available as `openai-codex/gpt-5.4`
+  - bare `/codex` now explicitly switches to `openai-codex/gpt-5.4`
+  - bare `/anyone` now explicitly switches to `anyone/gpt-5.4`
+  - bare `/main`, bare `/new`, and bare `/reset` return to the main default `anyone/gpt-5.4`
+- live files changed in the second pass:
+  - `/var/lib/openclaw/.openclaw/openclaw.json`
+  - `/var/lib/openclaw-adminai/.openclaw/openclaw.json`
+  - `/var/lib/openclaw/.openclaw/workspace/AGENTS.md`
+  - `/var/lib/openclaw-adminai/.openclaw/workspace/AGENTS.md`
   - `/usr/lib/node_modules/openclaw/dist/server.impl-BxLfE9ri.js`
-  - `/var/lib/openclaw/.openclaw/workspace/tools/memory-phase1-helper.mjs`
-  - `/var/lib/openclaw/.openclaw/workspace/tools/memory-review-send.py`
-  - `/var/lib/openclaw/.openclaw/workspace/tools/session-memory-review.mjs`
-  - `/var/lib/openclaw-adminai/.openclaw/workspace/tools/memory-phase1-helper.mjs`
-  - `/var/lib/openclaw-adminai/.openclaw/workspace/tools/memory-review-send.py`
-  - `/var/lib/openclaw-adminai/.openclaw/workspace/tools/session-memory-review.mjs`
-- authoritative backups created before live writes:
-  - benben runtime/tools:
-    - `/var/backups/openclaw/20260420T023603+0800/`
-  - adminAI tools:
-    - `/var/backups/openclaw-adminai/20260420T030409+0800/`
-- confirmed root causes closed:
-  - the remaining cloud-memory break was not an empty memory base
-    - `memory/stable/self/life-planning.verified.md` was already present on live benben
-    - the real bug was lane-state contamination: after `/local`, the anchor session could keep `memoryPolicy=static_only`
-    - a later `/new` cloud session then inherited the old policy instead of recomputing `cloud_full`
-  - local image turns were not reliably reaching vision
-    - reply/agent-command now read inbound local image files and send Ollama-native `messages[].images=[base64]`
-    - local image turns skip cloud pre-session media understanding
-    - local image turns fail closed with explicit local-mode text if image read/model call fails
-  - local vision availability gating was too strict
-    - old behavior required `qwen2.5vl:7b` to already appear in `/api/ps`
-    - live host had `qwen2.5vl:7b` installed in `/api/tags` but not always preheated in `/api/ps`
-    - repaired behavior now treats `installed in /api/tags` as sufficient to attempt first-load local vision
-  - session identity metadata is now persisted as first-class routing truth
-    - `serviceId`
-    - `sessionClass`
-    - `routingLane`
-    - `memoryPolicy`
-    - `subjectKey`
-    - `sessionIdentityKey`
-- live verification completed in this pass:
-  - syntax/loader verification:
-    - `node --check` passed on all deployed runtime files
-    - `python3 -m py_compile` passed on both deployed `memory-review-send.py`
-    - `node --check` passed on both benben/adminAI memory helper scripts
-  - service verification:
-    - `openclaw-gateway.service` restarted cleanly and stayed `active`
-    - `openclaw-adminai-gateway.service` restarted cleanly and stayed `active`
-  - local model verification:
-    - `127.0.0.1:11436/api/tags` on live host confirms both:
-      - `huihui_ai/qwen3.5-abliterated:9b`
-      - `qwen2.5vl:7b`
-  - route-control verification with an isolated synthetic benben session:
-    - `/local` returned:
-      - `本地模式已开启：文字走 ollama/huihui_ai/qwen3.5-abliterated:9b，图片自动走 ollama/qwen2.5vl:7b`
-    - `/new` returned:
-      - `✅ New session started. Default model: openai-codex/gpt-5.4.`
-    - resulting live `sessions.json` rows proved hard split:
-      - local lane row:
-        - `routingLane=local`
-        - `memoryPolicy=static_only`
-        - key suffix `:__lane_local`
-      - cloud lane row:
-        - `routingLane=cloud`
-        - `memoryPolicy=cloud_full`
-        - separate `sessionIdentityKey`
-  - cross-service verification:
-    - the same synthetic probe key did not appear in adminAI session state
-    - benben/adminAI remained separated by service-specific state roots
-- known residual issue discovered during internal smoke:
-  - a direct in-process `getReplyFromConfig(...)` cloud-memory smoke from shell failed on
-    - `reply: failed to resolve secrets from the active gateway snapshot`
-  - this did not indicate memory regression in user traffic
-    - it was a local shell-invoked secret-resolution path against loopback gateway state
-    - route-control and session metadata verification still passed
-  - follow-up user-facing memory smoke should be done through the normal ingress path, not via isolated shell import
+- backups created in the second pass:
+  - `/var/lib/openclaw/.openclaw/openclaw.json.bak-anyone-default-20260421T094823Z`
+  - `/var/lib/openclaw-adminai/.openclaw/openclaw.json.bak-anyone-default-20260421T094823Z`
+  - `/var/lib/openclaw/.openclaw/openclaw.json.bak-codex-restore-20260421T095111Z`
+  - `/var/lib/openclaw-adminai/.openclaw/openclaw.json.bak-codex-restore-20260421T095111Z`
+  - `/var/lib/openclaw/.openclaw/workspace/AGENTS.md.bak-sync-apply-20260421T101024Z`
+  - `/var/lib/openclaw-adminai/.openclaw/workspace/AGENTS.md.bak-sync-apply-20260421T101024Z`
+  - `/var/lib/openclaw/.openclaw/workspace/AGENTS.md.bak-sync-apply-20260421T115508Z`
+  - `/var/lib/openclaw-adminai/.openclaw/workspace/AGENTS.md.bak-sync-apply-20260421T115508Z`
+  - `/usr/lib/node_modules/openclaw/dist/server.impl-BxLfE9ri.js.bak-codex-bare-route-20260421T103319Z`
+  - `/usr/lib/node_modules/openclaw/dist/server.impl-BxLfE9ri.js.bak-anyone-route-20260421T112058Z`
+- config truth after the second pass:
+  - `agents.defaults.model.primary = anyone/gpt-5.4`
+  - `agents.defaults.models["anyone/gpt-5.4"].alias = "anyone"`
+  - `agents.defaults.models["openai-codex/gpt-5.4"].alias = "codex"`
+- user-facing smoke completed:
+  - benben `/new` -> synthetic reply reported `Default model: anyone/gpt-5.4` with `provider=anyone`
+  - adminAI `/new` -> synthetic reply reported `Default model: anyone/gpt-5.4` with `provider=anyone`
+  - benben `/codex -> /status` returned `provider=openai-codex`, `model=gpt-5.4`
+  - adminAI `/codex -> /status` returned `provider=openai-codex`, `model=gpt-5.4`
+  - benben bare `/anyone` returned `provider=anyone`, `model=gpt-5.4`, and the next ordinary message `只回复OK` also ran through `provider=anyone`, `model=gpt-5.4`
+  - adminAI bare `/anyone` returned `provider=anyone`, `model=gpt-5.4`, and the next ordinary message `只回复OK` also ran through `provider=anyone`, `model=gpt-5.4`
+- operator note:
+  - `/model anyone` and `/model anyone/gpt-5.4` were not treated as authoritative enough for this repair because the observed session store stayed pinned on legacy Codex during smoke
+  - the stable operator-facing explicit Anyone route is now bare `/anyone`
 
-2026-04-20 live outage restore after hard-split rollout:
+2026-04-21 Anyone status-display follow-up:
 
-- user-visible incident:
-  - benben stopped replying entirely
-  - adminAI also stopped replying
-  - Telegram canary continued reporting `sendMessage` transport failure
-- confirmed live root cause for the no-reply outage:
-  - shared runtime entrypoint `/usr/lib/node_modules/openclaw/dist/server.impl-BxLfE9ri.js` had become `0` bytes on NAS
-  - both services entered the same restart loop:
-    - `openclaw-gateway.service`
-    - `openclaw-adminai-gateway.service`
-  - startup failure was:
-    - `TypeError: (intermediate value).startGatewayServer is not a function`
-- live repair performed:
-  - preserved the broken live file as a timestamped snapshot on NAS before replacement
-  - restored `/usr/lib/node_modules/openclaw/dist/server.impl-BxLfE9ri.js` from the tracked repaired source:
-    - `projects/products/openclaw/nas-openclaw-v22/runtime-live/server.impl-BxLfE9ri.js`
-  - restored file checksum on NAS:
-    - `a9bb87c247ea4148e9b7282cd92d18e33e450cadf3e3d300dc661ec48f0c8fd3`
-  - reset failed state and restarted:
-    - `openclaw-gateway.service`
-    - `openclaw-adminai-gateway.service`
-- post-repair live verification:
-  - both services stayed `active (running)`
-  - ports came back:
-    - benben `127.0.0.1:18789`
-    - adminAI `127.0.0.1:18889`
-  - both health endpoints returned live status:
-    - `curl http://127.0.0.1:18789/health` => `{"ok":true,"status":"live"}`
-    - `curl http://127.0.0.1:18889/health` => `{"ok":true,"status":"live"}`
-  - benben cloud agent execution was re-smoked through the repaired gateway path:
-    - `openclaw-cli-wrapper.sh agent --session-id 17f13260-d10a-4974-b496-22b73d27c616 --message "只回复OK" --json`
-    - returned `OK`
-  - this confirmed the current benben no-reply symptom was caused by the gateway crash loop, not by the cloud/local memory-lane repair itself
-- Telegram status after gateway restore:
-  - Telegram still failed from the live benben send path:
-    - `openclaw-cli-wrapper.sh tool channel-delivery-canary --channel telegram --force --json`
-    - `openclaw-cli-wrapper.sh message send --channel telegram --target 8421829242 ...`
-    - both still returned `HttpError: Network request for 'sendMessage' failed!`
-  - current transport truth is narrower than the earlier full-outage diagnosis:
-    - direct raw SOCKS5 with credentials to the upstream proxy still works for Telegram `getMe`
-    - local HTTP proxy layers do not:
-      - existing service bridge on `127.0.0.1:18988`
-      - a temporary clean `xray` HTTP inbound on `127.0.0.1:18989`
-    - observed failure at the HTTP-proxy layer is:
-      - `OpenSSL SSL_connect: SSL_ERROR_SYSCALL`
-    - Node-side Telegram fetch over proxy also still fails
-- operational truth after this repair:
-  - benben/adminAI reply outage is closed
-  - Telegram remains a separate live transport incident
-  - the remaining Telegram blocker is not the lane-split memory policy work; it is the current HTTP-proxy-over-SOCKS transport path used by the Telegram send/runtime flow
+- symptom after the route cutover:
+  - fresh Anyone-default `/status` replies could show `模型：未知` or mislabel the lane as `openai/gpt-5.4`, even though the actual turn metadata already showed `provider=anyone`, `model=gpt-5.4`
+- root cause:
+  - `/usr/lib/node_modules/openclaw/dist/status-vq7yuJ1g.js` read `providerOverride` / `modelOverride` with plain nullish coalescing
+  - after `/new` or other clear-route actions, those fields can exist as empty strings, so the status builder treated `""` as a selected provider/model instead of falling back
+  - the same builder also needed to prefer the session's recorded `modelProvider` / `model` when there was no explicit override, otherwise the display could fall back to generic `openai`
+- live fix:
+  - updated `/usr/lib/node_modules/openclaw/dist/status-vq7yuJ1g.js`
+  - backups:
+    - `/usr/lib/node_modules/openclaw/dist/status-vq7yuJ1g.js.bak-anyone-status-20260421T122627Z`
+    - `/usr/lib/node_modules/openclaw/dist/status-vq7yuJ1g.js.bak-anyone-status-provider-20260421T124309Z`
+  - the status builder now:
+    - normalizes empty-string overrides before fallback
+    - prefers `sessionEntry.modelProvider` / `sessionEntry.model` when no explicit override exists
+- verification:
+  - benben fresh `/new -> /status` now reports `模型：anyone/gpt-5.4`
+  - adminAI fresh `/new -> /status` now reports `模型：anyone/gpt-5.4`
+  - route smoke from the earlier cutover remains intact:
+    - `/codex -> /status` still resolves to `openai-codex/gpt-5.4`
+    - bare `/anyone -> ordinary follow-up` still resolves to `anyone/gpt-5.4`
 
-2026-04-20 Feishu real-session collision repair:
+2026-04-22 benben direct-main memory_v2 route stabilization:
 
-- user-visible residual bug after gateway restore:
-  - benben could answer a synthetic cloud probe, but the real Feishu owner chat still replied `不知道。` after `/new`
-- confirmed live root cause:
-  - the current live owner chat had not been landing in a dedicated Feishu DM session
-  - instead, direct traffic was still using the default direct-message main scope:
-    - `session.dmScope` was effectively defaulting to `main`
-  - heartbeat runs were also still using the main session key by default
-  - as a result, the generic main row was being overwritten by heartbeat traffic:
-    - `sessionKey=agent:main:main`
-    - `origin.provider=heartbeat`
-    - `subjectKey=heartbeat:direct:user:ou_618ab2d13189630519294960ad40b5c0`
-  - the corresponding transcript file proved this row was heartbeat-only, not a user DM transcript:
-    - `bb5f8687-3238-4e14-a0ef-f603bc2762d8.jsonl`
-    - contained `Read HEARTBEAT.md ... reply HEARTBEAT_OK`
-- live repair applied:
-  - enabled isolated heartbeat sessions in both live configs:
-    - `/var/lib/openclaw/.openclaw/openclaw.json`
-    - `/var/lib/openclaw-adminai/.openclaw/openclaw.json`
-    - `agents.defaults.heartbeat.isolatedSession=true`
-  - enabled direct-message peer scoping in both live configs:
-    - `session.dmScope=per-account-channel-peer`
-  - quarantined the polluted benben main row because it was confirmed heartbeat-only:
-    - removed `agent:main:main` from benben `sessions.json`
-    - copied the row + transcript into:
-      - `/var/lib/openclaw/.openclaw/agents/main/sessions-quarantine/`
-    - removed the active transcript file for that quarantined heartbeat-only main row:
-      - `bb5f8687-3238-4e14-a0ef-f603bc2762d8.jsonl`
+- symptom confirmed on benben live:
+  - direct `agent:main:main` questions could still fall back to `reason=dm_sender_unresolved` and `matched_route_names=[]` when the upstream `memory_search` query had already been rewritten into third-person owner proxy forms such as `用户是否想去香港读研 香港 读研 研究生 留学 想去香港`
+  - this was not a global “cloud only returns MEMORY.md” failure; it was a route-shape failure specific to unresolved direct-main owner/couple questions
+- repo/runtime fix:
+  - updated `projects/products/openclaw/nas-openclaw-v22/workspace/tools/memory-v2-helper.mjs`
+  - added direct-main owner proxy routing for rewritten `用户...` / `user ...` owner questions
+  - kept owner proxy academic planning on `owner_profile` instead of letting `private_self_state` steal queries that contain `exam/study/计划`
+  - widened planning-focused owner retrieval to include exam/study-style academic planning, not just `读研/申请/港校/香港`
+- live benben change:
+  - updated `/var/lib/openclaw/.openclaw/workspace/tools/memory-v2-helper.mjs`
+  - restarted `openclaw-gateway.service`
+  - confirmed `openclaw-gateway.service=active` after restart
+  - confirmed `openclaw-adminai-gateway.service=active` and left adminAI unchanged as `ops-only`
+- live fact-layer follow-up:
+  - promoted owner stable `long_term_anchor` in `/var/lib/openclaw/.openclaw/workspace/memory_v2/facts/stable/owner.yaml`
+  - durable statement:
+    - `目标：优先按港校授课型硕士申请推进，方向以 CS/AI/DS 类项目为主。`
+  - refreshed projections; `/var/lib/openclaw/.openclaw/workspace/memory_v2/projections/owner-profile.md` now carries the same durable statement
+- benben live verification via the active workspace helper after restart:
+  - `那你知道我想去香港读研吗` -> `reason=memory_v2_scoped`, `matchedRouteNames=["owner_profile"]`, allowlist includes owner current + stable owner
+  - `用户是否想去香港读研 香港 读研 研究生 留学 想去香港` -> `reason=memory_v2_scoped`, `matchedRouteNames=["owner_profile"]`, allowlist includes owner current + stable owner
+  - `用户考试规划 学业 备考 复习 exam study plan` -> `reason=memory_v2_scoped`, `matchedRouteNames=["owner_profile"]`, allowlist includes owner current + stable owner
+  - `用户喜欢什么 偏好 习惯` -> `reason=memory_v2_scoped`, `matchedRouteNames=["owner_profile"]`, allowlist includes `memory_v2/projections/owner-preference.md`
+  - `用户最近在忙什么 近期 状态 计划` -> `reason=memory_v2_scoped`, `matchedRouteNames=["private_self_state"]`, allowlist stays on owner current/recent only
+  - `用户和对象最近计划什么时候见面 行程 安排` -> `reason=memory_v2_scoped`, `matchedRouteNames=["couple_current_state"]`, allowlist includes `memory_v2/projections/couple-current-plan.md`
+- protected non-changes:
+  - did not change Anyone default routing
+  - did not change bare `/codex`
+  - did not change `/status`
+  - did not change `session-journal`
+  - did not relax adminAI `ops-only`
+
+2026-04-22 benben real-Feishu-DM identity + planning follow-up:
+
+- follow-up symptom from real user traffic after the direct-main repair:
+  - the earlier direct-main fix covered the worst-case unresolved route, but the screenshot backed by the real benben Feishu DM still showed:
+    - `你是谁` answered as `张锦程`
+    - `你记得我的个人规划吗` answered `不知道`
+    - user also reported owner/partner pronoun confusion (`我` vs `她/他`)
+- confirmed live truth:
+  - this was not the same path as `agent:main:main`
+  - the real user session was the resolved Feishu DM main session:
+    - `agent:main:feishu:default:direct:ou_618ab2d13189630519294960ad40b5c0`
+    - `serviceId=benben`
+    - `routingLane=cloud`
+    - `memoryPolicy=cloud_full`
+  - live assistant stable truth was already correct:
+    - `/var/lib/openclaw/.openclaw/workspace/memory_v2/facts/stable/assistant.yaml`
+    - `/var/lib/openclaw/.openclaw/workspace/memory_v2/projections/assistant-profile.md`
+  - so the problem was not assistant memory corruption
+- repo/runtime fix:
+  - updated `projects/products/openclaw/nas-openclaw-v22/workspace/tools/memory-v2-helper.mjs`
+  - updated `projects/products/openclaw/nas-openclaw-v22/workspace/IDENTITY.md`
+  - updated `projects/products/openclaw/nas-openclaw-v22/workspace/USER.md`
+  - logic changes:
+    - owner long-term intent now also recognizes `个人规划 / 人生规划`
+    - resolved owner DM now tolerates rewritten owner-proxy forms (`用户...`) instead of dropping back to legacy manifest
+    - owner self-route no longer steals partner-pronoun questions
+    - owner current-state no longer beats profile/preference when the same query is actually asking a stable preference/profile question
+    - startup identity cards now explicitly disambiguate:
+      - `你是谁 / 你叫什么 / 你能做什么` -> `笨笨`
+      - `我是谁 / 你知道我是谁吗` -> `张锦程`
+- live benben change:
+  - updated:
+    - `/var/lib/openclaw/.openclaw/workspace/tools/memory-v2-helper.mjs`
+    - `/var/lib/openclaw/.openclaw/workspace/IDENTITY.md`
+    - `/var/lib/openclaw/.openclaw/workspace/USER.md`
   - restarted:
     - `openclaw-gateway.service`
-    - `openclaw-adminai-gateway.service`
-- post-repair live state:
-  - both gateways returned to `active (running)`
-  - both health endpoints returned `{"ok":true,"status":"live"}`
-  - benben main row is now absent again until a real user DM recreates it under the new scope:
-    - `agent:main:main` => missing
-  - direct-message routing config now persists as:
-    - benben `/var/lib/openclaw/.openclaw/openclaw.json` => `{"dmScope":"per-account-channel-peer"}`
-    - adminAI `/var/lib/openclaw-adminai/.openclaw/openclaw.json` => `{"dmScope":"per-account-channel-peer"}`
-- current judgment:
-  - the `不知道。` bug on the real Feishu owner chat was not just a retrieval miss
-  - it was caused by session-key collision between real DM traffic and heartbeat traffic on the generic main session lane
-  - the live route is now configured to split direct chats by account/channel/peer and to keep heartbeat isolated from the user lane
-
-2026-04-20 benben user-visible memory citation suppression:
-
-- user-visible request:
-  - benben memory replies should keep working, but must not append visible `Source: ...` lines into the chat bubble
-- confirmed live behavior before repair:
-  - direct-memory answers were exposing paths such as:
-    - `Source: memory_v2/facts/stable/owner.yaml#L111`
-  - this came from the memory citations pipeline, not from the Feishu client
-- minimal live repair applied:
-  - updated benben live config:
-    - `/var/lib/openclaw/.openclaw/openclaw.json`
-    - `memory.citations = "off"`
-  - authoritative backup created before edit:
-    - `/var/lib/openclaw/.openclaw/openclaw.json.bak-memory-citations-off-*`
-  - restarted:
-    - `openclaw-gateway.service`
-- live verification:
-  - benben health returned `{"ok":true,"status":"live"}`
-  - benben cloud agent smoke:
-    - `openclaw-cli-wrapper.sh agent --session-id 17f13260-d10a-4974-b496-22b73d27c616 --message "你记得我要考什么试吗" --json`
-    - reply still recalled the exam facts
-    - reply no longer included any visible `Source:` footer
-- architectural truth:
-  - retrieval remains enabled
-  - only user-visible citation decoration was disabled for benben via config
-
-2026-04-20 Telegram bridge recovery:
-
-- residual incident:
-  - Telegram canary and Telegram plugin sends were still intermittently failing with:
-    - `HttpError: Network request for 'sendMessage' failed!`
-  - direct Feishu/cloud behavior was already healthy at this point
-- confirmed live root cause:
-  - the long-running local bridge process behind:
-    - `openclaw-socks-bridge.service`
-    - `127.0.0.1:18988`
-    had drifted into a bad state
-  - evidence:
-    - raw SOCKS5 through the upstream proxy still worked for Telegram:
-      - `curl --proxy socks5h://<user>:<pass>@45.56.183.242:8564 https://api.telegram.org/bot.../getMe`
-    - the same request through the stale local bridge failed before recovery
-    - launching the exact same bridge script manually on an alternate port restored successful Telegram `getMe`
-  - this proved the upstream SOCKS5 service and bot token were still valid; the stale bridge process was the broken layer
-- live repair applied:
-  - restarted:
-    - `openclaw-socks-bridge.service`
-  - then restarted gateways so Telegram provider startup reused the recovered bridge:
-    - `openclaw-gateway.service`
-    - `openclaw-adminai-gateway.service`
-- post-repair live verification:
-  - bridge service returned to:
-    - `listening on 127.0.0.1:18988 via socks://45.56.183.242:8564`
-  - raw bridge checks succeeded again:
-    - `curl -x http://127.0.0.1:18988 https://api.telegram.org/bot.../getMe`
-    - `curl -x http://127.0.0.1:18988 -X POST https://api.telegram.org/bot.../sendMessage ...`
-  - direct Telegram send via benben wrapper succeeded:
-    - `openclaw-cli-wrapper.sh message send --channel telegram --target 8421829242 ... --json`
-    - payload returned `ok=true`
-  - forced Telegram canary succeeded again:
-    - `openclaw-cli-wrapper.sh tool channel-delivery-canary --channel telegram --force --json`
-    - returned:
-      - `ok=true`
-      - `status=healthy`
-      - `telegram.status=sent`
-- operational truth:
-  - Telegram transport recovery did not require code changes
-  - the broken component was the stale live bridge process, not the SOCKS5 upstream credentials and not the Telegram bot token
-
-2026-04-21 adminAI heartbeat / canary / wrapper repair:
-
-- live baselines captured before repair:
-  - adminAI rollback bundle:
-    - `/var/backups/openclaw-adminai/20260420T185013+0800/`
-  - shared runtime rollback bundle:
-    - `/var/backups/openclaw-shared/20260420T185013+0800/`
-  - confirmed live breakage before repair:
-    - adminAI `openclaw-adminai-healthcheck.service` failed on missing `mempalace-sidecar.mjs`
-    - after restoring that file, the next blocker was missing `memory-noise-filter.mjs`
-    - adminAI had no dedicated `openclaw-adminai-channel-canary.service` / `.timer`
-    - adminAI `channel-delivery-canary-state.json` was stale on `2026-04-12`
-    - adminAI `sessions.json` still contained heartbeat-only pollution:
-      - `agent:main:main`
-      - `agent:main:main:heartbeat`
-      - `agent:main:main:heartbeat:heartbeat`
-      - deeper repeated `:heartbeat` variants
-- live repair applied:
-  - synced the missing adminAI workspace tool closure required by healthcheck / session review:
-    - `mempalace-sidecar.mjs`
-    - `memory-noise-filter.mjs`
-    - refreshed `channel-delivery-canary.mjs`, `deployment-verify.mjs`, `memory-health-summary.mjs`, `rollout-instance-config.sh`, `workspace-source-manifest.mjs`
-  - installed and enabled adminAI dedicated channel canary systemd units:
-    - `/etc/systemd/system/openclaw-adminai-channel-canary.service`
-    - `/etc/systemd/system/openclaw-adminai-channel-canary.timer`
-  - updated shared runtime dist:
-    - `/usr/lib/node_modules/openclaw/dist/server.impl-BxLfE9ri.js`
-    - `/usr/lib/node_modules/openclaw/dist/session-key-BMb3Kc4r.js`
-    - `/usr/lib/node_modules/openclaw/dist/heartbeat-runner-B1G6t3fn.js`
-  - repaired operator launcher behavior:
-    - `/usr/local/bin/openclaw`
-    - `/usr/local/sbin/openclaw`
-    - wrapper now keeps normal Telegram send on the native path when it succeeds and falls back to validated raw `curl + 127.0.0.1:18988` only when the known OpenClaw Telegram send failure appears
-  - quarantined and removed confirmed heartbeat-only polluted session rows:
-    - adminAI:
-      - `/var/lib/openclaw-adminai/.openclaw/agents/main/sessions-quarantine/20260420T185013+0800/`
-    - benben:
-      - `/var/lib/openclaw/.openclaw/agents/main/sessions-quarantine/20260420T185013+0800-benben-cleanup/`
-  - cleaned stale benben canary residue:
-    - removed historical `qqbot_c2c` row from `/var/lib/openclaw/.openclaw/workspace/memory-admin/meta/channel-delivery-canary-state.json`
-- post-repair live verification:
-  - health:
-    - `openclaw-healthcheck.service => Result=success ExecMainStatus=0`
-    - `openclaw-adminai-healthcheck.service => Result=success ExecMainStatus=0`
-    - both `memory/heartbeat-state.json` files refreshed on `2026-04-21`
-  - gateway:
-    - `127.0.0.1:18789/health => {"ok":true,"status":"live"}`
-    - `127.0.0.1:18889/health => {"ok":true,"status":"live"}`
-  - route semantics:
-    - benben `/new` and adminAI `/new` both returned synthetic cloud reset replies with `provider=openai-codex`, `model=gpt-5.4`, `durationMs=0`
-    - benben `/lite` and adminAI `/lite` both entered local lane and follow-up turns reported `provider=ollama`, `model=huihui_ai/qwen3.5-abliterated:9b`, `routingMode=local_direct`
-    - benben `/main` and adminAI `/main` both returned to `openai-codex/gpt-5.4`
-  - current heartbeat/session truth:
-    - adminAI recent sessions now show isolated heartbeat keys such as:
-      - `agent:main:heartbeat:none:direct:system`
-      - `agent:main:heartbeat:none:direct:heartbeat`
-    - benben recent sessions now show isolated heartbeat keys such as:
-      - `agent:main:heartbeat:none:direct:system`
-    - active `agent:main:main(:heartbeat)+` pollution is now absent from both live stores
-  - channel delivery:
-    - benben Telegram send via `/usr/local/bin/openclaw message send --channel telegram ... --json` succeeded
-    - adminAI Telegram send via `/usr/local/bin/openclaw-adminai message send --channel telegram ... --json` succeeded
-    - benben forced channel canary returned `ok=true`, `status=healthy`
-    - adminAI forced channel canary returned `ok=true`, `status=healthy`
-    - adminAI canary state now reflects current targets:
-      - Telegram bot `8750784570`
-      - Feishu target `ou_e8e8a1bdbcce86cac7ea579bdd754aa3`
-    - benben canary state now reflects only active required channels:
-      - `telegram`
-      - `feishu`
-- operational truth after repair:
-  - the 2026-04-20 heartbeat isolation config alone was not sufficient because shared runtime/session-key generation still appended `:heartbeat` recursively in live dist
-  - the real heartbeat pollution source was the isolated heartbeat key construction path in shared runtime, not only the session identity metadata patch in `server.impl`
-  - Telegram transport itself was healthy enough through:
-    - raw `curl -x http://127.0.0.1:18988 .../getMe`
-    - raw `curl -x http://127.0.0.1:18988 .../sendMessage`
-    - a minimal Node `fetch(...)` probe under service env
-  - the remaining Telegram outage after bridge recovery was in the generic OpenClaw operator send path, so the wrapper fallback was added as a live-safe mitigation and also backported to source
+  - left unchanged:
+    - `openclaw-adminai-gateway.service` behavior / `ops-only`
+- verification:
+  - live helper probe against the real Feishu DM session metadata now returns:
+    - `你是谁` -> `assistant_profile`
+    - `你知道我是谁吗` -> `owner_profile`
+    - `你记得我的个人规划吗` -> `owner_profile`
+    - `用户现在偏好什么` -> `owner_profile` with `owner-preference.md`
+    - `用户最近和她在忙什么` -> `partner_current_shared`
+    - `我想知道她最近备考怎么样` -> `partner_current_shared`
+  - full benben runtime smoke through `openclaw-cli-wrapper.sh agent --session-id fdffed76-12be-4bd2-846a-be73d0399e74` now returns:
+    - `你是谁` -> `我是笨笨 ...`
+    - `你知道我是谁吗` -> `你是张锦程`
+    - `你记得我的个人规划吗` -> returns the remembered personal planning stack instead of `不知道`
+    - `我想知道她最近备考怎么样` -> returns a partner-scoped recent-state answer and explicitly says current recent evidence is empty instead of pretending it knows owner state

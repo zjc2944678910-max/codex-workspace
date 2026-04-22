@@ -1,6 +1,6 @@
 # OpenClaw Architecture TODO
 
-Last updated: 2026-04-16
+Last updated: 2026-04-22
 Companion file: `OPENCLAW_DEPLOYMENT_LEDGER.md`
 
 ## Purpose
@@ -32,6 +32,24 @@ Treat this as mandatory:
 - if you fixed a bug but also changed what is now true about the system, document the new truth here
 - if docs were not updated, the change is not finished
 
+## Current Truth Snapshot
+
+- cloud main default on benben/adminAI: `anyone/gpt-5.4`
+- explicit cloud routes:
+  - bare `/codex` -> `openai-codex/gpt-5.4`
+  - bare `/anyone` -> `anyone/gpt-5.4`
+  - bare `/main`, `/new`, `/reset` -> `anyone/gpt-5.4`
+- current explicit Anyone contract is bare `/anyone`
+  - `/model anyone` is not the stable operator contract for this live setup
+- `/status` current truth:
+  - ordinary fresh cloud turns on benben/adminAI now run `anyone/gpt-5.4`
+  - bare `/codex` still reports and runs `openai-codex/gpt-5.4`
+  - fresh Anyone-default `/status` now reports `anyone/gpt-5.4` on benben/adminAI
+- local-direct truth:
+  - bare `/lite` / `/local` persist `routingModeOverride="local_direct"`
+  - request-scoped local failures fail-soft to `anyone/gpt-5.4`
+  - session-scoped local failures fail-closed
+
 ## Current Architecture Snapshot
 
 ### Live production surfaces
@@ -41,6 +59,18 @@ Treat this as mandatory:
 - live workspace logic: `/var/lib/openclaw/.openclaw/workspace/tools/*.mjs`
 - main session store: `/var/lib/openclaw/.openclaw/agents/main/sessions/sessions.json`
 - trace output: `/var/lib/openclaw/.openclaw/workspace/memory-admin/trace/`
+
+### 2026-04-22 Anyone default repair
+
+- completed:
+  - benben/adminAI default cloud lane remains `anyone/gpt-5.4`
+  - `/codex` still hard-switches to `openai-codex/gpt-5.4`
+  - workspace provider-registry + memory-review transport now understand `anyone`
+  - benben session-review manual run now records `model=anyone/gpt-5.4`
+  - owner long-term routing now treats `我想去香港读研吗` as an owner-profile query and widens owner planning reads to include `owner-current`
+  - benben transcript update paths now refresh `session-journal` again, and fresh smoke writes `session_journal` events back into trace/latest metadata
+- still open:
+  - “香港读研”这类 owner planning 问题的 live answer 仍偏保守；路由已修正，但 stable/current 事实整合和回答力度仍需单独优化
 
 ### Memory stack shape
 
@@ -214,17 +244,25 @@ After the operator clarified that QQ is not normally used, the architecture was 
 This section supersedes the earlier bare `/lite` `/model local` notes. The desired 2026-04-12/13 behavior is restored: cloud `main` remains the default, while explicit local mode is a separate minimal direct-chat route backed by Mac `ollama/huihui_ai/qwen3.5-abliterated:9b`.
 
 - current lane split:
-  - `main` complex lane remains `openai-codex/gpt-5.4` with `agents.defaults.model.fallbacks = []`
+  - `main` complex lane now defaults to `anyone/gpt-5.4`
+  - configured main-session fallbacks remain:
+    - `deepseek/deepseek-chat`
+    - `mimo/mimo-v2-flash`
+    - `openrouter/xiaomi/mimo-v2-pro`
+  - legacy official Codex remains available as an explicit cloud route: `openai-codex/gpt-5.4`
   - request-scoped local-lite remains plugin-driven via `/lite <message>`, `/local <message>`, `本地...`, and `日常...`
   - session-scoped local mode is now `routingModeOverride = "local_direct"` rather than a `providerOverride/modelOverride` on the `main` session
 - route semantics:
   - bare `/lite` and bare `/local` enable `local_direct` and return a `durationMs=0` synthetic control reply
   - later ordinary messages in that session call Mac Qwen 9B with a raw single-turn payload: the user's text is forwarded as the only chat message, without an OpenClaw-added system prompt or summary
   - the local-direct path bypasses memory search, tools, planning, file/code affordances, session review, and the full `main` agent prompt
-  - bare `/main`, bare `/codex`, bare `/new`, and bare `/reset` clear `local_direct`
-  - bare `/new` and `/reset` remain lifecycle commands and return to the cloud default `openai-codex/gpt-5.4`
+  - bare `/main`, bare `/codex`, bare `/anyone`, bare `/new`, and bare `/reset` clear `local_direct`
+  - bare `/new` and `/reset` remain lifecycle commands and return to the cloud default `anyone/gpt-5.4`
+  - bare `/main` returns to the cloud default `anyone/gpt-5.4`
+  - bare `/codex` explicitly switches to `openai-codex/gpt-5.4`
+  - bare `/anyone` explicitly switches to `anyone/gpt-5.4`
 - failure semantics:
-  - request-scoped local-lite remains fail-soft and may fall through to `openai-codex/gpt-5.4`
+  - request-scoped local-lite remains fail-soft and may fall through to `anyone/gpt-5.4`
   - session-scoped `local_direct` is fail-closed: if the Mac tunnel/model/hot probe/content check fails, OpenClaw returns a visible “本地模型当前不可用” message and keeps the session in local mode
   - thinking-only or empty-content responses are never counted as local success
   - the reply-runtime hot probe budget is now `5000ms`; chat timeout is disabled (`0` = no OpenClaw-side abort), and timeout logs still name the failing endpoint when a timeout is configured
@@ -286,7 +324,7 @@ Live `2026-04-15 19:17-19:25 CST` evidence showed a distinct failure mode after 
   - `2026-04-15 11:15 CST` follow-up disabled NAS-local `ollama.service` and removed keepwarm's `After/Wants=ollama.service`; local NAS `11434/api/ps` had no loaded models, so the current high load is not from an active e2b runner
   - the same load triage found about `194` long-running `soffice.bin` processes under Stirling PDF/LibreOffice; handle that as a separate process-leak/job-backlog incident if load remains high
 
-### Newly completed OpenClaw audit remediation
+### Historical OpenClaw audit remediation
 
 - keepwarm is no longer tied to the retired NAS-local e2b naming or dead `11434` path:
   - active timer/service: `openclaw-qwen9b-keepwarm.timer` / `openclaw-qwen9b-keepwarm.service`
@@ -312,7 +350,7 @@ Live `2026-04-15 19:17-19:25 CST` evidence showed a distinct failure mode after 
   - benben/adminAI `/lite -> 只回复OK -> /main` smoke succeeds through Mac Qwen 9B in about `3.1s` / `2.7s`, then returns to `openai-codex/gpt-5.4`
   - both service users still have `sudo -n`; current broad `NOPASSWD:ALL` is an operational/security risk to revisit only with explicit approval
 
-### Newly completed Feishu bare `/lite` reply-path alignment
+### Historical Feishu bare `/lite` reply-path alignment
 
 - architectural drift that remained after the earlier local-direct rollout:
   - gateway RPC/control surfaces (`server.impl-BxLfE9ri.js`, `dispatch-CFaSnCVe.js`, `agent-command-8TL7BESJ.js`) already understood bare `/lite` / `/local` as `routingModeOverride="local_direct"`
@@ -331,7 +369,7 @@ Live `2026-04-15 19:17-19:25 CST` evidence showed a distinct failure mode after 
   - Feishu/QQ/Telegram inbound paths and gateway RPC/CLI paths now share the same persistent local-direct semantics
   - bare `/lite` should no longer degrade into a one-turn local-lite persona reply on the reply/runtime path
 
-### Newly completed Feishu `local_direct` ordinary-turn execution alignment
+### Historical Feishu `local_direct` ordinary-turn execution alignment
 
 - a second-order drift remained after the `13:19 CST` control-plane fix:
   - bare `/lite` on Feishu had started returning the correct synthetic local-direct control reply
@@ -356,7 +394,7 @@ Live `2026-04-15 19:17-19:25 CST` evidence showed a distinct failure mode after 
   - later ordinary turns in a `local_direct` Feishu session now stay on the minimal local payload instead of re-entering the full cloud `main` lane
   - the only remaining proof point is a fresh real Feishu DM after the patch, not a new code-path decision
 
-### Newly completed Feishu `local_direct` body-source correction
+### Historical Feishu `local_direct` body-source correction
 
 - the `16:36 CST` screenshot proved the previous fix was still incomplete:
   - the `local_direct` marker was already persisted in the main session store
@@ -376,7 +414,7 @@ Live `2026-04-15 19:17-19:25 CST` evidence showed a distinct failure mode after 
     - ordinary-turn body extraction parity
   - if a later failure still appears, it should now be a real local-direct transport/model issue, not another local variable / control-plane mismatch
 
-### Newly completed Feishu bare lifecycle export compatibility repair
+### Historical Feishu bare lifecycle export compatibility repair
 
 - a separate lifecycle regression appeared after the reply-path bundle edits:
   - bare `/new` on Feishu at `16:46 CST` produced no visible reply
@@ -416,7 +454,7 @@ This section is retained as the 2026-04-14 pivot history. The 2026-04-15 `local_
   - `/local <message>` / `/lite <message>` / `本地...` / `日常...` try the lightweight local lane for that turn
   - ordinary non-prefixed turns in a persisted `local_direct` session bypass `local-lite-lane` and go straight to the raw local-direct runtime path, so the session-local mode has a single fail-closed executor
   - `/main` / `/codex` force the cloud lane
-  - bare `/new` and `/reset` return to cloud `openai-codex/gpt-5.4`, not to local-lite
+  - bare `/new` and `/reset` return to cloud `anyone/gpt-5.4`, not to local-lite
   - bare everyday chat also stays on cloud `main`; the Mac local model is not the default session route
 - warm architecture is now evidence-based:
   - observed live hot direct chat on `2026-04-14`: about `1.5-1.7s` for a trivial `POST /api/chat` through NAS `127.0.0.1:11436`
@@ -442,7 +480,7 @@ This section is retained as the 2026-04-14 pivot history. The 2026-04-15 `local_
   - after NAS-local Ollama retirement, relay local upstream is disabled (`LOCAL_OLLAMA_BASE=`, `localEnabled=false`); `/api/tags` and `/api/ps` are filtered to the remote whitelist
 - response-shape guardrail is now explicit:
   - local-lite chat and warm payloads must send top-level `think:false`
-  - thinking-only or empty-content replies are local failures and must fall through to `openai-codex/gpt-5.4`
+  - thinking-only or empty-content replies are local failures and must fall through to `anyone/gpt-5.4`
 - context policy is now explicit:
   - `32768` is the default live local-lite context because it is already validated and fits the short-payload lane
   - `65536` is preserved only as a manual heavy-history experiment and is not the default serving value
@@ -484,7 +522,7 @@ This section is retained as the 2026-04-14 pivot history. The 2026-04-15 `local_
   - transport `Mac 11434 -> NAS 11436 -> relay 11435`
   - fallback `openrouter/xiaomi/mimo-v2-omni`
 
-### Newly completed NAS-local Gemma e2b fast-fail and Mac image relay recovery
+### Historical NAS-local Gemma e2b fast-fail and Mac image relay recovery
 
 - main-chat architecture on both live instances now resolves through the same NAS-local default path:
   - `agents.defaults.model.primary = ollama/huihui_ai/gemma-4-abliterated:e2b`
@@ -609,7 +647,7 @@ What is now closed by the 2026-04-14 follow-up:
     - the reply/chat-path fix is represented in staging patch artifacts
     - the decisive CLI/gateway fix currently exists as live dist truth in `server.impl-BxLfE9ri.js`; no tracked staging source snapshot for that file was found, so a future bundle-management pass should capture it upstream
 
-### Newly completed channel canary state-consistency and gateway version-sync pass
+### Historical channel canary state-consistency and gateway version-sync pass
 
 - channel canary state is no longer a one-slot “latest result only” blob:
   - current run health now lives separately from retained failure history
@@ -640,7 +678,7 @@ What remains open:
 - `deployment-verify --with-smoke` still reports `recent_preflight_trace_missing`
 - those two checks should now be treated as a separate verify/runtime contract repair task, not folded back into canary delivery or service-version work
 
-### Newly completed slash-command Chinese localization and privilege opening
+### Historical slash-command Chinese localization and privilege opening
 
 - user-facing slash-command reply builders are no longer English-first:
   - status and command listing surfaces
@@ -678,7 +716,7 @@ What remains open:
   - bundle-hash drift still requires regenerating the ruleset from a fresh orig/zh snapshot when upstream package structure changes materially
   - this patch layer is operationally stable, but it is still a live dist rewrite rather than a first-class upstream localization extension point
 
-### Newly advanced dual-instance uplift gate
+### Historical dual-instance uplift gate
 
 - benben/adminAI dual-instance scoring is no longer blocked by stale summary reads:
   - `openclaw-dual-instance-scorecard.mjs` now reuses the refreshed benben health truth and can also render a separate `24h + fixture` preview layer
@@ -699,7 +737,7 @@ What remains open:
 
 Architecture truth after this pass:
 
-### Newly completed deployment-verify hardening and smoke parity closure
+### Historical deployment-verify hardening and smoke parity closure
 
 - `deployment-verify.mjs` no longer treats a single transient `openai_class_b` fallback as an automatic hard failure:
   - the check still requires `codex_class_b` for success
@@ -756,7 +794,7 @@ What remains open:
 - do not move historical sidecar past `shadow_retrieve` during this observation window
 - do not let preview-only evidence be reported as if it were already `7d live`
 
-### Newly completed Mac-local vision cutover
+### Historical Mac-local vision cutover
 
 - default image understanding is no longer NAS-local and no longer cloud-first
 - production image routing is now:
@@ -794,7 +832,7 @@ Remaining architecture debt after the cutover:
 - decide whether image ingress should standardize pre-processing for very large source images before they hit the model
 - if future product direction wants more explicit operator control, add a visible “local vision / cloud vision” status surface rather than relying only on logs and fallback behavior
 
-### New upgrade gate for upstream `v2026.4.9`
+### Historical upgrade gate for upstream `v2026.4.9`
 
 - upgrade impact assessment is now codified in:
   - `workspace/tools/openclaw-upgrade-impact-assess.mjs`
@@ -817,7 +855,7 @@ Remaining architecture debt after the cutover:
   - use the new `baseline_ready` preflight report as the upgrade-before snapshot
   - only then start a true `post` compare for `v2026.4.9`
 
-### New hybrid-memory rollout status
+### Historical hybrid-memory rollout status
 
 - benben now has a live historical sidecar in `shadow_index`, so index + telemetry are no longer just repo-local
 - live architecture truth after the rollout:
@@ -834,7 +872,7 @@ Remaining architecture debt after the cutover:
   - keep benben fallback order unchanged
   - keep `memory_v2` authoritative even after sidecar retrieval is enabled
 
-### New current gap after Codex usage repair
+### Historical current gap after Codex usage repair
 
 - `usage codex/openai` now exists and truthfully reports local OpenClaw Codex/OpenAI usage, so the old “quota query falls back to session_status speculation” gap is closed
 - live chat `/usage codex` is now also compatible through the `commands-handlers.runtime-*` cache-reader patch, so shell and in-chat surfaces share the same Codex usage cache
@@ -846,7 +884,7 @@ Remaining architecture debt after the cutover:
   - if the product needs official OpenAI quota/billing truth inside chat, add a separate first-class provider adapter instead of reusing `session_status`
   - generic Chinese quota prompts now route correctly to provider usage, so the remaining gap is account-level truth rather than intent routing
 
-### Newly closed main-lane auth drift gap
+### Historical main-lane auth drift gap
 
 - the `openclaw 完全不回复` incident proved that the production main lane had a separate auth-drift failure mode:
   - canonical root auth store remained healthy
@@ -860,7 +898,7 @@ Remaining architecture debt after the cutover:
   - main-agent store `/var/lib/openclaw/.openclaw/agents/main/agent/auth-profiles.json` is now a synchronized execution copy, not an independent truth source
   - the sync replaces only the `openai-codex:default` profile and preserves unrelated provider profiles
 
-### Newly closed command-dispatch drift gap
+### Historical command-dispatch drift gap
 
 - the same incident also exposed a second gap unrelated to auth:
   - the usage-only runtime patch could remove `handleFastCommand` while preserving its reference in `loadCommandHandlers()`
@@ -870,7 +908,7 @@ Remaining architecture debt after the cutover:
   - `runtime-phase1-cutover.mjs` now treats `handleFastCommand` presence as part of the patch completeness contract
   - direct-command runtime integrity is now an explicit part of the status/usage patch surface, not an accidental side effect
 
-### Newly closed memory-quality phase 2 gap
+### Historical memory-quality phase 2 gap
 
 - `partner/couple` fresh shared-state evidence was underrepresented because low-risk `/new` review candidates only queued and did not auto-land
 - owner `current/recent` also carried durable preference residue because daily mirror pushed preference-style notes straight into `state/current` and `context/recent`
@@ -898,7 +936,7 @@ Residual follow-up:
   - keep projection/verify semantics hard-gated
   - deepen privacy/disclosure semantics beyond the current helper-level blocklist
 
-### Newly closed shared-current freshness-yield gap
+### Historical shared-current freshness-yield gap
 
 - one residual quality gap remained after phase 2:
   - `/new` low-risk auto-apply was already immediate
@@ -923,7 +961,7 @@ Residual follow-up after this closure:
 - event extraction still has a narrower “what counts as durable enough to emit an event” front door than `/new` session-review rescue, so purely stage-like group notes without relationship keywords remain a possible future yield-expansion area
 - `deployment-verify` smoke still depends on a healthy `agent:main:main` session envelope; after service restarts, degraded direct-session metadata can still create false red smoke until the main store entry is normalized back to canonical channel/origin fields
 
-### Newly closed bare session-reset progress-noise gap
+### Historical bare session-reset progress-noise gap
 
 - Feishu direct-message long-task visibility was originally added as a generic transport-progress surface
 - but bare `/new` and bare `/reset` already emit a visible `✅ New session started ...` notice before the startup/review turn continues
@@ -5030,156 +5068,128 @@ Current architecture state after this correction:
   - if `stable-trim` resurfaces later on compat files, first check for ownership drift or freshly created manual backup files inside active `memory/stable/compat/`; the 2026-04-18 cleanup proved that a root-owned compat file and a temporary `.bak-codex-trimfix-*` rollback copy can both create false follow-up trim recommendations without indicating a live memory bug
   - retry-tail debt is now closed again (`historical_tail_count=0`); if it reappears later, treat it as a fresh audit signal and confirm whether it is truly active retry backlog or just another low-signal historical sample before retiring it
 
-2026-04-20 cloud/local hard split truth:
+2026-04-21 Anyone.ai provider architecture note:
 
-The remaining benben `不知道。` regression was not caused by an empty memory base. It was caused by lane-policy contamination after `/local`.
+- new capability added:
+  - both live instances now expose an optional `anyone` provider through the normal provider registry, backed by `ANYONE_API_KEY`
+  - current live Anyone model refs:
+    - `anyone/gpt-5.4`
+    - `anyone/gpt-5.3-codex`
+- architectural truth to preserve:
+  - this note reflects the initial additive-only enablement phase and is superseded by the later same-day `Anyone main-lane architecture follow-up`
+  - `anyone` first landed as an additive provider before the default-route cutover
+  - keep Anyone credentials isolated in `ANYONE_API_KEY`; do not overload `OPENAI_API_KEY`, because other runtime helpers still depend on the canonical OpenAI env name
+  - when a provider is added live, the matching repo source-of-truth config must be updated in the same session to avoid rollout drift
+- regression / smoke to preserve after future config or package updates:
+  - both live configs still contain `models.providers.anyone`
+  - both gateway env files still carry the managed `ANYONE_API_KEY` block
+  - both gateway services restart cleanly with the expected main-lane model for the current deployment phase
+  - direct NAS-side `POST https://api.anyone.ai/v1/responses` using the live env key still returns a valid `gpt-5.4` response
 
-- architecture truth now locked:
-  - benben and adminAI remain separate services
-    - shared package runtime under `/usr/lib/node_modules/openclaw/dist`
-    - separate service env, service user, HOME, session store, transcript tree, and workspace tools
-  - user-session identity must be derived from:
-    - `serviceId`
-    - `sessionClass`
-    - `routingLane`
-    - `channel`
-    - `subjectKey`
-  - `sessionIdentityKey` is the persisted dedupe/quarantine truth for lane reuse decisions
-  - local lane and cloud lane are separate user lanes, not a model toggle inside one session
-    - benben cloud user lane => `memoryPolicy=cloud_full`
-    - benben local user lane => `memoryPolicy=static_only`
-    - adminAI cloud/local user lanes => `memoryPolicy=static_only`
-    - heartbeat / cron => `memoryPolicy=none`
-- critical pitfall now documented:
-  - do not inherit `memoryPolicy` from an old session entry when routing lane changes
-  - recompute `memoryPolicy` from `serviceId + sessionClass + routingLane`
-  - otherwise `/local` can poison the anchor row with `static_only`, and a later `/new` cloud session will look memory-empty even though cloud memory exists
-- local vision truth now locked:
-  - local image requests must bypass cloud pre-session media understanding
-  - inbound local image files must be read and sent to Ollama as native base64 `messages[].images`
-  - no silent cloud fallback for local image requests
-  - local vision availability must not require the model to already be hot in `/api/ps`
-  - if `qwen2.5vl:7b` exists in `/api/tags`, the runtime should attempt the first-load local vision request
-- verified live metadata shape from an isolated benben probe after repair:
-  - local lane row:
-    - key suffix `:__lane_local`
-    - `routingLane=local`
-    - `memoryPolicy=static_only`
-    - `sessionIdentityKey=benben:user:local:...`
-  - cloud lane row:
-    - canonical key without local suffix
+2026-04-21 Anyone main-lane architecture follow-up:
+
+- this note supersedes the earlier same-day statement that `anyone` was additive-only
+- current cloud-lane truth:
+  - the main default lane for both benben and adminAI is now `anyone/gpt-5.4`
+  - the legacy official Codex lane remains available as `openai-codex/gpt-5.4`
+  - bare `/codex` is no longer just “return to default cloud lane”; it is a dedicated legacy-Codex route
+  - bare `/anyone` is now the dedicated explicit Anyone route
+  - bare `/main`, `/new`, and `/reset` return to the current default cloud lane `anyone/gpt-5.4`
+- runtime architecture truth to preserve:
+  - config alone was insufficient to preserve `/codex` semantics after changing the default model
+  - the decisive fix was in `server.impl-BxLfE9ri.js`:
+    - bare route parsing now recognizes `/anyone`
+    - bare `/codex` injects `modelAlias = "codex"`
+    - bare `/anyone` injects `modelAlias = "anyone"`
+    - synthetic bare-route replies now report the selected model ref when a bare route explicitly selected one, instead of always echoing the default model
+  - this keeps default-route selection and explicit-route selection separate, which is the required architecture for future multi-cloud main-lane changes
+- observed limitation:
+  - `/model anyone` and `/model anyone/gpt-5.4` were not reliable enough in this live setup when moving back from legacy Codex; smoke showed the session store could remain pinned on `openai-codex/gpt-5.4`
+  - therefore the stable user-facing contract is:
+    - use bare `/anyone` for explicit Anyone switching
+    - use bare `/codex` for explicit legacy Codex switching
+- regression / smoke to preserve after future runtime or config changes:
+  - fresh `/new` on benben/adminAI should resolve to `provider=anyone`, `model=gpt-5.4`
+  - bare `/codex -> /status` on benben/adminAI should resolve to `provider=openai-codex`, `model=gpt-5.4`
+  - bare `/anyone -> ordinary follow-up` on benben/adminAI should resolve to `provider=anyone`, `model=gpt-5.4`
+  - bare `/main` after `/lite` should still resolve to the cloud default `anyone/gpt-5.4`
+
+2026-04-21 Anyone status-surface note:
+
+- the route cutover exposed a separate status-surface bug:
+  - clear-route lifecycle actions can leave `providerOverride` / `modelOverride` as empty strings
+  - the status builder must treat empty strings as absent, not as real selected provider/model values
+- current architecture truth:
+  - the stable status surface for the Anyone default lane now prefers:
+    1. explicit override when present and non-empty
+    2. session-recorded `modelProvider` / `model`
+    3. configured default only as the last fallback
+- regression / smoke to preserve:
+  - fresh Anyone-default `/status` on benben/adminAI must report `模型：anyone/gpt-5.4`
+  - the same fix must not break legacy Codex route reporting; `/codex -> /status` must still report `openai-codex/gpt-5.4`
+
+2026-04-22 direct-main owner/couple memory_v2 routing note:
+
+- runtime truth to preserve:
+  - benben direct `agent:main:main` sessions can reach `memory_search` with the query already rewritten into third-person owner proxy forms such as `用户...`
+  - the stable fix surface is `workspace/tools/memory-v2-helper.mjs`, not the legacy phase1 manifest fallback
+- routing rule that must remain true:
+  - for direct benben main sessions with unresolved sender, rewritten owner proxy queries (`用户...` / `user ...`) that match owner long-term, owner preference, or owner current intent and do not explicitly mention partner / assistant / couple must still classify into `memory_v2`
+  - owner proxy recent/current questions should stay on `private_self_state`
+  - owner proxy academic planning (`考试/备考/复习/学业/读研/申请/港校/香港/exam/study/grad/apply`) must stay on `owner_profile` so owner current plus stable owner are both available
+  - rewritten couple planning questions must continue to land on `couple_current_state`
+- durable memory rule:
+  - long-term plans that should survive current-state decay must be promoted into `memory_v2/facts/stable/owner.yaml` as `long_term_anchor`
+  - do not leave durable owner life-planning facts only in `owner-current.md`
+- regression / smoke to preserve after future runtime or config changes:
+  - local regression: `workspace/tools/tests/memory-v2.test.mjs`
+    - unresolved direct main sender still treats owner proxy planning query as `owner_profile`
+    - unresolved direct main sender keeps owner proxy academic planning on `owner_profile` instead of `private_self_state`
+    - unresolved direct main sender still treats owner proxy preference query as `owner_profile`
+    - unresolved direct main sender still treats owner proxy recent-state query as `private_self_state`
+    - unresolved direct main sender still routes third-person couple planning query into `couple_current_state`
+  - benben live smoke should keep returning `reason=memory_v2_scoped` for:
+    - `那你知道我想去香港读研吗`
+    - `用户是否想去香港读研 香港 读研 研究生 留学 想去香港`
+    - `用户考试规划 学业 备考 复习 exam study plan`
+    - `用户喜欢什么 偏好 习惯`
+    - `用户最近在忙什么 近期 状态 计划`
+    - `用户和对象最近计划什么时候见面 行程 安排`
+- explicit non-goals:
+  - do not loosen adminAI `ops-only`
+  - do not re-open legacy manifest / self-topic fallback for this class of owner questions
+
+2026-04-22 resolved owner-DM identity / planning note:
+
+- runtime truth to preserve:
+  - the real benben Feishu owner chat should be reasoned about as a resolved owner DM, not as `agent:main:main`
+  - current canonical real-user session shape:
+    - `serviceId=benben`
     - `routingLane=cloud`
     - `memoryPolicy=cloud_full`
-    - `sessionIdentityKey=benben:user:cloud:...`
-- regression checks that must remain mandatory after any future runtime upgrade:
-  - isolated `/local -> /new` probe must produce:
-    - local row `memoryPolicy=static_only`
-    - cloud row `memoryPolicy=cloud_full`
-  - local image request when `qwen2.5vl:7b` is installed but not yet hot must still attempt local vision rather than fail at the preheat gate
-  - benben probe session key must never appear in adminAI `sessions.json`
-  - adminAI memory helper copies under `/var/lib/openclaw-adminai/.openclaw/workspace/tools/` must stay aligned with the shared runtime’s memory-policy contract
-
-2026-04-20 live transport truth after outage restore:
-
-- shared runtime file integrity is now an explicit production dependency:
-  - if `/usr/lib/node_modules/openclaw/dist/server.impl-BxLfE9ri.js` is truncated or replaced with an empty file, both benben and adminAI die together because they share the same package runtime
-  - the failure signature is:
-    - `TypeError: (intermediate value).startGatewayServer is not a function`
-  - first checks for any future "suddenly no reply anywhere" incident:
-    - `stat /usr/lib/node_modules/openclaw/dist/server.impl-BxLfE9ri.js`
-    - `systemctl status openclaw-gateway.service`
-    - `systemctl status openclaw-adminai-gateway.service`
-    - `curl 127.0.0.1:18789/health`
-    - `curl 127.0.0.1:18889/health`
-- current confirmed separation of concerns:
-  - benben/adminAI no-reply outage was caused by the shared `server.impl` corruption and is now closed after restore
-  - Telegram failure persisted after gateway restore, so it is a separate transport-layer incident
-- Telegram transport truth currently locked:
-  - upstream SOCKS5 endpoint credentials are still valid enough to answer a direct raw SOCKS5 `getMe` probe
-  - the failure is in the HTTP-proxy-over-SOCKS path used by the current NAS runtime:
-    - live bridge on `127.0.0.1:18988` fails Telegram TLS with `SSL_ERROR_SYSCALL`
-    - a temporary clean `xray` HTTP inbound on `127.0.0.1:18989` reproduced the same failure
-  - therefore the remaining blocker is not limited to the custom Python bridge implementation; it affects the current HTTP-proxy strategy itself
-- practical implication:
-  - benben cloud agent execution is healthy again
-  - Telegram channel recovery likely requires one of:
-    - a direct SOCKS-aware runtime path for Node/OpenClaw
-    - a different local proxy layer that can carry Telegram TLS successfully
-    - or a temporary Telegram-specific transport shim outside the current HTTP bridge design
-
-2026-04-20 direct-message scope truth:
-
-- the cloud/local lane repair is not sufficient if direct-message routing still collapses to `main`
-- current live lesson:
-  - if `session.dmScope` is left at its effective default `main`, a real external DM can still land in `agent:main:main`
-  - if heartbeat also targets the same chat and is not isolated, heartbeat can overwrite the generic main row with:
-    - `origin.provider=heartbeat`
-    - `subjectKey=heartbeat:direct:user:<chat-id>`
-  - this can make real user memory turns look like retrieval failures even when cloud memory is present
-- live baseline now required for benben/adminAI:
-  - `agents.defaults.heartbeat.isolatedSession=true`
-  - `session.dmScope=per-account-channel-peer`
-- operational rule now locked:
-  - system heartbeat delivery may reuse user-facing targets for outbound delivery
-  - but heartbeat transcripts and session rows must never reuse the user's direct-message session key
-  - generic `agent:main:main` heartbeat contamination should be treated as a routing bug, not as normal session reuse
-
-2026-04-20 benben memory-citation UX rule:
-
-- benben user-facing couple-memory replies should not expose raw storage provenance such as `Source: memory_v2/facts/...`
-- current live baseline for benben:
-  - `memory.citations = "off"`
-- this disables user-visible citation decoration while preserving retrieval itself
-
-2026-04-20 Telegram bridge truth:
-
-- when Telegram fails while raw SOCKS5 still works, first suspect the long-running local bridge process before changing upstream proxy credentials
-- first recovery sequence for this class of incident:
-  - restart `openclaw-socks-bridge.service`
-  - re-test:
-    - `curl -x http://127.0.0.1:18988 https://api.telegram.org/bot.../getMe`
-    - Telegram `message send`
-    - forced `channel-delivery-canary`
-  - only if those still fail should the investigation escalate to proxy/provider/runtime code
-
-2026-04-21 heartbeat/session/canary hardening truth:
-
-- shared runtime heartbeat isolation required two layers, not one:
-  - config layer:
-    - `agents.defaults.heartbeat.isolatedSession=true`
-    - `session.dmScope=per-account-channel-peer`
-  - runtime key-construction layer:
-    - isolated heartbeat sessions must not be created by naive string append `sessionKey + ":heartbeat"`
-    - the wake path must first strip any prior heartbeat suffix and then build a stable heartbeat-specific key from agent + lane + delivery target
-- current live architecture truth after repair:
-  - benben/adminAI recent heartbeat rows now live under isolated heartbeat-prefixed keys rather than `agent:main:main(:heartbeat)+`
-  - `agent:main:main(:heartbeat)+` rows are now treated as legacy pollution and quarantined when confirmed `origin.provider=heartbeat`
-  - adminAI and benben each keep separate quarantine trees for these rows
-- adminAI canary truth now locked:
-  - adminAI must own its own systemd canary surface:
-    - `openclaw-adminai-channel-canary.service`
-    - `openclaw-adminai-channel-canary.timer`
-  - reusing only benben's canary timer leaves adminAI state stale even when adminAI live routing has changed
-- current canary/channel semantics now locked:
-  - default `channel-delivery-canary --channel all` should only cover the active required channels:
-    - `telegram`
-    - `feishu`
-  - disabled QQBot should remain available as prepared tooling, but must not be part of default canary health judgment or default requested-channel summaries
-  - explicit `--channel qqbot` remains valid when operator intentionally wants to test QQ tooling
-- operator launcher transport truth now locked:
-  - raw Telegram transport through the local bridge can be healthy while the generic OpenClaw operator send path still fails
-  - the practical mitigation is:
-    - keep the normal Telegram send path first
-    - if and only if the known OpenClaw Telegram send failure is detected, fall back to a validated raw `curl + 127.0.0.1:18988` send path
-  - this fallback is an operator-surface mitigation, not a model/runtime routing change
-- adminAI healthcheck dependency truth:
-  - the `openclaw-adminai-healthcheck.service` path is sensitive to missing workspace tool closure, not just one script
-  - if adminAI healthcheck starts failing on import errors again, check this closure as a unit:
-    - `memory-phase1-helper.mjs`
-    - `mempalace-sidecar.mjs`
-    - `session-memory-review.mjs`
-    - `memory-noise-filter.mjs`
-    - `memory-v2-helper.mjs`
-    - `safe-file-write.mjs`
-    - `memory-governance-helper.mjs`
-  - partial hot-sync of only one helper can leave the service red even when the first missing import has been restored
+    - `sessionKey=agent:main:feishu:default:direct:<owner-id>`
+- routing rule that must remain true:
+  - in a resolved owner DM, `你记得我的个人规划吗` must classify into `owner_profile`, not fall back to legacy manifest/self-only recall
+  - in a resolved owner DM, rewritten owner-proxy queries such as `用户现在偏好什么` should still classify into `owner_profile`
+  - in a resolved owner DM, partner-pronoun questions must not be swallowed by owner self/profile routing:
+    - `用户最近和她在忙什么` -> `partner_current_shared`
+    - `我想知道她最近备考怎么样` -> `partner_current_shared`
+  - owner current-state routing should only win when the query is actually about recent/current state, not when it is asking stable preference/profile
+- startup identity rule that must remain true:
+  - `workspace/IDENTITY.md` and `workspace/USER.md` are part of the effective main-session self/user disambiguation surface
+  - they must keep an explicit distinction between:
+    - `你是谁 / 你叫什么 / 你能做什么` -> assistant (`笨笨`)
+    - `我是谁 / 你知道我是谁吗` -> user (`张锦程`)
+  - this is required because not every identity-style turn is guaranteed to rely on `memory_search`
+- regression / smoke to preserve:
+  - local regression: `workspace/tools/tests/memory-v2.test.mjs`
+    - assistant identity query routes into `assistant_profile`
+    - owner direct DM personal-planning query routes into `owner_profile`
+    - resolved owner direct DM still treats owner proxy preference query as `owner_profile`
+    - resolved owner direct DM routes partner pronoun recent query into `partner_current_shared`
+    - resolved owner direct DM does not let partner pronoun planning query fall back to `owner_profile`
+  - benben runtime smoke should keep succeeding for:
+    - `你是谁`
+    - `你知道我是谁吗`
+    - `你记得我的个人规划吗`
+    - `我想知道她最近备考怎么样`
