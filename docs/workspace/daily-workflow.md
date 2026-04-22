@@ -34,6 +34,8 @@ Treat this as the normal Codex root.
 - If you are intentionally doing a hand-grouped multi-commit sequence, pause auto hygiene first:
   - `~/.codex/tools/codex-repo-hygiene-guard.sh pause --repo <repo> --minutes 30 --reason manual-split-commit`
   - `~/.codex/tools/codex-repo-hygiene-guard.sh resume --repo <repo>`
+- Or wrap the grouped command directly:
+  - `~/.codex/tools/codex-repo-hygiene-guard.sh with-pause --repo <repo> --minutes 30 --reason manual-split-commit -- <command ...>`
 
 ## When To Open The Legacy Root
 
