@@ -161,12 +161,15 @@ function isTrackablePath(relativePath) {
 function summarizePathForCheckpoint(relativePath) {
   const normalized = String(relativePath || "").trim().replace(/\\/g, "/");
   if (!normalized) return "";
-  if (TRACKABLE_EXACT_PATHS.has(normalized)) return normalized;
-  if (normalized.startsWith(".codex/agents/")) return ".codex/agents";
-  if (normalized.startsWith("docs/")) return normalized.split("/").slice(0, 2).join("/");
-  if (normalized.startsWith("ops/projects/openclaw/manifests/")) return "ops/projects/openclaw/manifests";
-  const segments = normalized.split("/").filter(Boolean);
-  return segments.slice(0, Math.min(2, segments.length)).join("/");
+  if (normalized === ".gitignore") return "hygiene";
+  if (normalized === "AGENTS.md" || normalized === "README.md" || normalized === "WORKSPACE_MAP.md") return "workspace";
+  if (normalized.startsWith(".codex/")) return "codex-config";
+  if (normalized.startsWith("docs/")) {
+    if (normalized.startsWith("docs/workspace/")) return "workspace";
+    return "docs";
+  }
+  if (normalized.startsWith("ops/")) return "ops";
+  return "workspace";
 }
 
 function summarizeCheckpointScope(summary = {}) {
