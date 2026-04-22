@@ -1,0 +1,77 @@
+import assert from "node:assert/strict";
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import test from "node:test";
+import { spawnSync } from "node:child_process";
+
+import { buildRepoHygieneSummary, isTrackablePath } from "./repo-hygiene.mjs";
+
+function runGit(repoRoot, args) {
+  const result = spawnSync("git", ["-C", repoRoot, ...args], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  if (result.status !== 0) throw new Error((result.stderr || result.stdout || `git ${args.join(" ")} failed`).trim());
+}
+
+async function createFixture() {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "codex-workspace-hygiene-"));
+  runGit(root, ["init"]);
+  runGit(root, ["config", "user.name", "Codex"]);
+  runGit(root, ["config", "user.email", "codex@example.com"]);
+
+  await fs.mkdir(path.join(root, ".codex", "agents"), { recursive: true });
+  await fs.mkdir(path.join(root, "docs", "workspace"), { recursive: true });
+  await fs.mkdir(path.join(root, "ops", "projects", "openclaw", "manifests"), { recursive: true });
+  await fs.writeFile(path.join(root, "AGENTS.md"), "agents\n", "utf8");
+  await fs.writeFile(path.join(root, ".codex", "config.toml"), "model = \"gpt-5.4\"\n", "utf8");
+  await fs.writeFile(path.join(root, "README.md"), "workspace\n", "utf8");
+  await fs.writeFile(path.join(root, "WORKSPACE_MAP.md"), "map\n", "utf8");
+  await fs.writeFile(path.join(root, ".gitignore"), "/state/\n/projects/\n", "utf8");
+  runGit(root, ["add", "."]);
+  runGit(root, ["commit", "-m", "fixture"]);
+  return root;
+}
+
+test("root hygiene trackable-path gate matches workspace policy", () => {
+  assert.equal(isTrackablePath("AGENTS.md"), true);
+  assert.equal(isTrackablePath(".codex/agents/repo-mapper.toml"), true);
+  assert.equal(isTrackablePath("docs/workspace/repo-hygiene.mjs"), true);
+  assert.equal(isTrackablePath("ops/projects/openclaw/manifests/test.json"), true);
+  assert.equal(isTrackablePath("projects/products/openclaw/file.txt"), false);
+  assert.equal(isTrackablePath("state/tmp.json"), false);
+});
+
+test("root hygiene can checkpoint allowed tracked changes into a clean commit", async () => {
+  const repoRoot = await createFixture();
+  await fs.writeFile(path.join(repoRoot, "docs", "workspace", "daily-workflow.md"), "workflow\n", "utf8");
+  await fs.writeFile(path.join(repoRoot, "AGENTS.md"), "agents updated\n", "utf8");
+
+  const summary = await buildRepoHygieneSummary({
+    repo: repoRoot,
+    checkpointCommit: true,
+    turnId: "root-turn",
+  });
+
+  assert.equal(summary.git_clean, true);
+  assert.equal(summary.checkpoint_commit?.ok, true);
+  assert.match(summary.checkpoint_commit?.message || "", /root-turn/u);
+});
+
+test("root hygiene blocks checkpoint when non-trackable paths are present", async () => {
+  const repoRoot = await createFixture();
+  await fs.mkdir(path.join(repoRoot, "tmp"), { recursive: true });
+  await fs.writeFile(path.join(repoRoot, "tmp", "notes.txt"), "temp\n", "utf8");
+
+  const summary = await buildRepoHygieneSummary({
+    repo: repoRoot,
+    checkpointCommit: true,
+    turnId: "root-turn-blocked",
+  });
+
+  assert.equal(summary.git_clean, false);
+  assert.equal(summary.checkpoint_commit?.ok, false);
+  assert.equal(summary.checkpoint_commit?.skipped, "non_trackable_paths_present");
+  assert.deepEqual(summary.checkpoint_commit?.blocked_paths, ["tmp/notes.txt"]);
+});

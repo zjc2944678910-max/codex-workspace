@@ -1,0 +1,272 @@
+#!/usr/bin/env node
+
+import { spawnSync } from "node:child_process";
+import fs from "node:fs/promises";
+import path from "node:path";
+import process from "node:process";
+import { fileURLToPath } from "node:url";
+
+const TRACKABLE_EXACT_PATHS = new Set([
+  "AGENTS.md",
+  ".gitignore",
+  ".codex/config.toml",
+  "README.md",
+  "WORKSPACE_MAP.md",
+  "ops/README.md",
+  "ops/projects/README.md",
+  "ops/projects/openclaw/README.md",
+  "ops/projects/openclaw/DEPLOYMENT_LEDGER.md",
+  "ops/projects/openclaw/ARCHITECTURE_TODO.md",
+]);
+
+const TRACKABLE_PREFIXES = [
+  ".codex/agents/",
+  "docs/",
+  "ops/projects/openclaw/manifests/",
+];
+
+function parseArgs(argv = []) {
+  const options = {
+    repo: "",
+    checkpointCommit: false,
+    checkpointMessage: "",
+    turnId: "",
+    dryRun: false,
+    json: false,
+    quiet: false,
+    auto: false,
+  };
+  for (let index = 0; index < argv.length; index += 1) {
+    const arg = String(argv[index] || "").trim();
+    if (arg === "--repo") {
+      options.repo = String(argv[index + 1] || "").trim();
+      index += 1;
+      continue;
+    }
+    if (arg === "--checkpoint-commit") {
+      options.checkpointCommit = true;
+      continue;
+    }
+    if (arg === "--checkpoint-message") {
+      options.checkpointMessage = String(argv[index + 1] || "").trim();
+      index += 1;
+      continue;
+    }
+    if (arg === "--turn-id") {
+      options.turnId = String(argv[index + 1] || "").trim();
+      index += 1;
+      continue;
+    }
+    if (arg === "--dry-run") {
+      options.dryRun = true;
+      continue;
+    }
+    if (arg === "--json") {
+      options.json = true;
+      continue;
+    }
+    if (arg === "--quiet") {
+      options.quiet = true;
+      continue;
+    }
+    if (arg === "--auto") {
+      options.auto = true;
+      options.checkpointCommit = true;
+      options.json = true;
+      options.quiet = true;
+    }
+  }
+  return options;
+}
+
+function runGit(repoRoot, args, options = {}) {
+  const result = spawnSync("git", ["-C", repoRoot, ...args], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  if (result.status !== 0 && options.allowFailure !== true) {
+    throw new Error((result.stderr || result.stdout || `git ${args.join(" ")} failed`).trim());
+  }
+  return result;
+}
+
+function resolveRepoRoot(cwd = process.cwd()) {
+  const result = spawnSync("git", ["-C", cwd, "rev-parse", "--show-toplevel"], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  if (result.status !== 0) throw new Error((result.stderr || result.stdout || `failed to resolve repo root from ${cwd}`).trim());
+  return result.stdout.trim();
+}
+
+async function pathExists(targetPath) {
+  try {
+    await fs.access(targetPath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function ensureWorkspaceRoot(repoRoot) {
+  const requiredPaths = [
+    path.join(repoRoot, "AGENTS.md"),
+    path.join(repoRoot, "docs", "workspace"),
+    path.join(repoRoot, ".codex", "config.toml"),
+  ];
+  for (const requiredPath of requiredPaths) {
+    if (!(await pathExists(requiredPath))) throw new Error(`unsupported root repo for repo hygiene: ${repoRoot}`);
+  }
+}
+
+function parseStatusEntries(repoRoot) {
+  return runGit(repoRoot, ["status", "--porcelain=v1", "--untracked-files=all"]).stdout
+    .split(/\r?\n/u)
+    .map((line) => line.trimEnd())
+    .filter(Boolean)
+    .map((line) => ({
+      raw: line,
+      code: line.slice(0, 2),
+      path: line.slice(3),
+    }));
+}
+
+function classifyStatusEntries(entries = []) {
+  const summary = {
+    modifiedTracked: [],
+    untrackedSource: [],
+    otherTracked: [],
+  };
+  for (const entry of entries) {
+    if (entry.raw.startsWith("?? ")) {
+      summary.untrackedSource.push(entry.path);
+      continue;
+    }
+    if (/[MACRUDT]/u.test(entry.code)) {
+      summary.modifiedTracked.push(entry.path);
+      continue;
+    }
+    summary.otherTracked.push(entry.path);
+  }
+  return summary;
+}
+
+function isTrackablePath(relativePath) {
+  const normalized = String(relativePath || "").trim().replace(/\\/g, "/");
+  if (!normalized) return false;
+  if (TRACKABLE_EXACT_PATHS.has(normalized)) return true;
+  return TRACKABLE_PREFIXES.some((prefix) => normalized.startsWith(prefix));
+}
+
+function buildCheckpointCommitMessage(options = {}) {
+  const explicit = String(options.checkpointMessage || "").trim();
+  if (explicit) return explicit;
+  const turnId = String(options.turnId || "").trim();
+  const timestamp = new Date().toISOString().replace(/\.\d{3}Z$/u, "Z");
+  if (turnId) return `chore: codex workspace checkpoint (${turnId})`;
+  return `chore: codex workspace checkpoint (${timestamp})`;
+}
+
+function createCheckpointCommit(repoRoot, statusSummary = {}, options = {}) {
+  const pendingPaths = [
+    ...(statusSummary.modifiedTracked || []),
+    ...(statusSummary.untrackedSource || []),
+    ...(statusSummary.otherTracked || []),
+  ];
+  if (pendingPaths.length === 0) {
+    return { ok: true, skipped: "no_source_changes" };
+  }
+  const blockedPaths = pendingPaths.filter((entry) => !isTrackablePath(entry));
+  if (blockedPaths.length > 0) {
+    return {
+      ok: false,
+      skipped: "non_trackable_paths_present",
+      blocked_paths: blockedPaths,
+    };
+  }
+  if (options.dryRun === true) {
+    return {
+      ok: true,
+      dry_run: true,
+      message: buildCheckpointCommitMessage(options),
+    };
+  }
+  runGit(repoRoot, ["add", "-A"]);
+  const message = buildCheckpointCommitMessage(options);
+  const commitResult = runGit(repoRoot, ["commit", "-m", message], { allowFailure: true });
+  if (commitResult.status !== 0) {
+    return {
+      ok: false,
+      message,
+      error: (commitResult.stderr || commitResult.stdout || "git commit failed").trim(),
+    };
+  }
+  return {
+    ok: true,
+    message,
+    commit: runGit(repoRoot, ["rev-parse", "HEAD"]).stdout.trim(),
+  };
+}
+
+async function buildRepoHygieneSummary(options = {}) {
+  const repoRoot = path.resolve(options.repo || resolveRepoRoot(options.cwd || process.cwd()));
+  await ensureWorkspaceRoot(repoRoot);
+
+  const beforeStatus = classifyStatusEntries(parseStatusEntries(repoRoot));
+  const checkpointCommit = options.checkpointCommit ? createCheckpointCommit(repoRoot, beforeStatus, options) : null;
+  const afterStatus = classifyStatusEntries(parseStatusEntries(repoRoot));
+  return {
+    repo_root: repoRoot,
+    dry_run: options.dryRun === true,
+    checkpoint_commit_requested: options.checkpointCommit === true,
+    before: {
+      modified_tracked: beforeStatus.modifiedTracked,
+      untracked_source: beforeStatus.untrackedSource,
+      other_tracked: beforeStatus.otherTracked,
+    },
+    after: {
+      modified_tracked: afterStatus.modifiedTracked,
+      untracked_source: afterStatus.untrackedSource,
+      other_tracked: afterStatus.otherTracked,
+    },
+    checkpoint_commit: checkpointCommit,
+    git_clean: afterStatus.modifiedTracked.length === 0 && afterStatus.untrackedSource.length === 0 && afterStatus.otherTracked.length === 0,
+  };
+}
+
+function renderSummary(summary) {
+  return [
+    `repo_root: ${summary.repo_root}`,
+    `git_clean: ${summary.git_clean ? "yes" : "no"}`,
+    `checkpoint_commit: ${summary.checkpoint_commit?.commit || summary.checkpoint_commit?.skipped || "(none)"}`,
+    `modified_tracked: ${summary.after.modified_tracked.length}`,
+    `untracked_source: ${summary.after.untracked_source.length}`,
+  ].join("\n") + "\n";
+}
+
+async function main() {
+  const options = parseArgs(process.argv.slice(2));
+  const summary = await buildRepoHygieneSummary(options);
+  if (options.json) {
+    process.stdout.write(`${JSON.stringify(summary)}\n`);
+    return;
+  }
+  if (!options.quiet) process.stdout.write(renderSummary(summary));
+}
+
+const entryPath = process.argv[1] ? path.resolve(process.argv[1]) : "";
+const modulePath = fileURLToPath(import.meta.url);
+if (entryPath === modulePath) {
+  main().catch((error) => {
+    process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
+    process.exitCode = 1;
+  });
+}
+
+export {
+  buildRepoHygieneSummary,
+  classifyStatusEntries,
+  isTrackablePath,
+  renderSummary,
+  resolveRepoRoot,
+};
