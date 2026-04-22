@@ -31,6 +31,9 @@ Treat this as the normal Codex root.
 - Root workspace checkpointing is whitelist-gated:
   - only paths allowed by the workspace-index policy are eligible for auto checkpoint
   - if a non-trackable path appears, the repo stays dirty on purpose instead of silently committing it
+- If you are intentionally doing a hand-grouped multi-commit sequence, pause auto hygiene first:
+  - `~/.codex/tools/codex-repo-hygiene-guard.sh pause --repo <repo> --minutes 30 --reason manual-split-commit`
+  - `~/.codex/tools/codex-repo-hygiene-guard.sh resume --repo <repo>`
 
 ## When To Open The Legacy Root
 
