@@ -21,6 +21,17 @@ Treat this as the normal Codex root.
 - Temporary project output:
   - `scratch/projects/<project>/`
 
+## Keep-First Clean
+
+- When a Codex turn ends inside the workspace root or the OpenClaw mainline repo, the local `turn-ended` hook now runs repo hygiene automatically.
+- The hygiene rule is keep-first:
+  - preserve real source changes
+  - prune only explicit disposable outputs
+  - if source changes remain, create a local checkpoint commit so the repo returns to clean
+- Root workspace checkpointing is whitelist-gated:
+  - only paths allowed by the workspace-index policy are eligible for auto checkpoint
+  - if a non-trackable path appears, the repo stays dirty on purpose instead of silently committing it
+
 ## When To Open The Legacy Root
 
 Only return to:

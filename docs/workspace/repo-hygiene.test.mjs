@@ -5,7 +5,7 @@ import path from "node:path";
 import test from "node:test";
 import { spawnSync } from "node:child_process";
 
-import { buildRepoHygieneSummary, isTrackablePath } from "./repo-hygiene.mjs";
+import { buildCheckpointCommitMessage, buildRepoHygieneSummary, isTrackablePath, summarizeCheckpointScope } from "./repo-hygiene.mjs";
 
 function runGit(repoRoot, args) {
   const result = spawnSync("git", ["-C", repoRoot, ...args], {
@@ -43,6 +43,21 @@ test("root hygiene trackable-path gate matches workspace policy", () => {
   assert.equal(isTrackablePath("state/tmp.json"), false);
 });
 
+test("root hygiene summarizes checkpoint scope from allowed workspace paths", () => {
+  assert.equal(summarizeCheckpointScope({
+    modifiedTracked: [".gitignore", "AGENTS.md"],
+    untrackedSource: ["docs/workspace/repo-hygiene.mjs"],
+    otherTracked: [],
+  }), ".gitignore, AGENTS.md +1");
+  assert.match(buildCheckpointCommitMessage({
+    turnId: "root-scope",
+  }, {
+    modifiedTracked: [".gitignore", "AGENTS.md"],
+    untrackedSource: ["docs/workspace/repo-hygiene.mjs"],
+    otherTracked: [],
+  }), /root-scope; \.gitignore, AGENTS\.md \+1/u);
+});
+
 test("root hygiene can checkpoint allowed tracked changes into a clean commit", async () => {
   const repoRoot = await createFixture();
   await fs.writeFile(path.join(repoRoot, "docs", "workspace", "daily-workflow.md"), "workflow\n", "utf8");
@@ -57,6 +72,7 @@ test("root hygiene can checkpoint allowed tracked changes into a clean commit", 
   assert.equal(summary.git_clean, true);
   assert.equal(summary.checkpoint_commit?.ok, true);
   assert.match(summary.checkpoint_commit?.message || "", /root-turn/u);
+  assert.match(summary.checkpoint_commit?.message || "", /AGENTS\.md/u);
 });
 
 test("root hygiene blocks checkpoint when non-trackable paths are present", async () => {

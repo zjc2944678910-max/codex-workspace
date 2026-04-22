@@ -158,13 +158,37 @@ function isTrackablePath(relativePath) {
   return TRACKABLE_PREFIXES.some((prefix) => normalized.startsWith(prefix));
 }
 
-function buildCheckpointCommitMessage(options = {}) {
+function summarizePathForCheckpoint(relativePath) {
+  const normalized = String(relativePath || "").trim().replace(/\\/g, "/");
+  if (!normalized) return "";
+  if (TRACKABLE_EXACT_PATHS.has(normalized)) return normalized;
+  if (normalized.startsWith(".codex/agents/")) return ".codex/agents";
+  if (normalized.startsWith("docs/")) return normalized.split("/").slice(0, 2).join("/");
+  if (normalized.startsWith("ops/projects/openclaw/manifests/")) return "ops/projects/openclaw/manifests";
+  const segments = normalized.split("/").filter(Boolean);
+  return segments.slice(0, Math.min(2, segments.length)).join("/");
+}
+
+function summarizeCheckpointScope(summary = {}) {
+  const pendingPaths = [
+    ...(summary.modifiedTracked || []),
+    ...(summary.untrackedSource || []),
+    ...(summary.otherTracked || []),
+  ];
+  const labels = [...new Set(pendingPaths.map((entry) => summarizePathForCheckpoint(entry)).filter(Boolean))];
+  if (labels.length === 0) return "";
+  if (labels.length <= 2) return labels.join(", ");
+  return `${labels.slice(0, 2).join(", ")} +${labels.length - 2}`;
+}
+
+function buildCheckpointCommitMessage(options = {}, statusSummary = {}) {
   const explicit = String(options.checkpointMessage || "").trim();
   if (explicit) return explicit;
   const turnId = String(options.turnId || "").trim();
   const timestamp = new Date().toISOString().replace(/\.\d{3}Z$/u, "Z");
-  if (turnId) return `chore: codex workspace checkpoint (${turnId})`;
-  return `chore: codex workspace checkpoint (${timestamp})`;
+  const scope = summarizeCheckpointScope(statusSummary);
+  const metadata = [turnId || timestamp, scope].filter(Boolean).join("; ");
+  return `chore: codex workspace checkpoint (${metadata})`;
 }
 
 function createCheckpointCommit(repoRoot, statusSummary = {}, options = {}) {
@@ -188,11 +212,11 @@ function createCheckpointCommit(repoRoot, statusSummary = {}, options = {}) {
     return {
       ok: true,
       dry_run: true,
-      message: buildCheckpointCommitMessage(options),
+      message: buildCheckpointCommitMessage(options, statusSummary),
     };
   }
   runGit(repoRoot, ["add", "-A"]);
-  const message = buildCheckpointCommitMessage(options);
+  const message = buildCheckpointCommitMessage(options, statusSummary);
   const commitResult = runGit(repoRoot, ["commit", "-m", message], { allowFailure: true });
   if (commitResult.status !== 0) {
     return {
@@ -265,8 +289,10 @@ if (entryPath === modulePath) {
 
 export {
   buildRepoHygieneSummary,
+  buildCheckpointCommitMessage,
   classifyStatusEntries,
   isTrackablePath,
   renderSummary,
   resolveRepoRoot,
+  summarizeCheckpointScope,
 };
