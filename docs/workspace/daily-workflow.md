@@ -36,6 +36,8 @@ Treat this as the normal Codex root.
   - `~/.codex/tools/codex-repo-hygiene-guard.sh resume --repo <repo>`
 - Or wrap the grouped command directly:
   - `~/.codex/tools/codex-repo-hygiene-guard.sh with-pause --repo <repo> --minutes 30 --reason manual-split-commit -- <command ...>`
+- Short alias when you are already in the target repo:
+  - `~/.codex/tools/codex-with-pause.sh --minutes 30 --reason manual-split-commit -- <command ...>`
 
 ## When To Open The Legacy Root
 
