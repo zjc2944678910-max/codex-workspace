@@ -48,14 +48,14 @@ test("root hygiene summarizes checkpoint scope from allowed workspace paths", ()
     modifiedTracked: [".gitignore", "AGENTS.md"],
     untrackedSource: ["docs/workspace/repo-hygiene.mjs"],
     otherTracked: [],
-  }), "hygiene, workspace");
+  }), "workspace, hygiene");
   assert.match(buildCheckpointCommitMessage({
     turnId: "root-scope",
   }, {
     modifiedTracked: [".gitignore", "AGENTS.md"],
     untrackedSource: ["docs/workspace/repo-hygiene.mjs"],
     otherTracked: [],
-  }), /root-scope; hygiene, workspace/u);
+  }), /root-scope; workspace, hygiene/u);
 });
 
 test("root hygiene can checkpoint allowed tracked changes into a clean commit", async () => {
