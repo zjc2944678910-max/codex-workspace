@@ -24,6 +24,7 @@ Treat this as the normal Codex root.
 ## Keep-First Clean
 
 - When a Codex turn ends inside the workspace root or the OpenClaw mainline repo, the local `turn-ended` hook now runs repo hygiene automatically.
+- When the turn ends from the workspace root, the hook also checks known nested project repos that expose their own `repo-hygiene.mjs`.
 - The hygiene rule is keep-first:
   - preserve real source changes
   - prune only explicit disposable outputs
