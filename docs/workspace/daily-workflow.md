@@ -38,6 +38,8 @@ Treat this as the normal Codex root.
   - `~/.codex/tools/codex-repo-hygiene-guard.sh with-pause --repo <repo> --minutes 30 --reason manual-split-commit -- <command ...>`
 - Short alias when you are already in the target repo:
   - `~/.codex/tools/codex-with-pause.sh --minutes 30 --reason manual-split-commit -- <command ...>`
+- Specialized git commit wrapper when you are already in the target repo:
+  - `~/.codex/tools/codex-git-commit.sh -m "your message"`
 
 ## When To Open The Legacy Root
 
