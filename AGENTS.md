@@ -60,10 +60,10 @@ When asked to modify project code, enter the relevant project repository directl
 - Default workflow: `探索 -> 审查 -> 实施 -> 验证`
 - Treat an ordinary task request as permission for Codex to analyze, split, execute, and verify on its own.
 - Do not wait for the user to describe the agent split unless the ambiguity is material and risky.
-- Treat every new user turn as a fresh routing checkpoint.
+- Treat every new unrelated user turn as a fresh routing checkpoint.
 - Re-evaluate whether subagents would help on every turn, including follow-ups in the same thread.
 - Do not anchor to the previous turn's routing decision if the task becomes broader, deeper, or enters a new stage.
-- Messages like `continue`、`继续`、`再看看` or scope expansions still require a new routing judgment.
+- Messages like `continue`、`继续`、`再看看` or scope expansions require a continuation check first, then a routing judgment only for the unfinished delta.
 - Codex should choose and invoke the needed subagents proactively. The user does not need to name agents.
 - Only skip subagents for tiny, isolated, low-risk tasks.
 - Non-trivial tasks should start with `repo_mapper`.
@@ -80,6 +80,15 @@ When asked to modify project code, enter the relevant project repository directl
 - After changes, use `verifier` to reproduce or run the smallest useful tests.
 - Keep concurrency conservative: at most one write-capable agent at a time. Parallelize only independent read-only work.
 - Separate confirmed facts, hypotheses, and recommendations.
+
+## Compaction And Continuation Recovery
+
+- After context compaction, interruption, model retry, or a long-running background-agent handoff, do not restart the task from the beginning.
+- First reconstruct a compact continuation checkpoint from the available thread state: user goal, confirmed facts, completed stages, active or completed agents, files already inspected or changed, blockers, and the next single action.
+- If prior state is incomplete, inspect local git status, recent terminal output, and relevant files before rerunning broad mapping or review.
+- Do not relaunch `repo_mapper`, `review_guard`, `docs_checker`, or `verifier` for the same scope unless their prior result is missing, stale, or explicitly contradicted.
+- Resume from the smallest unfinished delta and state what is being skipped because it was already completed.
+- Before any risky or live-changing continuation, preserve the existing L2/L3 gate rules.
 
 ## Agent Boundaries
 
