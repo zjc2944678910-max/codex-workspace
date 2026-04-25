@@ -1,7 +1,7 @@
 #:schema https://developers.openai.com/codex/config-schema.json
 
-model = "gpt-5.4"
-review_model = "gpt-5.4"
+model = "gpt-5.5"
+review_model = "gpt-5.5"
 model_reasoning_effort = "xhigh"
 
 developer_instructions = """
@@ -36,6 +36,8 @@ Keep concurrency conservative. Use at most one write-capable agent at a time. Pa
 Default to the smallest change that solves confirmed facts.
 """
 
+sandbox_mode = "danger-full-access"
+approval_policy = "never"
 [agents]
 max_threads = 4
 max_depth = 1

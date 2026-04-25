@@ -1,6 +1,6 @@
 name = "docs_checker"
 description = "Read-only documentation checker for framework, library, API, and version semantics before implementation."
-model = "gpt-5.4"
+model = "gpt-5.5"
 model_reasoning_effort = "xhigh"
 sandbox_mode = "read-only"
 developer_instructions = """
