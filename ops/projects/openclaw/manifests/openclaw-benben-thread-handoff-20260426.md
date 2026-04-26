@@ -141,6 +141,68 @@ Confirmed on NAS:
 - shadow listener present on `127.0.0.1:18792`
 - secret values were not printed
 
+### 4.5 Product repo local vNext core implemented
+
+Repo:
+
+`/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/openclaw/nas-openclaw-v22`
+
+Branch:
+
+`codex/openclaw-benben-vnext-core`
+
+Commit:
+
+`3164adc2fd834b311691be0ef51af03ff3fbeec2`
+
+Commit message:
+
+`feat: add openclaw-benben vnext dry-run core`
+
+Local code location:
+
+- `workspace/tools/openclaw-benben/`
+
+Local test location:
+
+- `workspace/tools/tests/openclaw-benben/`
+
+Implemented locally:
+
+- message envelope
+- identity kernel
+- privacy kernel
+- Memory V4 wrapper
+- usage ledger
+- tool gate
+- Feishu dry-run adapter
+- command router
+- memory command planner
+- turn runner
+- dry-run CLI
+- README and source-manifest registration
+
+Key safety properties:
+
+- Feishu adapter is dry-run only and does not send.
+- No production ingress is enabled.
+- No model call is made by default.
+- No runtime commit is performed.
+- `/memory` admin is owner-direct only.
+- `/memory` mutations require confirmation and remain uncommitted.
+- Trace/report/usage surfaces are sanitized and do not persist raw text, chat IDs,
+  entity IDs, memory answers, tokens, or secrets.
+- Memory answer truth is Memory V4 only; V2/V3/projection/transcript/raw archive
+  are rejected as answer truth surfaces.
+
+Verification:
+
+- `node --test workspace/tools/tests/openclaw-benben/*.test.mjs workspace/tools/tests/workspace-source-manifest.test.mjs`
+  passed: 37 tests.
+- Benben + Memory V4 + source-manifest aggregate regression passed: 65 tests.
+- `node --check` passed for benben `.mjs` files and source-manifest.
+- `git diff --cached --check` passed before commit.
+
 ## 5. Live NAS State At Handoff
 
 ### Production old benben
@@ -215,11 +277,11 @@ Result:
 - No Feishu production ingress cutover
 - No Telegram enablement
 - No real Feishu message tests through shadow
-- No implementation yet of the new identity/privacy/memory runtime
-- No migration of answer logic from old benben bundle into new code structure
-- No cleanup of old product-repo memory-v4 branch work
+- No sync of commit `3164adc2fd834b311691be0ef51af03ff3fbeec2` to the NAS shadow workspace
+- No service/env/channel/systemd changes after the local vNext core checkpoint
+- No migration of the local dry-run core into an active runtime bundle
 
-## 8. Current Repos And Dirty State Before This Handoff Commit
+## 8. Current Repos And Dirty State
 
 ### Root repo
 
@@ -227,15 +289,10 @@ Repo:
 
 `/Users/zhangjincheng/Documents/GitHub/codex-workspace`
 
-Files changed in this thread:
+State after local vNext core documentation update:
 
-- docs listed in section 4.1
-- `.codex/config.toml` also dirty in this repo and should be checkpointed with this thread
-
-Why `.codex/config.toml` matters:
-
-- it now contains explicit continuation-recovery guidance and larger context window settings
-- this affects how future Codex threads recover after compaction/interruptions
+- clean before the 2026-04-27 documentation update
+- this handoff and implementation plan were updated to reference product commit `3164adc`
 
 ### Product repo
 
@@ -243,26 +300,23 @@ Repo:
 
 `/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/openclaw/nas-openclaw-v22`
 
-Branch observed:
+Current branch after local vNext core checkpoint:
 
-- `codex/memory-v3-shadow-baseline-fix`
+- `codex/openclaw-benben-vnext-core`
+
+Current commit:
+
+- `3164adc2fd834b311691be0ef51af03ff3fbeec2`
+
+Current state:
+
+- clean after commit `3164adc`
 
 Important note:
 
-- this repo already had a large dirty working tree when inspected in this thread
-- some of those changes are from earlier work in this same long thread, especially around Memory V4 / benben adapter and tests
-- do not blindly revert them in the new thread
-- treat the product repo as checkpointed branch state, not as clean greenfield
-
-Most clearly thread-relevant untracked files observed there:
-
-- `workspace/tools/memory-v4/memory-v4-benben-adapter.mjs`
-- `workspace/tools/tests/memory-v4/memory-v4-benben-adapter.test.mjs`
-- `workspace/tools/tests/memory-v4/memory-v4-runtime-bridge.test.mjs`
-- `workspace/tools/tests/memory-v4/fixtures/benben-runtime-boundary.json`
-- `workspace/tools/tests/memory-v4/fixtures/benben-runtime-scope-boundaries.json`
-
-But tracked modifications also existed across many Memory V4 and deployment files. A new thread should inspect commit history/checkpoint state rather than assuming only five files matter.
+- Do not sync this code to NAS shadow unless the user explicitly enters L3 by
+  saying `进入修复阶段`.
+- Do not enable Feishu, Telegram, or QQbot channels as part of local core work.
 
 ## 9. Options Considered And Rejected
 

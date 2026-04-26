@@ -1,7 +1,7 @@
 # openclaw-benben Implementation Plan
 
 Date: 2026-04-26
-Status: draft after Phase 0 read-only inventory
+Status: updated 2026-04-27 after local vNext core checkpoint
 
 ## Goal
 
@@ -38,6 +38,16 @@ Acceptance:
 - Memory V4 answer path exposes `legacy_fallback_used=false`.
 - Tool side effects require owner confirmation.
 
+Status 2026-04-27:
+
+- Completed locally in product repo commit `3164adc2fd834b311691be0ef51af03ff3fbeec2`.
+- Code location: `workspace/tools/openclaw-benben/`.
+- Test location: `workspace/tools/tests/openclaw-benben/`.
+- Implementation uses plain MJS and `node:test`; no new framework was introduced.
+- Scope includes message envelope, identity kernel, privacy kernel, Memory V4 wrapper,
+  usage ledger, tool gate, Feishu dry-run adapter, command router, memory command
+  planner, turn runner, dry-run CLI, and README.
+
 ## Phase 2: Feishu Runtime And Commands
 
 Deliverables:
@@ -57,6 +67,17 @@ Acceptance:
 - Ordinary group does not leak private facts.
 - `/new` preserves approved short-term continuity.
 - `/status` and `/usage` return without touching secret values.
+
+Status 2026-04-27:
+
+- Partially completed as local dry-run runtime only.
+- Feishu adapter is dry-run only: no production ingress and no send.
+- `/new`, `/reset`, `/status`, `/usage`, model switches, and `/memory` planner are
+  implemented as plans only.
+- `/memory edit/delete/approve/reject` require owner confirmation and do not commit.
+- Trace/report surfaces are sanitized and keep confirmation metadata without raw
+  memory payload.
+- Real Feishu tests are not started; enabling any Feishu test ingress remains L3.
 
 ## Phase 3: Web Console And Operator UX
 
@@ -114,6 +135,14 @@ Acceptance:
 - New service can run dry-run/CLI-delivered Feishu tests without owning the production webhook.
 - No secret values appear in logs or reports.
 
+Status 2026-04-27:
+
+- Initial NAS shadow bootstrap was completed earlier and recorded in
+  `openclaw-benben-shadow-bootstrap-20260426.json`.
+- Local vNext core has not been synced to the NAS shadow instance.
+- Any sync to `/var/lib/openclaw-benben/.openclaw/workspace` remains L3 and needs
+  explicit `进入修复阶段` authorization.
+
 ## Phase 6: Production Feishu Cutover
 
 This phase is L3 and requires repair gate checklist plus final preflight.
@@ -167,10 +196,26 @@ Recommended first files:
 
 If the existing repo remains plain JS/MJS, use the equivalent `.mjs` layout instead of TypeScript.
 
+Actual 2026-04-27 code layout:
+
+- `workspace/tools/openclaw-benben/message-envelope.mjs`
+- `workspace/tools/openclaw-benben/identity-kernel.mjs`
+- `workspace/tools/openclaw-benben/privacy-kernel.mjs`
+- `workspace/tools/openclaw-benben/memory-v4-wrapper.mjs`
+- `workspace/tools/openclaw-benben/usage-ledger.mjs`
+- `workspace/tools/openclaw-benben/tool-gate.mjs`
+- `workspace/tools/openclaw-benben/feishu-adapter.mjs`
+- `workspace/tools/openclaw-benben/command-router.mjs`
+- `workspace/tools/openclaw-benben/memory-command-router.mjs`
+- `workspace/tools/openclaw-benben/turn-runner.mjs`
+- `workspace/tools/openclaw-benben/dry-run-cli.mjs`
+- `workspace/tools/openclaw-benben/index.mjs`
+- `workspace/tools/tests/openclaw-benben/*.test.mjs`
+
 ## Open Questions Before Phase 5
 
-- Exact vNext package location in the repo.
-- Whether to use TypeScript or stay with MJS for fastest integration.
+- Whether to keep `workspace/tools/openclaw-benben/` as the long-term package
+  location or later promote it to a package boundary.
 - Whether the new service should use a new gateway port or a profile-derived port.
 - Whether to keep old control UI origin list or reduce it.
 - Whether to copy old local-lite/ollama routes in Phase 1 or defer them.
