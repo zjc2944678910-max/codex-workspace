@@ -43,6 +43,8 @@ Status 2026-04-27:
 - Completed locally in product repo commit `3164adc2fd834b311691be0ef51af03ff3fbeec2`.
 - Latest local checkpoint with synthetic shadow-preflight suite:
   `d9018318d75b41f64b39355ed17735ec6971fb0a`.
+- Latest local checkpoint with dry-run persona kernel:
+  `7a8811368e89843213410963f1baa2e9e3a64e77`.
 - Code location: `workspace/tools/openclaw-benben/`.
 - Test location: `workspace/tools/tests/openclaw-benben/`.
 - Implementation uses plain MJS and `node:test`; no new framework was introduced.
@@ -81,6 +83,8 @@ Status 2026-04-27:
   memory payload.
 - Synthetic dry-run suite covers owner DM, partner DM, project group, memory
   mutation confirmation, and unknown sender denial without Feishu ingress.
+- Persona identity replies for `你是谁` are implemented locally as dry-run plans
+  without model calls or memory recall.
 - Real Feishu tests are not started; enabling any Feishu test ingress remains L3.
 
 ## Phase 3: Web Console And Operator UX
@@ -212,6 +216,7 @@ Actual 2026-04-27 code layout:
 - `workspace/tools/openclaw-benben/command-router.mjs`
 - `workspace/tools/openclaw-benben/memory-command-router.mjs`
 - `workspace/tools/openclaw-benben/turn-runner.mjs`
+- `workspace/tools/openclaw-benben/persona-kernel.mjs`
 - `workspace/tools/openclaw-benben/dry-run-cli.mjs`
 - `workspace/tools/openclaw-benben/dry-run-suite.mjs`
 - `workspace/tools/openclaw-benben/index.mjs`

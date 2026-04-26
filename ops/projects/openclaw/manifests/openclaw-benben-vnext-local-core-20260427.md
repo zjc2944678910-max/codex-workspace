@@ -8,9 +8,11 @@ Live changes: none
 
 - repo: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/openclaw/nas-openclaw-v22`
 - branch: `codex/openclaw-benben-vnext-core`
-- latest commit: `d9018318d75b41f64b39355ed17735ec6971fb0a`
+- latest local commit: `7a8811368e89843213410963f1baa2e9e3a64e77`
+- latest shadow-synced commit: `d9018318d75b41f64b39355ed17735ec6971fb0a`
 - core commit: `3164adc2fd834b311691be0ef51af03ff3fbeec2`
-- latest commit message: `test: add benben dry-run shadow preflight suite`
+- latest local commit message: `feat: add benben dry-run persona kernel`
+- latest shadow-synced commit message: `test: add benben dry-run shadow preflight suite`
 - core commit message: `feat: add openclaw-benben vnext dry-run core`
 - worktree after commit: clean
 
@@ -26,6 +28,7 @@ Live changes: none
 - `workspace/tools/openclaw-benben/command-router.mjs`
 - `workspace/tools/openclaw-benben/memory-command-router.mjs`
 - `workspace/tools/openclaw-benben/turn-runner.mjs`
+- `workspace/tools/openclaw-benben/persona-kernel.mjs`
 - `workspace/tools/openclaw-benben/dry-run-cli.mjs`
 - `workspace/tools/openclaw-benben/dry-run-suite.mjs`
 - `workspace/tools/openclaw-benben/index.mjs`
@@ -40,6 +43,20 @@ Live changes: none
 - `workspace/tools/tests/openclaw-benben/openclaw-benben-dry-run-cli.test.mjs`
 - `workspace/tools/tests/openclaw-benben/openclaw-benben-dry-run-suite.test.mjs`
 - `workspace/tools/tests/openclaw-benben/openclaw-benben-memory-command.test.mjs`
+
+## Latest Local Persona Add-on
+
+Commit `7a8811368e89843213410963f1baa2e9e3a64e77` adds a local dry-run
+persona kernel for identity questions such as `你是谁`.
+
+Properties:
+
+- no model call
+- no Memory V4 recall
+- no Feishu send
+- no runtime commit
+- owner, partner, group, and unknown contexts get bounded persona plans
+- trace/report surfaces keep persona metadata but not raw reply text or raw input
 
 ## Safety Properties
 
@@ -78,21 +95,25 @@ Results:
 
 ## L3 Boundary For Shadow Sync
 
-The next deployment-shaped action is to sync commit `d9018318d75b41f64b39355ed17735ec6971fb0a`
+The next deployment-shaped action is to sync commit `7a8811368e89843213410963f1baa2e9e3a64e77`
 to the NAS shadow workspace. That is L3 because it writes live NAS files.
 
 Do not execute the sync unless the user explicitly says `进入修复阶段`.
 
 Local candidate package manifest:
 
-- `openclaw-benben-shadow-sync-candidate-20260427.json`
-- 28 files
+- latest: `openclaw-benben-shadow-sync-candidate-persona-20260427.json`
+- supersedes: `openclaw-benben-shadow-sync-candidate-20260427.json`
+- 31 files
 - aggregate sha256:
-  `caae29566f693ef535ad6107f24210aa48e11677389d3a5fe824b2d42eb90013`
+  `4d16e01ac6dc848f0d82de8df282286dfceeca87e9da5a91495f5f1dc764a432`
 
 Execution status:
 
-- Executed on NAS shadow after explicit L3 authorization.
+- Commit `d9018318d75b41f64b39355ed17735ec6971fb0a` was executed on NAS shadow
+  after explicit L3 authorization.
+- Commit `7a8811368e89843213410963f1baa2e9e3a64e77` has not been synced to NAS
+  shadow.
 - Execution manifest:
   `openclaw-benben-shadow-sync-execution-20260427.json`
 - Shadow sync target:

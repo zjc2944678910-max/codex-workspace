@@ -151,11 +151,19 @@ Branch:
 
 `codex/openclaw-benben-vnext-core`
 
-Latest commit:
+Latest local commit:
+
+`7a8811368e89843213410963f1baa2e9e3a64e77`
+
+Latest local commit message:
+
+`feat: add benben dry-run persona kernel`
+
+Latest shadow-synced commit:
 
 `d9018318d75b41f64b39355ed17735ec6971fb0a`
 
-Latest commit message:
+Latest shadow-synced commit message:
 
 `test: add benben dry-run shadow preflight suite`
 
@@ -187,6 +195,7 @@ Implemented locally:
 - command router
 - memory command planner
 - turn runner
+- persona kernel
 - dry-run CLI
 - dry-run suite with synthetic Feishu fixtures
 - README and source-manifest registration
@@ -206,6 +215,8 @@ Key safety properties:
 - Synthetic shadow-preflight suite covers owner status, owner memory mutation
   confirmation, partner memory-admin denial, project group status, and unknown
   sender reset denial.
+- Latest local persona kernel covers dry-run identity replies without model calls
+  or memory recall. It has not been synced to NAS shadow yet.
 
 Verification:
 
@@ -215,15 +226,21 @@ Verification:
 - `node workspace/tools/openclaw-benben/dry-run-suite.mjs --json` passed 5
   synthetic cases with no send, no production ingress, no runtime commit, and no
   model call.
+- After the local persona commit, product repo regression passed 70 tests and
+  the dry-run suite passed 7 synthetic cases locally.
 - `node --check` passed for benben `.mjs` files and source-manifest.
 - `git diff --cached --check` passed before commit.
 
 Shadow sync candidate manifest:
 
-- `openclaw-benben-shadow-sync-candidate-20260427.json`
-- contains 28 source files from product commit `d9018318d75b41f64b39355ed17735ec6971fb0a`
+- latest candidate:
+  `openclaw-benben-shadow-sync-candidate-persona-20260427.json`
+- superseded candidate:
+  `openclaw-benben-shadow-sync-candidate-20260427.json`
+- latest candidate contains 31 source files from product commit
+  `7a8811368e89843213410963f1baa2e9e3a64e77`
 - aggregate sha256:
-  `caae29566f693ef535ad6107f24210aa48e11677389d3a5fe824b2d42eb90013`
+  `4d16e01ac6dc848f0d82de8df282286dfceeca87e9da5a91495f5f1dc764a432`
 - candidate only; executing it on NAS is L3 and still requires `进入修复阶段`
 
 Shadow sync execution:
@@ -240,6 +257,8 @@ Shadow sync execution:
 - Post-sync remote dry-run suite passed: 5 cases, no send, no production ingress,
   no runtime commit, no model call.
 - Feishu/Telegram/QQbot channels and plugins remained disabled.
+- This execution synced `d9018318d75b41f64b39355ed17735ec6971fb0a`, not the
+  later local persona commit.
 
 ## 5. Live NAS State At Handoff
 
@@ -315,7 +334,7 @@ Result:
 - No Feishu production ingress cutover
 - No Telegram enablement
 - No real Feishu message tests through shadow
-- No sync of commit `d9018318d75b41f64b39355ed17735ec6971fb0a` to the NAS shadow workspace
+- No sync of commit `7a8811368e89843213410963f1baa2e9e3a64e77` to the NAS shadow workspace
 - No service/env/channel/systemd changes after the local vNext core checkpoint
 - No migration of the local dry-run core into an active runtime bundle
 
@@ -330,7 +349,7 @@ Repo:
 State after local vNext core documentation update:
 
 - clean before the 2026-04-27 documentation update
-- this handoff and implementation plan were updated to reference product commit `d901831`
+- this handoff and implementation plan were updated to reference product commit `7a88113`
 
 ### Product repo
 
@@ -344,11 +363,11 @@ Current branch after local vNext core checkpoint:
 
 Current commit:
 
-- `d9018318d75b41f64b39355ed17735ec6971fb0a`
+- `7a8811368e89843213410963f1baa2e9e3a64e77`
 
 Current state:
 
-- clean after commit `d901831`
+- clean after commit `7a88113`
 
 Important note:
 
