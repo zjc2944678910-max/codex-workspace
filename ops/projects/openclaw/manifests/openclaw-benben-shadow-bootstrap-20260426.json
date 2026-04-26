@@ -1,0 +1,107 @@
+{
+  "generated_at": "2026-04-26T12:20:00Z",
+  "task_level": "L3 repair execution",
+  "source_of_truth": "ssh_live:oc-nas",
+  "host": "zjcNAS",
+  "authorization": "user explicitly said: 进入修复阶段，按 NAS shadow 实例创建",
+  "production_changes_executed": true,
+  "old_service": {
+    "name": "openclaw-gateway.service",
+    "state_after": "active/running",
+    "main_pid_after": 1559349,
+    "ports_after": [
+      18789,
+      18791
+    ],
+    "modified": false,
+    "restarted": false
+  },
+  "shadow_service": {
+    "name": "openclaw-benben.service",
+    "state_after": "active/running",
+    "enabled_after": "disabled",
+    "main_pid_after": 2141430,
+    "user": "openclaw-benben",
+    "group": "users",
+    "working_directory": "/var/lib/openclaw-benben",
+    "state_root": "/var/lib/openclaw-benben/.openclaw",
+    "config_root": "/etc/openclaw-benben",
+    "ports_after": [
+      18792,
+      18794
+    ]
+  },
+  "created_or_modified_paths": [
+    "/var/lib/openclaw-benben",
+    "/var/lib/openclaw-benben/.openclaw",
+    "/var/lib/openclaw-benben/.openclaw/openclaw.json",
+    "/var/lib/openclaw-benben/.openclaw/auth-profiles.json",
+    "/var/lib/openclaw-benben/.openclaw/workspace",
+    "/var/lib/openclaw-benben/.openclaw/bootstrap/bootstrap-manifest.json",
+    "/etc/openclaw-benben",
+    "/etc/openclaw-benben/secrets.env",
+    "/etc/openclaw-benben/shadow.env",
+    "/etc/openclaw-benben/secrets.inventory.json",
+    "/etc/systemd/system/openclaw-benben.service"
+  ],
+  "shadow_config": {
+    "gateway_bind": "loopback",
+    "gateway_port": 18792,
+    "production_ingress": false,
+    "channels_enabled": {
+      "feishu": false,
+      "telegram": false,
+      "qqbot": false
+    },
+    "channel_plugins_enabled": {
+      "feishu": false,
+      "telegram": false,
+      "qqbot": false
+    },
+    "exec_ask": "always",
+    "memory_v4_mode_env": "authoritative"
+  },
+  "health_verification": {
+    "http_health": {
+      "url": "http://127.0.0.1:18792/health",
+      "ok": true,
+      "status": "live"
+    },
+    "cli_health": {
+      "ok": true,
+      "channels_configured_but_not_running": [
+        "feishu",
+        "telegram",
+        "qqbot"
+      ]
+    },
+    "listener_check": {
+      "old_gateway_port_present": true,
+      "shadow_gateway_port_present": true,
+      "shadow_browser_port_present": true
+    }
+  },
+  "secret_handling": {
+    "secret_values_printed": false,
+    "secret_values_committed": false,
+    "old_env_copied_to": "/etc/openclaw-benben/secrets.env",
+    "redacted_inventory": "/etc/openclaw-benben/secrets.inventory.json",
+    "permissions": {
+      "/etc/openclaw-benben/secrets.env": "-rw------- root:root",
+      "/etc/openclaw-benben/shadow.env": "-rw------- root:root",
+      "/var/lib/openclaw-benben/.openclaw/auth-profiles.json": "-rw------- openclaw-benben:users"
+    }
+  },
+  "not_done": [
+    "Did not cut Feishu production ingress to the shadow instance.",
+    "Did not enable the shadow service at boot.",
+    "Did not stop or restart openclaw-gateway.service.",
+    "Did not rebuild benben vNext identity/privacy/memory code yet.",
+    "Did not run real Feishu conversations through shadow because production channel plugins remain disabled."
+  ],
+  "rollback": [
+    "systemctl stop openclaw-benben.service",
+    "leave /var/lib/openclaw-benben and /etc/openclaw-benben in place for audit, or quarantine them after a separate cleanup approval",
+    "old openclaw-gateway.service remains the production rollback anchor and was not modified"
+  ]
+}

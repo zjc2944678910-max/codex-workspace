@@ -1,0 +1,310 @@
+{
+  "generated_at": "2026-04-26T10:16:46Z",
+  "generated_at_local": "2026-04-26 18:16:46 CST",
+  "task_level": "L2 read-only audit",
+  "source_of_truth": "ssh_live:oc-nas",
+  "host": "zjcNAS",
+  "ssh_alias": "oc-nas",
+  "scope": "old benben live OpenClaw only; adminAI out of scope",
+  "live_service": {
+    "name": "openclaw-gateway.service",
+    "enabled": true,
+    "active_state": "active",
+    "sub_state": "running",
+    "service_user": "openclaw",
+    "service_group": "openclaw",
+    "working_directory": "/var/lib/openclaw",
+    "fragment_path": "/etc/systemd/system/openclaw-gateway.service",
+    "exec_start_summary": {
+      "binary": "/usr/bin/node",
+      "entrypoint": "/usr/lib/node_modules/openclaw/dist/index.js",
+      "command": "gateway",
+      "port": 18789,
+      "proxy_hook": "/etc/openclaw/global-proxy-hook.cjs",
+      "proxy_env_present": true,
+      "values_redacted": true
+    },
+    "drop_ins": [
+      "/etc/systemd/system/openclaw-gateway.service.d/10-proxy-bridge.conf",
+      "/etc/systemd/system/openclaw-gateway.service.d/30-execstart-proxy-wrapper.conf",
+      "/etc/systemd/system/openclaw-gateway.service.d/40-runtime-user.conf",
+      "/etc/systemd/system.control/openclaw-gateway.service.d/50-TasksMax.conf",
+      "/etc/systemd/system/openclaw-gateway.service.d/50-resource-guards.conf",
+      "/etc/systemd/system/openclaw-gateway.service.d/60-tmpdir-openclaw.conf",
+      "/etc/systemd/system/openclaw-gateway.service.d/70-memory-phase1-observe.conf",
+      "/etc/systemd/system/openclaw-gateway.service.d/80-config-guard.conf",
+      "/etc/systemd/system/openclaw-gateway.service.d/85-auth-sync-guard.conf",
+      "/etc/systemd/system/openclaw-gateway.service.d/90-zh-runtime-patch.conf",
+      "/etc/systemd/system/openclaw-gateway.service.d/95-service-version.conf",
+      "/etc/systemd/system/openclaw-gateway.service.d/qqbot-env.conf"
+    ]
+  },
+  "runtime_versions": {
+    "node": "v22.22.1",
+    "npm": "10.9.4",
+    "openclaw_cli_path": "/home/benben/bin/openclaw",
+    "openclaw_version": "OpenClaw 2026.4.9 (0512059)",
+    "global_npm_root": "/usr/local/lib/node-v22.22.1-linux-x64/lib/node_modules",
+    "installed_bundle": "/usr/lib/node_modules/openclaw"
+  },
+  "important_paths": [
+    {
+      "path": "/var/lib/openclaw",
+      "type": "directory",
+      "mode": "drwx------",
+      "owner": "openclaw:openclaw",
+      "size_bytes": 4096
+    },
+    {
+      "path": "/var/lib/openclaw/.openclaw",
+      "type": "directory",
+      "mode": "drwx------",
+      "owner": "openclaw:openclaw",
+      "size_bytes": 12288
+    },
+    {
+      "path": "/var/lib/openclaw/.openclaw/openclaw.json",
+      "type": "regular file",
+      "mode": "-rw-------",
+      "owner": "openclaw:openclaw",
+      "size_bytes": 22741
+    },
+    {
+      "path": "/var/lib/openclaw/.openclaw/auth-profiles.json",
+      "type": "regular file",
+      "mode": "-rw-------",
+      "owner": "openclaw:openclaw",
+      "size_bytes": 2293
+    },
+    {
+      "path": "/var/lib/openclaw/.openclaw/workspace",
+      "type": "directory",
+      "mode": "drwxr-xr-x",
+      "owner": "UNKNOWN:staff",
+      "size_bytes": 20480,
+      "note": "Owner resolved as UNKNOWN on NAS; treat as an ownership drift item to avoid copying into vNext."
+    },
+    {
+      "path": "/var/lib/openclaw/.openclaw/workspace/memory_v4",
+      "type": "directory",
+      "mode": "drwxr-xr-x",
+      "owner": "openclaw:openclaw",
+      "size_bytes": 4096
+    },
+    {
+      "path": "/var/lib/openclaw/.openclaw/workspace/memory_v4/memory_v4.db",
+      "type": "regular file",
+      "mode": "-rw-r--r--",
+      "owner": "openclaw:openclaw",
+      "size_bytes": 3526656,
+      "sha256": "93e77936d5e380e9dacb708312371725f84d3b1debc4801096ec10e13c355043"
+    },
+    {
+      "path": "/var/lib/openclaw/.openclaw/workspace/memory-admin",
+      "type": "directory",
+      "mode": "drwxr-sr-x",
+      "owner": "openclaw:openclaw",
+      "size_bytes": 4096
+    },
+    {
+      "path": "/etc/openclaw/gateway.env",
+      "type": "regular file",
+      "mode": "-rw-------",
+      "owner": "root:root",
+      "size_bytes": 2092,
+      "values_redacted": true
+    },
+    {
+      "path": "/etc/openclaw/global-proxy-hook.cjs",
+      "type": "regular file",
+      "mode": "-rw-r--r--",
+      "owner": "root:root",
+      "size_bytes": 3624
+    }
+  ],
+  "config_summary": {
+    "path": "/var/lib/openclaw/.openclaw/openclaw.json",
+    "top_level_keys": [
+      "agents",
+      "approvals",
+      "auth",
+      "browser",
+      "channels",
+      "commands",
+      "gateway",
+      "memory",
+      "messages",
+      "meta",
+      "models",
+      "plugins",
+      "session",
+      "talk",
+      "tools",
+      "wizard"
+    ],
+    "gateway": {
+      "bind": "loopback",
+      "port": 18789,
+      "mode": "local",
+      "has_auth": true,
+      "trusted_proxy_count": 2,
+      "control_ui_allowed_origin_count": 4
+    },
+    "channels": {
+      "feishu": {
+        "enabled": true,
+        "dm_policy": "pairing",
+        "group_policy": "allowlist",
+        "allow_from_count": 2,
+        "group_allow_from_count": 1,
+        "has_secret_ref_or_value": true
+      },
+      "telegram": {
+        "enabled": true,
+        "dm_policy": "pairing",
+        "group_policy": "allowlist",
+        "allow_from_count": 1,
+        "custom_command_count": 10,
+        "has_secret_ref_or_value": false
+      },
+      "qqbot": {
+        "enabled": false,
+        "allow_from_count": 1
+      }
+    },
+    "providers": {
+      "anyone": {
+        "api": "openai-responses",
+        "base_url_present": true,
+        "model_count": 2,
+        "has_api_key_ref_or_value": true
+      },
+      "deepseek": {
+        "api": "openai-completions",
+        "base_url_present": true,
+        "model_count": 2,
+        "has_api_key_ref_or_value": true
+      },
+      "mimo": {
+        "api": "openai-completions",
+        "base_url_present": true,
+        "model_count": 3,
+        "has_api_key_ref_or_value": true
+      },
+      "ollama": {
+        "api": "ollama",
+        "base_url_present": true,
+        "model_count": 4,
+        "has_api_key_ref_or_value": true
+      },
+      "openai": {
+        "api": "openai-responses",
+        "base_url_present": true,
+        "model_count": 2,
+        "has_api_key_ref_or_value": true
+      },
+      "openrouter": {
+        "api": "openai-completions",
+        "base_url_present": true,
+        "model_count": 6,
+        "has_api_key_ref_or_value": true
+      }
+    },
+    "plugins": {
+      "allow_count": 9,
+      "entry_ids": [
+        "browser",
+        "deepseek",
+        "feishu",
+        "local-lite-lane",
+        "ollama",
+        "openai",
+        "openrouter",
+        "qqbot",
+        "telegram"
+      ],
+      "enabled_entries": [
+        "browser",
+        "deepseek",
+        "feishu",
+        "local-lite-lane",
+        "ollama",
+        "openai",
+        "openrouter",
+        "qqbot",
+        "telegram"
+      ]
+    },
+    "agents": {
+      "count": 6,
+      "default_workspace_present": true,
+      "max_concurrent": 4,
+      "default_model_primary": "anyone/gpt-5.4",
+      "default_model_fallback_count": 0,
+      "image_model_primary": "ollama/qwen2.5vl:7b"
+    },
+    "tools": {
+      "elevated_enabled": true,
+      "fs_workspace_only": false,
+      "exec_security": "full",
+      "exec_ask": "off",
+      "media_image_enabled": true,
+      "media_audio_enabled": true
+    },
+    "commands": {
+      "native": "auto",
+      "nativeSkills": "auto",
+      "text": true,
+      "bash": true,
+      "restart": true,
+      "ownerDisplay": "raw"
+    }
+  },
+  "memory_v4": {
+    "db_path": "/var/lib/openclaw/.openclaw/workspace/memory_v4/memory_v4.db",
+    "sha256": "93e77936d5e380e9dacb708312371725f84d3b1debc4801096ec10e13c355043",
+    "tables": [
+      "adapter_run_reports",
+      "archive_messages",
+      "archive_sessions",
+      "artifact_acceptance_reports",
+      "candidate_atoms",
+      "conflict_members",
+      "conflict_sets",
+      "correction_rules",
+      "dry_run_reports",
+      "entities",
+      "entity_aliases",
+      "evidence_links",
+      "memory_atoms",
+      "promotion_logs",
+      "relations",
+      "review_items",
+      "review_targets",
+      "schema_migrations",
+      "session_deltas",
+      "source_spans"
+    ],
+    "counts": {
+      "memory_atoms": 37,
+      "session_deltas": 4,
+      "review_items": 486,
+      "candidate_atoms": 378,
+      "entities": 2,
+      "entity_aliases": 4,
+      "relations": 0,
+      "archive_sessions": 83,
+      "archive_messages": 84
+    }
+  },
+  "readonly_evidence_commands": [
+    "systemctl is-active/is-enabled/show openclaw-gateway.service",
+    "stat selected service/config/workspace files",
+    "awk key-name-only over /etc/openclaw/gateway.env",
+    "key-name-only parse of /proc/<MainPID>/environ",
+    "redacted node parse of openclaw.json and auth-profiles.json",
+    "sqlite3 schema/counts over memory_v4.db",
+    "openclaw --help and selected subcommand --help"
+  ],
+  "production_changes_executed": false
+}
