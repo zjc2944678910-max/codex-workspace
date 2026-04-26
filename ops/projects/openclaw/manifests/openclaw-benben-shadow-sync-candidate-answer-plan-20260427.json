@@ -1,0 +1,260 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-04-27T06:25:00+08:00",
+  "task_level": "L1 local manifest only",
+  "live_changes": false,
+  "requires_l3_before_execution": true,
+  "authorization_required_phrase": "进入修复阶段",
+  "supersedes_candidate_manifest": "openclaw-benben-shadow-sync-candidate-persona-20260427.json",
+  "source": {
+    "product_repo": "/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/openclaw/nas-openclaw-v22",
+    "branch": "codex/openclaw-benben-vnext-core",
+    "commit": "d9a8a8d924f33e3ed1e908a4ce8c70a0f6767c5d"
+  },
+  "target": {
+    "host": "oc-nas",
+    "service": "openclaw-benben.service",
+    "shadow_workspace_root": "/var/lib/openclaw-benben/.openclaw/workspace",
+    "production_service_must_remain_untouched": "openclaw-gateway.service",
+    "channels_must_remain_disabled": [
+      "feishu",
+      "telegram",
+      "qqbot"
+    ]
+  },
+  "package": {
+    "description": "openclaw-benben dry-run core plus persona kernel, ordinary-message answer planner, and synthetic shadow-preflight suite",
+    "aggregate_sha256": "0e5e788df590d1b41fcea3c5ee278f8600759d2159ea4baf89cce8d8dc5744bb",
+    "file_count": 33,
+    "files": [
+      {
+        "source_path": "workspace/tools/openclaw-benben/README.md",
+        "target_path": "tools/openclaw-benben/README.md",
+        "size": 2343,
+        "sha256": "ff9aaca3c7b2de2748d7437875846e7e9908187fc3ca34ac5144256b72b93792"
+      },
+      {
+        "source_path": "workspace/tools/openclaw-benben/answer-plan-kernel.mjs",
+        "target_path": "tools/openclaw-benben/answer-plan-kernel.mjs",
+        "size": 5078,
+        "sha256": "b7d27203cb2c554daed8ac29aaa9ba6841a4eb07d92b5458906a05fd591ad2e3"
+      },
+      {
+        "source_path": "workspace/tools/openclaw-benben/command-router.mjs",
+        "target_path": "tools/openclaw-benben/command-router.mjs",
+        "size": 3927,
+        "sha256": "880547da93ae8464870b27bb90dcafc64d27ad5c06db4149a04e2adfc67ccc89"
+      },
+      {
+        "source_path": "workspace/tools/openclaw-benben/dry-run-cli.mjs",
+        "target_path": "tools/openclaw-benben/dry-run-cli.mjs",
+        "size": 7210,
+        "sha256": "1ae43edadb150c11ba2badf771ab5843450c1ec498e939966ff5ad7bc3b9b43f"
+      },
+      {
+        "source_path": "workspace/tools/openclaw-benben/dry-run-suite.mjs",
+        "target_path": "tools/openclaw-benben/dry-run-suite.mjs",
+        "size": 11350,
+        "sha256": "510112da21afda7962273447aeeec32085d3e644172522f5142a5c0a413504f3"
+      },
+      {
+        "source_path": "workspace/tools/openclaw-benben/feishu-adapter.mjs",
+        "target_path": "tools/openclaw-benben/feishu-adapter.mjs",
+        "size": 3163,
+        "sha256": "e2b3aafe98cf5e8d29479e3a2fd94222fae926ff3bb854962e8c8966495977e6"
+      },
+      {
+        "source_path": "workspace/tools/openclaw-benben/fixtures/group-ordinary-persona.event.json",
+        "target_path": "tools/openclaw-benben/fixtures/group-ordinary-persona.event.json",
+        "size": 454,
+        "sha256": "e0398f0cc457d9f10c03e3430b6eb2e4d8e022808d45e95a57e46fa6fd7fd063"
+      },
+      {
+        "source_path": "workspace/tools/openclaw-benben/fixtures/group-project-status.event.json",
+        "target_path": "tools/openclaw-benben/fixtures/group-project-status.event.json",
+        "size": 447,
+        "sha256": "7346b5a6d4ba5ef6d214dee8509405018175e373d2e8046ce535f39b711a9b2b"
+      },
+      {
+        "source_path": "workspace/tools/openclaw-benben/fixtures/identity.synthetic.json",
+        "target_path": "tools/openclaw-benben/fixtures/identity.synthetic.json",
+        "size": 807,
+        "sha256": "9150ee9f1309f0594c9cc1c07270f403daa8bd86fdcac37ebf4b7b50c987fb3d"
+      },
+      {
+        "source_path": "workspace/tools/openclaw-benben/fixtures/owner-memory-delete.event.json",
+        "target_path": "tools/openclaw-benben/fixtures/owner-memory-delete.event.json",
+        "size": 462,
+        "sha256": "4eb177829741b6356d31123958c81d32fa609c02f5bbf01aed123f7e488f8f77"
+      },
+      {
+        "source_path": "workspace/tools/openclaw-benben/fixtures/owner-normal.event.json",
+        "target_path": "tools/openclaw-benben/fixtures/owner-normal.event.json",
+        "size": 421,
+        "sha256": "160c226d878ab54d7d15b822b50143cf6cf8cff03d847fb99f7fc733ac2fb08a"
+      },
+      {
+        "source_path": "workspace/tools/openclaw-benben/fixtures/owner-persona.event.json",
+        "target_path": "tools/openclaw-benben/fixtures/owner-persona.event.json",
+        "size": 425,
+        "sha256": "a9942fa00be10efabfe2cd025ea75c7192527d33fd67cb5a2601f15cc9e7577d"
+      },
+      {
+        "source_path": "workspace/tools/openclaw-benben/fixtures/owner-status.event.json",
+        "target_path": "tools/openclaw-benben/fixtures/owner-status.event.json",
+        "size": 420,
+        "sha256": "b5eb50a4d6289a5a2026ea6c48dd4ed7b37f61e37d65f3cf665c8de8d2c6acea"
+      },
+      {
+        "source_path": "workspace/tools/openclaw-benben/fixtures/partner-memory-search.event.json",
+        "target_path": "tools/openclaw-benben/fixtures/partner-memory-search.event.json",
+        "size": 453,
+        "sha256": "cd7002f79ffbebeb242a0acdbe2860b1d929b5d84a9a36a715effd550d58a44f"
+      },
+      {
+        "source_path": "workspace/tools/openclaw-benben/fixtures/unknown-reset.event.json",
+        "target_path": "tools/openclaw-benben/fixtures/unknown-reset.event.json",
+        "size": 424,
+        "sha256": "8cbbc74b898ae8950b36f0a9ed7dcb95f1853bbfd02fe9929997c72bfce05076"
+      },
+      {
+        "source_path": "workspace/tools/openclaw-benben/identity-kernel.mjs",
+        "target_path": "tools/openclaw-benben/identity-kernel.mjs",
+        "size": 8559,
+        "sha256": "d1d50e2c7ebaacfa9fc935ec5fef34872b5671706f4c0b96b196e0424f65411c"
+      },
+      {
+        "source_path": "workspace/tools/openclaw-benben/index.mjs",
+        "target_path": "tools/openclaw-benben/index.mjs",
+        "size": 1491,
+        "sha256": "1e10189d691e508bd8049478b6f2cca65d7b6a138f791f26a8cf219976f3b495"
+      },
+      {
+        "source_path": "workspace/tools/openclaw-benben/memory-command-router.mjs",
+        "target_path": "tools/openclaw-benben/memory-command-router.mjs",
+        "size": 2992,
+        "sha256": "5fc3e94b612afd4c3c107b459810102de23b39a7376ade6e755fbd8186a7f161"
+      },
+      {
+        "source_path": "workspace/tools/openclaw-benben/memory-v4-wrapper.mjs",
+        "target_path": "tools/openclaw-benben/memory-v4-wrapper.mjs",
+        "size": 5205,
+        "sha256": "7ce7b9cf57269574135cd82d23e79e49428637d0b68adb43e6ee1a64e0e03772"
+      },
+      {
+        "source_path": "workspace/tools/openclaw-benben/message-envelope.mjs",
+        "target_path": "tools/openclaw-benben/message-envelope.mjs",
+        "size": 3937,
+        "sha256": "8e159a8d45c1b232c4eb2d43dc9dc3c59d75fba26fae3f1e0faa5a2966cdd410"
+      },
+      {
+        "source_path": "workspace/tools/openclaw-benben/persona-kernel.mjs",
+        "target_path": "tools/openclaw-benben/persona-kernel.mjs",
+        "size": 3967,
+        "sha256": "36652472abe9d9e6124a2240e27f98b3871c4089ba9dc3fca2821c25e5658e1d"
+      },
+      {
+        "source_path": "workspace/tools/openclaw-benben/privacy-kernel.mjs",
+        "target_path": "tools/openclaw-benben/privacy-kernel.mjs",
+        "size": 4486,
+        "sha256": "4ad188d229d8a1af2db9baa4384eb53e34f660accce40590b0f69f7a01839976"
+      },
+      {
+        "source_path": "workspace/tools/openclaw-benben/tool-gate.mjs",
+        "target_path": "tools/openclaw-benben/tool-gate.mjs",
+        "size": 6017,
+        "sha256": "e33b9f91fa6213e59a54071be0ed97d00203f245422260513d1f6cbf6e9ae795"
+      },
+      {
+        "source_path": "workspace/tools/openclaw-benben/turn-runner.mjs",
+        "target_path": "tools/openclaw-benben/turn-runner.mjs",
+        "size": 14609,
+        "sha256": "becb4fb60f34ef7f7dee3bdf14b53bb402908e7e0ef14da70408ad632dabea2a"
+      },
+      {
+        "source_path": "workspace/tools/openclaw-benben/usage-ledger.mjs",
+        "target_path": "tools/openclaw-benben/usage-ledger.mjs",
+        "size": 6332,
+        "sha256": "990c00a1dc764c464f7bd7512249751919373f31662b25ac4737e0da260b56a1"
+      },
+      {
+        "source_path": "workspace/tools/tests/openclaw-benben/openclaw-benben-core.test.mjs",
+        "target_path": "tools/tests/openclaw-benben/openclaw-benben-core.test.mjs",
+        "size": 14889,
+        "sha256": "6e333e072a4404db6206c2f520232a56fab4cd587aafcfd48b52388017f3f411"
+      },
+      {
+        "source_path": "workspace/tools/tests/openclaw-benben/openclaw-benben-dry-run-cli.test.mjs",
+        "target_path": "tools/tests/openclaw-benben/openclaw-benben-dry-run-cli.test.mjs",
+        "size": 7646,
+        "sha256": "fd835b26aa064a7acf61ee83d2f2d217645d39b5fe483b34945330e573dbc87e"
+      },
+      {
+        "source_path": "workspace/tools/tests/openclaw-benben/openclaw-benben-dry-run-suite.test.mjs",
+        "target_path": "tools/tests/openclaw-benben/openclaw-benben-dry-run-suite.test.mjs",
+        "size": 3678,
+        "sha256": "3c23ee99d408759b45dd2493d6d7fc97e5de1db553bc437c7d1800cedd0305c3"
+      },
+      {
+        "source_path": "workspace/tools/tests/openclaw-benben/openclaw-benben-memory-command.test.mjs",
+        "target_path": "tools/tests/openclaw-benben/openclaw-benben-memory-command.test.mjs",
+        "size": 5169,
+        "sha256": "426850f921b83a1f37c45ba7b5afcb8677428a2b938fdf3b92a6c2d28aba13c7"
+      },
+      {
+        "source_path": "workspace/tools/tests/openclaw-benben/openclaw-benben-runtime-adapter.test.mjs",
+        "target_path": "tools/tests/openclaw-benben/openclaw-benben-runtime-adapter.test.mjs",
+        "size": 6148,
+        "sha256": "8b5b8bf63d3d2c24c17ccc7a50304d966d7ce2713ef121e494d73d8f132e990a"
+      },
+      {
+        "source_path": "workspace/tools/tests/openclaw-benben/openclaw-benben-turn-runner.test.mjs",
+        "target_path": "tools/tests/openclaw-benben/openclaw-benben-turn-runner.test.mjs",
+        "size": 18990,
+        "sha256": "ede44768b3812b37eda1ad6bf625f557f606ea3c0c5a87cd861d9ae19ead88f9"
+      },
+      {
+        "source_path": "workspace/tools/tests/workspace-source-manifest.test.mjs",
+        "target_path": "tools/tests/workspace-source-manifest.test.mjs",
+        "size": 4666,
+        "sha256": "8dea9ce84b829cb2a7f476c066ab0bbab14dc2104abd52a999fbeb5f2d678544"
+      },
+      {
+        "source_path": "workspace/tools/workspace-source-manifest.mjs",
+        "target_path": "tools/workspace-source-manifest.mjs",
+        "size": 11254,
+        "sha256": "8480f101e17cd4305d58b57badf02a3d98027a30742fd2729e85c34b5c2043ff"
+      }
+    ]
+  },
+  "local_verification": [
+    "find workspace/tools/openclaw-benben -name '*.mjs' -exec node --check {} \\;",
+    "node --test workspace/tools/tests/openclaw-benben/*.test.mjs workspace/tools/tests/workspace-source-manifest.test.mjs => 45 pass, 0 fail",
+    "node --test workspace/tools/tests/openclaw-benben/*.test.mjs workspace/tools/tests/memory-v4/memory-v4-benben-adapter.test.mjs workspace/tools/tests/memory-v4/memory-v4-benben-adapter-boundary-check.test.mjs workspace/tools/tests/memory-v4/memory-v4-privacy-scope-gate.test.mjs workspace/tools/tests/memory-v4/memory-v4-answer-service.test.mjs workspace/tools/tests/memory-v4/memory-v4-live-session-delta.test.mjs workspace/tools/tests/workspace-source-manifest.test.mjs => 73 pass, 0 fail",
+    "node workspace/tools/openclaw-benben/dry-run-suite.mjs --json => 8 cases ok",
+    "rg synthetic/raw denylist scan against scratch/projects/openclaw-benben/dry-run-suite => no matches"
+  ],
+  "preflight_required_before_l3_sync": [
+    "confirm old production openclaw-gateway.service remains active/running",
+    "confirm shadow openclaw-benben.service health before write",
+    "confirm shadow feishu/telegram/qqbot channels and plugins remain disabled",
+    "snapshot target files under /var/lib/openclaw-benben/.openclaw/workspace before write",
+    "verify source product commit is d9a8a8d924f33e3ed1e908a4ce8c70a0f6767c5d"
+  ],
+  "post_sync_verification_candidate": [
+    "node --test tools/tests/openclaw-benben/*.test.mjs tools/tests/workspace-source-manifest.test.mjs",
+    "node tools/openclaw-benben/dry-run-suite.mjs --json",
+    "verify dry-run suite reports sent=false, production_ingress=false, runtime_committed=false, model_call_enabled=false",
+    "verify ordinary-message answer-plan case reports answer_path=answer_plan_deferred and response_kind=normal_answer_planned",
+    "verify no synthetic raw payload appears in generated reports, traces, or usage ledgers",
+    "verify feishu/telegram/qqbot channels and plugins remain disabled after sync"
+  ],
+  "explicitly_forbidden_without_new_l3_gate": [
+    "enable Feishu production ingress",
+    "enable Telegram or QQbot",
+    "restart or stop openclaw-gateway.service",
+    "modify /etc/openclaw-benben secrets or env files",
+    "change systemd unit files",
+    "run two consumers for the same production Feishu bot"
+  ]
+}

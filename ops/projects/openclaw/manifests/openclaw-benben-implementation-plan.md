@@ -45,12 +45,15 @@ Status 2026-04-27:
   `d9018318d75b41f64b39355ed17735ec6971fb0a`.
 - Latest local checkpoint with dry-run persona kernel:
   `7a8811368e89843213410963f1baa2e9e3a64e77`.
+- Latest local checkpoint with ordinary-message dry-run answer planner:
+  `d9a8a8d924f33e3ed1e908a4ce8c70a0f6767c5d`.
 - Code location: `workspace/tools/openclaw-benben/`.
 - Test location: `workspace/tools/tests/openclaw-benben/`.
 - Implementation uses plain MJS and `node:test`; no new framework was introduced.
 - Scope includes message envelope, identity kernel, privacy kernel, Memory V4 wrapper,
   usage ledger, tool gate, Feishu dry-run adapter, command router, memory command
-  planner, turn runner, dry-run CLI, and README.
+  planner, persona kernel, ordinary-message answer planner, turn runner, dry-run
+  CLI, and README.
 
 ## Phase 2: Feishu Runtime And Commands
 
@@ -82,9 +85,15 @@ Status 2026-04-27:
 - Trace/report surfaces are sanitized and keep confirmation metadata without raw
   memory payload.
 - Synthetic dry-run suite covers owner DM, partner DM, project group, memory
-  mutation confirmation, and unknown sender denial without Feishu ingress.
+  mutation confirmation, ordinary-message answer planning, and unknown sender
+  denial without Feishu ingress.
 - Persona identity replies for `你是谁` are implemented locally as dry-run plans
   without model calls or memory recall.
+- Ordinary non-command messages now produce a structured answer plan first. The
+  plan selects audience, answer style, default `anyone/gpt-5.4` route, and
+  Memory V4 recall policy while keeping model calls disabled and delivery off.
+- Memory recall for ordinary messages is still opt-in in local dry-run and is
+  blocked for unknown direct senders and ordinary groups.
 - Real Feishu tests are not started; enabling any Feishu test ingress remains L3.
 
 ## Phase 3: Web Console And Operator UX
@@ -147,7 +156,8 @@ Status 2026-04-27:
 
 - Initial NAS shadow bootstrap was completed earlier and recorded in
   `openclaw-benben-shadow-bootstrap-20260426.json`.
-- Local vNext core has not been synced to the NAS shadow instance.
+- NAS shadow is synced through the earlier dry-run suite checkpoint, not through
+  the persona or answer-plan local checkpoints.
 - Any sync to `/var/lib/openclaw-benben/.openclaw/workspace` remains L3 and needs
   explicit `进入修复阶段` authorization.
 
