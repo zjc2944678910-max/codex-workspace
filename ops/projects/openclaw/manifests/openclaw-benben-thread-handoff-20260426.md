@@ -218,6 +218,14 @@ Verification:
 - `node --check` passed for benben `.mjs` files and source-manifest.
 - `git diff --cached --check` passed before commit.
 
+Shadow sync candidate manifest:
+
+- `openclaw-benben-shadow-sync-candidate-20260427.json`
+- contains 28 source files from product commit `d9018318d75b41f64b39355ed17735ec6971fb0a`
+- aggregate sha256:
+  `caae29566f693ef535ad6107f24210aa48e11677389d3a5fe824b2d42eb90013`
+- candidate only; executing it on NAS is L3 and still requires `进入修复阶段`
+
 ## 5. Live NAS State At Handoff
 
 ### Production old benben

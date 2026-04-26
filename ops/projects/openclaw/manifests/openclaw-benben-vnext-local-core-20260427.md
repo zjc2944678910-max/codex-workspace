@@ -83,6 +83,13 @@ to the NAS shadow workspace. That is L3 because it writes live NAS files.
 
 Do not execute the sync unless the user explicitly says `进入修复阶段`.
 
+Local candidate package manifest:
+
+- `openclaw-benben-shadow-sync-candidate-20260427.json`
+- 28 files
+- aggregate sha256:
+  `caae29566f693ef535ad6107f24210aa48e11677389d3a5fe824b2d42eb90013`
+
 Minimum L3 plan:
 
 - preflight old production service remains active/running
