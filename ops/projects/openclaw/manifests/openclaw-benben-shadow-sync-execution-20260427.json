@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-04-27T06:08:00+08:00",
+  "task_level": "L3 repair execution",
+  "authorization": "user explicitly said: 进入修复阶段",
+  "host": "oc-nas",
+  "source_commit": "d9018318d75b41f64b39355ed17735ec6971fb0a",
+  "source_branch": "codex/openclaw-benben-vnext-core",
+  "candidate_manifest": "openclaw-benben-shadow-sync-candidate-20260427.json",
+  "package": {
+    "file_count": 28,
+    "aggregate_sha256": "caae29566f693ef535ad6107f24210aa48e11677389d3a5fe824b2d42eb90013",
+    "target_workspace_root": "/var/lib/openclaw-benben/.openclaw/workspace"
+  },
+  "old_production_service": {
+    "name": "openclaw-gateway.service",
+    "modified": false,
+    "restarted": false,
+    "state_after": "active",
+    "ports_after": [
+      "127.0.0.1:18789",
+      "127.0.0.1:18791",
+      "[::1]:18789"
+    ]
+  },
+  "shadow_service": {
+    "name": "openclaw-benben.service",
+    "stopped_for_sync": true,
+    "started_after_sync": true,
+    "state_after": "active",
+    "health_after": {
+      "url": "http://127.0.0.1:18792/health",
+      "response": {
+        "ok": true,
+        "status": "live"
+      }
+    },
+    "ports_after": [
+      "127.0.0.1:18792",
+      "127.0.0.1:18794",
+      "[::1]:18792"
+    ]
+  },
+  "rollback": {
+    "snapshot_created": true,
+    "snapshot_path": "/var/lib/openclaw-benben/.openclaw/rollback/workspace-pre-benben-vnext-20260427055917.tar.gz",
+    "restore_strategy": [
+      "stop openclaw-benben.service",
+      "restore /var/lib/openclaw-benben/.openclaw/workspace from the snapshot tarball",
+      "start openclaw-benben.service only after restore validation",
+      "leave openclaw-gateway.service untouched"
+    ]
+  },
+  "verification": {
+    "forbidden_paths_in_candidate": false,
+    "post_copy_hash_match": true,
+    "post_copy_file_count": 28,
+    "remote_node_tests": {
+      "command": "node --test tools/tests/openclaw-benben/*.test.mjs tools/tests/workspace-source-manifest.test.mjs",
+      "pass": 40,
+      "fail": 0
+    },
+    "remote_dry_run_suite": {
+      "command": "node tools/openclaw-benben/dry-run-suite.mjs --json",
+      "case_count": 5,
+      "all_ok": true,
+      "all_sent_false": true,
+      "all_production_ingress_false": true,
+      "all_runtime_committed_false": true,
+      "all_model_call_enabled_false": true,
+      "raw_payload_scan_clean": true,
+      "output_dir": "/var/lib/openclaw-benben/.openclaw/workspace/scratch/projects/openclaw-benben/dry-run-suite"
+    },
+    "channels_after": {
+      "feishu": {
+        "channel_enabled": false,
+        "plugin_enabled": false
+      },
+      "telegram": {
+        "channel_enabled": false,
+        "plugin_enabled": false
+      },
+      "qqbot": {
+        "channel_enabled": false,
+        "plugin_enabled": false
+      }
+    },
+    "journal_channel_check": {
+      "consumer_start_detected": false,
+      "notes": "Only Feishu-related journal lines were inactive-surface secret-reference warnings: no enabled account inherits top-level Feishu appSecret."
+    }
+  },
+  "not_done": [
+    "No Feishu production ingress cutover.",
+    "No Feishu/Telegram/QQbot channel or plugin enablement.",
+    "No env or secrets file changes.",
+    "No systemd unit changes.",
+    "No old production service restart or modification.",
+    "No real Feishu conversation test."
+  ]
+}

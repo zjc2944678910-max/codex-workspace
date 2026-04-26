@@ -226,6 +226,21 @@ Shadow sync candidate manifest:
   `caae29566f693ef535ad6107f24210aa48e11677389d3a5fe824b2d42eb90013`
 - candidate only; executing it on NAS is L3 and still requires `进入修复阶段`
 
+Shadow sync execution:
+
+- Executed after user explicitly said `进入修复阶段`.
+- Execution manifest:
+  `openclaw-benben-shadow-sync-execution-20260427.json`
+- Synced commit `d9018318d75b41f64b39355ed17735ec6971fb0a` to
+  `/var/lib/openclaw-benben/.openclaw/workspace`.
+- Old production `openclaw-gateway.service` was not modified or restarted.
+- Shadow `openclaw-benben.service` was stopped for sync, then started again.
+- Post-sync shadow health returned `{"ok":true,"status":"live"}`.
+- Post-sync remote tests passed: 40 pass / 0 fail.
+- Post-sync remote dry-run suite passed: 5 cases, no send, no production ingress,
+  no runtime commit, no model call.
+- Feishu/Telegram/QQbot channels and plugins remained disabled.
+
 ## 5. Live NAS State At Handoff
 
 ### Production old benben

@@ -90,6 +90,16 @@ Local candidate package manifest:
 - aggregate sha256:
   `caae29566f693ef535ad6107f24210aa48e11677389d3a5fe824b2d42eb90013`
 
+Execution status:
+
+- Executed on NAS shadow after explicit L3 authorization.
+- Execution manifest:
+  `openclaw-benben-shadow-sync-execution-20260427.json`
+- Shadow sync target:
+  `/var/lib/openclaw-benben/.openclaw/workspace`
+- Old production service remained untouched.
+- Shadow service was restarted only after file sync and validation.
+
 Minimum L3 plan:
 
 - preflight old production service remains active/running
