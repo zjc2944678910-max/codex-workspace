@@ -51,13 +51,16 @@ Status 2026-04-27:
   `facaeeb1ae4a8a258809ead7968c231a57fd53e2`.
 - Latest local checkpoint with dry-run response composer:
   `b2a0fa46c579db2cf7de81d5cf33d65b8f8e29d4`.
+- Latest local checkpoint with dry-run model execution planner:
+  `625b29da0954d4d6c5a901fbf0954ea72e4611b3`.
 - Code location: `workspace/tools/openclaw-benben/`.
 - Test location: `workspace/tools/tests/openclaw-benben/`.
 - Implementation uses plain MJS and `node:test`; no new framework was introduced.
 - Scope includes message envelope, identity kernel, privacy kernel, Memory V4 wrapper,
   usage ledger, tool gate, Feishu dry-run adapter, command router, memory command
   planner, persona kernel, ordinary-message answer planner, sanitized
-  model-prompt planner, response composer, turn runner, dry-run CLI, and README.
+  model-prompt planner, model execution planner, response composer, turn runner,
+  dry-run CLI, and README.
 
 ## Phase 2: Feishu Runtime And Commands
 
@@ -99,6 +102,9 @@ Status 2026-04-27:
 - The model-prompt planner emits a prompt contract and sanitized metadata only:
   no raw prompt is materialized, no model call is enabled, and raw user text or
   Memory V4 answer text is not written to trace/report.
+- The model execution planner emits a provider/request contract only: provider,
+  model, timeout, fallback, idempotency, and usage estimate metadata are planned
+  while provider request materialization and network calls stay disabled.
 - The response composer emits a delivery contract and sanitized metadata only:
   candidate reply text is hashed/length-counted, response caps and sanitizer
   policies are recorded, and dry-run `safe_to_send` remains false.
@@ -167,7 +173,8 @@ Status 2026-04-27:
 - Initial NAS shadow bootstrap was completed earlier and recorded in
   `openclaw-benben-shadow-bootstrap-20260426.json`.
 - NAS shadow is synced through the earlier dry-run suite checkpoint, not through
-  the persona, answer-plan, prompt-plan, or response-composer local checkpoints.
+  the persona, answer-plan, prompt-plan, model-execution, or response-composer
+  local checkpoints.
 - Any sync to `/var/lib/openclaw-benben/.openclaw/workspace` remains L3 and needs
   explicit `进入修复阶段` authorization.
 

@@ -8,14 +8,16 @@ Live changes: none
 
 - repo: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/openclaw/nas-openclaw-v22`
 - branch: `codex/openclaw-benben-vnext-core`
-- latest local commit: `b2a0fa46c579db2cf7de81d5cf33d65b8f8e29d4`
+- latest local commit: `625b29da0954d4d6c5a901fbf0954ea72e4611b3`
 - latest shadow-synced commit: `d9018318d75b41f64b39355ed17735ec6971fb0a`
+- response-composer checkpoint: `b2a0fa46c579db2cf7de81d5cf33d65b8f8e29d4`
 - prompt-plan checkpoint: `facaeeb1ae4a8a258809ead7968c231a57fd53e2`
 - answer-plan checkpoint: `d9a8a8d924f33e3ed1e908a4ce8c70a0f6767c5d`
 - persona checkpoint: `7a8811368e89843213410963f1baa2e9e3a64e77`
 - core commit: `3164adc2fd834b311691be0ef51af03ff3fbeec2`
-- latest local commit message: `feat: add benben dry-run response composition`
+- latest local commit message: `feat: add benben dry-run model execution plan`
 - latest shadow-synced commit message: `test: add benben dry-run shadow preflight suite`
+- response-composer checkpoint message: `feat: add benben dry-run response composition`
 - prompt-plan checkpoint message: `feat: add benben dry-run prompt planning`
 - answer-plan checkpoint message: `feat: add benben dry-run answer planning`
 - persona checkpoint message: `feat: add benben dry-run persona kernel`
@@ -36,6 +38,7 @@ Live changes: none
 - `workspace/tools/openclaw-benben/turn-runner.mjs`
 - `workspace/tools/openclaw-benben/persona-kernel.mjs`
 - `workspace/tools/openclaw-benben/answer-plan-kernel.mjs`
+- `workspace/tools/openclaw-benben/model-executor-kernel.mjs`
 - `workspace/tools/openclaw-benben/model-prompt-kernel.mjs`
 - `workspace/tools/openclaw-benben/response-composer-kernel.mjs`
 - `workspace/tools/openclaw-benben/dry-run-cli.mjs`
@@ -118,6 +121,24 @@ Properties:
 - rejects non-V4, legacy fallback, or raw-archive truth memory surfaces before a
   future delivery can be planned
 
+## Latest Local Model-Execution Add-on
+
+Commit `625b29da0954d4d6c5a901fbf0954ea72e4611b3` adds a dry-run model
+execution planner.
+
+Properties:
+
+- no provider request materialization
+- no provider response persistence
+- no network calls
+- no model call
+- no Feishu send
+- no runtime commit
+- records provider/model route, prompt contract reference, input hash/length,
+  timeout, retry/fallback policy, idempotency hashes, and usage estimate metadata
+- rejects materialized raw prompts and non-V4/legacy/raw-archive memory truth
+  surfaces before a future model call can be planned
+
 ## Safety Properties
 
 - Dry-run Feishu adapter only; no send path is implemented.
@@ -127,6 +148,8 @@ Properties:
   model route.
 - Model-prompt planning is metadata-only; raw prompts are not materialized in
   dry-run.
+- Model-execution planning is metadata-only; provider requests and network calls
+  stay disabled in dry-run.
 - Response composition is metadata-only in trace/report and remains dry-run
   gated before delivery.
 - Runtime commits are not performed.
@@ -151,8 +174,8 @@ node workspace/tools/openclaw-benben/dry-run-suite.mjs --json
 
 Results:
 
-- local benben + source-manifest tests: 47 pass / 0 fail
-- benben + Memory V4 + source-manifest aggregate regression: 75 pass / 0 fail
+- local benben + source-manifest tests: 48 pass / 0 fail
+- benben + Memory V4 + source-manifest aggregate regression: 76 pass / 0 fail
 - syntax checks: pass
 - cached diff whitespace check before commit: pass
 - default synthetic dry-run suite: 8 cases, all `ok:true`, all `sent:false`,
@@ -161,18 +184,18 @@ Results:
 
 ## L3 Boundary For Shadow Sync
 
-The next deployment-shaped action is to sync commit `b2a0fa46c579db2cf7de81d5cf33d65b8f8e29d4`
+The next deployment-shaped action is to sync commit `625b29da0954d4d6c5a901fbf0954ea72e4611b3`
 to the NAS shadow workspace. That is L3 because it writes live NAS files.
 
 Do not execute the sync unless the user explicitly says `进入修复阶段`.
 
 Local candidate package manifest:
 
-- latest: `openclaw-benben-shadow-sync-candidate-response-composer-20260427.json`
-- supersedes: `openclaw-benben-shadow-sync-candidate-prompt-plan-20260427.json`
-- 35 files
+- latest: `openclaw-benben-shadow-sync-candidate-model-executor-20260427.json`
+- supersedes: `openclaw-benben-shadow-sync-candidate-response-composer-20260427.json`
+- 36 files
 - aggregate sha256:
-  `89dd118caf1f6caa5fed780e6bbd3e9ac8d834b751e63d3cf1717cb67198d6ed`
+  `59ecba83d5b654cb6501bea4c3e70ca2d005fc2b9a5946cba0a7a53358c8f1a2`
 
 Execution status:
 
@@ -181,7 +204,8 @@ Execution status:
 - Commits `7a8811368e89843213410963f1baa2e9e3a64e77` and
   `d9a8a8d924f33e3ed1e908a4ce8c70a0f6767c5d` and
   `facaeeb1ae4a8a258809ead7968c231a57fd53e2` and
-  `b2a0fa46c579db2cf7de81d5cf33d65b8f8e29d4` have not been synced to NAS shadow.
+  `b2a0fa46c579db2cf7de81d5cf33d65b8f8e29d4` and
+  `625b29da0954d4d6c5a901fbf0954ea72e4611b3` have not been synced to NAS shadow.
 - Execution manifest:
   `openclaw-benben-shadow-sync-execution-20260427.json`
 - Shadow sync target:
