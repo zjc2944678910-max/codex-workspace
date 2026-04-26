@@ -41,6 +41,8 @@ Acceptance:
 Status 2026-04-27:
 
 - Completed locally in product repo commit `3164adc2fd834b311691be0ef51af03ff3fbeec2`.
+- Latest local checkpoint with synthetic shadow-preflight suite:
+  `d9018318d75b41f64b39355ed17735ec6971fb0a`.
 - Code location: `workspace/tools/openclaw-benben/`.
 - Test location: `workspace/tools/tests/openclaw-benben/`.
 - Implementation uses plain MJS and `node:test`; no new framework was introduced.
@@ -77,6 +79,8 @@ Status 2026-04-27:
 - `/memory edit/delete/approve/reject` require owner confirmation and do not commit.
 - Trace/report surfaces are sanitized and keep confirmation metadata without raw
   memory payload.
+- Synthetic dry-run suite covers owner DM, partner DM, project group, memory
+  mutation confirmation, and unknown sender denial without Feishu ingress.
 - Real Feishu tests are not started; enabling any Feishu test ingress remains L3.
 
 ## Phase 3: Web Console And Operator UX
@@ -209,7 +213,9 @@ Actual 2026-04-27 code layout:
 - `workspace/tools/openclaw-benben/memory-command-router.mjs`
 - `workspace/tools/openclaw-benben/turn-runner.mjs`
 - `workspace/tools/openclaw-benben/dry-run-cli.mjs`
+- `workspace/tools/openclaw-benben/dry-run-suite.mjs`
 - `workspace/tools/openclaw-benben/index.mjs`
+- `workspace/tools/openclaw-benben/fixtures/*.json`
 - `workspace/tools/tests/openclaw-benben/*.test.mjs`
 
 ## Open Questions Before Phase 5

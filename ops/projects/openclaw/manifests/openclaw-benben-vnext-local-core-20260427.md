@@ -8,8 +8,10 @@ Live changes: none
 
 - repo: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/openclaw/nas-openclaw-v22`
 - branch: `codex/openclaw-benben-vnext-core`
-- commit: `3164adc2fd834b311691be0ef51af03ff3fbeec2`
-- commit message: `feat: add openclaw-benben vnext dry-run core`
+- latest commit: `d9018318d75b41f64b39355ed17735ec6971fb0a`
+- core commit: `3164adc2fd834b311691be0ef51af03ff3fbeec2`
+- latest commit message: `test: add benben dry-run shadow preflight suite`
+- core commit message: `feat: add openclaw-benben vnext dry-run core`
 - worktree after commit: clean
 
 ## Implemented Local Modules
@@ -25,8 +27,10 @@ Live changes: none
 - `workspace/tools/openclaw-benben/memory-command-router.mjs`
 - `workspace/tools/openclaw-benben/turn-runner.mjs`
 - `workspace/tools/openclaw-benben/dry-run-cli.mjs`
+- `workspace/tools/openclaw-benben/dry-run-suite.mjs`
 - `workspace/tools/openclaw-benben/index.mjs`
 - `workspace/tools/openclaw-benben/README.md`
+- `workspace/tools/openclaw-benben/fixtures/*.json`
 
 ## Implemented Local Tests
 
@@ -34,6 +38,7 @@ Live changes: none
 - `workspace/tools/tests/openclaw-benben/openclaw-benben-runtime-adapter.test.mjs`
 - `workspace/tools/tests/openclaw-benben/openclaw-benben-turn-runner.test.mjs`
 - `workspace/tools/tests/openclaw-benben/openclaw-benben-dry-run-cli.test.mjs`
+- `workspace/tools/tests/openclaw-benben/openclaw-benben-dry-run-suite.test.mjs`
 - `workspace/tools/tests/openclaw-benben/openclaw-benben-memory-command.test.mjs`
 
 ## Safety Properties
@@ -47,6 +52,7 @@ Live changes: none
 - Dry-run trace/report/usage outputs are sanitized.
 - Memory answer truth is restricted to Memory V4; legacy fallback and raw archive truth surfaces are rejected.
 - Tool gate fail-closes L3 actions such as service restarts, config/env writes, channel sends, and `adminAI`.
+- Synthetic shadow-preflight fixtures use fake Feishu IDs and fake payloads only.
 
 ## Verification
 
@@ -57,18 +63,22 @@ node --test workspace/tools/tests/openclaw-benben/*.test.mjs workspace/tools/tes
 node --test workspace/tools/tests/openclaw-benben/*.test.mjs workspace/tools/tests/workspace-source-manifest.test.mjs workspace/tools/tests/memory-v4/memory-v4-benben-adapter.test.mjs workspace/tools/tests/memory-v4/memory-v4-benben-adapter-boundary-check.test.mjs workspace/tools/tests/memory-v4/memory-v4-privacy-scope-gate.test.mjs workspace/tools/tests/memory-v4/memory-v4-answer-service.test.mjs workspace/tools/tests/memory-v4/memory-v4-live-session-delta.test.mjs
 find workspace/tools/openclaw-benben -name '*.mjs' -exec node --check {} \; && node --check workspace/tools/workspace-source-manifest.mjs
 git diff --cached --check
+node workspace/tools/openclaw-benben/dry-run-suite.mjs --json
 ```
 
 Results:
 
-- local benben + source-manifest tests: 37 pass / 0 fail
-- benben + Memory V4 + source-manifest aggregate regression: 65 pass / 0 fail
+- local benben + source-manifest tests: 40 pass / 0 fail
+- benben + Memory V4 + source-manifest aggregate regression: 68 pass / 0 fail
 - syntax checks: pass
 - cached diff whitespace check before commit: pass
+- default synthetic dry-run suite: 5 cases, all `ok:true`, all `sent:false`,
+  all `production_ingress:false`, all `runtime_committed:false`, all
+  `model_call_enabled:false`
 
 ## L3 Boundary For Shadow Sync
 
-The next deployment-shaped action is to sync commit `3164adc2fd834b311691be0ef51af03ff3fbeec2`
+The next deployment-shaped action is to sync commit `d9018318d75b41f64b39355ed17735ec6971fb0a`
 to the NAS shadow workspace. That is L3 because it writes live NAS files.
 
 Do not execute the sync unless the user explicitly says `进入修复阶段`.

@@ -151,11 +151,19 @@ Branch:
 
 `codex/openclaw-benben-vnext-core`
 
-Commit:
+Latest commit:
+
+`d9018318d75b41f64b39355ed17735ec6971fb0a`
+
+Latest commit message:
+
+`test: add benben dry-run shadow preflight suite`
+
+Core commit:
 
 `3164adc2fd834b311691be0ef51af03ff3fbeec2`
 
-Commit message:
+Core commit message:
 
 `feat: add openclaw-benben vnext dry-run core`
 
@@ -180,6 +188,7 @@ Implemented locally:
 - memory command planner
 - turn runner
 - dry-run CLI
+- dry-run suite with synthetic Feishu fixtures
 - README and source-manifest registration
 
 Key safety properties:
@@ -194,12 +203,18 @@ Key safety properties:
   entity IDs, memory answers, tokens, or secrets.
 - Memory answer truth is Memory V4 only; V2/V3/projection/transcript/raw archive
   are rejected as answer truth surfaces.
+- Synthetic shadow-preflight suite covers owner status, owner memory mutation
+  confirmation, partner memory-admin denial, project group status, and unknown
+  sender reset denial.
 
 Verification:
 
 - `node --test workspace/tools/tests/openclaw-benben/*.test.mjs workspace/tools/tests/workspace-source-manifest.test.mjs`
-  passed: 37 tests.
-- Benben + Memory V4 + source-manifest aggregate regression passed: 65 tests.
+  passed: 40 tests.
+- Benben + Memory V4 + source-manifest aggregate regression passed: 68 tests.
+- `node workspace/tools/openclaw-benben/dry-run-suite.mjs --json` passed 5
+  synthetic cases with no send, no production ingress, no runtime commit, and no
+  model call.
 - `node --check` passed for benben `.mjs` files and source-manifest.
 - `git diff --cached --check` passed before commit.
 
@@ -277,7 +292,7 @@ Result:
 - No Feishu production ingress cutover
 - No Telegram enablement
 - No real Feishu message tests through shadow
-- No sync of commit `3164adc2fd834b311691be0ef51af03ff3fbeec2` to the NAS shadow workspace
+- No sync of commit `d9018318d75b41f64b39355ed17735ec6971fb0a` to the NAS shadow workspace
 - No service/env/channel/systemd changes after the local vNext core checkpoint
 - No migration of the local dry-run core into an active runtime bundle
 
@@ -292,7 +307,7 @@ Repo:
 State after local vNext core documentation update:
 
 - clean before the 2026-04-27 documentation update
-- this handoff and implementation plan were updated to reference product commit `3164adc`
+- this handoff and implementation plan were updated to reference product commit `d901831`
 
 ### Product repo
 
@@ -306,11 +321,11 @@ Current branch after local vNext core checkpoint:
 
 Current commit:
 
-- `3164adc2fd834b311691be0ef51af03ff3fbeec2`
+- `d9018318d75b41f64b39355ed17735ec6971fb0a`
 
 Current state:
 
-- clean after commit `3164adc`
+- clean after commit `d901831`
 
 Important note:
 
