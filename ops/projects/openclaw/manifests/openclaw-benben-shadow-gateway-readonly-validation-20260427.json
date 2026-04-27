@@ -1,0 +1,195 @@
+{
+  "schema": "openclaw.benben.shadow_gateway_readonly_validation.v1",
+  "createdAt": "2026-04-27T03:34:49Z",
+  "taskLevel": "L2",
+  "sourceOfTruth": "ssh_live:oc-nas",
+  "target": {
+    "host": "oc-nas",
+    "shadowService": "openclaw-benben.service",
+    "shadowGatewayPort": 18792,
+    "oldProdService": "openclaw-gateway.service",
+    "oldProdGatewayPort": 18789
+  },
+  "constraints": {
+    "noFeishuIngressEnabled": true,
+    "noTelegramIngressEnabled": true,
+    "noQqbotIngressEnabled": true,
+    "noSystemdWrite": true,
+    "noEnvWrite": true,
+    "noServiceRestart": true,
+    "noProviderOrModelNetworkCall": true,
+    "noDelivery": true,
+    "noRuntimeTurnCommit": true,
+    "noSecretsPrinted": true
+  },
+  "claudePrimaryAudit": {
+    "attempted": true,
+    "available": false,
+    "failure": "403 subscription quota insufficient",
+    "requestId": "202604270315148502873258268d9d6JFE9VP63"
+  },
+  "serviceEvidenceAfterValidation": {
+    "oldProd": {
+      "service": "openclaw-gateway.service",
+      "mainPid": 1559349,
+      "activeState": "active",
+      "subState": "running",
+      "healthz": {
+        "ok": true,
+        "status": "live"
+      }
+    },
+    "shadow": {
+      "service": "openclaw-benben.service",
+      "mainPid": 948503,
+      "activeState": "active",
+      "subState": "running",
+      "healthz": {
+        "ok": true,
+        "status": "live"
+      }
+    },
+    "shadowIdentityDirectory": {
+      "files": [
+        {
+          "name": "device.json",
+          "size": 416,
+          "mode": "600",
+          "mtime": "2026-04-26T20:40:39.7277562470"
+        }
+      ],
+      "deviceAuthFileObserved": false
+    }
+  },
+  "gatewayCliDiscovery": {
+    "callCommandExists": true,
+    "safeReadMethodsFound": [
+      "health",
+      "status",
+      "system-presence"
+    ],
+    "stateChangingMethodsRejectedForThisStep": [
+      "cron.add",
+      "cron.update",
+      "cron.remove",
+      "cron.run",
+      "system-event",
+      "send",
+      "agent",
+      "chat.send",
+      "chat.inject"
+    ],
+    "notes": [
+      "The stock `openclaw gateway call` CLI uses broad default operator scopes, so the validation used a custom GatewayClient with only operator.read.",
+      "The probe implementation can call config.get in full mode; this validation avoided config.get to avoid secret or config shape exposure."
+    ]
+  },
+  "validationAttempts": [
+    {
+      "name": "read_scope_without_device_or_token",
+      "url": "ws://127.0.0.1:18792",
+      "scope": "operator.read",
+      "result": "failed_closed",
+      "error": "device identity required"
+    },
+    {
+      "name": "token_only_read_scope",
+      "url": "ws://127.0.0.1:18792",
+      "scope": "operator.read",
+      "result": "partial",
+      "tokenPresent": true,
+      "hello": {
+        "protocol": 3,
+        "authRole": null,
+        "authScopes": null,
+        "methodCount": 125,
+        "hasHealth": true,
+        "hasStatus": true,
+        "hasSystemPresence": true
+      },
+      "healthRequest": "ok",
+      "statusRequest": "missing scope: operator.read",
+      "systemPresenceRequest": "missing scope: operator.read"
+    },
+    {
+      "name": "device_only_read_scope",
+      "url": "ws://127.0.0.1:18792",
+      "scope": "operator.read",
+      "result": "failed_closed",
+      "identityPresent": true,
+      "error": "unauthorized: gateway token missing (provide gateway auth token)"
+    },
+    {
+      "name": "token_and_existing_device_read_scope_write_blocked",
+      "url": "ws://127.0.0.1:18792",
+      "scope": "operator.read",
+      "result": "passed",
+      "tokenPresent": true,
+      "identityPresent": true,
+      "writeBlocked": true,
+      "writeAttemptCount": 1,
+      "mkdirAttemptCount": 1,
+      "durationMs": 102,
+      "hello": {
+        "protocol": 3,
+        "authRole": "operator",
+        "authScopes": [
+          "operator.read"
+        ],
+        "methodCount": 125,
+        "hasHealth": true,
+        "hasStatus": true,
+        "hasSystemPresence": true
+      },
+      "requests": {
+        "health": {
+          "succeeded": true,
+          "ok": true,
+          "defaultAgentId": "main",
+          "channelCount": 0
+        },
+        "status": {
+          "succeeded": true
+        },
+        "systemPresence": {
+          "succeeded": true,
+          "isArray": true,
+          "count": 3,
+          "modes": [
+            "gateway",
+            "probe"
+          ]
+        }
+      }
+    }
+  ],
+  "deviations": [
+    {
+      "name": "env_source_order_port_mismatch",
+      "description": "One intermediate validation sourced shadow.env before secrets.env, so OPENCLAW_GATEWAY_PORT resolved to 18789 instead of shadow port 18792.",
+      "impact": "A read-only WebSocket connection reached old prod and failed with `missing scope: operator.read`; no delivery, config write, restart, or channel toggle was performed.",
+      "mitigation": "All subsequent validation forced url ws://127.0.0.1:18792 and explicitly set OPENCLAW_STATE_DIR, OPENCLAW_CONFIG_PATH, OPENCLAW_WORKSPACE, and OPENCLAW_GATEWAY_PORT."
+    }
+  ],
+  "conclusion": {
+    "shadowGatewayEntryReachable": true,
+    "readOnlyGatewayAuthPathConfirmed": true,
+    "requiresTokenAndExistingDeviceIdentity": true,
+    "plainTokenDoesNotGrantReadScope": true,
+    "clientWouldAttemptDeviceTokenStoreWrite": true,
+    "writeWasBlockedDuringValidation": true,
+    "shadowHealthOkAfter": true,
+    "oldProdHealthOkAfter": true,
+    "feishuCutoverReady": false,
+    "notes": [
+      "This validated the gateway service-entry-adjacent read path only.",
+      "It did not validate production Feishu ingress.",
+      "It did not run a committed runtime turn through the live service.",
+      "Feishu test ingress and production cutover remain separate L3-gated work."
+    ]
+  },
+  "nextRecommendedStep": {
+    "level": "L0/L1 local development first",
+    "description": "Add a dedicated shadow-safe service-entry harness in the product repo that invokes the vNext synthetic turn runner from a gateway-adjacent adapter without delivery, provider network calls, or runtime commits; then sync and validate it on shadow under the same L3 gate discipline."
+  }
+}

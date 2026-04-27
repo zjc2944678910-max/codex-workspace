@@ -1,0 +1,155 @@
+{
+  "schema": "openclaw.benben.shadow_service_entry_matrix_validation.v1",
+  "createdAt": "2026-04-27T04:50:27Z",
+  "taskLevel": "L2",
+  "sourceOfTruth": "ssh_live:oc-nas",
+  "target": {
+    "host": "oc-nas",
+    "shadowService": "openclaw-benben.service",
+    "shadowGatewayPort": 18792,
+    "oldProdService": "openclaw-gateway.service",
+    "oldProdGatewayPort": 18789
+  },
+  "claudePrimaryAudit": {
+    "attempted": true,
+    "available": false,
+    "failure": "403 subscription quota insufficient",
+    "requestId": "20260427044023895847458268d9d69CMdLQDo"
+  },
+  "constraintsObserved": {
+    "noRemoteWrites": true,
+    "noFeishuIngressEnabled": true,
+    "noTelegramIngressEnabled": true,
+    "noQqbotIngressEnabled": true,
+    "noSystemdWrite": true,
+    "noEnvWrite": true,
+    "noServiceRestart": true,
+    "noProviderOrModelNetworkCall": true,
+    "noDelivery": true,
+    "noRuntimeTurnCommit": true
+  },
+  "validation": {
+    "mode": "shadow_service_entry_matrix_dry_run",
+    "caseCount": 8,
+    "ok": true,
+    "fixtureUnwrapRule": "fixture.event || fixture.feishuEvent || fixture.input || fixture",
+    "cases": [
+      {
+        "name": "owner-persona",
+        "ok": true,
+        "answerPath": "persona_identity",
+        "command": null,
+        "responseKind": "persona_identity",
+        "deliverySent": false,
+        "productionIngress": false,
+        "runtimeCommitted": false,
+        "modelCallEnabled": false
+      },
+      {
+        "name": "owner-normal-answer-plan",
+        "ok": true,
+        "answerPath": "answer_plan_deferred",
+        "command": null,
+        "responseKind": "normal_answer_planned",
+        "deliverySent": false,
+        "productionIngress": false,
+        "runtimeCommitted": false,
+        "modelCallEnabled": false
+      },
+      {
+        "name": "owner-status",
+        "ok": true,
+        "answerPath": "command",
+        "command": "status",
+        "responseKind": "status_summary",
+        "deliverySent": false,
+        "productionIngress": false,
+        "runtimeCommitted": false,
+        "modelCallEnabled": false
+      },
+      {
+        "name": "owner-memory-delete",
+        "ok": true,
+        "answerPath": "command",
+        "command": "memory",
+        "responseKind": "memory_admin_confirmation_required",
+        "deliverySent": false,
+        "productionIngress": false,
+        "runtimeCommitted": false,
+        "modelCallEnabled": false
+      },
+      {
+        "name": "partner-memory-search",
+        "ok": true,
+        "answerPath": "command",
+        "command": "memory",
+        "responseKind": "permission_denied",
+        "deliverySent": false,
+        "productionIngress": false,
+        "runtimeCommitted": false,
+        "modelCallEnabled": false
+      },
+      {
+        "name": "group-project-status",
+        "ok": true,
+        "answerPath": "command",
+        "command": "status",
+        "responseKind": "status_summary",
+        "deliverySent": false,
+        "productionIngress": false,
+        "runtimeCommitted": false,
+        "modelCallEnabled": false
+      },
+      {
+        "name": "group-ordinary-persona",
+        "ok": true,
+        "answerPath": "persona_identity",
+        "command": null,
+        "responseKind": "persona_identity",
+        "deliverySent": false,
+        "productionIngress": false,
+        "runtimeCommitted": false,
+        "modelCallEnabled": false
+      },
+      {
+        "name": "unknown-reset",
+        "ok": true,
+        "answerPath": "command",
+        "command": "reset",
+        "responseKind": "permission_denied",
+        "deliverySent": false,
+        "productionIngress": false,
+        "runtimeCommitted": false,
+        "modelCallEnabled": false
+      }
+    ]
+  },
+  "serviceEvidenceAfterValidation": {
+    "oldProd": {
+      "service": "openclaw-gateway.service",
+      "mainPid": 1559349,
+      "activeState": "active",
+      "subState": "running",
+      "healthz": {
+        "ok": true,
+        "status": "live"
+      }
+    },
+    "shadow": {
+      "service": "openclaw-benben.service",
+      "mainPid": 948503,
+      "activeState": "active",
+      "subState": "running",
+      "healthz": {
+        "ok": true,
+        "status": "live"
+      }
+    }
+  },
+  "notes": [
+    "The first matrix attempt passed the whole fixture wrapper as params.event and therefore exercised the empty/deferred path; it was discarded as invalid and rerun with the same unwrap rule used by the dry-run CLI.",
+    "The final accepted matrix did not write report, trace, or usage files on the remote host.",
+    "This validation still does not enable Feishu test ingress or production cutover."
+  ],
+  "result": "completed"
+}

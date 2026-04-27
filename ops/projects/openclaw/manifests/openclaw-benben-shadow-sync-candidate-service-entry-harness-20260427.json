@@ -1,0 +1,102 @@
+{
+  "schema": "openclaw.benben.shadow_sync_candidate.v1",
+  "createdAt": "2026-04-27T04:00:00Z",
+  "taskLevel": "L3-plan-only",
+  "sourceRepo": "/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/openclaw/nas-openclaw-v22",
+  "sourceBranch": "codex/openclaw-benben-vnext-core",
+  "targetHost": "oc-nas",
+  "targetService": "openclaw-benben.service",
+  "targetWorkspace": "/var/lib/openclaw-benben/.openclaw/workspace",
+  "targetPort": 18792,
+  "oldProdService": "openclaw-gateway.service",
+  "oldProdPort": 18789,
+  "syncScope": {
+    "description": "Shadow-only sync candidate for the openclaw-benben service-entry harness. This candidate does not include Feishu/channel/env/systemd changes.",
+    "fileCount": 6,
+    "aggregateSha256": "9a2b326037efcbd9a647774b23479ea4fd7107306e3b1a8bf1e3047a266e0b9c"
+  },
+  "constraints": {
+    "noFeishuIngressEnabled": true,
+    "noTelegramIngressEnabled": true,
+    "noQqbotIngressEnabled": true,
+    "noSystemdWrite": true,
+    "noEnvWrite": true,
+    "noServiceRestartPlanned": true,
+    "noProviderOrModelNetworkCall": true,
+    "noDelivery": true,
+    "noRuntimeTurnCommit": true,
+    "oldProdUntouched": true,
+    "requiresExplicitRepairPhraseBeforeExecution": "进入修复阶段"
+  },
+  "files": [
+    {
+      "path": "workspace/tools/openclaw-benben/README.md",
+      "targetPath": "/var/lib/openclaw-benben/.openclaw/workspace/tools/openclaw-benben/README.md",
+      "size": 4497,
+      "sha256": "ff224434eefd4e5d0e2bedb48f3fdb1ce8a80074f7b7d2dd648793bfab7c4073"
+    },
+    {
+      "path": "workspace/tools/openclaw-benben/index.mjs",
+      "targetPath": "/var/lib/openclaw-benben/.openclaw/workspace/tools/openclaw-benben/index.mjs",
+      "size": 2422,
+      "sha256": "c3584492981d8876f37d3ea22eaeefffcdf503d4309eee22906ed28d354529c7"
+    },
+    {
+      "path": "workspace/tools/openclaw-benben/service-entry-harness.mjs",
+      "targetPath": "/var/lib/openclaw-benben/.openclaw/workspace/tools/openclaw-benben/service-entry-harness.mjs",
+      "size": 17304,
+      "sha256": "77f94160e79048cb10ad2017e82a69233a44909ee5ba44854aff8fd09f9b5c9d"
+    },
+    {
+      "path": "workspace/tools/tests/openclaw-benben/openclaw-benben-service-entry-harness.test.mjs",
+      "targetPath": "/var/lib/openclaw-benben/.openclaw/workspace/tools/tests/openclaw-benben/openclaw-benben-service-entry-harness.test.mjs",
+      "size": 7711,
+      "sha256": "87653727dc58891164a722b967a297bb75b98a9df8707832b163dddec30c3f06"
+    },
+    {
+      "path": "workspace/tools/tests/workspace-source-manifest.test.mjs",
+      "targetPath": "/var/lib/openclaw-benben/.openclaw/workspace/tools/tests/workspace-source-manifest.test.mjs",
+      "size": 5062,
+      "sha256": "b17a3ae9e86dcae1a99ec1126294df1adb40f5208499dc4d8b3b1c796710e927"
+    },
+    {
+      "path": "workspace/tools/workspace-source-manifest.mjs",
+      "targetPath": "/var/lib/openclaw-benben/.openclaw/workspace/tools/workspace-source-manifest.mjs",
+      "size": 11520,
+      "sha256": "340302a05be3adcdfc039e0ab1784a06d759536ab389d7db5c124c5bbff71e1d"
+    }
+  ],
+  "localVerification": {
+    "nodeTest": {
+      "command": "node --test workspace/tools/tests/openclaw-benben/*.test.mjs workspace/tools/tests/workspace-source-manifest.test.mjs",
+      "pass": 61,
+      "fail": 0
+    },
+    "syntax": {
+      "commands": [
+        "find workspace/tools/openclaw-benben -name '*.mjs' -exec node --check {} \\;",
+        "node --check workspace/tools/workspace-source-manifest.mjs"
+      ],
+      "ok": true
+    },
+    "diffCheck": {
+      "command": "git diff --check",
+      "ok": true
+    }
+  },
+  "plannedRollback": {
+    "snapshotBeforeWrite": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-service-entry-harness-<UTC>/target-files.tar.gz",
+    "restoreStrategy": "Restore the six target files from target-files.tar.gz, then verify hashes and rerun shadow health/read-only harness checks. No service restart is planned for this file-only workspace sync."
+  },
+  "plannedPostSyncVerification": [
+    "Verify remote sha256 for all six target files.",
+    "Run node --check on /var/lib/openclaw-benben/.openclaw/workspace/tools/openclaw-benben/service-entry-harness.mjs and workspace-source-manifest.mjs.",
+    "Run focused remote tests: node --test tools/tests/openclaw-benben/openclaw-benben-service-entry-harness.test.mjs tools/tests/workspace-source-manifest.test.mjs from the shadow workspace.",
+    "Run the harness CLI on the existing synthetic fixture and confirm mode=shadow_service_entry_dry_run, delivery.sent=false, production_ingress=false, runtime_committed=false, model_call.enabled=false.",
+    "Confirm old prod openclaw-gateway.service PID/health remains unchanged and shadow openclaw-benben.service health remains ok."
+  ],
+  "authorizationStatus": {
+    "liveWriteAuthorized": false,
+    "reason": "Current user message said authorization, but the active repair-gate policy requires the explicit phrase '进入修复阶段' before live-state-changing commands."
+  }
+}

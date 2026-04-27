@@ -1,0 +1,97 @@
+{
+  "schema": "openclaw.benben.shadow_sync_execution.v1",
+  "createdAt": "2026-04-27T04:17:29Z",
+  "taskLevel": "L3",
+  "authorizedByUserPhrase": "进入修复阶段",
+  "candidateManifest": "/Users/zhangjincheng/Documents/GitHub/codex-workspace/ops/projects/openclaw/manifests/openclaw-benben-shadow-sync-candidate-service-entry-harness-20260427.json",
+  "target": {
+    "host": "oc-nas",
+    "service": "openclaw-benben.service",
+    "workspace": "/var/lib/openclaw-benben/.openclaw/workspace",
+    "gatewayPort": 18792
+  },
+  "oldProdAnchor": {
+    "service": "openclaw-gateway.service",
+    "gatewayPort": 18789,
+    "mainPidBefore": 1559349,
+    "mainPidAfter": 1559349,
+    "healthAfter": {
+      "ok": true,
+      "status": "live"
+    }
+  },
+  "constraintsObserved": {
+    "feishuIngressEnabled": false,
+    "telegramIngressEnabled": false,
+    "qqbotIngressEnabled": false,
+    "systemdChanged": false,
+    "envChanged": false,
+    "serviceRestarted": false,
+    "providerOrModelNetworkCall": false,
+    "deliverySent": false,
+    "runtimeTurnCommitted": false
+  },
+  "rollback": {
+    "snapshot": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-service-entry-harness-20260427T040834Z/target-files.tar.gz",
+    "snapshotSha256": "1ed7829d2df1b166f82e971a43ab6bc504fa342b39d05342505e3321c7710944",
+    "beforeSha256File": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-service-entry-harness-20260427T040834Z/before.sha256"
+  },
+  "syncedFiles": {
+    "count": 6,
+    "aggregateSha256": "9a2b326037efcbd9a647774b23479ea4fd7107306e3b1a8bf1e3047a266e0b9c",
+    "remoteSha256Verified": true,
+    "remoteOwnerModeVerified": true,
+    "owner": "openclaw-benben:users",
+    "mode": "0644"
+  },
+  "verification": {
+    "syntax": {
+      "commands": [
+        "node --check tools/openclaw-benben/service-entry-harness.mjs",
+        "node --check tools/workspace-source-manifest.mjs"
+      ],
+      "ok": true
+    },
+    "focusedTests": {
+      "command": "node --test tools/tests/openclaw-benben/openclaw-benben-service-entry-harness.test.mjs tools/tests/workspace-source-manifest.test.mjs",
+      "pass": 7,
+      "fail": 0
+    },
+    "harnessCli": {
+      "command": "node tools/openclaw-benben/service-entry-harness.mjs --fixture tools/openclaw-benben/fixtures/owner-status.event.json --identity tools/openclaw-benben/fixtures/identity.synthetic.json --json",
+      "ok": true,
+      "mode": "shadow_service_entry_dry_run",
+      "method": "openclaw-benben.shadow.syntheticTurn",
+      "sourceKind": "synthetic_fixture",
+      "deliverySent": false,
+      "productionIngress": false,
+      "runtimeCommitted": false,
+      "modelCallEnabled": false,
+      "responseKind": "status_summary"
+    },
+    "appleDoubleSidecars": {
+      "scanRoot": [
+        "/var/lib/openclaw-benben/.openclaw/workspace/tools/openclaw-benben",
+        "/var/lib/openclaw-benben/.openclaw/workspace/tools/tests/openclaw-benben"
+      ],
+      "matches": 0
+    },
+    "shadowHealthAfter": {
+      "service": "openclaw-benben.service",
+      "mainPid": 948503,
+      "activeState": "active",
+      "subState": "running",
+      "healthz": {
+        "ok": true,
+        "status": "live"
+      }
+    }
+  },
+  "notes": [
+    "No Feishu test ingress or production cutover was attempted.",
+    "No service restart was performed.",
+    "Two verification commands initially failed because the ordinary SSH user could not cd into the 0700 shadow workspace; they were rerun through sudo/service-user context and passed.",
+    "The harness remains synthetic/local fixture only and does not expose a production message ingress."
+  ],
+  "result": "completed"
+}
