@@ -8,17 +8,19 @@ Live changes: none
 
 - repo: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/openclaw/nas-openclaw-v22`
 - branch: `codex/openclaw-benben-vnext-core`
-- latest local commit: `6915cb64fb3708c248210753e60bfa0ac8ce40b8`
+- latest local commit: `618bea0c927ca693983aeee8ed5835fd2bf10369`
 - latest shadow-synced commit: `6915cb64fb3708c248210753e60bfa0ac8ce40b8`
+- mock-model checkpoint: `618bea0c927ca693983aeee8ed5835fd2bf10369`
 - tool-execution checkpoint: `6915cb64fb3708c248210753e60bfa0ac8ce40b8`
 - response-composer checkpoint: `b2a0fa46c579db2cf7de81d5cf33d65b8f8e29d4`
 - prompt-plan checkpoint: `facaeeb1ae4a8a258809ead7968c231a57fd53e2`
 - answer-plan checkpoint: `d9a8a8d924f33e3ed1e908a4ce8c70a0f6767c5d`
 - persona checkpoint: `7a8811368e89843213410963f1baa2e9e3a64e77`
 - core commit: `3164adc2fd834b311691be0ef51af03ff3fbeec2`
-- latest local commit message: `feat: add benben dry-run tool execution plan`
-- latest shadow-synced commit message: `test: add benben dry-run shadow preflight suite`
+- latest local commit message: `feat: add benben mock model call adapter`
+- latest shadow-synced commit message: `feat: add benben dry-run tool execution plan`
 - response-composer checkpoint message: `feat: add benben dry-run response composition`
+- mock-model checkpoint message: `feat: add benben mock model call adapter`
 - tool-execution checkpoint message: `feat: add benben dry-run tool execution plan`
 - prompt-plan checkpoint message: `feat: add benben dry-run prompt planning`
 - answer-plan checkpoint message: `feat: add benben dry-run answer planning`
@@ -159,6 +161,25 @@ Properties:
 - keeps `all_execution_disabled=true`, `executed_action_count=0`, and
   `raw_actions_persisted=false`
 
+## Latest Local Mock-Model Add-on
+
+Commit `618bea0c927ca693983aeee8ed5835fd2bf10369` adds a mock model-call
+adapter.
+
+Properties:
+
+- no provider network call
+- no provider request materialization
+- no provider response persistence
+- no Feishu send
+- no runtime commit
+- exercises the model-call-to-response-composer chain behind explicit
+  `enableMockModelCall`
+- records sanitized candidate hash/length, estimated usage, provider/model,
+  idempotency references, and secret/high-risk detection flags
+- raw mock response text is only used inside the dry-run result path and is not
+  written to trace/report
+
 ## Safety Properties
 
 - Dry-run Feishu adapter only; no send path is implemented.
@@ -174,6 +195,8 @@ Properties:
   gated before delivery.
 - Tool execution is metadata-only in trace/report; proposed actions are gated but
   never executed in dry-run.
+- Mock model calls are metadata-only in trace/report; they can generate a
+  candidate for response composition without contacting a provider.
 - Runtime commits are not performed.
 - `/memory` admin is owner-direct only.
 - `/memory` mutation actions require owner confirmation and remain uncommitted.
@@ -193,19 +216,34 @@ find workspace/tools/openclaw-benben -name '*.mjs' -exec node --check {} \;
 node --check workspace/tools/workspace-source-manifest.mjs
 git diff --check
 node workspace/tools/openclaw-benben/dry-run-suite.mjs --json
-rg -n "SECRET_TOOL_ARG|SECRET_MESSAGE_PAYLOAD|SECRET_TOOL_EXEC|systemctl restart|ssh oc-nas|scratch/projects/openclaw-benben/tool-result|SYNTHETIC_ANSWER_PAYLOAD|chat_fixture_owner|entity:user:self" scratch/projects/openclaw-benben/dry-run-suite
+rg -n "SECRET_MODEL_INPUT|SECRET_MODEL_RESPONSE|SECRET_TOOL_ARG|SECRET_MESSAGE_PAYLOAD|SECRET_TOOL_EXEC|systemctl restart|ssh oc-nas|scratch/projects/openclaw-benben/tool-result|SYNTHETIC_ANSWER_PAYLOAD|chat_fixture_owner|entity:user:self" scratch/projects/openclaw-benben/dry-run-suite
 ```
 
 Results:
 
-- local benben + source-manifest tests: 50 pass / 0 fail
-- benben + Memory V4 + source-manifest aggregate regression: 135 pass / 0 fail
+- local benben + source-manifest tests: 52 pass / 0 fail
+- benben + Memory V4 + source-manifest aggregate regression: 137 pass / 0 fail
 - syntax checks: pass
 - diff whitespace check before commit: pass
 - default synthetic dry-run suite: 8 cases, all `ok:true`, all `sent:false`,
   all `production_ingress:false`, all `runtime_committed:false`, all
   `model_call_enabled:false`
 - synthetic/raw/tool denylist scan: no matches
+
+## L3 Boundary For Next Shadow Sync Candidate
+
+The next deployment-shaped action would be to sync commit
+`618bea0c927ca693983aeee8ed5835fd2bf10369` to the NAS shadow workspace. That is
+L3 because it writes live NAS files and would require a separate explicit
+`进入修复阶段` authorization.
+
+Local candidate package manifest:
+
+- latest: `openclaw-benben-shadow-sync-candidate-mock-model-20260427.json`
+- supersedes: `openclaw-benben-shadow-sync-candidate-tool-executor-20260427.json`
+- 37 files
+- aggregate sha256:
+  `f905d37b2c1b43c98bc311b3dd1dec82c959b186ff60709c615757ce81d6d0c2`
 
 ## L3 Boundary For Shadow Sync
 

@@ -55,14 +55,16 @@ Status 2026-04-27:
   `625b29da0954d4d6c5a901fbf0954ea72e4611b3`.
 - Latest local checkpoint with dry-run tool execution planner:
   `6915cb64fb3708c248210753e60bfa0ac8ce40b8`.
+- Latest local checkpoint with mock model-call adapter:
+  `618bea0c927ca693983aeee8ed5835fd2bf10369`.
 - Code location: `workspace/tools/openclaw-benben/`.
 - Test location: `workspace/tools/tests/openclaw-benben/`.
 - Implementation uses plain MJS and `node:test`; no new framework was introduced.
 - Scope includes message envelope, identity kernel, privacy kernel, Memory V4 wrapper,
   usage ledger, tool gate, Feishu dry-run adapter, command router, memory command
   planner, persona kernel, ordinary-message answer planner, sanitized
-  model-prompt planner, model execution planner, response composer, tool execution
-  planner, turn runner, dry-run CLI, and README.
+  model-prompt planner, model execution planner, mock model-call adapter,
+  response composer, tool execution planner, turn runner, dry-run CLI, and README.
 
 ## Phase 2: Feishu Runtime And Commands
 
@@ -113,6 +115,10 @@ Status 2026-04-27:
 - The tool execution planner gates proposed actions through `ToolGate` but never
   executes them. Raw action args are not persisted; commands and target paths are
   recorded only as hashes plus coarse risk-shape metadata.
+- The mock model-call adapter can exercise the model-to-composer chain without
+  provider network calls. It records sanitized candidate metadata, estimated
+  usage, and safety flags while keeping raw provider request/response surfaces
+  unpersisted.
 - Memory recall for ordinary messages is still opt-in in local dry-run and is
   blocked for unknown direct senders and ordinary groups.
 - Real Feishu tests are not started; enabling any Feishu test ingress remains L3.
@@ -182,6 +188,8 @@ Status 2026-04-27:
   prompt-plan, model-execution, response-composer, and tool-execution checkpoints.
 - The L3 execution is recorded in
   `openclaw-benben-shadow-sync-execution-tool-executor-20260427.json`.
+- Newer local commit `618bea0c927ca693983aeee8ed5835fd2bf10369` adds the mock
+  model-call adapter and has not been synced to NAS shadow.
 - Any sync to `/var/lib/openclaw-benben/.openclaw/workspace` remains L3 and needs
   explicit `进入修复阶段` authorization.
 
