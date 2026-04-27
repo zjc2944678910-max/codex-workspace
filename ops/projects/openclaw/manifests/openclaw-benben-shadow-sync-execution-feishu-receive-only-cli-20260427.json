@@ -1,0 +1,153 @@
+{
+  "schema": "openclaw.benben.shadow_sync_execution.v1",
+  "createdAt": "2026-04-27T07:01:34Z",
+  "taskLevel": "L3",
+  "authorizedByUserPhrase": "进入修复阶段",
+  "candidateManifest": "/Users/zhangjincheng/Documents/GitHub/codex-workspace/ops/projects/openclaw/manifests/openclaw-benben-shadow-sync-candidate-feishu-receive-only-cli-20260427.json",
+  "target": {
+    "host": "oc-nas",
+    "service": "openclaw-benben.service",
+    "workspace": "/var/lib/openclaw-benben/.openclaw/workspace",
+    "gatewayPort": 18792
+  },
+  "oldProdAnchor": {
+    "service": "openclaw-gateway.service",
+    "gatewayPort": 18789,
+    "mainPidBefore": 1559349,
+    "mainPidAfter": 1559349,
+    "healthAfter": {
+      "ok": true,
+      "status": "live"
+    }
+  },
+  "shadowServiceAfter": {
+    "service": "openclaw-benben.service",
+    "mainPidBefore": 948503,
+    "mainPidAfter": 948503,
+    "activeState": "active",
+    "subState": "running",
+    "healthAfter": {
+      "ok": true,
+      "status": "live"
+    }
+  },
+  "constraintsObserved": {
+    "feishuIngressEnabled": false,
+    "telegramIngressEnabled": false,
+    "qqbotIngressEnabled": false,
+    "feishuCallbackChanged": false,
+    "systemdChanged": false,
+    "envChanged": false,
+    "serviceRestarted": false,
+    "providerOrModelNetworkCall": false,
+    "deliverySent": false,
+    "runtimeTurnCommitted": false,
+    "oldProdUntouched": true
+  },
+  "transfer": {
+    "localTar": "/tmp/benben-feishu-receive-only-cli-20260427T063745Z.tar.gz",
+    "localTarSha256": "69423a97ecb78b41207d9e5940cd22f1d884737f88f33ef9ab148028fd67e422",
+    "remoteUploadPath": "/home/benben/openclaw-benben-upload/benben-feishu-receive-only-cli-20260427T063745Z.tar.gz",
+    "remoteUploadSha256Verified": true,
+    "remoteUploadRemovedAfterExtract": true
+  },
+  "rollback": {
+    "snapshot": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-feishu-receive-only-cli-20260427T063745Z/target-files.tar.gz",
+    "snapshotSha256": "7104c37d56d372148b270fd3ccfa0dfd26cee4e35a9870ebad11b68e5f1f238a",
+    "beforeSha256File": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-feishu-receive-only-cli-20260427T063745Z/before.sha256",
+    "missingBeforeFile": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-feishu-receive-only-cli-20260427T063745Z/missing-files.list",
+    "missingBefore": [],
+    "restoreStrategy": "Extract target-files.tar.gz back into the shadow workspace, then verify hashes and health. No service restart should be required for rollback of this workspace-only sync."
+  },
+  "syncedFiles": {
+    "count": 4,
+    "aggregateSha256": "fcf0e4396e15ebd615f3018fce8a2b19c0d4bc1067d1bcf5e5a2e5dc8727e542",
+    "remoteSha256Verified": true,
+    "remoteOwnerModeVerified": true,
+    "owner": "openclaw-benben:users",
+    "mode": "0644",
+    "files": [
+      {
+        "path": "tools/openclaw-benben/README.md",
+        "sha256": "b6058e42ceac3462a4e42da8b96887456b02c7fd9c1df445238664ef28d44ebf"
+      },
+      {
+        "path": "tools/openclaw-benben/index.mjs",
+        "sha256": "6058ddc382cba7ef4c421e6d029cd5dde50faf94bb8f728f653c457f45255363"
+      },
+      {
+        "path": "tools/openclaw-benben/feishu-receive-only-ingress.mjs",
+        "sha256": "82c5f0d23c8443043c8e2d579795be1c7e01888364acbbcab70b3f8921811496"
+      },
+      {
+        "path": "tools/tests/openclaw-benben/openclaw-benben-feishu-receive-only-ingress.test.mjs",
+        "sha256": "20b4540ea2fc2ac083acb8cd906bc4f47cff6f52db4585319e63a75c2093ce9f"
+      }
+    ]
+  },
+  "verification": {
+    "syntax": {
+      "commands": [
+        "node --check tools/openclaw-benben/feishu-receive-only-ingress.mjs",
+        "node --check tools/openclaw-benben/index.mjs"
+      ],
+      "ok": true
+    },
+    "focusedTests": {
+      "command": "node --test tools/tests/openclaw-benben/openclaw-benben-feishu-receive-only-ingress.test.mjs",
+      "pass": 6,
+      "fail": 0
+    },
+    "cliSmoke": {
+      "command": "node tools/openclaw-benben/feishu-receive-only-ingress.mjs --fixture <tmp>/fixture.json --identity <tmp>/identity.json --test-surface <tmp>/surface.json --request-id req_cli_smoke --source-kind local_feishu_test_fixture --json",
+      "ok": true,
+      "mode": "shadow_feishu_receive_only_dry_run",
+      "sourceKind": "local_feishu_test_fixture",
+      "deliverySent": false,
+      "productionIngress": false,
+      "runtimeCommitted": false,
+      "modelCallEnabled": false,
+      "command": "status",
+      "rawLeaks": false
+    },
+    "shadowConfigAfter": {
+      "gateway": {
+        "mode": "local",
+        "port": 18792,
+        "bind": "loopback"
+      },
+      "channels": {
+        "feishu": false,
+        "telegram": false,
+        "qqbot": false
+      },
+      "plugins": {
+        "feishu": false,
+        "telegram": false,
+        "qqbot": false
+      }
+    },
+    "appleDoubleSidecars": {
+      "matchesAfterExtract": 0
+    }
+  },
+  "deviations": [
+    {
+      "name": "first_extract_attempt_ssh_connection_closed",
+      "impact": "No target files changed; no rollback directory was created before the disconnect. Follow-up read-only verification confirmed the upload tar remained present, target hashes were still the previous version, and both services remained healthy.",
+      "resolution": "Retried as shorter steps: create rollback snapshot first, then extract files. The retry completed successfully."
+    },
+    {
+      "name": "cli_smoke_parser_check_quote_error",
+      "impact": "The initial report parsing helper failed because shell quoting removed string quotes in node -e. The CLI itself had already produced a report.",
+      "resolution": "Reran the same CLI smoke with a temporary check.cjs file; it passed with rawLeaks=false."
+    }
+  ],
+  "notes": [
+    "No Feishu test ingress or production cutover was attempted.",
+    "No service restart or reload was performed.",
+    "No env, systemd, channel, plugin, or callback configuration was changed.",
+    "The L3 Feishu real-message test remains blocked until a separate non-production Feishu test surface is proven."
+  ],
+  "result": "completed"
+}

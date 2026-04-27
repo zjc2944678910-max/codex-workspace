@@ -1,0 +1,100 @@
+{
+  "schema": "openclaw.benben.shadow_sync_candidate.v1",
+  "createdAt": "2026-04-27T06:37:45Z",
+  "taskLevel": "L3-plan",
+  "authorizedByUserPhrase": "进入修复阶段",
+  "sourceRepo": "/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/openclaw/nas-openclaw-v22",
+  "sourceBranch": "codex/openclaw-benben-vnext-core",
+  "sourceHead": "9ad565d feat: add benben feishu receive-only CLI",
+  "targetHost": "oc-nas",
+  "targetService": "openclaw-benben.service",
+  "targetWorkspace": "/var/lib/openclaw-benben/.openclaw/workspace",
+  "targetPort": 18792,
+  "oldProdService": "openclaw-gateway.service",
+  "oldProdPort": 18789,
+  "syncScope": {
+    "description": "Shadow-only sync candidate for the openclaw-benben Feishu receive-only CLI/local fixture harness. This candidate does not enable Feishu, alter callbacks, edit env/systemd, or restart services.",
+    "fileCount": 4,
+    "aggregateSha256": "fcf0e4396e15ebd615f3018fce8a2b19c0d4bc1067d1bcf5e5a2e5dc8727e542"
+  },
+  "claudePrimaryAudit": {
+    "attempted": true,
+    "available": false,
+    "failure": "403 subscription quota insufficient",
+    "requestId": "202604270635546977692108268d9d662TH6a6q"
+  },
+  "constraints": {
+    "noFeishuIngressEnabled": true,
+    "noTelegramIngressEnabled": true,
+    "noQqbotIngressEnabled": true,
+    "noSystemdWrite": true,
+    "noEnvWrite": true,
+    "noServiceRestartPlanned": true,
+    "noCallbackChange": true,
+    "noProviderOrModelNetworkCall": true,
+    "noDelivery": true,
+    "noRuntimeTurnCommit": true,
+    "oldProdUntouched": true
+  },
+  "files": [
+    {
+      "path": "workspace/tools/openclaw-benben/README.md",
+      "targetPath": "/var/lib/openclaw-benben/.openclaw/workspace/tools/openclaw-benben/README.md",
+      "size": 6098,
+      "sha256": "b6058e42ceac3462a4e42da8b96887456b02c7fd9c1df445238664ef28d44ebf"
+    },
+    {
+      "path": "workspace/tools/openclaw-benben/index.mjs",
+      "targetPath": "/var/lib/openclaw-benben/.openclaw/workspace/tools/openclaw-benben/index.mjs",
+      "size": 2825,
+      "sha256": "6058ddc382cba7ef4c421e6d029cd5dde50faf94bb8f728f653c457f45255363"
+    },
+    {
+      "path": "workspace/tools/openclaw-benben/feishu-receive-only-ingress.mjs",
+      "targetPath": "/var/lib/openclaw-benben/.openclaw/workspace/tools/openclaw-benben/feishu-receive-only-ingress.mjs",
+      "size": 22033,
+      "sha256": "82c5f0d23c8443043c8e2d579795be1c7e01888364acbbcab70b3f8921811496"
+    },
+    {
+      "path": "workspace/tools/tests/openclaw-benben/openclaw-benben-feishu-receive-only-ingress.test.mjs",
+      "targetPath": "/var/lib/openclaw-benben/.openclaw/workspace/tools/tests/openclaw-benben/openclaw-benben-feishu-receive-only-ingress.test.mjs",
+      "size": 11504,
+      "sha256": "20b4540ea2fc2ac083acb8cd906bc4f47cff6f52db4585319e63a75c2093ce9f"
+    }
+  ],
+  "localVerification": {
+    "nodeTest": {
+      "command": "node --test workspace/tools/tests/openclaw-benben/*.test.mjs workspace/tools/tests/workspace-source-manifest.test.mjs",
+      "pass": 67,
+      "fail": 0
+    },
+    "syntax": {
+      "commands": [
+        "find workspace/tools/openclaw-benben -name '*.mjs' -exec node --check {} \\;",
+        "node --check workspace/tools/workspace-source-manifest.mjs"
+      ],
+      "ok": true
+    },
+    "diffCheck": {
+      "command": "git diff --check",
+      "ok": true
+    }
+  },
+  "plannedRollback": {
+    "snapshotBeforeWrite": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-feishu-receive-only-cli-<UTC>/target-files.tar.gz",
+    "restoreStrategy": "Restore the four target files from target-files.tar.gz, then verify hashes and rerun shadow focused tests. No service restart is planned for this file-only workspace sync."
+  },
+  "plannedPostSyncVerification": [
+    "Verify remote sha256 for all four target files.",
+    "Run node --check on tools/openclaw-benben/feishu-receive-only-ingress.mjs and index.mjs.",
+    "Run focused remote tests: node --test tools/tests/openclaw-benben/openclaw-benben-feishu-receive-only-ingress.test.mjs from the shadow workspace.",
+    "Run the receive-only CLI on a synthetic local fixture and synthetic test-surface proof; confirm mode=shadow_feishu_receive_only_dry_run, delivery.sent=false, production_ingress=false, runtime_committed=false, model_call.enabled=false.",
+    "Confirm shadow Feishu/Telegram/QQBot channels and plugins remain disabled.",
+    "Confirm old prod openclaw-gateway.service PID/health remains unchanged and shadow openclaw-benben.service health remains ok."
+  ],
+  "authorizationStatus": {
+    "liveWriteAuthorized": true,
+    "reason": "User explicitly said '进入修复阶段'. The candidate is limited to shadow workspace file sync and does not enable Feishu ingress or alter production callbacks."
+  },
+  "result": "candidate_ready"
+}
