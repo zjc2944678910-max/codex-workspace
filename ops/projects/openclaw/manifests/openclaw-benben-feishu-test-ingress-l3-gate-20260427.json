@@ -1,0 +1,139 @@
+{
+  "schema": "openclaw.benben.feishu_test_ingress_l3_gate.v1",
+  "createdAt": "2026-04-27T05:16:33Z",
+  "taskLevel": "L3-plan-only",
+  "sourceOfTruth": "local_git + prior_manifests",
+  "liveSystemsModified": false,
+  "localCheckpoints": {
+    "opsRepo": {
+      "path": "/Users/zhangjincheng/Documents/GitHub/codex-workspace",
+      "branch": "main",
+      "head": "9ba5304 docs: record benben shadow readiness",
+      "cleanAtStart": true
+    },
+    "productRepo": {
+      "path": "/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/openclaw/nas-openclaw-v22",
+      "branch": "codex/openclaw-benben-vnext-core",
+      "head": "ef44454 feat: add benben shadow service-entry harness",
+      "cleanAtStart": true
+    }
+  },
+  "claudePrimaryAudit": {
+    "attempted": true,
+    "available": false,
+    "failure": "403 subscription quota insufficient",
+    "requestId": "202604270517303114860828268d9d6MAH9h9yB"
+  },
+  "target": {
+    "host": "oc-nas",
+    "oldProdService": "openclaw-gateway.service",
+    "oldProdGatewayPort": 18789,
+    "shadowService": "openclaw-benben.service",
+    "shadowGatewayPort": 18792,
+    "shadowStateRoot": "/var/lib/openclaw-benben/.openclaw",
+    "shadowConfigRoot": "/etc/openclaw-benben",
+    "currentProductionEntrance": "existing Feishu benben bot"
+  },
+  "changeTarget": {
+    "name": "Feishu real-message test ingress for openclaw-benben shadow",
+    "recommendedIngressMode": "isolated_non_production_feishu_test_surface",
+    "exactProposedMode": [
+      "Use a separate non-production Feishu test app/robot/callback surface for shadow validation.",
+      "Do not reuse the current production benben Feishu bot while old prod remains active.",
+      "Keep the current production benben bot bound to old prod until a separate production-cutover L3 gate.",
+      "Start with receive-only or dry-run delivery semantics unless a later gate explicitly authorizes test-surface reply delivery."
+    ],
+    "reason": [
+      "Shadow synthetic service-entry validation has passed, but no real Feishu ingress is enabled.",
+      "The current production Feishu bot is tightly coupled to old prod and cannot safely be consumed by old and new services simultaneously.",
+      "A separate test surface allows real Feishu event verification without risking duplicate production consumption."
+    ]
+  },
+  "hardBlocksBeforeExecution": [
+    "No execution is allowed until the user explicitly says: 进入修复阶段.",
+    "Do not enable the shadow service against the current production benben Feishu bot while openclaw-gateway.service still owns production.",
+    "Do not modify Feishu production callback, production bot credentials, old prod systemd, or old prod config in this test-ingress gate.",
+    "Do not send production Feishu messages from shadow.",
+    "Do not touch adminAI.",
+    "Do not treat V2/V3/projection/transcript/raw archive as answer truth."
+  ],
+  "candidateExecutionScopeIfLaterAuthorized": {
+    "allowedPreflightReads": [
+      "Confirm old prod and shadow service health and PIDs.",
+      "Confirm shadow feishu/telegram/qqbot channels and plugins are still disabled before any change.",
+      "Confirm the chosen Feishu test surface is separate from the current production benben bot using redacted identifiers or fingerprints only.",
+      "Confirm the product code path supports shadow-safe Feishu ingress with no production delivery by default."
+    ],
+    "candidateWrites": [
+      "Create a rollback snapshot for any changed shadow config or workspace files.",
+      "Add only isolated test-surface Feishu configuration under the shadow config/state roots.",
+      "Enable only the minimum shadow test-ingress path required for the isolated test surface.",
+      "Restart or reload only openclaw-benben.service if the final config path requires it."
+    ],
+    "explicitlyOutOfScopeWrites": [
+      "No Feishu production callback change.",
+      "No current production benben bot credential rotation.",
+      "No openclaw-gateway.service restart, stop, or config change.",
+      "No Telegram or QQBot enablement.",
+      "No Memory V4 destructive action.",
+      "No provider/model network call unless separately authorized for the isolated test surface."
+    ]
+  },
+  "dualConsumerProofRequired": [
+    "Show that the test Feishu surface has a different app/bot identity from the current production benben bot, using redacted fingerprints only.",
+    "Show that the current production benben bot remains served by old prod and is not configured in shadow for this gate.",
+    "Show that shadow Feishu config, if enabled, points only to the isolated test surface.",
+    "Show that old prod PID/health remains stable and that no duplicate response is emitted during a test-surface canary.",
+    "If a separate test surface cannot be confirmed, stop and do not proceed to real Feishu testing."
+  ],
+  "risk": [
+    "Accidentally binding shadow to the production Feishu bot could create duplicate consumers or dropped replies.",
+    "A service reload/restart may interrupt the shadow instance even if old prod remains healthy.",
+    "Secret handling mistakes could leak Feishu credentials into logs, manifests, or git.",
+    "A real Feishu callback may write runtime state, consume model budget, or send a message if delivery guards are wrong.",
+    "External callback exposure may introduce auth, replay, or verification-token failure modes."
+  ],
+  "rollbackPlan": [
+    "Restore shadow config/workspace files from the rollback snapshot created immediately before any write.",
+    "Disable the shadow Feishu test surface and set shadow feishu channel/plugin enabled flags back to false.",
+    "Remove or park the isolated test Feishu callback URL from the Feishu test app, if one was created.",
+    "Restart or reload only openclaw-benben.service if required to apply rollback.",
+    "Verify old prod openclaw-gateway.service remains active/running and still owns the production Feishu entrance."
+  ],
+  "verificationPlan": {
+    "preChange": [
+      "Record old prod and shadow health/PID/ports.",
+      "Record redacted shadow channel/plugin state with feishu=false, telegram=false, qqbot=false.",
+      "Record redacted proof that the selected Feishu test surface is not the production benben bot.",
+      "Run local and shadow synthetic harness tests as baseline."
+    ],
+    "postChange": [
+      "Confirm old prod health/PID/port remains unchanged.",
+      "Confirm shadow health/port remains ok after any reload.",
+      "Send exactly one canary message through the isolated Feishu test surface.",
+      "Confirm the canary reaches the intended shadow runtime path and is classified by the vNext envelope/identity/privacy kernels.",
+      "Confirm no production Feishu message was consumed by shadow.",
+      "Confirm delivery remains disabled or limited to the isolated test surface according to the final authorized gate.",
+      "Confirm no raw secret values, raw archive truth, or unsafe memory-admin action appears in logs or reports."
+    ],
+    "stopConditions": [
+      "Production bot identity appears in the shadow Feishu config.",
+      "Old prod health or PID unexpectedly changes.",
+      "Shadow attempts to send to the production Feishu bot.",
+      "Any test event cannot be proven to come from the isolated test surface.",
+      "Any runtime action requires a higher-risk authorization than this gate grants."
+    ]
+  },
+  "authorizationStatus": {
+    "liveWriteAuthorized": false,
+    "feishuTestIngressAuthorized": false,
+    "productionCutoverAuthorized": false,
+    "reason": "The latest user message only said continue. This manifest is local planning only; actual Feishu ingress changes still require the explicit phrase '进入修复阶段'."
+  },
+  "nextLocalDevelopmentRecommendation": [
+    "Before any Feishu live change, add or identify a shadow-safe real Feishu ingress adapter that can run receive-only/dry-run first.",
+    "Add tests that prove production ingress flags, delivery guards, model-call guards, and runtime-commit guards cannot be bypassed by Feishu-shaped payloads.",
+    "Prepare a separate execution manifest only after the isolated Feishu test surface is identified and explicitly authorized."
+  ],
+  "result": "planned_only"
+}
