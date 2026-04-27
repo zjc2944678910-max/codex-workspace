@@ -1,0 +1,241 @@
+{
+  "schema": "openclaw.benben.existing_feishu_app_production_cutover_plan.v1",
+  "createdAt": "2026-04-27T08:33:09Z",
+  "taskLevel": "L3-plan-only",
+  "sourceOfTruth": "local_manifests",
+  "liveSystemsModified": false,
+  "routeDecision": {
+    "confirmedByUser": true,
+    "decision": "Keep the existing Feishu benben app/robot as the final production entrance, but replace the backend OpenClaw service behind it from old prod to openclaw-benben.",
+    "notChosen": "Create a new Feishu app/robot as final production entrance.",
+    "interpretation": "This is a production cutover, not a shadow Feishu test-surface validation."
+  },
+  "localCheckpoints": {
+    "opsRepo": {
+      "path": "/Users/zhangjincheng/Documents/GitHub/codex-workspace",
+      "branch": "main",
+      "headAtPlanStart": "9d3fa7b docs: record benben feishu proof blocker",
+      "cleanAtPlanStart": true
+    },
+    "productRepo": {
+      "path": "/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/openclaw/nas-openclaw-v22",
+      "branch": "codex/openclaw-benben-vnext-core",
+      "headAtPlanStart": "b842f58 docs: document benben feishu test surface proof",
+      "cleanAtPlanStart": true
+    }
+  },
+  "target": {
+    "host": "oc-nas",
+    "existingProductionFeishuEntrance": "current Feishu benben app/robot",
+    "oldProdService": "openclaw-gateway.service",
+    "oldProdGatewayPort": 18789,
+    "shadowService": "openclaw-benben.service",
+    "shadowGatewayPort": 18792,
+    "shadowStateRoot": "/var/lib/openclaw-benben/.openclaw",
+    "shadowConfigRoot": "/etc/openclaw-benben"
+  },
+  "currentConfirmedBaselineFromLatestPreflight": {
+    "oldProd": {
+      "mainPid": 1559349,
+      "healthz": {
+        "ok": true,
+        "status": "live"
+      },
+      "channels": {
+        "feishu": true,
+        "telegram": true,
+        "qqbot": false
+      },
+      "plugins": {
+        "feishu": true,
+        "telegram": true,
+        "qqbot": true
+      }
+    },
+    "shadow": {
+      "mainPid": 948503,
+      "healthz": {
+        "ok": true,
+        "status": "live"
+      },
+      "channels": {
+        "feishu": false,
+        "telegram": false,
+        "qqbot": false
+      },
+      "plugins": {
+        "feishu": false,
+        "telegram": false,
+        "qqbot": false
+      }
+    },
+    "feishuCredentialRelation": {
+      "oldShadowAppIdRelation": "same",
+      "oldShadowFeishuAppSecretRelation": "same",
+      "secretValuesPrinted": false,
+      "rawAppIdsPrinted": false
+    }
+  },
+  "cutoverGoal": {
+    "changeTarget": "Move the existing Feishu benben app/robot production ingress from old openclaw-gateway to new openclaw-benben.",
+    "desiredEndState": [
+      "Existing Feishu benben app events reach only openclaw-benben.",
+      "openclaw-benben Feishu channel/plugin are enabled only after old prod is no longer receiving the same app.",
+      "openclaw-gateway remains available as rollback anchor but must not concurrently consume the same Feishu app.",
+      "No Telegram or QQBot scope is included in this cutover."
+    ]
+  },
+  "recommendedExecutionShape": {
+    "name": "single-production-entrance cutover",
+    "summary": "Switch the one existing Feishu app production entrance from old service to new service in a short controlled window. Never operate two active consumers for the same app.",
+    "phases": [
+      {
+        "name": "fresh_preflight",
+        "level": "L2-readonly",
+        "actions": [
+          "Record old prod and shadow service health, PIDs, ports, and current channel/plugin state.",
+          "Record redacted old/shadow Feishu appId/secret relation without printing raw values.",
+          "Confirm proof checker, receive-only CLI, and focused tests still pass in shadow.",
+          "Confirm no unexpected watcher targets the shadow workspace or config paths."
+        ],
+        "stopConditions": [
+          "Either service is unhealthy.",
+          "Shadow already has Feishu enabled unexpectedly.",
+          "Old and shadow state differs from the expected baseline in a way that changes rollback assumptions."
+        ]
+      },
+      {
+        "name": "prepare_snapshots",
+        "level": "L3",
+        "actions": [
+          "Snapshot every file that may be modified under /var/lib/openclaw-benben/.openclaw and /etc/openclaw-benben.",
+          "Snapshot old production files that may need rollback evidence, especially old openclaw.json and service/env summaries.",
+          "Record Feishu developer-console callback setting redacted fingerprint before external callback change if callback cutover is used."
+        ],
+        "stopConditions": [
+          "Rollback snapshot cannot be created.",
+          "Any snapshot would expose raw secrets in git or manifests."
+        ]
+      },
+      {
+        "name": "park_old_feishu_or_switch_callback",
+        "level": "L3",
+        "preferredAction": "Use the Feishu app's single callback/entrance switch so old prod no longer receives events before shadow starts handling them.",
+        "alternativeAction": "If callback switch is not enough for this OpenClaw deployment model, disable old prod Feishu channel/plugin in old config and reload/restart only as explicitly planned.",
+        "hardRequirement": "There must be a moment where old prod is confirmed not receiving the existing Feishu app before new shadow is allowed to answer it.",
+        "stopConditions": [
+          "Old prod still receives Feishu events after the planned park/switch.",
+          "The callback or park action cannot be verified without sending a production message.",
+          "Rollback route to old prod is not clear."
+        ]
+      },
+      {
+        "name": "enable_new_feishu",
+        "level": "L3",
+        "actions": [
+          "Enable only the Feishu channel/plugin on openclaw-benben for the existing app.",
+          "Do not enable Telegram or QQBot.",
+          "Reload/restart only openclaw-benben if required by the config model.",
+          "Confirm openclaw-benben health and PID behavior after the change."
+        ],
+        "stopConditions": [
+          "openclaw-benben fails health check.",
+          "openclaw-benben attempts to enable Telegram or QQBot.",
+          "Logs show auth, callback, duplicate delivery, or message-send failures."
+        ]
+      },
+      {
+        "name": "production_acceptance",
+        "level": "L3",
+        "actions": [
+          "Send one owner DM canary to the existing Feishu benben app.",
+          "Confirm exactly one response is produced by openclaw-benben.",
+          "Run owner identity/persona, status, ordinary answer plan, and memory permission checks.",
+          "Run partner permission denial check if partner is available.",
+          "Run one safe group canary only if the current production group allowlist is understood.",
+          "Confirm no Memory V2/V3/projection/transcript/raw archive is used as answer truth.",
+          "Confirm no unsafe tool action executes without explicit ask."
+        ],
+        "stopConditions": [
+          "No response or duplicate responses.",
+          "Response appears from old prod.",
+          "Owner identity is not recognized.",
+          "Memory/admin permission boundaries fail.",
+          "Any send, model, or tool action violates the new runtime gates."
+        ]
+      },
+      {
+        "name": "stabilize_or_rollback",
+        "level": "L3",
+        "actions": [
+          "If acceptance passes, record the final production cutover manifest with hashes, service states, callback state fingerprints, and test matrix.",
+          "If acceptance fails, immediately rollback the Feishu app entrance to old prod and disable shadow Feishu again."
+        ],
+        "stopConditions": [
+          "Rollback cannot be completed quickly.",
+          "Old prod rollback anchor is unhealthy."
+        ]
+      }
+    ]
+  },
+  "rollbackPlan": {
+    "primaryRollback": [
+      "Disable shadow Feishu channel/plugin or restore its pre-cutover config snapshot.",
+      "Return the existing Feishu app callback/entrance to old prod, or re-enable old prod Feishu if old config park was used.",
+      "Restart/reload only the service whose config rollback requires it.",
+      "Confirm old prod openclaw-gateway.service health and exactly one response to a canary.",
+      "Keep new shadow artifacts in place for audit unless a separate cleanup approval is given."
+    ],
+    "rollbackAnchor": "openclaw-gateway.service remains the rollback anchor until production acceptance passes and a separate decommission decision is made.",
+    "rollbackWindow": "Immediate rollback is required on duplicate responses, no response, auth failure, unsafe memory behavior, or any unplanned service restart."
+  },
+  "verificationPlan": {
+    "preCutover": [
+      "old prod health/PID/port",
+      "shadow health/PID/port",
+      "old/shadow Feishu channel/plugin state",
+      "redacted Feishu appId/secret relation",
+      "proof checker and receive-only CLI availability",
+      "rollback snapshots created"
+    ],
+    "duringCutover": [
+      "old prod no longer receives current Feishu app events before new replies are accepted",
+      "shadow Feishu enabled only once old is parked",
+      "no Telegram/QQBot enablement",
+      "no adminAI touch",
+      "no duplicate Feishu replies"
+    ],
+    "postCutover": [
+      "owner DM status",
+      "owner persona identity",
+      "normal answer path",
+      "owner memory admin confirmation behavior",
+      "partner/unknown permission denial",
+      "safe group canary if applicable",
+      "usage ledger local-estimate behavior",
+      "tool gate high-risk ask behavior"
+    ]
+  },
+  "hardBlocksBeforeExecution": [
+    "Do not execute this plan until the user explicitly says '进入修复阶段' again for the cutover execution.",
+    "Do not enable old and new services against the same Feishu app at the same time.",
+    "Do not leave both old and new in a state where both can send replies to the same Feishu app.",
+    "Do not touch adminAI.",
+    "Do not enable Telegram or QQBot as part of this cutover.",
+    "Do not use Memory V2/V3/projection/transcript/raw archive as answer truth.",
+    "Do not print raw Feishu app ids, secrets, tokens, or callback URLs in manifests or logs."
+  ],
+  "openQuestionsBeforeExecution": [
+    "What exact Feishu entrance mechanism is active for the current app: external callback URL, gateway relay, tunnel, or another OpenClaw-specific route?",
+    "Is changing the Feishu app callback enough to park old prod, or must old prod Feishu channel/plugin also be disabled?",
+    "Which canary messages and groups are acceptable during the short production cutover window?",
+    "What is the maximum acceptable rollback window if new benben does not answer correctly?"
+  ],
+  "authorizationStatus": {
+    "routeConfirmed": true,
+    "liveWriteAuthorizedForThisPlan": false,
+    "productionCutoverAuthorized": false,
+    "reason": "The user confirmed the direct replacement route, but the latest message did not say '进入修复阶段'. This file is plan-only and performs no live changes."
+  },
+  "result": "planned_only"
+}
