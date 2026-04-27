@@ -1,0 +1,168 @@
+{
+  "schema": "openclaw.benben.shadow_sync_candidate.v1",
+  "createdAt": "2026-04-27T07:37:12Z",
+  "taskLevel": "L3-plan",
+  "authorizedByUserPhrase": "进入修复阶段",
+  "sourceRepo": "/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/openclaw/nas-openclaw-v22",
+  "sourceBranch": "codex/openclaw-benben-vnext-core",
+  "sourceHead": "b842f58 docs: document benben feishu test surface proof",
+  "targetHost": "oc-nas",
+  "targetService": "openclaw-benben.service",
+  "targetWorkspace": "/var/lib/openclaw-benben/.openclaw/workspace",
+  "targetPort": 18792,
+  "oldProdService": "openclaw-gateway.service",
+  "oldProdPort": 18789,
+  "syncScope": {
+    "description": "Shadow-only sync candidate for the openclaw-benben Feishu test-surface redacted proof checker. This candidate does not enable Feishu, alter callbacks, edit env/systemd, or restart services.",
+    "fileCount": 6,
+    "aggregateSha256": "62f75c2017cd0a58c5049890f71b3ef237636e85fe551d097ee3746170a8e2dc"
+  },
+  "claudePrimaryAudit": {
+    "attempted": true,
+    "available": true,
+    "summary": "Claude risk review returned ACCEPTABLE to proceed for a six-file shadow-only workspace sync, with no channel/env/systemd/callback/service changes, provided rollback and post-sync verification are performed."
+  },
+  "preflightEvidence": {
+    "oldProd": {
+      "service": "openclaw-gateway.service",
+      "mainPid": 1559349,
+      "activeState": "active",
+      "subState": "running",
+      "healthz": {
+        "ok": true,
+        "status": "live"
+      }
+    },
+    "shadow": {
+      "service": "openclaw-benben.service",
+      "mainPid": 948503,
+      "activeState": "active",
+      "subState": "running",
+      "healthz": {
+        "ok": true,
+        "status": "live"
+      },
+      "config": {
+        "gateway": {
+          "mode": "local",
+          "port": 18792,
+          "bind": "loopback"
+        },
+        "channels": {
+          "feishu": false,
+          "telegram": false,
+          "qqbot": false
+        },
+        "plugins": {
+          "feishu": false,
+          "telegram": false,
+          "qqbot": false
+        }
+      }
+    },
+    "watchers": {
+      "openclawPathUnits": [
+        {
+          "unit": "openclaw-config-backup.path",
+          "pathChanged": "/var/lib/openclaw/.openclaw/openclaw.json",
+          "targetsShadowWorkspace": false
+        }
+      ],
+      "shadowWorkspaceWatcherObserved": false
+    },
+    "staticSideEffectScan": {
+      "files": [
+        "workspace/tools/openclaw-benben/feishu-test-surface-proof.mjs",
+        "workspace/tools/openclaw-benben/index.mjs"
+      ],
+      "networkOrCallbackSideEffectsFound": false,
+      "notes": "Only isMainModule CLI guard and validation text matched callback-related search terms; no listener, fetch, WebSocket, systemctl, send, or registration side effect was found."
+    }
+  },
+  "constraints": {
+    "noFeishuIngressEnabled": true,
+    "noTelegramIngressEnabled": true,
+    "noQqbotIngressEnabled": true,
+    "noSystemdWrite": true,
+    "noEnvWrite": true,
+    "noServiceRestartPlanned": true,
+    "noCallbackChange": true,
+    "noProviderOrModelNetworkCall": true,
+    "noDelivery": true,
+    "noRuntimeTurnCommit": true,
+    "oldProdUntouched": true
+  },
+  "files": [
+    {
+      "path": "workspace/tools/openclaw-benben/README.md",
+      "targetPath": "/var/lib/openclaw-benben/.openclaw/workspace/tools/openclaw-benben/README.md",
+      "size": 6827,
+      "sha256": "41c07a0b81d559c9f9a578fb53cf31dfed304c06c82c00694212ac59e3089e2b"
+    },
+    {
+      "path": "workspace/tools/openclaw-benben/index.mjs",
+      "targetPath": "/var/lib/openclaw-benben/.openclaw/workspace/tools/openclaw-benben/index.mjs",
+      "size": 3091,
+      "sha256": "04e38ff75f1926c15087cadc4db8024a0254976db23b7706868fa1afee596726"
+    },
+    {
+      "path": "workspace/tools/openclaw-benben/feishu-test-surface-proof.mjs",
+      "targetPath": "/var/lib/openclaw-benben/.openclaw/workspace/tools/openclaw-benben/feishu-test-surface-proof.mjs",
+      "size": 14184,
+      "sha256": "a970595c2f369975ab1ce30c812098a07f513c73cbd6ab120bdb3ae22a96c5d0"
+    },
+    {
+      "path": "workspace/tools/tests/openclaw-benben/openclaw-benben-feishu-test-surface-proof.test.mjs",
+      "targetPath": "/var/lib/openclaw-benben/.openclaw/workspace/tools/tests/openclaw-benben/openclaw-benben-feishu-test-surface-proof.test.mjs",
+      "size": 6048,
+      "sha256": "e17fac37f95436b96ec9d17c06b6b01d76d6b5ff4096b8ed1f4d312d273fef28"
+    },
+    {
+      "path": "workspace/tools/tests/workspace-source-manifest.test.mjs",
+      "targetPath": "/var/lib/openclaw-benben/.openclaw/workspace/tools/tests/workspace-source-manifest.test.mjs",
+      "size": 5230,
+      "sha256": "6e2e4bb916e7f828e13e0ca3612de1408436136ef4cc28a6636d87a8d26adf84"
+    },
+    {
+      "path": "workspace/tools/workspace-source-manifest.mjs",
+      "targetPath": "/var/lib/openclaw-benben/.openclaw/workspace/tools/workspace-source-manifest.mjs",
+      "size": 11636,
+      "sha256": "91059d0b9b0e33f6ec57de44b85e9a52448b8f733d6ce203ebd1c6b2fbba806b"
+    }
+  ],
+  "localVerification": {
+    "nodeTest": {
+      "command": "node --test workspace/tools/tests/openclaw-benben/*.test.mjs workspace/tools/tests/workspace-source-manifest.test.mjs",
+      "pass": 71,
+      "fail": 0
+    },
+    "syntax": {
+      "commands": [
+        "find workspace/tools/openclaw-benben -name '*.mjs' -exec node --check {} \\;",
+        "node --check workspace/tools/workspace-source-manifest.mjs"
+      ],
+      "ok": true
+    },
+    "diffCheck": {
+      "command": "git diff --check",
+      "ok": true
+    }
+  },
+  "plannedRollback": {
+    "snapshotBeforeWrite": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-feishu-test-surface-proof-<UTC>/target-files.tar.gz",
+    "restoreStrategy": "Restore the six target files from target-files.tar.gz, remove files that were missing before sync, then verify hashes and health. No service restart is planned for this file-only workspace sync."
+  },
+  "plannedPostSyncVerification": [
+    "Verify remote sha256 for all six target files.",
+    "Run node --check on tools/openclaw-benben/feishu-test-surface-proof.mjs, index.mjs, and workspace-source-manifest.mjs.",
+    "Run focused remote tests: node --test tools/tests/openclaw-benben/openclaw-benben-feishu-test-surface-proof.test.mjs tools/tests/workspace-source-manifest.test.mjs from the shadow workspace.",
+    "Run the proof CLI on a redacted synthetic proof and confirm ok=true, mode=shadow_feishu_test_surface_proof_check, live_systems_modified=false, production_ingress_enabled=false, delivery_sent=false, runtime_committed=false.",
+    "Confirm shadow Feishu/Telegram/QQBot channels and plugins remain disabled.",
+    "Confirm old prod openclaw-gateway.service PID/health remains unchanged and shadow openclaw-benben.service health remains ok."
+  ],
+  "authorizationStatus": {
+    "liveWriteAuthorized": true,
+    "reason": "User explicitly said '进入修复阶段'. The candidate is limited to shadow workspace file sync and does not enable Feishu ingress or alter production callbacks."
+  },
+  "result": "candidate_ready"
+}

@@ -1,0 +1,157 @@
+{
+  "schema": "openclaw.benben.shadow_sync_execution.v1",
+  "createdAt": "2026-04-27T07:49:20Z",
+  "taskLevel": "L3",
+  "authorizedByUserPhrase": "进入修复阶段",
+  "candidateManifest": "/Users/zhangjincheng/Documents/GitHub/codex-workspace/ops/projects/openclaw/manifests/openclaw-benben-shadow-sync-candidate-feishu-test-surface-proof-20260427.json",
+  "target": {
+    "host": "oc-nas",
+    "service": "openclaw-benben.service",
+    "workspace": "/var/lib/openclaw-benben/.openclaw/workspace",
+    "gatewayPort": 18792
+  },
+  "oldProdAnchor": {
+    "service": "openclaw-gateway.service",
+    "gatewayPort": 18789,
+    "mainPidBefore": 1559349,
+    "mainPidAfter": 1559349,
+    "healthAfter": {
+      "ok": true,
+      "status": "live"
+    }
+  },
+  "shadowServiceAfter": {
+    "service": "openclaw-benben.service",
+    "mainPidBefore": 948503,
+    "mainPidAfter": 948503,
+    "activeState": "active",
+    "subState": "running",
+    "healthAfter": {
+      "ok": true,
+      "status": "live"
+    }
+  },
+  "constraintsObserved": {
+    "feishuIngressEnabled": false,
+    "telegramIngressEnabled": false,
+    "qqbotIngressEnabled": false,
+    "feishuCallbackChanged": false,
+    "systemdChanged": false,
+    "envChanged": false,
+    "serviceRestarted": false,
+    "providerOrModelNetworkCall": false,
+    "deliverySent": false,
+    "runtimeTurnCommitted": false,
+    "oldProdUntouched": true
+  },
+  "transfer": {
+    "localTar": "/tmp/benben-feishu-test-surface-proof-20260427T073712Z.tar.gz",
+    "localTarSha256": "a365474e94acb8f0bd1bc5deaa1aee6cc1fc5326d46a7eee3106ca7d2427d8a7",
+    "remoteUploadPath": "/home/benben/openclaw-benben-upload/benben-feishu-test-surface-proof-20260427T073712Z.tar.gz",
+    "remoteUploadSha256Verified": true,
+    "remoteUploadRemovedAfterExtract": true
+  },
+  "rollback": {
+    "snapshot": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-feishu-test-surface-proof-20260427T073712Z/target-files.tar.gz",
+    "snapshotSha256": "33b135c31c145254dbd112563cacb56daba287d138c7e955f8a84735f62ccf29",
+    "beforeSha256File": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-feishu-test-surface-proof-20260427T073712Z/before.sha256",
+    "missingBeforeFile": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-feishu-test-surface-proof-20260427T073712Z/missing-files.list",
+    "missingBefore": [
+      "tools/openclaw-benben/feishu-test-surface-proof.mjs",
+      "tools/tests/openclaw-benben/openclaw-benben-feishu-test-surface-proof.test.mjs"
+    ],
+    "restoreStrategy": "Extract target-files.tar.gz back into the shadow workspace, remove files listed in missing-files.list, then verify hashes and health. No service restart should be required for rollback of this workspace-only sync."
+  },
+  "syncedFiles": {
+    "count": 6,
+    "aggregateSha256": "62f75c2017cd0a58c5049890f71b3ef237636e85fe551d097ee3746170a8e2dc",
+    "remoteSha256Verified": true,
+    "remoteOwnerModeVerified": true,
+    "owner": "openclaw-benben:users",
+    "mode": "0644",
+    "files": [
+      {
+        "path": "tools/openclaw-benben/README.md",
+        "sha256": "41c07a0b81d559c9f9a578fb53cf31dfed304c06c82c00694212ac59e3089e2b"
+      },
+      {
+        "path": "tools/openclaw-benben/index.mjs",
+        "sha256": "04e38ff75f1926c15087cadc4db8024a0254976db23b7706868fa1afee596726"
+      },
+      {
+        "path": "tools/openclaw-benben/feishu-test-surface-proof.mjs",
+        "sha256": "a970595c2f369975ab1ce30c812098a07f513c73cbd6ab120bdb3ae22a96c5d0"
+      },
+      {
+        "path": "tools/tests/openclaw-benben/openclaw-benben-feishu-test-surface-proof.test.mjs",
+        "sha256": "e17fac37f95436b96ec9d17c06b6b01d76d6b5ff4096b8ed1f4d312d273fef28"
+      },
+      {
+        "path": "tools/tests/workspace-source-manifest.test.mjs",
+        "sha256": "6e2e4bb916e7f828e13e0ca3612de1408436136ef4cc28a6636d87a8d26adf84"
+      },
+      {
+        "path": "tools/workspace-source-manifest.mjs",
+        "sha256": "91059d0b9b0e33f6ec57de44b85e9a52448b8f733d6ce203ebd1c6b2fbba806b"
+      }
+    ]
+  },
+  "verification": {
+    "syntax": {
+      "commands": [
+        "node --check tools/openclaw-benben/feishu-test-surface-proof.mjs",
+        "node --check tools/openclaw-benben/index.mjs",
+        "node --check tools/workspace-source-manifest.mjs"
+      ],
+      "ok": true
+    },
+    "focusedTests": {
+      "command": "node --test tools/tests/openclaw-benben/openclaw-benben-feishu-test-surface-proof.test.mjs tools/tests/workspace-source-manifest.test.mjs",
+      "pass": 7,
+      "fail": 0
+    },
+    "proofCliSmoke": {
+      "command": "node tools/openclaw-benben/feishu-test-surface-proof.mjs --proof <tmp>/proof.json --json",
+      "ok": true,
+      "mode": "shadow_feishu_test_surface_proof_check",
+      "liveSystemsModified": false,
+      "productionIngressEnabled": false,
+      "deliverySent": false,
+      "runtimeCommitted": false,
+      "appRelation": "different",
+      "botRelation": "different",
+      "callbackRelation": "different",
+      "rawLeaks": false
+    },
+    "shadowConfigAfter": {
+      "gateway": {
+        "mode": "local",
+        "port": 18792,
+        "bind": "loopback"
+      },
+      "channels": {
+        "feishu": false,
+        "telegram": false,
+        "qqbot": false
+      },
+      "plugins": {
+        "feishu": false,
+        "telegram": false,
+        "qqbot": false
+      }
+    },
+    "appleDoubleSidecars": {
+      "matchesAfterExtract": 0
+    }
+  },
+  "notes": [
+    "Claude risk review was available for this step and returned acceptable to proceed for shadow-only file sync.",
+    "No Feishu test ingress or production cutover was attempted.",
+    "No service restart or reload was performed.",
+    "No env, systemd, channel, plugin, or callback configuration was changed.",
+    "openclaw-config-backup.path watches /var/lib/openclaw/.openclaw/openclaw.json only, not the shadow workspace.",
+    "tar extraction printed macOS extended-header warnings but created no AppleDouble sidecars.",
+    "The L3 Feishu real-message test remains blocked until a real separate non-production Feishu test surface proof is supplied and checked."
+  ],
+  "result": "completed"
+}
