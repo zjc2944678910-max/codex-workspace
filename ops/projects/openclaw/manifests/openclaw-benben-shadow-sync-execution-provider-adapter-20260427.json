@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "executed_at": "2026-04-27T10:49:55+08:00",
+  "task_level": "L3 shadow file sync",
+  "candidate": {
+    "manifest": "openclaw-benben-shadow-sync-candidate-provider-adapter-20260427.json",
+    "aggregate_sha256": "eba6d8c8440b7654f1a2f18d9dba2ffffbfb779d0b803cecfc9b9c8ee44827af",
+    "file_count": 37,
+    "source_commit": "72b18b57af51905b58fcf58c50e204202139c9bc",
+    "source_branch": "codex/openclaw-benben-vnext-core"
+  },
+  "target": {
+    "host": "oc-nas",
+    "service": "openclaw-benben.service",
+    "shadow_workspace_root": "/var/lib/openclaw-benben/.openclaw/workspace",
+    "production_service_must_remain_untouched": "openclaw-gateway.service",
+    "channels_must_remain_disabled": [
+      "feishu",
+      "telegram",
+      "qqbot"
+    ]
+  },
+  "authorization": {
+    "repair_phase_authorized": true,
+    "scope": "shadow workspace file sync and dry-run verification only",
+    "feishu_production_cutover_authorized": false,
+    "systemd_restart_authorized": false,
+    "env_or_channel_change_authorized": false
+  },
+  "claude_prechange_review": {
+    "attempted": true,
+    "status": "failed",
+    "reason": "subscription quota insufficient 403"
+  },
+  "preflight": {
+    "old_prod_service": "openclaw-gateway.service active/running",
+    "shadow_service": "openclaw-benben.service active/running",
+    "old_prod_healthz": {
+      "ok": true,
+      "status": "live",
+      "port": 18789
+    },
+    "shadow_healthz": {
+      "ok": true,
+      "status": "live",
+      "port": 18792
+    },
+    "listening_ports_confirmed": [
+      18789,
+      18791,
+      18792,
+      18794
+    ],
+    "shadow_disable_production_channels": "OPENCLAW_SHADOW_DISABLE_PRODUCTION_CHANNELS=1",
+    "workspace_root": "/var/lib/openclaw-benben/.openclaw/workspace"
+  },
+  "snapshot": {
+    "path": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-provider-adapter-20260427T022939Z/target-files.tar.gz",
+    "sha256": "ce648eba49ee736664b4262a361a5c3c4f9b4bfed732f23b26ee13f1c42ae434",
+    "note": "First cd-based snapshot attempt hit permission denied before tar creation; tar -C retry succeeded before workspace sync."
+  },
+  "execution": {
+    "staging_dir": "/tmp/openclaw-benben-provider-adapter.023Jav",
+    "staging_removed": true,
+    "sync_method": "local tar stream to remote staging, then sudo rsync to shadow workspace",
+    "ownership": "openclaw-benben:users",
+    "file_mode": "0644 for manifest files",
+    "appledouble_sidecars_removed": 37,
+    "service_restart_performed": false,
+    "env_changed": false,
+    "channel_switch_performed": false,
+    "old_prod_touched": false
+  },
+  "verification": {
+    "remote_manifest_hash": {
+      "checked": 37,
+      "bad_count": 0
+    },
+    "syntax": [
+      "find tools/openclaw-benben -name '*.mjs' -exec node --check {} \\; => pass",
+      "node --check tools/workspace-source-manifest.mjs => pass"
+    ],
+    "tests": [
+      "node --test tools/tests/openclaw-benben/*.test.mjs tools/tests/workspace-source-manifest.test.mjs => 57 pass, 0 fail",
+      "node tools/openclaw-benben/dry-run-suite.mjs --json => 8 cases ok, all model_call_enabled=false"
+    ],
+    "leak_scan": "grep denylist against scratch/projects/openclaw-benben/dry-run-suite => no matches",
+    "post_health": {
+      "old_prod_healthz": {
+        "ok": true,
+        "status": "live",
+        "port": 18789
+      },
+      "shadow_healthz": {
+        "ok": true,
+        "status": "live",
+        "port": 18792
+      },
+      "old_prod_active": true,
+      "shadow_active": true,
+      "channel_guard": "OPENCLAW_SHADOW_DISABLE_PRODUCTION_CHANNELS=1",
+      "appledouble_sidecars_remaining": 0
+    }
+  },
+  "residual_risks": [
+    "No service restart was performed; this sync updates shadow workspace files for local/synthetic validation, not a restarted runtime process.",
+    "Provider adapter boundary remains explicit-injection only; no default provider transport was connected.",
+    "Feishu test ingress and production cutover remain separate L3 gates.",
+    "Claude pre-change review could not run because of quota; Codex performed direct evidence checks instead."
+  ]
+}
