@@ -1,0 +1,114 @@
+{
+  "schema": "openclaw.benben.shadow_readiness.v1",
+  "createdAt": "2026-04-27T05:07:04Z",
+  "taskLevel": "L2",
+  "sourceOfTruth": "ssh_live:oc-nas + local_git",
+  "claudePrimaryAudit": {
+    "attempted": true,
+    "available": false,
+    "failure": "403 subscription quota insufficient",
+    "requestId": "202604270500411375617508268d9d6T6C7QFfa"
+  },
+  "localCheckpoints": {
+    "productRepo": {
+      "path": "/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/openclaw/nas-openclaw-v22",
+      "branch": "codex/openclaw-benben-vnext-core",
+      "head": "ef44454 feat: add benben shadow service-entry harness",
+      "clean": true
+    },
+    "opsRepo": {
+      "path": "/Users/zhangjincheng/Documents/GitHub/codex-workspace",
+      "branch": "main",
+      "head": "4eaaa1f docs: record benben service-entry shadow validation",
+      "cleanBeforeThisManifest": true
+    }
+  },
+  "liveServices": {
+    "oldProd": {
+      "host": "oc-nas",
+      "service": "openclaw-gateway.service",
+      "mainPid": 1559349,
+      "activeState": "active",
+      "subState": "running",
+      "port": 18789,
+      "healthz": {
+        "ok": true,
+        "status": "live"
+      }
+    },
+    "shadow": {
+      "host": "oc-nas",
+      "service": "openclaw-benben.service",
+      "mainPid": 948503,
+      "activeState": "active",
+      "subState": "running",
+      "port": 18792,
+      "healthz": {
+        "ok": true,
+        "status": "live"
+      }
+    }
+  },
+  "shadowEnvironmentSummary": {
+    "OPENCLAW_STATE_DIR": "/var/lib/openclaw-benben/.openclaw",
+    "OPENCLAW_WORKSPACE": "/var/lib/openclaw-benben/.openclaw/workspace",
+    "OPENCLAW_CONFIG_PATH": "/var/lib/openclaw-benben/.openclaw/openclaw.json",
+    "OPENCLAW_GATEWAY_PORT": "18792",
+    "OPENCLAW_SHADOW_DISABLE_PRODUCTION_CHANNELS": "1"
+  },
+  "shadowConfigSummary": {
+    "gateway": {
+      "mode": "local",
+      "port": 18792,
+      "bind": "loopback"
+    },
+    "channels": {
+      "feishu": false,
+      "telegram": false,
+      "qqbot": false
+    },
+    "plugins": {
+      "feishu": false,
+      "telegram": false,
+      "qqbot": false
+    }
+  },
+  "shadowHarnessSmoke": {
+    "ok": true,
+    "mode": "shadow_service_entry_dry_run",
+    "deliverySent": false,
+    "productionIngress": false,
+    "runtimeCommitted": false,
+    "modelCallEnabled": false,
+    "responseKind": "status_summary"
+  },
+  "previousAcceptedValidations": [
+    {
+      "manifest": "openclaw-benben-shadow-sync-execution-service-entry-harness-20260427.json",
+      "summary": "6 synced files verified by remote sha256; focused remote tests 7 pass / 0 fail; no service restart."
+    },
+    {
+      "manifest": "openclaw-benben-shadow-service-entry-matrix-validation-20260427.json",
+      "summary": "8/8 synthetic service-entry matrix passed; no delivery, no production ingress, no runtime commit, no model call."
+    }
+  ],
+  "readinessConclusion": {
+    "shadowRuntimeReadyForSyntheticServiceEntryValidation": true,
+    "shadowReadyForFeishuTestIngressWithoutFurtherGate": false,
+    "feishuTestIngressRequiresL3Gate": true,
+    "productionCutoverRequiresSeparateL3Gate": true,
+    "oldProdRollbackAnchorHealthy": true
+  },
+  "remainingBeforeFeishuTestGate": [
+    "Define exact Feishu test ingress target and whether it reuses current benben bot or a temporary callback surface.",
+    "Prove old and new will not consume the same production Feishu entry simultaneously.",
+    "Prepare L3 rollback plan for any callback/channel/env/service changes.",
+    "Prepare post-change verification that can prove no duplicate production delivery."
+  ],
+  "notes": [
+    "No secrets were printed in this readiness manifest.",
+    "No remote writes, service restarts, env edits, or channel toggles were performed during this readiness check.",
+    "One env summary command had an SSH transport close and was retried with a simpler grep-only read."
+  ],
+  "result": "ready_for_next_gate_planning"
+}
