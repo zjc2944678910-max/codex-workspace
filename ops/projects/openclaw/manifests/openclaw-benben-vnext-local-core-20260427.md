@@ -8,16 +8,18 @@ Live changes: none
 
 - repo: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/openclaw/nas-openclaw-v22`
 - branch: `codex/openclaw-benben-vnext-core`
-- latest local commit: `625b29da0954d4d6c5a901fbf0954ea72e4611b3`
+- latest local commit: `6915cb64fb3708c248210753e60bfa0ac8ce40b8`
 - latest shadow-synced commit: `d9018318d75b41f64b39355ed17735ec6971fb0a`
+- tool-execution checkpoint: `6915cb64fb3708c248210753e60bfa0ac8ce40b8`
 - response-composer checkpoint: `b2a0fa46c579db2cf7de81d5cf33d65b8f8e29d4`
 - prompt-plan checkpoint: `facaeeb1ae4a8a258809ead7968c231a57fd53e2`
 - answer-plan checkpoint: `d9a8a8d924f33e3ed1e908a4ce8c70a0f6767c5d`
 - persona checkpoint: `7a8811368e89843213410963f1baa2e9e3a64e77`
 - core commit: `3164adc2fd834b311691be0ef51af03ff3fbeec2`
-- latest local commit message: `feat: add benben dry-run model execution plan`
+- latest local commit message: `feat: add benben dry-run tool execution plan`
 - latest shadow-synced commit message: `test: add benben dry-run shadow preflight suite`
 - response-composer checkpoint message: `feat: add benben dry-run response composition`
+- tool-execution checkpoint message: `feat: add benben dry-run tool execution plan`
 - prompt-plan checkpoint message: `feat: add benben dry-run prompt planning`
 - answer-plan checkpoint message: `feat: add benben dry-run answer planning`
 - persona checkpoint message: `feat: add benben dry-run persona kernel`
@@ -41,6 +43,7 @@ Live changes: none
 - `workspace/tools/openclaw-benben/model-executor-kernel.mjs`
 - `workspace/tools/openclaw-benben/model-prompt-kernel.mjs`
 - `workspace/tools/openclaw-benben/response-composer-kernel.mjs`
+- `workspace/tools/openclaw-benben/tool-execution-kernel.mjs`
 - `workspace/tools/openclaw-benben/dry-run-cli.mjs`
 - `workspace/tools/openclaw-benben/dry-run-suite.mjs`
 - `workspace/tools/openclaw-benben/index.mjs`
@@ -139,6 +142,23 @@ Properties:
 - rejects materialized raw prompts and non-V4/legacy/raw-archive memory truth
   surfaces before a future model call can be planned
 
+## Latest Local Tool-Execution Add-on
+
+Commit `6915cb64fb3708c248210753e60bfa0ac8ce40b8` adds a dry-run tool
+execution planner.
+
+Properties:
+
+- no proposed action execution
+- no raw action persistence
+- no Feishu send
+- no runtime commit
+- gates each proposed action through `ToolGate`
+- records action type, gate decision, confirmation/L3 flags, command hash/length,
+  target path hash/kind, and coarse command risk shape
+- keeps `all_execution_disabled=true`, `executed_action_count=0`, and
+  `raw_actions_persisted=false`
+
 ## Safety Properties
 
 - Dry-run Feishu adapter only; no send path is implemented.
@@ -152,6 +172,8 @@ Properties:
   stay disabled in dry-run.
 - Response composition is metadata-only in trace/report and remains dry-run
   gated before delivery.
+- Tool execution is metadata-only in trace/report; proposed actions are gated but
+  never executed in dry-run.
 - Runtime commits are not performed.
 - `/memory` admin is owner-direct only.
 - `/memory` mutation actions require owner confirmation and remain uncommitted.
@@ -166,36 +188,39 @@ Commands run in the product repo:
 
 ```bash
 node --test workspace/tools/tests/openclaw-benben/*.test.mjs workspace/tools/tests/workspace-source-manifest.test.mjs
-node --test workspace/tools/tests/openclaw-benben/*.test.mjs workspace/tools/tests/workspace-source-manifest.test.mjs workspace/tools/tests/memory-v4/memory-v4-benben-adapter.test.mjs workspace/tools/tests/memory-v4/memory-v4-benben-adapter-boundary-check.test.mjs workspace/tools/tests/memory-v4/memory-v4-privacy-scope-gate.test.mjs workspace/tools/tests/memory-v4/memory-v4-answer-service.test.mjs workspace/tools/tests/memory-v4/memory-v4-live-session-delta.test.mjs
-find workspace/tools/openclaw-benben -name '*.mjs' -exec node --check {} \; && node --check workspace/tools/workspace-source-manifest.mjs
-git diff --cached --check
+node --test workspace/tools/tests/openclaw-benben/*.test.mjs workspace/tools/tests/workspace-source-manifest.test.mjs workspace/tools/tests/memory-v4/memory-v4-benben-adapter.test.mjs workspace/tools/tests/memory-v4/memory-v4-benben-adapter-boundary-check.test.mjs workspace/tools/tests/memory-v4/memory-v4-benben-adapter-compat-matrix.test.mjs workspace/tools/tests/memory-v4/memory-v4-privacy-scope-gate.test.mjs workspace/tools/tests/memory-v4/memory-v4-answer-service.test.mjs workspace/tools/tests/memory-v4/memory-v4-answer-composer.test.mjs workspace/tools/tests/memory-v4/memory-v4-session-delta.test.mjs workspace/tools/tests/session-memory-review.test.mjs workspace/tools/tests/session-memory-review-queue.test.mjs
+find workspace/tools/openclaw-benben -name '*.mjs' -exec node --check {} \;
+node --check workspace/tools/workspace-source-manifest.mjs
+git diff --check
 node workspace/tools/openclaw-benben/dry-run-suite.mjs --json
+rg -n "SECRET_TOOL_ARG|SECRET_MESSAGE_PAYLOAD|SECRET_TOOL_EXEC|systemctl restart|ssh oc-nas|scratch/projects/openclaw-benben/tool-result|SYNTHETIC_ANSWER_PAYLOAD|chat_fixture_owner|entity:user:self" scratch/projects/openclaw-benben/dry-run-suite
 ```
 
 Results:
 
-- local benben + source-manifest tests: 48 pass / 0 fail
-- benben + Memory V4 + source-manifest aggregate regression: 76 pass / 0 fail
+- local benben + source-manifest tests: 50 pass / 0 fail
+- benben + Memory V4 + source-manifest aggregate regression: 135 pass / 0 fail
 - syntax checks: pass
-- cached diff whitespace check before commit: pass
+- diff whitespace check before commit: pass
 - default synthetic dry-run suite: 8 cases, all `ok:true`, all `sent:false`,
   all `production_ingress:false`, all `runtime_committed:false`, all
   `model_call_enabled:false`
+- synthetic/raw/tool denylist scan: no matches
 
 ## L3 Boundary For Shadow Sync
 
-The next deployment-shaped action is to sync commit `625b29da0954d4d6c5a901fbf0954ea72e4611b3`
+The next deployment-shaped action is to sync commit `6915cb64fb3708c248210753e60bfa0ac8ce40b8`
 to the NAS shadow workspace. That is L3 because it writes live NAS files.
 
 Do not execute the sync unless the user explicitly says `进入修复阶段`.
 
 Local candidate package manifest:
 
-- latest: `openclaw-benben-shadow-sync-candidate-model-executor-20260427.json`
-- supersedes: `openclaw-benben-shadow-sync-candidate-response-composer-20260427.json`
-- 36 files
+- latest: `openclaw-benben-shadow-sync-candidate-tool-executor-20260427.json`
+- supersedes: `openclaw-benben-shadow-sync-candidate-model-executor-20260427.json`
+- 37 files
 - aggregate sha256:
-  `59ecba83d5b654cb6501bea4c3e70ca2d005fc2b9a5946cba0a7a53358c8f1a2`
+  `99630a83dc3ac68689df31aeec5c7bb4491c47a5220db99a069d36709ba62482`
 
 Execution status:
 
@@ -205,7 +230,8 @@ Execution status:
   `d9a8a8d924f33e3ed1e908a4ce8c70a0f6767c5d` and
   `facaeeb1ae4a8a258809ead7968c231a57fd53e2` and
   `b2a0fa46c579db2cf7de81d5cf33d65b8f8e29d4` and
-  `625b29da0954d4d6c5a901fbf0954ea72e4611b3` have not been synced to NAS shadow.
+  `625b29da0954d4d6c5a901fbf0954ea72e4611b3` and
+  `6915cb64fb3708c248210753e60bfa0ac8ce40b8` have not been synced to NAS shadow.
 - Execution manifest:
   `openclaw-benben-shadow-sync-execution-20260427.json`
 - Shadow sync target:

@@ -53,14 +53,16 @@ Status 2026-04-27:
   `b2a0fa46c579db2cf7de81d5cf33d65b8f8e29d4`.
 - Latest local checkpoint with dry-run model execution planner:
   `625b29da0954d4d6c5a901fbf0954ea72e4611b3`.
+- Latest local checkpoint with dry-run tool execution planner:
+  `6915cb64fb3708c248210753e60bfa0ac8ce40b8`.
 - Code location: `workspace/tools/openclaw-benben/`.
 - Test location: `workspace/tools/tests/openclaw-benben/`.
 - Implementation uses plain MJS and `node:test`; no new framework was introduced.
 - Scope includes message envelope, identity kernel, privacy kernel, Memory V4 wrapper,
   usage ledger, tool gate, Feishu dry-run adapter, command router, memory command
   planner, persona kernel, ordinary-message answer planner, sanitized
-  model-prompt planner, model execution planner, response composer, turn runner,
-  dry-run CLI, and README.
+  model-prompt planner, model execution planner, response composer, tool execution
+  planner, turn runner, dry-run CLI, and README.
 
 ## Phase 2: Feishu Runtime And Commands
 
@@ -108,6 +110,9 @@ Status 2026-04-27:
 - The response composer emits a delivery contract and sanitized metadata only:
   candidate reply text is hashed/length-counted, response caps and sanitizer
   policies are recorded, and dry-run `safe_to_send` remains false.
+- The tool execution planner gates proposed actions through `ToolGate` but never
+  executes them. Raw action args are not persisted; commands and target paths are
+  recorded only as hashes plus coarse risk-shape metadata.
 - Memory recall for ordinary messages is still opt-in in local dry-run and is
   blocked for unknown direct senders and ordinary groups.
 - Real Feishu tests are not started; enabling any Feishu test ingress remains L3.
@@ -173,8 +178,8 @@ Status 2026-04-27:
 - Initial NAS shadow bootstrap was completed earlier and recorded in
   `openclaw-benben-shadow-bootstrap-20260426.json`.
 - NAS shadow is synced through the earlier dry-run suite checkpoint, not through
-  the persona, answer-plan, prompt-plan, model-execution, or response-composer
-  local checkpoints.
+  the persona, answer-plan, prompt-plan, model-execution, response-composer, or
+  tool-execution local checkpoints.
 - Any sync to `/var/lib/openclaw-benben/.openclaw/workspace` remains L3 and needs
   explicit `进入修复阶段` authorization.
 
@@ -239,11 +244,16 @@ Actual 2026-04-27 code layout:
 - `workspace/tools/openclaw-benben/memory-v4-wrapper.mjs`
 - `workspace/tools/openclaw-benben/usage-ledger.mjs`
 - `workspace/tools/openclaw-benben/tool-gate.mjs`
+- `workspace/tools/openclaw-benben/tool-execution-kernel.mjs`
 - `workspace/tools/openclaw-benben/feishu-adapter.mjs`
 - `workspace/tools/openclaw-benben/command-router.mjs`
 - `workspace/tools/openclaw-benben/memory-command-router.mjs`
 - `workspace/tools/openclaw-benben/turn-runner.mjs`
 - `workspace/tools/openclaw-benben/persona-kernel.mjs`
+- `workspace/tools/openclaw-benben/answer-plan-kernel.mjs`
+- `workspace/tools/openclaw-benben/model-prompt-kernel.mjs`
+- `workspace/tools/openclaw-benben/model-executor-kernel.mjs`
+- `workspace/tools/openclaw-benben/response-composer-kernel.mjs`
 - `workspace/tools/openclaw-benben/dry-run-cli.mjs`
 - `workspace/tools/openclaw-benben/dry-run-suite.mjs`
 - `workspace/tools/openclaw-benben/index.mjs`
