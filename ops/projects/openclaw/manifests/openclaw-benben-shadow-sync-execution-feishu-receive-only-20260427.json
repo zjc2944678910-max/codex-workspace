@@ -1,0 +1,150 @@
+{
+  "schema": "openclaw.benben.shadow_sync_execution.v1",
+  "createdAt": "2026-04-27T06:16:01Z",
+  "taskLevel": "L3",
+  "authorizedByUserPhrase": "进入修复阶段",
+  "candidateManifest": "/Users/zhangjincheng/Documents/GitHub/codex-workspace/ops/projects/openclaw/manifests/openclaw-benben-shadow-sync-candidate-feishu-receive-only-20260427.json",
+  "target": {
+    "host": "oc-nas",
+    "service": "openclaw-benben.service",
+    "workspace": "/var/lib/openclaw-benben/.openclaw/workspace",
+    "gatewayPort": 18792
+  },
+  "oldProdAnchor": {
+    "service": "openclaw-gateway.service",
+    "gatewayPort": 18789,
+    "mainPidBefore": 1559349,
+    "mainPidAfter": 1559349,
+    "healthAfter": {
+      "ok": true,
+      "status": "live"
+    }
+  },
+  "shadowServiceAfter": {
+    "service": "openclaw-benben.service",
+    "mainPidBefore": 948503,
+    "mainPidAfter": 948503,
+    "activeState": "active",
+    "subState": "running",
+    "healthAfter": {
+      "ok": true,
+      "status": "live"
+    }
+  },
+  "constraintsObserved": {
+    "feishuIngressEnabled": false,
+    "telegramIngressEnabled": false,
+    "qqbotIngressEnabled": false,
+    "feishuCallbackChanged": false,
+    "systemdChanged": false,
+    "envChanged": false,
+    "serviceRestarted": false,
+    "providerOrModelNetworkCall": false,
+    "deliverySent": false,
+    "runtimeTurnCommitted": false,
+    "oldProdUntouched": true
+  },
+  "transfer": {
+    "localTar": "/tmp/benben-feishu-receive-only-20260427T055846Z.tar.gz",
+    "localTarSha256": "44cd1368d6f60e9fe3549e2931f6f037491ad21cbedb360cc58f78a94b8af5c6",
+    "remoteUploadPath": "/home/benben/openclaw-benben-upload/benben-feishu-receive-only-20260427T055846Z.tar.gz",
+    "remoteUploadSha256Verified": true,
+    "remoteUploadRemovedAfterExtract": true
+  },
+  "rollback": {
+    "snapshot": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-feishu-receive-only-20260427T055846Z/target-files.tar.gz",
+    "snapshotSha256": "23926a5e3435e7391afec89ac53e1b60c7c88e98c817748be6d17921feb280b6",
+    "beforeSha256File": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-feishu-receive-only-20260427T055846Z/before.sha256",
+    "missingBeforeFile": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-feishu-receive-only-20260427T055846Z/missing-files.list",
+    "missingBefore": [
+      "tools/openclaw-benben/feishu-receive-only-ingress.mjs",
+      "tools/tests/openclaw-benben/openclaw-benben-feishu-receive-only-ingress.test.mjs"
+    ],
+    "restoreStrategy": "Extract target-files.tar.gz back into the shadow workspace, remove files listed in missing-files.list, then verify hashes and health. No service restart should be required for rollback of this workspace-only sync."
+  },
+  "syncedFiles": {
+    "count": 6,
+    "aggregateSha256": "dee7e4520ddeeb1a8f6ad6519d2c16b401d06f0337addb79ca1101cbec73e6fa",
+    "remoteSha256Verified": true,
+    "remoteOwnerModeVerified": true,
+    "owner": "openclaw-benben:users",
+    "mode": "0644",
+    "files": [
+      {
+        "path": "tools/openclaw-benben/README.md",
+        "sha256": "8f4c9c0767d6980460222ec9b640dcac13c4dc058f3967d8de2a4d4fd2b4efb6"
+      },
+      {
+        "path": "tools/openclaw-benben/index.mjs",
+        "sha256": "aa559402875db5a5363fd00b35d49696608e53192e6447493388d7068d977913"
+      },
+      {
+        "path": "tools/openclaw-benben/feishu-receive-only-ingress.mjs",
+        "sha256": "73482424d74156ea06a88187ee69d40cb02757c0a9763e9187ae9bd1c331ee89"
+      },
+      {
+        "path": "tools/tests/openclaw-benben/openclaw-benben-feishu-receive-only-ingress.test.mjs",
+        "sha256": "b185dec02e8780c34a9dca5b988c8ba31078c642e1f2fb79fe7cbcb374be5d53"
+      },
+      {
+        "path": "tools/tests/workspace-source-manifest.test.mjs",
+        "sha256": "c67efabade7e04878479678a7a9e17e21c84c8194320e495e9da206d0da0ed23"
+      },
+      {
+        "path": "tools/workspace-source-manifest.mjs",
+        "sha256": "f25c71eb8c46a1a524295b13bae866808fbe277126af9934e1e4dac2a2d77a16"
+      }
+    ]
+  },
+  "verification": {
+    "syntax": {
+      "commands": [
+        "node --check tools/openclaw-benben/feishu-receive-only-ingress.mjs",
+        "node --check tools/openclaw-benben/index.mjs",
+        "node --check tools/workspace-source-manifest.mjs"
+      ],
+      "ok": true
+    },
+    "focusedTests": {
+      "command": "node --test tools/tests/openclaw-benben/openclaw-benben-feishu-receive-only-ingress.test.mjs tools/tests/workspace-source-manifest.test.mjs",
+      "pass": 7,
+      "fail": 0
+    },
+    "shadowConfigAfter": {
+      "gateway": {
+        "mode": "local",
+        "port": 18792,
+        "bind": "loopback"
+      },
+      "channels": {
+        "feishu": false,
+        "telegram": false,
+        "qqbot": false
+      },
+      "plugins": {
+        "feishu": false,
+        "telegram": false,
+        "qqbot": false
+      }
+    },
+    "appleDoubleSidecars": {
+      "initialMatchesAfterExtract": 4,
+      "removedExactPaths": [
+        "/var/lib/openclaw-benben/.openclaw/workspace/tools/openclaw-benben/._README.md",
+        "/var/lib/openclaw-benben/.openclaw/workspace/tools/openclaw-benben/._index.mjs",
+        "/var/lib/openclaw-benben/.openclaw/workspace/tools/openclaw-benben/._feishu-receive-only-ingress.mjs",
+        "/var/lib/openclaw-benben/.openclaw/workspace/tools/tests/openclaw-benben/._openclaw-benben-feishu-receive-only-ingress.test.mjs"
+      ],
+      "matchesAfterCleanup": 0
+    }
+  },
+  "notes": [
+    "No Feishu test ingress or production cutover was attempted.",
+    "No service restart or reload was performed.",
+    "No env, systemd, channel, plugin, or callback configuration was changed.",
+    "Initial scp uploads to /tmp and /home/benben/openclaw-benben-upload failed with destination open errors; the transfer was completed using an SSH stdin pipe to the same user upload directory.",
+    "Remote tar extraction printed macOS extended-header warnings and created AppleDouble sidecars; the four exact sidecar paths were removed and the follow-up scan returned 0.",
+    "The L3 Feishu test ingress remains blocked until a separate non-production Feishu test surface is proven."
+  ],
+  "result": "completed"
+}
