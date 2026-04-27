@@ -1,0 +1,82 @@
+{
+  "date": "2026-04-27",
+  "task_level": "L3 repair execution",
+  "host": "oc-nas",
+  "goal": "Move the existing Feishu benben production app consumption from the old OpenClaw gateway to the new openclaw-benben vNext instance without creating a new Feishu app.",
+  "sensitive_data_policy": {
+    "secrets_printed": false,
+    "raw_feishu_ids_intentionally_omitted": true
+  },
+  "services_after_cutover": {
+    "old_rollback_anchor": {
+      "service": "openclaw-gateway.service",
+      "port": 18789,
+      "health_http": 200,
+      "active": true,
+      "feishu_channel_enabled": false,
+      "feishu_plugin_enabled": false,
+      "telegram_channel_enabled": true
+    },
+    "new_benben_runtime": {
+      "service": "openclaw-benben.service",
+      "port": 18792,
+      "browser_control_port": 18794,
+      "health_http": 200,
+      "active": true,
+      "feishu_channel_enabled": true,
+      "feishu_plugin_enabled": true,
+      "telegram_channel_enabled": false,
+      "telegram_plugin_enabled": false,
+      "qqbot_channel_enabled": false,
+      "qqbot_plugin_enabled": false,
+      "shadow_disable_production_channels": "0"
+    }
+  },
+  "changed_live_files": [
+    "/var/lib/openclaw/.openclaw/openclaw.json",
+    "/etc/openclaw/gateway.env",
+    "/etc/systemd/system/openclaw-gateway.service.d/80-config-guard.conf",
+    "/var/lib/openclaw-benben/.openclaw/openclaw.json",
+    "/etc/openclaw-benben/shadow.env"
+  ],
+  "live_restarts": [
+    "openclaw-gateway.service",
+    "openclaw-benben.service"
+  ],
+  "untouched_live_items": [
+    "adminAI",
+    "openclaw-vps-gateway-tunnel.service",
+    "Feishu developer console app/callback settings",
+    "Telegram and QQBot enablement on openclaw-benben"
+  ],
+  "verification": {
+    "old_config_guard": "passed with required channels: telegram",
+    "shadow_config_validate": "passed",
+    "shadow_feishu_log": "Feishu websocket client started and ws client ready",
+    "old_feishu_log_after_restart": "no old Feishu start observed after old restart",
+    "vnext_plugin": {
+      "status": "loaded",
+      "enabled": true,
+      "activated": true,
+      "typed_hook": "before_dispatch",
+      "priority": 90,
+      "diagnostics_count": 0
+    }
+  },
+  "rollback": {
+    "old_backup_dir": "/var/lib/openclaw/.openclaw/rollback/benben-feishu-cutover-20260427T124450Z",
+    "new_backup_dir": "/var/lib/openclaw-benben/.openclaw/rollback/benben-feishu-cutover-20260427T124450Z",
+    "steps": [
+      "Restore old openclaw.json, gateway.env, and 80-config-guard.conf from the old backup dir.",
+      "Restore shadow openclaw.json and shadow.env from the new backup dir.",
+      "Run systemctl daemon-reload.",
+      "Restart openclaw-gateway.service and openclaw-benben.service.",
+      "Verify old Feishu channel/plugin true, shadow Feishu channel/plugin false, and both health endpoints."
+    ]
+  },
+  "residual_risks": [
+    "A controlled real Feishu user-message proof was not sent by Codex because production message sending remains a high-risk action that should be operator-controlled.",
+    "openclaw-benben still uses port 18792 and the existing service name rather than replacing the old service unit name; old service remains rollback anchor.",
+    "openclaw-benben environment metadata still contains shadow-oriented service kind/marker labels, though production channel guard is set to 0."
+  ]
+}

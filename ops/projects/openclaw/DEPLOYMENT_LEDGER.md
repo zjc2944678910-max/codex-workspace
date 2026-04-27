@@ -1,6 +1,6 @@
 # OpenClaw Deployment Ledger
 
-Last updated: 2026-04-22
+Last updated: 2026-04-27
 Maintainer context: this file is the canonical runtime and deployment ledger for the production OpenClaw instance on `home-nas`.
 Companion architecture board: `OPENCLAW_ARCHITECTURE_TODO.md`
 
@@ -37,11 +37,19 @@ Use this contract as a hard operating rule:
 
 ## Current Truth Snapshot
 
-- host: `home-nas`
+- host: `oc-nas`
 - instances:
-  - benben: `openclaw-gateway.service`
+  - benben vNext Feishu production consumer: `openclaw-benben.service`
+  - old benben rollback anchor: `openclaw-gateway.service`
   - adminAI: `openclaw-adminai-gateway.service`
 - runtime package: `2026.4.9`
+- 2026-04-27 Feishu cutover:
+  - existing Feishu benben app consumption moved to `openclaw-benben.service`
+  - `openclaw-benben.service` listens on `127.0.0.1:18792`, browser/control `127.0.0.1:18794`, state root `/var/lib/openclaw-benben/.openclaw`
+  - old `openclaw-gateway.service` remains active on `127.0.0.1:18789` as rollback anchor with Feishu channel/plugin disabled and Telegram still enabled
+  - `openclaw-benben` has Feishu channel/plugin enabled; Telegram and QQBot channel/plugin entries remain disabled
+  - vNext plugin `openclaw-benben-vnext` is loaded and activated with `before_dispatch` priority `90`
+  - rollback snapshots: `/var/lib/openclaw/.openclaw/rollback/benben-feishu-cutover-20260427T124450Z` and `/var/lib/openclaw-benben/.openclaw/rollback/benben-feishu-cutover-20260427T124450Z`
 - main default lane on both instances: `anyone/gpt-5.4`
 - explicit cloud routes:
   - bare `/codex` -> `openai-codex/gpt-5.4`
