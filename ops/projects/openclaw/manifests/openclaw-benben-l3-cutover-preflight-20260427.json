@@ -1,0 +1,167 @@
+{
+  "schema": "openclaw-benben-l3-cutover-preflight.v1",
+  "createdAt": "2026-04-27T09:36:03Z",
+  "taskLevel": "L3-preflight",
+  "sourceOfTruth": {
+    "host": "oc-nas",
+    "vps": "home-vps-root",
+    "evidenceBoundary": "Read-only service/config/code inspection. No live files, systemd units, env files, callbacks, channels, or services were modified."
+  },
+  "userAuthorization": {
+    "repairStageAuthorized": true,
+    "authorizationText": "允许进入修复阶段",
+    "claudePreference": "User asked to avoid Claude first; this preflight was performed by Codex directly."
+  },
+  "liveWritesPerformed": false,
+  "secretsPolicy": {
+    "rawFeishuAppIdsPrinted": false,
+    "rawFeishuSecretsPrinted": false,
+    "rawTokensPrinted": false,
+    "rawCallbackUrlsPrinted": false
+  },
+  "confirmedFacts": {
+    "oldProd": {
+      "service": "openclaw-gateway.service",
+      "activeState": "active",
+      "subState": "running",
+      "mainPid": 1559349,
+      "gatewayPort": 18789,
+      "browserPort": 18791,
+      "healthz": {
+        "ok": true,
+        "status": "live"
+      },
+      "configPath": "/var/lib/openclaw/.openclaw/openclaw.json",
+      "configSha256": "4d8ee28a154a7d9a2e42fcb258f40506b034e89d3e16257129f133392efa58a5",
+      "feishu": {
+        "channelEnabled": true,
+        "pluginEntryEnabled": true,
+        "connectionMode": "websocket",
+        "dmPolicy": "pairing",
+        "groupPolicy": "allowlist",
+        "allowFromCount": 2,
+        "groupAllowFromCount": 1
+      },
+      "telegram": {
+        "channelEnabled": true,
+        "pluginEntryEnabled": true
+      },
+      "qqbot": {
+        "channelEnabled": false,
+        "pluginEntryEnabled": true
+      },
+      "configGuardRequiredChannels": [
+        "feishu",
+        "telegram"
+      ]
+    },
+    "shadow": {
+      "service": "openclaw-benben.service",
+      "activeState": "active",
+      "subState": "running",
+      "mainPid": 948503,
+      "gatewayPort": 18792,
+      "browserPort": 18794,
+      "healthz": {
+        "ok": true,
+        "status": "live"
+      },
+      "configPath": "/var/lib/openclaw-benben/.openclaw/openclaw.json",
+      "configSha256": "b84ddef6f557a1ceff31387724f5d2854a0645c8b2b844f58db2ef7dcbea48e1",
+      "stateRoot": "/var/lib/openclaw-benben/.openclaw",
+      "configRoot": "/etc/openclaw-benben",
+      "feishu": {
+        "channelEnabled": false,
+        "pluginEntryEnabled": false,
+        "connectionMode": "websocket",
+        "dmPolicy": "pairing",
+        "groupPolicy": "allowlist",
+        "allowFromCount": 2,
+        "groupAllowFromCount": 1
+      },
+      "telegram": {
+        "channelEnabled": false,
+        "pluginEntryEnabled": false
+      },
+      "qqbot": {
+        "channelEnabled": false,
+        "pluginEntryEnabled": false
+      },
+      "shadowDisableProductionChannels": true
+    },
+    "credentialRelation": {
+      "oldShadowFeishuAppIdRelation": "same",
+      "oldShadowFeishuSecretRelation": "same",
+      "appIdSha256": "15efa66a30b0e1863f731a3f245828d83226d6b208c2c3a8a0b026c1c9f08545"
+    },
+    "httpGatewayIngress": {
+      "nasReverseTunnelService": "openclaw-vps-gateway-tunnel.service",
+      "nasReverseTunnelState": "active/running",
+      "vpsLoopbackGatewayPort": 18789,
+      "nasTargetGatewayPort": 18789,
+      "vpsNginxSite": "/etc/nginx/sites-enabled/openclaw-gateway",
+      "vpsNginxSiteSha256": "34307c5a0f5d3835909eb141b43ca36ca24057e00e5ec76f881d2cdb380aeeac",
+      "vpsNginxProxyTargets": [
+        {
+          "listen": 20002,
+          "proxyPass": "127.0.0.1:18789"
+        }
+      ],
+      "interpretation": "This HTTP/WebSocket gateway ingress is present, but it is not the primary Feishu event consumer for the current app because the Feishu channel uses websocket mode inside the OpenClaw process."
+    },
+    "feishuRuntimeMode": {
+      "connectionMode": "websocket",
+      "runtimeEvidence": [
+        "OpenClaw Feishu runtime imports @larksuiteoapi/node-sdk WSClient.",
+        "channels.feishu.connectionMode is websocket in both old and shadow configs."
+      ],
+      "interpretation": "The cutover must disconnect old OpenClaw's Feishu websocket consumer before starting the shadow consumer for the same app."
+    },
+    "vNextRuntimeIntegration": {
+      "shadowServiceExecStart": "/usr/bin/node /usr/lib/node_modules/openclaw/dist/index.js gateway --port 18792",
+      "vNextCorePath": "/var/lib/openclaw-benben/.openclaw/workspace/tools/openclaw-benben",
+      "vNextCoreStatus": "local/dry-run/service-entry tooling only",
+      "productionDispatchIntegrationConfirmed": false,
+      "evidence": [
+        "openclaw-benben README states local MJS modules only, dry-run Feishu adapter only, no production ingress, no Feishu send, no model call by default, and no runtime commit.",
+        "shadow openclaw.json only references the workspace and local-lite-lane plugin; no openclaw-benben dispatch plugin or runtime hook was found.",
+        "service-entry harness method openclaw-benben.shadow.syntheticTurn refuses production ingress, delivery send, provider/model-call enablement, raw output flags, and runtime commits."
+      ]
+    }
+  },
+  "repairGateChecklist": {
+    "changeTarget": "Move the existing production Feishu benben app from old openclaw-gateway to openclaw-benben.",
+    "changeReason": "User wants to keep the existing Feishu app/robot and replace the backend OpenClaw service.",
+    "risk": [
+      "Old and shadow use the same Feishu app credentials; enabling both would create duplicate or competing websocket consumers.",
+      "Disabling old Feishu requires adjusting old config guard required channels before restart.",
+      "The current shadow service has not been proven to route real Feishu turns through the vNext identity/privacy/memory/tool-gate kernels.",
+      "A blind cutover would likely produce a copied old-gateway behavior rather than the intended vNext benben behavior."
+    ],
+    "rollbackPlan": [
+      "Keep old openclaw-gateway files and service installed as rollback anchor.",
+      "If old Feishu is parked later, restore the old config/env/drop-in snapshots and restart openclaw-gateway.",
+      "If shadow Feishu is enabled later and fails canary, disable shadow Feishu, restart openclaw-benben, then restore old Feishu and restart openclaw-gateway.",
+      "Do not delete shadow artifacts during rollback."
+    ],
+    "verificationPlan": [
+      "Pre-change: prove real production Feishu turns route through vNext dispatch code, not only the generic OpenClaw gateway.",
+      "During cutover: confirm old Feishu websocket consumer is disconnected before shadow consumer starts.",
+      "Post-cutover: owner DM /status, persona identity, normal answer path, memory admin confirmation, non-owner denial, and high-risk tool gate behavior."
+    ],
+    "authorizationStatus": "User authorized entering repair stage, but execution is blocked by current preflight evidence."
+  },
+  "decision": {
+    "status": "blocked_before_live_write",
+    "reason": "Cutover would not yet satisfy the product requirement that real Feishu turns use the new openclaw-benben vNext runtime core.",
+    "liveCutoverExecuted": false,
+    "oldNewDualConsumerRiskAvoided": true
+  },
+  "recommendedNextWork": [
+    "Implement a production-facing openclaw-benben dispatch integration, likely as a high-priority before_dispatch plugin loaded only by the shadow service.",
+    "The plugin must handle real Feishu turns through the vNext identity kernel, privacy kernel, Memory V4 wrapper, usage ledger, and tool gate.",
+    "Keep provider/model execution and Feishu delivery behavior explicitly designed and tested before enabling production ingress.",
+    "Add tests proving production Feishu-shaped events cannot bypass identity, privacy, memory truth, and tool gates.",
+    "Only after that, rerun this L3 preflight and perform the single-consumer cutover."
+  ]
+}
