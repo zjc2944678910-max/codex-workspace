@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "executed_at": "2026-04-27T11:03:38+08:00",
+  "task_level": "L3 shadow process validation and shadow-only restart",
+  "target": {
+    "host": "oc-nas",
+    "shadow_service": "openclaw-benben.service",
+    "old_prod_service": "openclaw-gateway.service",
+    "shadow_workspace_root": "/var/lib/openclaw-benben/.openclaw/workspace"
+  },
+  "source_manifests": {
+    "candidate": "openclaw-benben-shadow-sync-candidate-provider-adapter-20260427.json",
+    "sync_execution": "openclaw-benben-shadow-sync-execution-provider-adapter-20260427.json",
+    "product_commit": "72b18b57af51905b58fcf58c50e204202139c9bc"
+  },
+  "authorization": {
+    "repair_phase_authorized": true,
+    "scope": "shadow process-level validation and openclaw-benben.service restart only",
+    "feishu_production_cutover_authorized": false,
+    "feishu_test_ingress_authorized": false,
+    "env_or_channel_change_authorized": false,
+    "old_prod_restart_authorized": false
+  },
+  "claude_prechange_review": {
+    "attempted": true,
+    "status": "failed",
+    "reason": "subscription quota insufficient 403"
+  },
+  "pre_restart_evidence": {
+    "shadow_exec_start": "/usr/bin/env /usr/bin/node /usr/lib/node_modules/openclaw/dist/index.js gateway --port 18792",
+    "shadow_working_directory": "/var/lib/openclaw-benben",
+    "shadow_workspace_env": "OPENCLAW_WORKSPACE=/var/lib/openclaw-benben/.openclaw/workspace",
+    "channel_guard": "OPENCLAW_SHADOW_DISABLE_PRODUCTION_CHANNELS=1",
+    "shadow_pid_before_restart": 853732,
+    "shadow_active_enter_before_restart": "Mon 2026-04-27 09:49:56 CST",
+    "old_prod_pid_before_restart": 1559349,
+    "old_prod_active_enter": "Sun 2026-04-26 16:35:29 CST",
+    "healthz": {
+      "old_prod_18789": {
+        "ok": true,
+        "status": "live"
+      },
+      "shadow_18792": {
+        "ok": true,
+        "status": "live"
+      }
+    }
+  },
+  "pre_restart_local_injection_validation": {
+    "ok": true,
+    "adapter_calls": 1,
+    "fetch_calls": 0,
+    "answer_path": "provider_model",
+    "response_kind": "provider_model_response",
+    "delivery_sent": false,
+    "production_ingress": false,
+    "runtime_committed": false,
+    "raw_response_persisted": false,
+    "sanitized_report_leak_check": "passed for synthetic secret, synthetic provider response, systemctl phrase, raw chat id, raw entity id"
+  },
+  "restart": {
+    "performed": true,
+    "command_scope": "sudo systemctl restart openclaw-benben.service on oc-nas only",
+    "reason": "reload shadow gateway process after workspace sync; no old prod or channel changes",
+    "old_prod_touched": false,
+    "env_changed": false,
+    "channel_switch_performed": false
+  },
+  "post_restart_evidence": {
+    "shadow_active": true,
+    "shadow_pid_after_restart": 948503,
+    "shadow_active_enter_after_restart": "Mon 2026-04-27 10:59:08 CST",
+    "old_prod_active": true,
+    "old_prod_pid_after_restart": 1559349,
+    "old_prod_active_enter_after_restart": "Sun 2026-04-26 16:35:29 CST",
+    "healthz": {
+      "old_prod_18789": {
+        "ok": true,
+        "status": "live"
+      },
+      "shadow_18792": {
+        "ok": true,
+        "status": "live"
+      }
+    },
+    "shadow_workspace_env": "OPENCLAW_WORKSPACE=/var/lib/openclaw-benben/.openclaw/workspace",
+    "channel_guard": "OPENCLAW_SHADOW_DISABLE_PRODUCTION_CHANNELS=1"
+  },
+  "post_restart_local_injection_validation": {
+    "ok": true,
+    "adapter_calls": 1,
+    "fetch_calls": 0,
+    "answer_path": "provider_model",
+    "response_kind": "provider_model_response",
+    "delivery_sent": false,
+    "production_ingress": false,
+    "runtime_committed": false,
+    "raw_response_persisted": false,
+    "sanitized_report_leak_check": "passed for synthetic secret, synthetic provider response, systemctl phrase, raw chat id, raw entity id"
+  },
+  "boundaries": [
+    "No Feishu test ingress was enabled.",
+    "No Feishu production cutover was performed.",
+    "No Telegram or QQBot channel switch was performed.",
+    "No env/config write was performed.",
+    "Old production openclaw-gateway.service was not restarted and remained live.",
+    "Provider adapter remains explicit-injection only; no default provider transport was connected."
+  ],
+  "residual_risks": [
+    "HTTP/service-level Feishu turn ingress for vNext is still not enabled or tested.",
+    "Control/browser port 18794 healthz returned 401 earlier, so validation used 18792 healthz plus service-user local injection from OPENCLAW_WORKSPACE.",
+    "Claude pre-change review could not run because of quota."
+  ]
+}
