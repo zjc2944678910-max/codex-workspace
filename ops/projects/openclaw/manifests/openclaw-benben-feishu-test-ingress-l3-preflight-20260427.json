@@ -1,0 +1,171 @@
+{
+  "schema": "openclaw.benben.feishu_test_ingress_l3_preflight.v1",
+  "createdAt": "2026-04-27T05:36:03Z",
+  "taskLevel": "L3-preflight-readonly",
+  "authorizedByUserPhrase": "进入修复阶段",
+  "sourceOfTruth": "ssh_live:oc-nas + local_git",
+  "liveSystemsModified": false,
+  "executionDecision": "blocked_before_live_write",
+  "localCheckpoints": {
+    "opsRepo": {
+      "path": "/Users/zhangjincheng/Documents/GitHub/codex-workspace",
+      "branch": "main",
+      "headAtStart": "07eaefa docs: add benben feishu test ingress gate"
+    },
+    "productRepo": {
+      "path": "/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/openclaw/nas-openclaw-v22",
+      "branch": "codex/openclaw-benben-vnext-core",
+      "headAtStart": "ef44454 feat: add benben shadow service-entry harness"
+    }
+  },
+  "claudePrimaryAudit": {
+    "attempted": true,
+    "available": false,
+    "failure": "403 subscription quota insufficient",
+    "requestId": "202604270531084500605138268d9d6XmEuVtou"
+  },
+  "target": {
+    "host": "oc-nas",
+    "oldProdService": "openclaw-gateway.service",
+    "oldProdGatewayPort": 18789,
+    "shadowService": "openclaw-benben.service",
+    "shadowGatewayPort": 18792,
+    "shadowStateRoot": "/var/lib/openclaw-benben/.openclaw",
+    "shadowConfigRoot": "/etc/openclaw-benben"
+  },
+  "readonlyEvidence": {
+    "serviceHealth": {
+      "oldProd": {
+        "service": "openclaw-gateway.service",
+        "mainPid": 1559349,
+        "activeState": "active",
+        "subState": "running",
+        "healthz": {
+          "ok": true,
+          "status": "live"
+        }
+      },
+      "shadow": {
+        "service": "openclaw-benben.service",
+        "mainPid": 948503,
+        "activeState": "active",
+        "subState": "running",
+        "healthz": {
+          "ok": true,
+          "status": "live"
+        }
+      }
+    },
+    "oldProdConfigSummary": {
+      "gateway": {
+        "mode": "local",
+        "port": 18789,
+        "bind": "loopback"
+      },
+      "channels": {
+        "feishu": true,
+        "telegram": true,
+        "qqbot": false
+      },
+      "plugins": {
+        "feishu": true,
+        "telegram": true,
+        "qqbot": true
+      }
+    },
+    "shadowConfigSummary": {
+      "gateway": {
+        "mode": "local",
+        "port": 18792,
+        "bind": "loopback"
+      },
+      "channels": {
+        "feishu": false,
+        "telegram": false,
+        "qqbot": false
+      },
+      "plugins": {
+        "feishu": false,
+        "telegram": false,
+        "qqbot": false
+      }
+    },
+    "systemdSummary": {
+      "oldProdEnvironmentFile": "/etc/openclaw/gateway.env",
+      "shadowEnvironmentFiles": [
+        "/etc/openclaw-benben/secrets.env",
+        "/etc/openclaw-benben/shadow.env"
+      ],
+      "shadowExecStart": "/usr/bin/node /usr/lib/node_modules/openclaw/dist/index.js gateway --port 18792"
+    },
+    "feishuSecretAndTestSurfaceEvidence": {
+      "oldProdFeishuAppSecretPresent": true,
+      "shadowFeishuAppSecretPresent": true,
+      "oldAndShadowFeishuAppSecretRelation": "same",
+      "shadowConfigFeishuKeys": [
+        "allowFrom",
+        "appId",
+        "appSecret",
+        "capabilities",
+        "connectionMode",
+        "dmPolicy",
+        "enabled",
+        "groupAllowFrom",
+        "groupPolicy",
+        "groups"
+      ],
+      "shadowFeishuPluginKeys": [
+        "enabled"
+      ],
+      "testSurfaceMarkersInShadowSecretsEnv": false,
+      "testSurfaceMarkersInShadowEnv": false,
+      "testSurfaceMarkersInShadowConfig": false,
+      "secretValuesPrinted": false
+    }
+  },
+  "confirmedFacts": [
+    "User authorized entering repair phase with the exact phrase '进入修复阶段'.",
+    "No live write, service restart, env edit, config edit, callback change, or channel enablement was performed.",
+    "Old prod is active/running and currently has Feishu channel/plugin enabled.",
+    "Shadow is active/running and still has Feishu/Telegram/QQBot channels and plugins disabled.",
+    "Shadow and old prod currently reference the same FEISHU_APP_SECRET value, checked by equality only; no secret value was printed.",
+    "No redacted evidence found an isolated test/shadow/sandbox Feishu surface in shadow env/config."
+  ],
+  "blockers": [
+    {
+      "name": "isolated_feishu_test_surface_not_proven",
+      "severity": "blocking",
+      "reason": "The L3 gate requires a separate non-production Feishu test app/robot/callback surface. Current evidence shows the shadow service has copied production Feishu secret material and no test-surface marker."
+    },
+    {
+      "name": "old_prod_feishu_still_active",
+      "severity": "blocking",
+      "reason": "Old prod still has Feishu enabled. Enabling shadow against the same production bot would violate the no dual-consumer rule."
+    },
+    {
+      "name": "shadow_real_feishu_ingress_not_yet_validated",
+      "severity": "blocking",
+      "reason": "The accepted shadow validation is synthetic/local fixture based. Real Feishu ingress and delivery boundaries are not yet validated against a separate test surface."
+    }
+  ],
+  "actionsNotTaken": [
+    "Did not enable shadow Feishu channel or plugin.",
+    "Did not modify /etc/openclaw-benben or /var/lib/openclaw-benben.",
+    "Did not restart or reload openclaw-benben.service.",
+    "Did not stop, restart, reload, or modify openclaw-gateway.service.",
+    "Did not change Feishu callbacks or production bot settings.",
+    "Did not run a provider/model network call or send a Feishu message."
+  ],
+  "requiredEvidenceBeforeNextL3Attempt": [
+    "Redacted proof of a separate non-production Feishu test app/robot identity that is not the current production benben bot.",
+    "A config plan that points shadow only at the isolated test surface.",
+    "A rollback snapshot plan for every shadow file that would be changed.",
+    "A receive-only/dry-run first verification plan with delivery disabled or limited to the isolated test surface.",
+    "A stop condition that aborts if production bot identifiers appear in shadow Feishu config."
+  ],
+  "safeNextStep": {
+    "level": "L0/L1 local development",
+    "description": "Implement or identify a shadow-safe real Feishu receive-only/dry-run adapter and tests in the product repo before another live Feishu L3 attempt."
+  },
+  "result": "blocked"
+}
