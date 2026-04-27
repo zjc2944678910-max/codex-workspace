@@ -1,0 +1,158 @@
+{
+  "schema": "openclaw.benben.feishu_real_test_proof_preflight.v1",
+  "createdAt": "2026-04-27T08:08:44Z",
+  "taskLevel": "L3-preflight-readonly",
+  "authorizedByUserPhrase": "进入修复阶段",
+  "sourceOfTruth": "ssh_live:oc-nas + local_manifests",
+  "liveSystemsModified": false,
+  "executionDecision": "blocked_before_feishu_enablement",
+  "target": {
+    "host": "oc-nas",
+    "oldProdService": "openclaw-gateway.service",
+    "oldProdGatewayPort": 18789,
+    "shadowService": "openclaw-benben.service",
+    "shadowGatewayPort": 18792,
+    "shadowWorkspace": "/var/lib/openclaw-benben/.openclaw/workspace"
+  },
+  "claudeRiskReview": {
+    "attempted": true,
+    "available": true,
+    "verdict": "BLOCK",
+    "summary": "Claude confirmed Feishu ingress must not be enabled because no real separate non-production Feishu test app/robot/callback proof exists. Synthetic proof smoke is not sufficient."
+  },
+  "freshReadonlyEvidence": {
+    "oldProd": {
+      "service": "openclaw-gateway.service",
+      "mainPid": 1559349,
+      "activeState": "active",
+      "subState": "running",
+      "healthz": {
+        "ok": true,
+        "status": "live"
+      },
+      "configSummary": {
+        "gateway": {
+          "mode": "local",
+          "port": 18789,
+          "bind": "loopback"
+        },
+        "channels": {
+          "feishu": true,
+          "telegram": true,
+          "qqbot": false
+        },
+        "plugins": {
+          "feishu": true,
+          "telegram": true,
+          "qqbot": true
+        }
+      }
+    },
+    "shadow": {
+      "service": "openclaw-benben.service",
+      "mainPid": 948503,
+      "activeState": "active",
+      "subState": "running",
+      "healthz": {
+        "ok": true,
+        "status": "live"
+      },
+      "configSummary": {
+        "gateway": {
+          "mode": "local",
+          "port": 18792,
+          "bind": "loopback"
+        },
+        "channels": {
+          "feishu": false,
+          "telegram": false,
+          "qqbot": false
+        },
+        "plugins": {
+          "feishu": false,
+          "telegram": false,
+          "qqbot": false
+        }
+      }
+    },
+    "redactedFeishuRelation": {
+      "oldProdAppIdPresent": true,
+      "shadowAppIdPresent": true,
+      "oldProdAppIdSha256": "15efa66a30b0e1863f731a3f245828d83226d6b208c2c3a8a0b026c1c9f08545",
+      "shadowAppIdSha256": "15efa66a30b0e1863f731a3f245828d83226d6b208c2c3a8a0b026c1c9f08545",
+      "oldShadowAppIdRelation": "same",
+      "oldShadowFeishuAppSecretRelation": "same",
+      "secretValuesPrinted": false,
+      "rawAppIdsPrinted": false
+    },
+    "shadowTestSurfaceMarkers": {
+      "/etc/openclaw-benben/secrets.env": false,
+      "/etc/openclaw-benben/shadow.env": false,
+      "/var/lib/openclaw-benben/.openclaw/openclaw.json": false
+    },
+    "shadowTools": {
+      "feishuTestSurfaceProofCheckerPresent": true,
+      "feishuReceiveOnlyIngressPresent": true
+    }
+  },
+  "blockingConditions": [
+    {
+      "name": "real_independent_test_surface_not_proven",
+      "severity": "blocking",
+      "reason": "No real Feishu test app/robot/callback fingerprint was supplied or found. Synthetic proof smoke is not evidence of a real test surface."
+    },
+    {
+      "name": "shadow_matches_production_feishu_app",
+      "severity": "blocking",
+      "reason": "Shadow and old prod currently have the same Feishu appId fingerprint and same FEISHU_APP_SECRET relation. Enabling shadow Feishu would risk production dual consumption."
+    },
+    {
+      "name": "old_prod_feishu_still_active",
+      "severity": "blocking",
+      "reason": "Old prod has Feishu channel/plugin enabled and remains the production rollback anchor."
+    }
+  ],
+  "actionsNotTaken": [
+    "Did not enable shadow Feishu channel or plugin.",
+    "Did not modify Feishu callback, env, systemd, config, or secrets.",
+    "Did not restart or reload openclaw-benben.service.",
+    "Did not stop, restart, reload, or modify openclaw-gateway.service.",
+    "Did not send any Feishu message.",
+    "Did not run a provider/model network call.",
+    "Did not print raw Feishu app ids or secret values."
+  ],
+  "proofTemplate": {
+    "schema_version": 1,
+    "proof": "separate_non_production_feishu_surface",
+    "test_surface": {
+      "label": "<redacted-test-surface-label>",
+      "isolated": true,
+      "production": false,
+      "app_id_sha256": "<sha256-of-real-test-app-id>",
+      "bot_id_sha256": "<optional-sha256-of-real-test-bot-id>",
+      "callback_url_sha256": "<optional-sha256-of-real-test-callback-url>"
+    },
+    "production_reference": {
+      "label": "current-production-benben-bot",
+      "final_production_entrance": true,
+      "app_id_sha256": "15efa66a30b0e1863f731a3f245828d83226d6b208c2c3a8a0b026c1c9f08545",
+      "bot_id_sha256": "<optional-sha256-of-production-bot-id>",
+      "callback_url_sha256": "<optional-sha256-of-production-callback-url>"
+    },
+    "controls": {
+      "old_prod_remains_owner": true,
+      "shadow_points_only_to_test_surface": true,
+      "no_shared_secret": true,
+      "no_callback_overlap": true,
+      "no_dual_consumer": true
+    }
+  },
+  "requiredNextEvidence": [
+    "Create or identify a real non-production Feishu test app/robot that is not the current production benben bot.",
+    "Compute SHA-256 fingerprints locally for the test app id, optional bot id, and optional callback URL without committing or printing raw values.",
+    "Fill proofTemplate.test_surface with those fingerprints.",
+    "Run the proof checker on the filled proof and require ok=true with app_id_sha256_relation=different.",
+    "Only after that, open a separate L3 gate for receive-only/dry-run Feishu canary configuration."
+  ],
+  "result": "blocked"
+}
