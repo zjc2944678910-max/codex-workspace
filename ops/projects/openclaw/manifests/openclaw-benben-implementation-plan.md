@@ -177,9 +177,11 @@ Status 2026-04-27:
 
 - Initial NAS shadow bootstrap was completed earlier and recorded in
   `openclaw-benben-shadow-bootstrap-20260426.json`.
-- NAS shadow is synced through the earlier dry-run suite checkpoint, not through
-  the persona, answer-plan, prompt-plan, model-execution, response-composer, or
-  tool-execution local checkpoints.
+- NAS shadow is synced through product commit
+  `6915cb64fb3708c248210753e60bfa0ac8ce40b8`, including persona, answer-plan,
+  prompt-plan, model-execution, response-composer, and tool-execution checkpoints.
+- The L3 execution is recorded in
+  `openclaw-benben-shadow-sync-execution-tool-executor-20260427.json`.
 - Any sync to `/var/lib/openclaw-benben/.openclaw/workspace` remains L3 and needs
   explicit `进入修复阶段` authorization.
 

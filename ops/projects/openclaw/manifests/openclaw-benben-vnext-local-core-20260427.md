@@ -9,7 +9,7 @@ Live changes: none
 - repo: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/openclaw/nas-openclaw-v22`
 - branch: `codex/openclaw-benben-vnext-core`
 - latest local commit: `6915cb64fb3708c248210753e60bfa0ac8ce40b8`
-- latest shadow-synced commit: `d9018318d75b41f64b39355ed17735ec6971fb0a`
+- latest shadow-synced commit: `6915cb64fb3708c248210753e60bfa0ac8ce40b8`
 - tool-execution checkpoint: `6915cb64fb3708c248210753e60bfa0ac8ce40b8`
 - response-composer checkpoint: `b2a0fa46c579db2cf7de81d5cf33d65b8f8e29d4`
 - prompt-plan checkpoint: `facaeeb1ae4a8a258809ead7968c231a57fd53e2`
@@ -209,10 +209,11 @@ Results:
 
 ## L3 Boundary For Shadow Sync
 
-The next deployment-shaped action is to sync commit `6915cb64fb3708c248210753e60bfa0ac8ce40b8`
-to the NAS shadow workspace. That is L3 because it writes live NAS files.
+Commit `6915cb64fb3708c248210753e60bfa0ac8ce40b8` was synced to the NAS shadow
+workspace after explicit L3 authorization on 2026-04-27.
 
-Do not execute the sync unless the user explicitly says `进入修复阶段`.
+Do not execute any further NAS write, service restart, env/config change, or
+channel enablement unless the user explicitly says `进入修复阶段`.
 
 Local candidate package manifest:
 
@@ -226,18 +227,19 @@ Execution status:
 
 - Commit `d9018318d75b41f64b39355ed17735ec6971fb0a` was executed on NAS shadow
   after explicit L3 authorization.
-- Commits `7a8811368e89843213410963f1baa2e9e3a64e77` and
-  `d9a8a8d924f33e3ed1e908a4ce8c70a0f6767c5d` and
-  `facaeeb1ae4a8a258809ead7968c231a57fd53e2` and
-  `b2a0fa46c579db2cf7de81d5cf33d65b8f8e29d4` and
-  `625b29da0954d4d6c5a901fbf0954ea72e4611b3` and
-  `6915cb64fb3708c248210753e60bfa0ac8ce40b8` have not been synced to NAS shadow.
+- Commit `6915cb64fb3708c248210753e60bfa0ac8ce40b8` was executed on NAS shadow
+  after explicit L3 authorization. This includes the persona, answer-plan,
+  prompt-plan, model-execution, response-composer, and tool-execution checkpoints.
 - Execution manifest:
-  `openclaw-benben-shadow-sync-execution-20260427.json`
+  `openclaw-benben-shadow-sync-execution-tool-executor-20260427.json`
 - Shadow sync target:
   `/var/lib/openclaw-benben/.openclaw/workspace`
 - Old production service remained untouched.
 - Shadow service was restarted only after file sync and validation.
+- Post-sync remote verification: 37 manifest files matched, syntax passed,
+  focused tests passed 50/50, dry-run suite passed 8/8, leak scan matched 0,
+  shadow health returned `{"ok":true,"status":"live"}`, and
+  `OPENCLAW_SHADOW_DISABLE_PRODUCTION_CHANNELS=1` remained set.
 
 Minimum L3 plan:
 

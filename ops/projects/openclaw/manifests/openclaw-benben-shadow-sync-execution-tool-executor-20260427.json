@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "executed_at": "2026-04-27T08:34:30+08:00",
+  "task_level": "L3 repair execution",
+  "authorization_phrase": "进入修复阶段",
+  "live_changes": true,
+  "claude_prechange_review": {
+    "attempted": true,
+    "completed": false,
+    "failure_reason": "Claude review failed before audit execution because subscription quota was insufficient."
+  },
+  "source": {
+    "product_repo": "/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/openclaw/nas-openclaw-v22",
+    "branch": "codex/openclaw-benben-vnext-core",
+    "commit": "6915cb64fb3708c248210753e60bfa0ac8ce40b8",
+    "candidate_manifest": "openclaw-benben-shadow-sync-candidate-tool-executor-20260427.json",
+    "candidate_aggregate_sha256": "99630a83dc3ac68689df31aeec5c7bb4491c47a5220db99a069d36709ba62482",
+    "file_count": 37
+  },
+  "target": {
+    "host": "oc-nas",
+    "hostname": "zjcNAS",
+    "service": "openclaw-benben.service",
+    "shadow_workspace_root": "/var/lib/openclaw-benben/.openclaw/workspace",
+    "old_production_service": "openclaw-gateway.service",
+    "old_production_touched": false,
+    "production_feishu_cutover": false
+  },
+  "preflight": {
+    "old_production_service_active": true,
+    "shadow_service_active": true,
+    "old_production_health": "{\"ok\":true,\"status\":\"live\"}",
+    "shadow_health": "{\"ok\":true,\"status\":\"live\"}",
+    "listening_ports_confirmed": [
+      "127.0.0.1:18789",
+      "127.0.0.1:18791",
+      "127.0.0.1:18792",
+      "127.0.0.1:18794",
+      "[::1]:18789",
+      "[::1]:18792"
+    ],
+    "channel_disable_flag": "OPENCLAW_SHADOW_DISABLE_PRODUCTION_CHANNELS=1"
+  },
+  "snapshot": {
+    "snapshot_dir": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-tool-executor-20260427T001634Z",
+    "target_file_count": 37,
+    "existing_file_count": 28,
+    "missing_before_sync_count": 9,
+    "missing_before_sync_paths": [
+      "tools/openclaw-benben/answer-plan-kernel.mjs",
+      "tools/openclaw-benben/fixtures/group-ordinary-persona.event.json",
+      "tools/openclaw-benben/fixtures/owner-normal.event.json",
+      "tools/openclaw-benben/fixtures/owner-persona.event.json",
+      "tools/openclaw-benben/model-executor-kernel.mjs",
+      "tools/openclaw-benben/model-prompt-kernel.mjs",
+      "tools/openclaw-benben/persona-kernel.mjs",
+      "tools/openclaw-benben/response-composer-kernel.mjs",
+      "tools/openclaw-benben/tool-execution-kernel.mjs"
+    ],
+    "archive": "files.tgz",
+    "archive_sha256": "bba62f50cf22edf30264f8402f509a74f34fe849e123c5dddd2141631ea7905c"
+  },
+  "sync": {
+    "method": "tar stream from local manifest file list, extracted with sudo tar into shadow workspace",
+    "rsync_attempts": [
+      {
+        "result": "no_write",
+        "reason": "local rsync did not support --chown"
+      },
+      {
+        "result": "no_write",
+        "reason": "rsync rejected the absolute remote target path"
+      }
+    ],
+    "ownership": "openclaw-benben:users",
+    "file_mode": "0644",
+    "directory_mode": "0755",
+    "delete_used": false
+  },
+  "post_sync_verification_before_restart": {
+    "remote_hash_checked": 37,
+    "remote_hash_bad": 0,
+    "appledouble_quarantined_count": 35,
+    "appledouble_quarantine_dir": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-tool-executor-20260427T001634Z/appledouble-quarantine",
+    "syntax_check": "pass",
+    "focused_tests": "50 pass, 0 fail",
+    "dry_run_suite": "8 cases ok",
+    "dry_run_unsafe_cases": 0,
+    "leak_scan_matches": 0
+  },
+  "service_restart": {
+    "service": "openclaw-benben.service",
+    "old_production_service_restarted": false,
+    "result": "active/running",
+    "main_pid_after_restart": 749690,
+    "shadow_health_after_restart": "{\"ok\":true,\"status\":\"live\"}",
+    "old_production_active_after_restart": true,
+    "old_production_health_after_restart": "{\"ok\":true,\"status\":\"live\"}",
+    "channel_disable_flag_after_restart": "1"
+  },
+  "post_restart_observations": {
+    "appledouble_remaining": 0,
+    "tool_execution_kernel_sha256": "e64ff27316b0b51a5690619251753bb0bab17db635f05f9432cdc431c6fc7678",
+    "turn_runner_sha256": "c42a8d6ec0a060880dde8eabd5b19ff08a70dcd08d204a9d27307a8fe4d6b717",
+    "channel_related_journal_summary": [
+      "channels.feishu.appSecret ignored as inactive surface",
+      "health-monitor started",
+      "gateway started channels and sidecars"
+    ]
+  },
+  "remaining_risks": [
+    "Claude pre-change review was attempted but unavailable due to quota.",
+    "Shadow journal still reports existing dangerous config flag: tools.exec.applyPatch.workspaceOnly=false.",
+    "Ports 18791 and 18794 listen but do not expose /health; this matched preflight behavior and was not changed.",
+    "Feishu production ingress remains disabled and was not tested."
+  ],
+  "rollback": {
+    "restore_archive": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-tool-executor-20260427T001634Z/files.tgz",
+    "restore_target": "/var/lib/openclaw-benben/.openclaw/workspace",
+    "restore_notes": "Restore existing files from archive, remove or leave absent the 9 files listed as missing_before_sync, then restart only openclaw-benben.service if the rollback gate authorizes it. Old openclaw-gateway.service remains the production rollback anchor."
+  }
+}
