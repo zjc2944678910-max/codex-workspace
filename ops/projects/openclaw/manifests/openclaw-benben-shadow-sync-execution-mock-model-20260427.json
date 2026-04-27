@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "executed_at": "2026-04-27T09:50:35+08:00",
+  "task_level": "L3 repair execution",
+  "authorization_phrase": "好继续,授权",
+  "live_changes": true,
+  "claude_prechange_review": {
+    "attempted": true,
+    "completed": false,
+    "failure_reason": "Claude review failed before audit execution because subscription quota was insufficient."
+  },
+  "source": {
+    "product_repo": "/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/openclaw/nas-openclaw-v22",
+    "branch": "codex/openclaw-benben-vnext-core",
+    "commit": "618bea0c927ca693983aeee8ed5835fd2bf10369",
+    "candidate_manifest": "openclaw-benben-shadow-sync-candidate-mock-model-20260427.json",
+    "candidate_aggregate_sha256": "f905d37b2c1b43c98bc311b3dd1dec82c959b186ff60709c615757ce81d6d0c2",
+    "file_count": 37
+  },
+  "target": {
+    "host": "oc-nas",
+    "hostname": "zjcNAS",
+    "service": "openclaw-benben.service",
+    "shadow_workspace_root": "/var/lib/openclaw-benben/.openclaw/workspace",
+    "old_production_service": "openclaw-gateway.service",
+    "old_production_touched": false,
+    "production_feishu_cutover": false
+  },
+  "preflight": {
+    "old_production_service_active": true,
+    "shadow_service_active": true,
+    "old_production_health": "{\"ok\":true,\"status\":\"live\"}",
+    "shadow_health": "{\"ok\":true,\"status\":\"live\"}",
+    "listening_ports_confirmed": [
+      "127.0.0.1:18789",
+      "127.0.0.1:18791",
+      "127.0.0.1:18792",
+      "127.0.0.1:18794",
+      "[::1]:18789",
+      "[::1]:18792"
+    ],
+    "channel_disable_flag": "OPENCLAW_SHADOW_DISABLE_PRODUCTION_CHANNELS=1"
+  },
+  "snapshot": {
+    "snapshot_dir": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-mock-model-20260427T014021Z",
+    "target_file_count": 37,
+    "existing_file_count": 37,
+    "missing_before_sync_count": 0,
+    "archive": "files.tgz",
+    "archive_sha256": "da3691a7a488080178303b04156b436f86662f656db5c1db549049d95c4aaa7c"
+  },
+  "sync": {
+    "method": "COPYFILE_DISABLE=1 tar stream from local manifest file list, extracted with sudo tar into shadow workspace",
+    "ownership": "openclaw-benben:users",
+    "file_mode": "0644",
+    "directory_mode": "0755",
+    "delete_used": false,
+    "appledouble_remaining_after_sync": 0,
+    "tar_notes": [
+      "Remote tar ignored macOS LIBARCHIVE xattr headers; no AppleDouble files remained in target."
+    ]
+  },
+  "post_sync_verification_before_restart": {
+    "remote_hash_checked": 37,
+    "remote_hash_bad": 0,
+    "syntax_check": "pass",
+    "focused_tests": "52 pass, 0 fail",
+    "dry_run_suite": "8 cases ok",
+    "dry_run_unsafe_cases": 0,
+    "mock_model_inmemory": {
+      "ok": true,
+      "answer_path": "mock_model",
+      "response_kind": "mock_model_answer",
+      "model_call_enabled": true,
+      "model_call_response_kind": "mock_model_response",
+      "network_call_allowed": false,
+      "network_call_performed": false,
+      "raw_response_persisted": false,
+      "delivery_sent": false,
+      "production_ingress": false,
+      "runtime_committed": false,
+      "response_safe_to_send": false,
+      "response_delivery_sent": false,
+      "detected_secret_like": true,
+      "high_risk_action_detected": true,
+      "raw_leak": false
+    },
+    "leak_scan_matches": 0
+  },
+  "service_restart": {
+    "service": "openclaw-benben.service",
+    "old_production_service_restarted": false,
+    "result": "active/running",
+    "main_pid_after_restart": 853732,
+    "shadow_health_after_restart": "{\"ok\":true,\"status\":\"live\"}",
+    "old_production_active_after_restart": true,
+    "old_production_health_after_restart": "{\"ok\":true,\"status\":\"live\"}",
+    "channel_disable_flag_after_restart": "1"
+  },
+  "post_restart_observations": {
+    "appledouble_remaining": 0,
+    "model_executor_kernel_sha256": "440830d933e50de11be8dc8b9e6dc95965217f068a00e4c28ed65a0c502a7881",
+    "turn_runner_sha256": "8d7dbd4c4d15af4732a01d046c2a03a969a6ca1ad385274a5106327b150d8527",
+    "index_sha256": "4316a69233f133f2cbe3ab420bffb72249e9ded5e29176b0fb1c9fae6624c162",
+    "channel_related_journal_summary": [
+      "channels.feishu.appSecret ignored as inactive surface",
+      "health-monitor started",
+      "gateway started channels and sidecars"
+    ]
+  },
+  "remaining_risks": [
+    "Claude pre-change review was attempted but unavailable due to quota.",
+    "Shadow journal still reports existing dangerous config flag: tools.exec.applyPatch.workspaceOnly=false.",
+    "Mock model adapter is not a real provider call; it only verifies the sanitized model-to-composer chain.",
+    "Feishu production ingress remains disabled and was not tested."
+  ],
+  "rollback": {
+    "restore_archive": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-mock-model-20260427T014021Z/files.tgz",
+    "restore_target": "/var/lib/openclaw-benben/.openclaw/workspace",
+    "restore_notes": "Restore the 37 manifest target files from archive, then restart only openclaw-benben.service if the rollback gate authorizes it. Old openclaw-gateway.service remains the production rollback anchor."
+  }
+}

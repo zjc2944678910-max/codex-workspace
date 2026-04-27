@@ -9,7 +9,7 @@ Live changes: none
 - repo: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/openclaw/nas-openclaw-v22`
 - branch: `codex/openclaw-benben-vnext-core`
 - latest local commit: `618bea0c927ca693983aeee8ed5835fd2bf10369`
-- latest shadow-synced commit: `6915cb64fb3708c248210753e60bfa0ac8ce40b8`
+- latest shadow-synced commit: `618bea0c927ca693983aeee8ed5835fd2bf10369`
 - mock-model checkpoint: `618bea0c927ca693983aeee8ed5835fd2bf10369`
 - tool-execution checkpoint: `6915cb64fb3708c248210753e60bfa0ac8ce40b8`
 - response-composer checkpoint: `b2a0fa46c579db2cf7de81d5cf33d65b8f8e29d4`
@@ -18,7 +18,7 @@ Live changes: none
 - persona checkpoint: `7a8811368e89843213410963f1baa2e9e3a64e77`
 - core commit: `3164adc2fd834b311691be0ef51af03ff3fbeec2`
 - latest local commit message: `feat: add benben mock model call adapter`
-- latest shadow-synced commit message: `feat: add benben dry-run tool execution plan`
+- latest shadow-synced commit message: `feat: add benben mock model call adapter`
 - response-composer checkpoint message: `feat: add benben dry-run response composition`
 - mock-model checkpoint message: `feat: add benben mock model call adapter`
 - tool-execution checkpoint message: `feat: add benben dry-run tool execution plan`
@@ -230,12 +230,12 @@ Results:
   `model_call_enabled:false`
 - synthetic/raw/tool denylist scan: no matches
 
-## L3 Boundary For Next Shadow Sync Candidate
+## L3 Boundary For Latest Shadow Sync
 
-The next deployment-shaped action would be to sync commit
-`618bea0c927ca693983aeee8ed5835fd2bf10369` to the NAS shadow workspace. That is
-L3 because it writes live NAS files and would require a separate explicit
-`进入修复阶段` authorization.
+Commit `618bea0c927ca693983aeee8ed5835fd2bf10369` was synced to the NAS shadow
+workspace after explicit L3 authorization on 2026-04-27. Any further NAS write,
+service restart, env/config change, or channel enablement still requires a
+separate L3 gate.
 
 Local candidate package manifest:
 
@@ -244,8 +244,15 @@ Local candidate package manifest:
 - 37 files
 - aggregate sha256:
   `f905d37b2c1b43c98bc311b3dd1dec82c959b186ff60709c615757ce81d6d0c2`
+- execution manifest:
+  `openclaw-benben-shadow-sync-execution-mock-model-20260427.json`
+- post-sync remote verification: 37 manifest files matched, syntax passed,
+  focused tests passed 52/52, dry-run suite passed 8/8, mock-model in-memory
+  validation passed, leak scan matched 0, shadow health returned
+  `{"ok":true,"status":"live"}`, and
+  `OPENCLAW_SHADOW_DISABLE_PRODUCTION_CHANNELS=1` remained set.
 
-## L3 Boundary For Shadow Sync
+## Earlier L3 Shadow Sync
 
 Commit `6915cb64fb3708c248210753e60bfa0ac8ce40b8` was synced to the NAS shadow
 workspace after explicit L3 authorization on 2026-04-27.

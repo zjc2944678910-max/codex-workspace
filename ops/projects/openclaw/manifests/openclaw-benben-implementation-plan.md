@@ -184,12 +184,11 @@ Status 2026-04-27:
 - Initial NAS shadow bootstrap was completed earlier and recorded in
   `openclaw-benben-shadow-bootstrap-20260426.json`.
 - NAS shadow is synced through product commit
-  `6915cb64fb3708c248210753e60bfa0ac8ce40b8`, including persona, answer-plan,
-  prompt-plan, model-execution, response-composer, and tool-execution checkpoints.
-- The L3 execution is recorded in
-  `openclaw-benben-shadow-sync-execution-tool-executor-20260427.json`.
-- Newer local commit `618bea0c927ca693983aeee8ed5835fd2bf10369` adds the mock
-  model-call adapter and has not been synced to NAS shadow.
+  `618bea0c927ca693983aeee8ed5835fd2bf10369`, including persona, answer-plan,
+  prompt-plan, model-execution, response-composer, tool-execution, and mock
+  model-call checkpoints.
+- The latest L3 execution is recorded in
+  `openclaw-benben-shadow-sync-execution-mock-model-20260427.json`.
 - Any sync to `/var/lib/openclaw-benben/.openclaw/workspace` remains L3 and needs
   explicit `进入修复阶段` authorization.
 
