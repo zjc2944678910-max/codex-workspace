@@ -3,7 +3,7 @@
 model = "gpt-5.5"
 review_model = "gpt-5.5"
 model_reasoning_effort = "xhigh"
-model_context_window = 540000
+model_context_window = 539000
 model_auto_compact_token_limit = 500000
 
 developer_instructions = """
