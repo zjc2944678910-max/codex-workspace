@@ -13,6 +13,15 @@ It is designed to keep project code, operator evidence, temporary outputs, and m
 - `archive/`: retired documents, cleanup records, and snapshots
 - `state/`: local machine state and review/staging residue
 
+## Workspace Tools
+
+- Long-task CLI:
+  - `node docs/workspace/codex-long-task.mjs --help`
+- Tool index:
+  - `docs/workspace/README.md`
+- Long-task runbook:
+  - `docs/workspace/codex-long-task-runbook.md`
+
 ## Project Defaults
 
 - Product project: `projects/products/<name>/`
