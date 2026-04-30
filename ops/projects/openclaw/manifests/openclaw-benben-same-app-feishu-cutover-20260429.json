@@ -1,0 +1,89 @@
+{
+  "schema": "openclaw.benben.same_app_feishu_cutover.v1",
+  "createdAt": "2026-04-29T09:12:00+08:00",
+  "taskLevel": "L3",
+  "authorizedByUserPhrase": "进入修复阶段",
+  "target": {
+    "host": "oc-nas",
+    "shadowService": "openclaw-benben.service",
+    "shadowConfig": "/var/lib/openclaw-benben/.openclaw/openclaw.json",
+    "shadowGatewayPort": 18792,
+    "shadowBrowserPort": 18794
+  },
+  "oldProdAnchor": {
+    "service": "openclaw-gateway.service",
+    "config": "/var/lib/openclaw/.openclaw/openclaw.json",
+    "gatewayPort": 18789,
+    "browserOrControlPort": 18791,
+    "feishuChannelEnabledAfter": false,
+    "feishuPluginEnabledAfter": false,
+    "modified": false
+  },
+  "change": {
+    "type": "same_app_feishu_shadow_cutover",
+    "reason": "No separate non-production Feishu test surface exists; user previously chose to reuse the current OpenClaw/benben Feishu app. Old production Feishu consumer was confirmed disabled before enabling shadow.",
+    "appIdSha256": "15efa66a30b0e1863f731a3f245828d83226d6b208c2c3a8a0b026c1c9f08545",
+    "oldAndShadowAppFingerprintMatchedBefore": true,
+    "shadowConfigBefore": {
+      "channels.feishu.enabled": false,
+      "plugins.entries.feishu.enabled": false
+    },
+    "shadowConfigAfter": {
+      "channels.feishu.enabled": true,
+      "plugins.entries.feishu.enabled": true,
+      "channels.telegram.enabled": false,
+      "channels.qqbot.enabled": false
+    }
+  },
+  "rollback": {
+    "snapshotDir": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-same-app-feishu-cutover-20260429T090807+0800",
+    "shadowConfigBackup": "openclaw.shadow.before.json",
+    "oldProdReadonlyBackup": "openclaw.oldprod.readonly-before.json",
+    "strategy": "Restore snapshotDir/openclaw.shadow.before.json to /var/lib/openclaw-benben/.openclaw/openclaw.json with owner openclaw-benben:users and mode 0600, then restart openclaw-benben.service."
+  },
+  "verification": {
+    "shadowService": {
+      "activeState": "active",
+      "subState": "running",
+      "nRestarts": 0
+    },
+    "oldProdService": {
+      "activeState": "active",
+      "subState": "running",
+      "nRestarts": 0
+    },
+    "health": {
+      "url": "http://127.0.0.1:18792/health",
+      "ok": true,
+      "status": "live"
+    },
+    "portsListening": [18789, 18791, 18792, 18794],
+    "feishuLogEvidence": [
+      "feishu[default]: starting feishu[default] (mode: websocket)",
+      "feishu[default]: bot open_id resolved",
+      "feishu[default]: WebSocket client started",
+      "[ws] ws client ready"
+    ],
+    "errorsSinceStart": {
+      "error": false,
+      "failed": false,
+      "timeout": false,
+      "fatal": false,
+      "unhandled": false
+    }
+  },
+  "constraintsObserved": {
+    "adminAITouched": false,
+    "v2v3ProjectionTranscriptRawUsedAsTruth": false,
+    "oldAndNewDualFeishuConsumer": false,
+    "telegramEnabledOnShadow": false,
+    "qqbotEnabledOnShadow": false,
+    "secretsPrinted": false
+  },
+  "remainingValidation": [
+    "A real Feishu message should be sent by the user to confirm end-to-end receive and reply behavior.",
+    "Watch openclaw-benben.service journal during the first real message for vNext local-lane routing and response latency.",
+    "If behavior is wrong, rollback using the snapshot directory above."
+  ],
+  "result": "completed"
+}

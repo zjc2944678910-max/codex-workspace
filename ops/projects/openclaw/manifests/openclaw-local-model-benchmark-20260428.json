@@ -1,0 +1,87 @@
+{
+  "timestamp": "2026-04-28T12:17:00+08:00",
+  "task": "Compare local Ollama candidates for OpenClaw local-lite lane",
+  "riskLevel": "L3 repair execution",
+  "authorization": "User explicitly said: enter repair phase",
+  "scope": {
+    "changedConfig": false,
+    "restartedOpenClawServices": false,
+    "temporarilyStoppedKeepwarmTimer": true,
+    "restoredKeepwarmTimer": true
+  },
+  "environmentNotes": [
+    "Python urllib initially hit a proxy path and returned false 404 model_not_found errors.",
+    "Final benchmark used a no-proxy HTTP client against http://127.0.0.1:11434/api/chat.",
+    "All final requests used think:false, stream:false, num_ctx=4096, temperature=0.2, top_p=0.9."
+  ],
+  "models": {
+    "qwen9b": {
+      "id": "huihui_ai/qwen3.5-abliterated:9b",
+      "diskSize": "6.6 GB",
+      "parameters": "9.7B",
+      "contextLength": 262144,
+      "quantization": "Q4_K_M",
+      "coldOkWallSec": 2.791,
+      "hotWallSec": {
+        "identity": 1.032,
+        "wechat": 0.824,
+        "flirty": 0.825,
+        "advice": 1.914
+      },
+      "sizeVramBytes": 8536628160,
+      "thinkTagsObserved": false,
+      "qualityNote": "Best Chinese style and strongest practical judgment in the short test set."
+    },
+    "e4b": {
+      "id": "huihui_ai/gemma-4-abliterated:e4b",
+      "diskSize": "9.6 GB",
+      "parameters": "8.0B",
+      "contextLength": 131072,
+      "quantization": "Q4_K_M",
+      "coldOkWallSec": 3.829,
+      "hotWallSec": {
+        "identity": 0.878,
+        "wechat": 0.505,
+        "flirty": 0.557,
+        "advice": 0.92
+      },
+      "sizeVramBytes": 10413009376,
+      "thinkTagsObserved": false,
+      "qualityNote": "Fast and polished, but more template-like and uses extra formatting/emoji."
+    },
+    "e2b": {
+      "id": "huihui_ai/gemma-4-abliterated:e2b",
+      "diskSize": "7.2 GB",
+      "parameters": "5.1B",
+      "contextLength": 131072,
+      "quantization": "Q4_K_M",
+      "coldOkWallSec": 6.667,
+      "hotWallSec": {
+        "identity": 0.38,
+        "wechat": 0.387,
+        "flirty": 0.34,
+        "advice": 0.682
+      },
+      "sizeVramBytes": 7661142272,
+      "thinkTagsObserved": false,
+      "qualityNote": "Fastest hot path and lowest VRAM, but output is plainer and less model-aware."
+    }
+  },
+  "finalRuntimeState": {
+    "macLoadedModels": [
+      "huihui_ai/qwen3.5-abliterated:9b"
+    ],
+    "relayLoadedModels": [
+      "huihui_ai/qwen3.5-abliterated:9b"
+    ],
+    "keepwarmTimer": "active",
+    "openclawBenbenService": "active",
+    "openclawOllamaRelayService": "active"
+  },
+  "recommendation": {
+    "keepCurrentDefault": "huihui_ai/qwen3.5-abliterated:9b",
+    "candidateForFastLite": "huihui_ai/gemma-4-abliterated:e2b",
+    "doNotPrefer": "huihui_ai/gemma-4-abliterated:e4b",
+    "reason": "qwen9b is still best for quality; e2b is the best speed/VRAM candidate; e4b is faster than qwen9b but larger on disk/VRAM and not enough better than e2b."
+  }
+}

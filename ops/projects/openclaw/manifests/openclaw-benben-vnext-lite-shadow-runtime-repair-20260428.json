@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-04-28T08:08:51Z",
+  "task": "openclaw-benben shadow /lite legacy local_direct bypass repair",
+  "risk_level": "L3",
+  "host": "oc-nas",
+  "scope": {
+    "shadow_service": "openclaw-benben.service",
+    "old_prod_anchor": "openclaw-gateway.service",
+    "feishu_production_cutover": false,
+    "adminai_touched": false
+  },
+  "problem": {
+    "symptom": "Real Feishu /lite returned the old built-in local_direct text mentioning ollama/qwen2.5vl:7b, then ordinary creative writing collapsed to '不知道。'.",
+    "root_cause": "The global OpenClaw runtime handled bare /lite and /local before the openclaw-benben-vnext plugin could claim the local lane.",
+    "post_first_repair_symptom": "After bare-command bypass, a real Feishu /lite still returned the old profile-facts card because the existing owner DM session carried persisted routingModeOverride=local_direct and routingLane=local.",
+    "post_first_repair_root_cause": "The first repair bypassed legacy bare commands but did not ignore legacy local_direct session state already stored in sessions.json.",
+    "post_second_repair_symptom": "After session-state bypass, a real Feishu /lite was still consumed by the old model shortcut path and ordinary messages ran qwen9b inside the full cloud agent shell, including Memory V4/tool use and timeout recovery.",
+    "post_second_repair_root_cause": "The vNext before_dispatch hook was not early enough for the gateway agent RPC path; /lite had to be intercepted inside the gateway agent handler before full-agent dispatch."
+  },
+  "changes": [
+    {
+      "path": "/var/lib/openclaw-benben/runtime/openclaw",
+      "kind": "shadow_runtime_copy",
+      "summary": "Created a shadow-owned runtime copy from /usr/lib/node_modules/openclaw so the old production rollback anchor does not run patched code."
+    },
+    {
+      "path": "/var/lib/openclaw-benben/runtime/openclaw/dist/reply-BwK-bN2w.js",
+      "kind": "shadow_runtime_patch",
+      "summary": "Added a shadow-only guard that bypasses legacy bare /lite and /local local_direct interception when OPENCLAW_SERVICE_MARKER=openclaw-benben-shadow or OPENCLAW_SERVICE_KIND=benben-vnext-shadow."
+    },
+    {
+      "path": "/var/lib/openclaw-benben/runtime/openclaw/dist/server.impl-BxLfE9ri.js",
+      "kind": "shadow_runtime_patch",
+      "summary": "Added the same shadow-only guard for browser/control agent requests."
+    },
+    {
+      "path": "/etc/systemd/system/openclaw-benben.service.d/20-shadow-runtime-copy.conf",
+      "kind": "shadow_systemd_dropin",
+      "summary": "Redirected openclaw-benben.service to /var/lib/openclaw-benben/runtime/openclaw/dist/index.js and set OPENCLAW_BENBEN_VNEXT_DISABLE_LEGACY_LOCAL_DIRECT=1."
+    },
+    {
+      "path": "/var/lib/openclaw-benben/.openclaw/workspace/plugins/openclaw-benben-vnext/index.js",
+      "kind": "shadow_plugin_cleanup",
+      "summary": "Removed unused qwen2.5vl local-lane constant from the vNext plugin source."
+    },
+    {
+      "path": "workspace/tools/tests/openclaw-benben/openclaw-benben-shadow-runtime-copy.test.mjs",
+      "kind": "local_test_code",
+      "summary": "Added a static regression test for the shadow-only legacy /lite and /local bypass."
+    },
+    {
+      "path": "/var/lib/openclaw-benben/runtime/openclaw/dist/reply-BwK-bN2w.js",
+      "kind": "shadow_runtime_patch_hotfix",
+      "summary": "In shadow mode, ignore persisted legacy local_direct session state and local lane session suffixes so existing sessions cannot fall back into the old local_direct prompt."
+    },
+    {
+      "path": "/var/lib/openclaw-benben/runtime/openclaw/dist/server.impl-BxLfE9ri.js",
+      "kind": "shadow_runtime_patch_hotfix",
+      "summary": "In shadow mode, normalize an existing local_direct routingModeOverride to empty for browser/control agent requests."
+    },
+    {
+      "path": "/var/lib/openclaw-benben/runtime/openclaw/dist/pi-embedded-BaSvmUpW.js",
+      "kind": "shadow_runtime_patch_hotfix",
+      "summary": "Disabled the legacy /lite model-shortcut parser in benben-vNext shadow mode."
+    },
+    {
+      "path": "/var/lib/openclaw-benben/runtime/openclaw/dist/directive-handling.parse-DcWPUZp_.js",
+      "kind": "shadow_runtime_patch_hotfix",
+      "summary": "Applied the same shadow-only /lite model-shortcut bypass to the directive parser used by reply runtime modules."
+    },
+    {
+      "path": "/var/lib/openclaw-benben/runtime/openclaw/dist/dispatch-CFaSnCVe.js",
+      "kind": "shadow_runtime_patch_hotfix",
+      "summary": "Passed session model/routing context into vNext hooks so polluted local model overrides can be detected instead of falling into full-agent cloud memory/tool paths."
+    },
+    {
+      "path": "/var/lib/openclaw-benben/runtime/openclaw/dist/server.impl-BxLfE9ri.js",
+      "kind": "shadow_runtime_patch_hotfix",
+      "summary": "Intercepted /lite, /local, and /gemma in the gateway agent handler before full-agent dispatch; subsequent ordinary messages in the marked local lane call local Ollama directly with no cloud fallback."
+    },
+    {
+      "path": "/var/lib/openclaw-benben/.openclaw/workspace/memory/2026-04-28.md",
+      "kind": "shadow_state_quarantine",
+      "summary": "Moved a bad shadow memory file created by the faulty full-agent /lite continuation to rollback quarantine so future shadow turns do not read it."
+    }
+  ],
+  "rollback": {
+    "backup_dir": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-shadow-runtime-20260428T075301Z",
+    "session_bypass_backup_dir": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-shadow-runtime-session-bypass-20260428T082855Z",
+    "model_shortcut_backup_dir": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-lite-model-shortcut-20260428T091800Z",
+    "agent_handler_backup_dir": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-lite-agent-handler-20260428T093500Z",
+    "bad_shadow_memory_quarantine": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-lite-agent-handler-20260428T093500Z/quarantine/2026-04-28.bad-lite-write.md",
+    "strategy": "Restore /etc/systemd/system/openclaw-benben.service and any backed-up drop-ins from backup_dir, run systemctl daemon-reload, then restart openclaw-benben.service. The global /usr/lib/node_modules/openclaw package was not modified."
+  },
+  "post_change_sha256": {
+    "/var/lib/openclaw-benben/runtime/openclaw/dist/reply-BwK-bN2w.js": "36e05e86b8ca373ab0f62895a6befbc04216e4da3c9a5d572a14b8d1cad1a8d4",
+    "/var/lib/openclaw-benben/runtime/openclaw/dist/server.impl-BxLfE9ri.js": "38daecbf8d9d0045f6c8e1270845623aee64a9c37b9d4f415b992304344b6b10",
+    "/var/lib/openclaw-benben/runtime/openclaw/dist/dispatch-CFaSnCVe.js": "cebce01f6a6622810f74237ed5d536ef7eade997fb421d1e92a46951a9cb903b",
+    "/var/lib/openclaw-benben/runtime/openclaw/dist/pi-embedded-BaSvmUpW.js": "6945cb1dc1c595ca20386a247e861ef0f858ba53379811422a7fe9c55b883fc6",
+    "/var/lib/openclaw-benben/runtime/openclaw/dist/directive-handling.parse-DcWPUZp_.js": "ed542cd212613bd0cda10c96d147911ed78d91de43d9d0e44d4bb8dbc8f31fbc",
+    "/var/lib/openclaw-benben/.openclaw/workspace/plugins/openclaw-benben-vnext/index.js": "e5aed95d264b46647997a234d939884cbe31b82346f87080d263dc729989edcd",
+    "/etc/systemd/system/openclaw-benben.service.d/20-shadow-runtime-copy.conf": "6b60b5251479f1fda8d014bd6d80011e07cfec6295926d98b0e7e3490a505a4e"
+  },
+  "verification": {
+    "local_tests": [
+      "node --test workspace/tools/tests/openclaw-benben/openclaw-benben-vnext-plugin.test.mjs: pass 27/27",
+      "node --test workspace/tools/tests/openclaw-benben/*.test.mjs: pass 100/100",
+      "node --check runtime-live/reply-BwK-bN2w.js: pass",
+      "node --check runtime-live/server.impl-BxLfE9ri.js: pass",
+      "node --check runtime-live/dispatch-CFaSnCVe.js: pass",
+      "node --check runtime-live/pi-embedded-BaSvmUpW.js: pass",
+      "git diff --check: pass"
+    ],
+    "live_checks": [
+      "openclaw-benben.service active/running with ExecStart=/usr/bin/env OPENCLAW_BENBEN_VNEXT_DISABLE_LEGACY_LOCAL_DIRECT=1 /usr/bin/node /var/lib/openclaw-benben/runtime/openclaw/dist/index.js gateway --port 18792",
+      "openclaw-gateway.service active/running and still listening on 18789/18791",
+      "openclaw-benben.service listening on 18792 and browser/control 18794",
+      "startup journal shows openclaw-benben-vnext registering Feishu local-lane hooks with serviceKind=benben-vnext-shadow",
+      "global /usr/lib/node_modules/openclaw/dist files were not modified by this repair"
+    ],
+    "live_checks_after_session_bypass_hotfix": [
+      "openclaw-benben.service restarted at 2026-04-28 16:31:24 CST with PID 3654179",
+      "openclaw-benben.service active/running and listening on 18792/18794",
+      "openclaw-gateway.service active/running and still listening on 18789/18791",
+      "startup journal shows openclaw-benben-vnext registering Feishu local-lane hooks with serviceKind=benben-vnext-shadow",
+      "owner DM session store had persisted routingModeOverride=local_direct and routingLane=local before the hotfix"
+    ],
+    "live_checks_after_gateway_handler_hotfix": [
+      "openclaw-benben.service restarted at 2026-04-28 17:38:17 CST with PID 3745683",
+      "openclaw-benben.service active/running and listening on 18792/18794",
+      "openclaw-gateway.service active/running and still listening on 18789/18791",
+      "startup journal shows openclaw-benben-vnext registering Feishu local-lane hooks with serviceKind=benben-vnext-shadow",
+      "shadow memory file /var/lib/openclaw-benben/.openclaw/workspace/memory/2026-04-28.md was removed from active memory and quarantined"
+    ],
+    "pending_real_ingress_check": "Ask the user to send a fresh Feishu /lite or /lite status message after the 17:38 CST gateway-handler hotfix. Expected reply must be the vNext local-lane text and must not mention qwen2.5vl, Memory V4, or model-switch English."
+  },
+  "residual_risk": [
+    "The old local_direct implementation still exists inside the shadow runtime copy for non-shadow code paths, but bare /lite, /local, and persisted legacy local_direct session state are bypassed for openclaw-benben shadow.",
+    "A real Feishu /lite after the 17:38 CST gateway-handler hotfix has not yet been observed; the user sent /new and cloud-lane messages instead."
+  ]
+}

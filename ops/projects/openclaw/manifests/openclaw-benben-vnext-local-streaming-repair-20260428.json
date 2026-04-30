@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-04-28T15:18:00Z",
+  "task": "openclaw-benben vNext local lane streaming repair",
+  "risk_level": "L3",
+  "host": "oc-nas",
+  "scope": {
+    "shadow_service": "openclaw-benben.service",
+    "old_prod_anchor": "openclaw-gateway.service",
+    "feishu_production_cutover_performed_by_this_repair": false,
+    "adminai_touched": false
+  },
+  "problem": {
+    "symptom": "Feishu /lite entered local lane, but ordinary local Qwen replies could wait until the 120s adapter timeout and return the generic unavailable text.",
+    "root_cause": "The local lane called the NAS Ollama relay with stream=false and waited for response.json(). Evidence showed the relay could deliver generated JSON content but keep the HTTP response open long enough for clients to time out.",
+    "rejected_fix": "Do not solve this by forcing tiny 160-256 token answers; that makes /lite too low-value for normal use."
+  },
+  "changes": [
+    {
+      "path": "workspace/plugins/openclaw-benben-vnext/index.js",
+      "summary": "Changed the default local Ollama adapter to request stream=true and parse NDJSON chunks until done=true, then cancel the reader and return accumulated content."
+    },
+    {
+      "path": "workspace/plugins/openclaw-benben-vnext/index.js",
+      "summary": "Added normal-length prediction budgets: /lite 1536 tokens and /gemma 1024 tokens. These are output guardrails, not short-answer caps."
+    },
+    {
+      "path": "workspace/plugins/openclaw-benben-vnext/index.js",
+      "summary": "Added local-lane thinking cleanup for <think> blocks, Thinking... prefixes, and visible thinking-process headers before Feishu delivery."
+    },
+    {
+      "path": "workspace/tools/tests/openclaw-benben/openclaw-benben-vnext-plugin.test.mjs",
+      "summary": "Added regression coverage for streaming Ollama requests, normal prediction budget, and thinking text cleanup."
+    },
+    {
+      "path": "/var/lib/openclaw-benben/.openclaw/workspace/plugins/openclaw-benben-vnext/index.js",
+      "summary": "Synced the patched plugin source to the shadow state root and restarted only openclaw-benben.service."
+    }
+  ],
+  "rollback": {
+    "backup_dir": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-local-streaming-20260428T145605Z",
+    "strategy": "Restore the backed-up plugin index.js to /var/lib/openclaw-benben/.openclaw/workspace/plugins/openclaw-benben-vnext/index.js and restart openclaw-benben.service. Old production openclaw-gateway.service was not modified."
+  },
+  "post_change_sha256": {
+    "/var/lib/openclaw-benben/.openclaw/workspace/plugins/openclaw-benben-vnext/index.js": "07f7bea34eac84b31348a3c835d43922718729d400e83a3519c31da0465a19c3"
+  },
+  "verification": {
+    "local_tests": [
+      "node --check workspace/plugins/openclaw-benben-vnext/index.js: pass",
+      "node --test workspace/tools/tests/openclaw-benben/openclaw-benben-vnext-plugin.test.mjs: pass 30/30",
+      "node --test workspace/tools/tests/openclaw-benben/*.test.mjs: pass 102/102",
+      "git diff --check: pass"
+    ],
+    "shadow_checks": [
+      "remote node --check /var/lib/openclaw-benben/.openclaw/workspace/plugins/openclaw-benben-vnext/index.js: pass",
+      "remote sha256 matches local plugin source",
+      "openclaw-benben.service active/running and listening on 18792/18794",
+      "openclaw-gateway.service active/running and listening on 18789/18791",
+      "real shadow adapter call through http://127.0.0.1:11435 returned 618 Chinese characters in 16272ms with hasThinking=false"
+    ]
+  },
+  "residual_risk": [
+    "Feishu still receives final text after the model finishes; this repair does not implement incremental Feishu streaming.",
+    "Very long prompts can still take tens of seconds on Qwen 9B, but completed relay responses no longer wait for the relay connection to close naturally.",
+    "The live shadow config still contains timeoutMs=120000 for /lite and gemma timeoutMs=45000; those remain as upper bounds."
+  ]
+}

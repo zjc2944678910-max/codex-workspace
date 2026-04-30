@@ -1,6 +1,6 @@
 # OpenClaw Deployment Ledger
 
-Last updated: 2026-04-27
+Last updated: 2026-04-28
 Maintainer context: this file is the canonical runtime and deployment ledger for the production OpenClaw instance on `home-nas`.
 Companion architecture board: `OPENCLAW_ARCHITECTURE_TODO.md`
 
@@ -50,6 +50,19 @@ Use this contract as a hard operating rule:
   - `openclaw-benben` has Feishu channel/plugin enabled; Telegram and QQBot channel/plugin entries remain disabled
   - vNext plugin `openclaw-benben-vnext` is loaded and activated with `before_dispatch` priority `90`
   - rollback snapshots: `/var/lib/openclaw/.openclaw/rollback/benben-feishu-cutover-20260427T124450Z` and `/var/lib/openclaw-benben/.openclaw/rollback/benben-feishu-cutover-20260427T124450Z`
+- 2026-04-27 vNext local lane repair:
+  - `/lite` and `/local` on Feishu are now handled by the `openclaw-benben-vnext` plugin before-dispatch local lane, not by the old narrow `local_direct` behavior alone
+  - local lane keeps using the existing Ollama relay/model path; no model files or relay service were changed
+  - local profile facts are prompt context only, not Memory V4 answer truth
+  - slash commands and cloud/model switches fall through to OpenClaw/vNext command handling instead of being eaten by the local model
+  - rollback snapshot: `/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-local-lane-20260427T135425Z`
+- 2026-04-28 vNext local lane boundary tuning:
+  - live `openclaw-benben.service` plugin source updated at `/var/lib/openclaw-benben/.openclaw/workspace/plugins/openclaw-benben-vnext/index.js`
+  - `/lite status` now returns local model/relay/timeout/ctx status without calling the local model adapter; relay URL credentials/query values are redacted
+  - the former coarse plugin-level adult-fiction keyword refusal was removed, so prompts such as `黄色小说` reach the local adapter instead of being blocked by the plugin
+  - clear piracy, paid-bypass, and infringement-download instructions fast-refuse before local model invocation to avoid long local-model hangs
+  - default local adapter timeout is `45s`; configured `localLane.timeoutMs` still overrides it
+  - rollback snapshot: `/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-boundary-tuning-20260428T012956Z`
 - main default lane on both instances: `anyone/gpt-5.4`
 - explicit cloud routes:
   - bare `/codex` -> `openai-codex/gpt-5.4`
@@ -59,10 +72,15 @@ Use this contract as a hard operating rule:
   - `deepseek/deepseek-chat`
   - `mimo/mimo-v2-flash`
   - `openrouter/xiaomi/mimo-v2-pro`
-- local-direct lane:
-  - bare `/lite` / `/local` enable `routingModeOverride="local_direct"`
-  - request-scoped local failures fail-soft to `anyone/gpt-5.4`
-  - session-scoped local failures fail-closed with a visible local-unavailable reply
+- local lane:
+  - Feishu `/lite` / `/local` enable the vNext plugin-owned local lane in `openclaw-benben.service`
+  - `/lite status` reports the local model, relay, timeout, context, and keep-alive without calling the local model
+  - ordinary local-lane messages go to the local Ollama text model through the vNext adapter contract
+  - profile facts are lightweight prompt context only; Memory V4 remains the only memory answer truth surface
+  - adult creative prompts are not blocked by the plugin-level local lane gate; the local model adapter receives them
+  - explicit piracy, paid-bypass, and infringement-download instructions fast-refuse before the adapter
+  - `/new`, `/reset`, `/main`, `/codex`, model switches, `/status`, `/usage`, `/memory`, and other slash commands fall through to OpenClaw/vNext command handling
+  - local model failures fail closed with a visible local-unavailable reply and do not silently route to cloud
 - status truth:
   - ordinary fresh cloud turns now run `anyone/gpt-5.4` on both benben/adminAI
   - bare `/codex` still switches to `openai-codex/gpt-5.4`
@@ -7218,3 +7236,49 @@ Validation:
     - `你知道我是谁吗` -> `你是张锦程`
     - `你记得我的个人规划吗` -> returns the remembered personal planning stack instead of `不知道`
     - `我想知道她最近备考怎么样` -> returns a partner-scoped recent-state answer and explicitly says current recent evidence is empty instead of pretending it knows owner state
+
+2026-04-28 openclaw-benben vNext group Memory V4 visibility repair:
+
+- user-facing symptom:
+  - group chats were still behaving like the older restrictive privacy matrix
+  - many Memory V4 facts were unavailable in groups even though the intended product rule is default-visible unless a strict privacy decision blocks it
+- confirmed cause:
+  - `answer-plan-kernel.mjs` kept group audiences from calling Memory V4
+  - `memory-v4-privacy-scope-gate.mjs` blocked `direct_only` and `relationship_only` outside narrow direct/couple paths
+  - live Memory V4 active atoms were mostly `direct_only` / `relationship_only`, so ordinary groups had little usable memory
+- repo/runtime fix:
+  - enabled Memory V4 recall for `ordinary_group`, `couple_group`, and `project_group`
+  - changed group disclosure metadata to `privacy_gate_default_visible`
+  - changed the privacy scope gate:
+    - `direct_only` can emit in group scopes only for matching subject refs
+    - group `direct_only` no longer trusts `viewer_entity_id` alone
+    - `relationship_only` can emit in groups by default when relationship refs match or the atom carries a relationship ref
+    - `never_quote` remains `internal_only`
+  - updated prompt metadata to honor Memory V4 disclosure decisions instead of carrying the stale `no_private_memory_in_ordinary_groups` constraint
+- live openclaw-benben change:
+  - backed up five files under `/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-group-memory-20260428T102624`
+  - updated:
+    - `/var/lib/openclaw-benben/.openclaw/workspace/tools/openclaw-benben/answer-plan-kernel.mjs`
+    - `/var/lib/openclaw-benben/.openclaw/workspace/tools/openclaw-benben/privacy-kernel.mjs`
+    - `/var/lib/openclaw-benben/.openclaw/workspace/tools/openclaw-benben/model-prompt-kernel.mjs`
+    - `/var/lib/openclaw-benben/.openclaw/workspace/tools/memory-v4/memory-v4-privacy-scope-gate.mjs`
+    - `/var/lib/openclaw-benben/.openclaw/workspace/tools/memory-v4/memory-v4-benben-adapter.mjs`
+  - restarted `openclaw-benben.service`
+  - did not modify Feishu app/callback settings, channel enablement, Memory V4 DB contents, old `openclaw-gateway.service`, or adminAI
+- verification:
+  - focused local suite: 71 pass
+  - broader openclaw-benben + Memory V4 suite: 130 pass
+  - `git diff --check`: clean
+  - NAS `node --check` on all five live files: pass
+  - `openclaw-benben.service`: active
+  - `http://127.0.0.1:18792/health`: `{"ok":true,"status":"live"}`
+  - old rollback anchor `openclaw-gateway.service`: active, ports 18789/18791 listening
+  - live synthetic in-process turn:
+    - unknown direct remains memory-blocked
+    - ordinary group owner sender calls Memory V4 and replies from the memory result
+    - `never_quote` remains `internal_only`
+  - Feishu concurrency check after restart:
+    - `openclaw-benben.service` started Feishu websocket
+    - no matching Feishu websocket or dispatch log lines observed for `openclaw-gateway.service` in the same window
+- manifest:
+  - `ops/projects/openclaw/manifests/openclaw-benben-vnext-group-memory-visibility-20260428.json`

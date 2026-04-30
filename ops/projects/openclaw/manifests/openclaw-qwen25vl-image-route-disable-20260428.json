@@ -1,0 +1,61 @@
+{
+  "timestamp": "2026-04-28T11:52:00+08:00",
+  "task": "Disable qwen2.5vl:7b image route and Mac keepwarm for OpenClaw benben",
+  "riskLevel": "L3 repair execution",
+  "authorization": "User explicitly said: enter repair phase",
+  "host": "oc-nas",
+  "changed": {
+    "nasConfigs": [
+      "/var/lib/openclaw-benben/.openclaw/openclaw.json",
+      "/var/lib/openclaw/.openclaw/openclaw.json"
+    ],
+    "systemdUnits": [
+      "/etc/systemd/system/openclaw-ollama-relay.service"
+    ],
+    "macLaunchAgents": [
+      "~/Library/LaunchAgents/ai.openclaw.ollama-qwen25vl-keepwarm.plist"
+    ]
+  },
+  "backups": {
+    "nasInitialBackup": "/var/lib/openclaw-benben/.openclaw/rollback/qwen25vl-disable-20260428T114141+0800",
+    "nasFinalImageDefaultBackup": "/var/lib/openclaw-benben/.openclaw/rollback/qwen3vl8b-image-default-20260428T115037+0800",
+    "macKeepwarmBackup": "~/.openclaw/rollback/qwen25vl-disable-20260428T114320+0800"
+  },
+  "finalState": {
+    "imagePrimary": "openrouter/qwen/qwen3-vl-8b-instruct",
+    "imageFallbacks": [
+      "openrouter/google/gemini-2.5-flash-lite",
+      "openrouter/xiaomi/mimo-v2-omni"
+    ],
+    "relayRemoteModels": [
+      "huihui_ai/qwen3.5-abliterated:9b"
+    ],
+    "qwen25vlLoadedOnMac": false,
+    "qwen25vlKeepwarmLaunchAgentLoaded": false,
+    "qwen25vlKeepwarmPlistInLaunchAgents": false
+  },
+  "smokeTests": {
+    "openrouterVision": {
+      "passedModel": "qwen/qwen3-vl-8b-instruct",
+      "result": "HTTP 200, text OK"
+    },
+    "rejectedAsPrimary": [
+      "google/gemini-2.5-flash-lite",
+      "google/gemini-2.5-flash",
+      "qwen/qwen3-vl-32b-instruct",
+      "openai/gpt-4o-mini",
+      "xiaomi/mimo-v2-omni"
+    ],
+    "services": {
+      "openclaw-benben.service": "active",
+      "openclaw-ollama-relay.service": "active",
+      "feishuWebsocket": "ready"
+    }
+  },
+  "notes": [
+    "Gemini 2.5 Flash Lite was initially selected on price, but synthetic OpenRouter vision smoke returned HTTP 400 Provider returned error, so qwen3-vl-8b-instruct became the verified default.",
+    "The relay whitelist no longer exposes qwen2.5vl:7b.",
+    "The Mac qwen25vl keepwarm plist was moved out of LaunchAgents rather than deleted.",
+    "A transient invalid JSON write happened during the first jq transform; it was restored from the pre-change backup before service restart, then rewritten with a corrected transform."
+  ]
+}

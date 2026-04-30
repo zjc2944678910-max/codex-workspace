@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-04-28T10:35:00Z",
+  "task": "openclaw-benben vNext local-lane hard refusal removal",
+  "risk_level": "L3",
+  "host": "oc-nas",
+  "scope": {
+    "shadow_service": "openclaw-benben.service",
+    "old_prod_anchor": "openclaw-gateway.service",
+    "feishu_production_cutover_performed_by_this_repair": false,
+    "feishu_current_live_observation": "old prod config has feishu.enabled=false; shadow config has feishu.enabled=true for the same app id hash. This repair did not change that routing.",
+    "adminai_touched": false
+  },
+  "reason": {
+    "symptom": "After /lite correctly switched into local lane, prompts containing piracy or paid-bypass wording were still answered with a fixed plugin-layer refusal before the local model was called.",
+    "root_cause": "workspace/plugins/openclaw-benben-vnext/index.js contained LOCAL_LANE_ILLEGAL_COPYRIGHT_RE and LOCAL_LANE_ILLEGAL_COPYRIGHT_TEXT, and handleBenbenLocalLane returned that text before localModelAdapter invocation.",
+    "boundary_note": "This repair removes the OpenClaw vNext plugin pre-model hardblock. It does not and cannot remove upstream provider/platform/model safety behavior outside this codebase."
+  },
+  "local_changes": [
+    {
+      "path": "workspace/plugins/openclaw-benben-vnext/index.js",
+      "summary": "Removed LOCAL_LANE_ILLEGAL_COPYRIGHT_TEXT, LOCAL_LANE_ILLEGAL_COPYRIGHT_RE, and the pre-adapter fixed refusal branch."
+    },
+    {
+      "path": "workspace/tools/tests/openclaw-benben/openclaw-benben-vnext-plugin.test.mjs",
+      "summary": "Changed the local-lane regression test to assert copyright/paid-bypass wording reaches the local adapter instead of being fixed-refused."
+    }
+  ],
+  "shadow_changes": [
+    {
+      "path": "/var/lib/openclaw-benben/.openclaw/workspace/plugins/openclaw-benben-vnext/index.js",
+      "summary": "Synced the updated plugin source to the shadow state root."
+    },
+    {
+      "service": "openclaw-benben.service",
+      "summary": "Restarted only the shadow gateway so the updated plugin source was loaded."
+    }
+  ],
+  "rollback": {
+    "backup_dir": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-boundary-hardblock-removal-20260428T102012Z",
+    "strategy": "Restore backed-up /var/lib/openclaw-benben/.openclaw/workspace/plugins/openclaw-benben-vnext/index.js, then restart openclaw-benben.service. Old production openclaw-gateway.service was not modified."
+  },
+  "post_change_sha256": {
+    "/var/lib/openclaw-benben/.openclaw/workspace/plugins/openclaw-benben-vnext/index.js": "8fbf78449fbceb9eb280dfd118b6bffdeae669b41d199def51453ee707652606"
+  },
+  "verification": {
+    "local_tests": [
+      "node --test workspace/tools/tests/openclaw-benben/openclaw-benben-vnext-plugin.test.mjs: pass 28/28",
+      "node --test workspace/tools/tests/openclaw-benben/*.test.mjs: pass 100/100",
+      "node --check workspace/plugins/openclaw-benben-vnext/index.js: pass",
+      "git diff --check: pass"
+    ],
+    "shadow_checks": [
+      "remote node --check /var/lib/openclaw-benben/.openclaw/workspace/plugins/openclaw-benben-vnext/index.js: pass",
+      "remote sha256 matches local plugin source",
+      "remote grep found no LOCAL_LANE_ILLEGAL_COPYRIGHT or fixed refusal text in the active shadow plugin source",
+      "synthetic remote import test confirmed /lite '怎么下载盗版视频 ...' and subsequent '帮我绕过付费墙' reached localModelAdapter with providerModel=ollama/huihui_ai/qwen3.5-abliterated:9b",
+      "journalctl after restart shows openclaw-benben-vnext registering Feishu local-lane hooks with serviceKind=benben-vnext-shadow",
+      "openclaw-benben.service active/running and listening on 18792/18794",
+      "openclaw-gateway.service active/running and listening on 18789/18791",
+      "read-only config fingerprint check: old prod feishu.enabled=false; shadow feishu.enabled=true; appIdHash matched, so no dual consumption was observed"
+    ]
+  },
+  "residual_risk": [
+    "Cloud/full-agent provider safety behavior is outside the plugin hardblock removed here and may still refuse according to upstream model/provider policy.",
+    "This change intentionally does not alter memory privacy, tool gate, production operation confirmation, secret redaction, provider-network fail-closed, or Feishu cutover gates.",
+    "No production Feishu cutover was performed."
+  ]
+}

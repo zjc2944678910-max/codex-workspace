@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-04-28T05:13:36Z",
+  "task": "openclaw-benben shadow /gemma local fast lane rollout",
+  "risk_level": "L3",
+  "host": "oc-nas",
+  "scope": {
+    "shadow_service": "openclaw-benben.service",
+    "relay_service": "openclaw-ollama-relay.service",
+    "old_prod_anchor": "openclaw-gateway.service",
+    "feishu_production_cutover": false,
+    "adminai_touched": false
+  },
+  "changes": [
+    {
+      "path": "/var/lib/openclaw-benben/.openclaw/workspace/plugins/openclaw-benben-vnext/index.js",
+      "kind": "shadow_plugin_code",
+      "summary": "Add /gemma local lane using huihui_ai/gemma-4-abliterated:e2b while keeping /lite and /local on qwen9b."
+    },
+    {
+      "path": "/var/lib/openclaw-benben/.openclaw/workspace/local-cards/benben-local.md",
+      "kind": "shadow_local_card",
+      "summary": "Document /gemma as local fast lane."
+    },
+    {
+      "path": "/var/lib/openclaw-benben/.openclaw/workspace/tools/openclaw-benben/README.md",
+      "kind": "shadow_docs",
+      "summary": "Document qwen9b quality lane and e2b fast lane status commands."
+    },
+    {
+      "path": "/etc/systemd/system/openclaw-ollama-relay.service",
+      "kind": "relay_unit",
+      "summary": "Append huihui_ai/gemma-4-abliterated:e2b to REMOTE_MODELS; keep qwen9b."
+    },
+    {
+      "path": "/var/lib/openclaw-benben/.openclaw/workspace/plugins/openclaw-benben-vnext/index.js",
+      "kind": "shadow_plugin_code_hotfix",
+      "summary": "Merge process.env with runtime api.env during plugin registration so systemd OPENCLAW_SERVICE_KIND remains visible when api.env is empty."
+    },
+    {
+      "path": "/var/lib/openclaw-benben/.openclaw/workspace/plugins/openclaw-benben-vnext/index.js",
+      "kind": "shadow_plugin_code_hotfix",
+      "summary": "Register a narrow reply_dispatch fallback for Feishu local-lane commands and add sanitized diagnostics for /lite, /local, and /gemma dispatch handling."
+    },
+    {
+      "path": "/var/lib/openclaw-benben/.openclaw/workspace/tools/tests/openclaw-benben/openclaw-benben-vnext-plugin.test.mjs",
+      "kind": "shadow_test_code",
+      "summary": "Cover the reply_dispatch fallback path for /gemma from finalized Feishu context."
+    },
+    {
+      "path": "/var/lib/openclaw-benben/.openclaw/openclaw.json",
+      "kind": "shadow_config_hotfix",
+      "summary": "Set vNext local lane timeouts to 120s for /lite qwen9b and 45s for /gemma e2b."
+    }
+  ],
+  "rollback": {
+    "backup_dir": "/var/lib/openclaw-benben/.openclaw/rollback/benben-gemma-lane-20260428T051336Z",
+    "hotfix_backup_dir": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-env-gate-fix-20260428T052914Z",
+    "dispatch_fallback_backup_dir": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-dispatch-fallback-20260428T060000Z",
+    "timeout_backup_dir": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-local-timeout-20260428T072800Z",
+    "strategy": "Restore backed-up files and relay unit, run systemctl daemon-reload, then restart openclaw-ollama-relay.service and openclaw-benben.service."
+  },
+  "post_change_sha256": {
+    "/var/lib/openclaw-benben/.openclaw/openclaw.json": "b9a241c914a49880e0ca81dca399908e982928833c5e153b1a924a7ea1243538",
+    "/var/lib/openclaw-benben/.openclaw/workspace/plugins/openclaw-benben-vnext/index.js": "7f03df8d7ca1ca9a7508b8262fb5d4c9a034dee7afa4b886a54f71074a0196df",
+    "/var/lib/openclaw-benben/.openclaw/workspace/tools/tests/openclaw-benben/openclaw-benben-vnext-plugin.test.mjs": "8ce7032df242474571cfaf2157e6bec5ec0eb9c095f791a1c4af8c257653e965",
+    "/var/lib/openclaw-benben/.openclaw/workspace/local-cards/benben-local.md": "f456fdc40f698714024ebbb67a86e2dd5787b63e1117ac0aa031e80474846f72",
+    "/var/lib/openclaw-benben/.openclaw/workspace/tools/openclaw-benben/README.md": "9e0f92366d56f067ade29a8619e4af0fcdd0ed00aad2749e2a8021e403dd1d75",
+    "/etc/systemd/system/openclaw-ollama-relay.service": "50d6fada4a3972624290d6573c1da262da46474334d724dc301bd7992e753810"
+  },
+  "verification": {
+    "local_tests": [
+      "node --test workspace/tools/tests/openclaw-benben/openclaw-benben-vnext-plugin.test.mjs: pass 27/27",
+      "node --test workspace/tools/tests/openclaw-benben/*.test.mjs: pass 95/95",
+      "git diff --check: pass"
+    ],
+    "live_checks": [
+      "systemctl is-active openclaw-ollama-relay.service openclaw-benben.service openclaw-gateway.service: active, active, active",
+      "relay /healthz remoteModels includes huihui_ai/gemma-4-abliterated:e2b and huihui_ai/qwen3.5-abliterated:9b",
+      "relay /api/tags lists e2b and qwen9b",
+      "direct relay /api/chat e2b smoke returned OK_GEMMA",
+      "shadow plugin synthetic /gemma status and /gemma route returned e2b",
+      "shadow plugin default adapter /gemma smoke returned OK_PLUGIN_GEMMA",
+      "plugin.register with empty api.env and systemd-equivalent process env registers before_dispatch priority 90",
+      "openclaw-benben.service restarted at 2026-04-28 14:13:17 CST with PID 3465502",
+      "startup journal shows openclaw-benben-vnext registering Feishu local-lane hooks at priority 90",
+      "shadow synthetic dispatchReplyFromConfig /gemma returned Gemma fast-lane enable text",
+      "openclaw.json localLane config is {\"timeoutMs\":120000,\"gemma\":{\"timeoutMs\":45000}}",
+      "openclaw-benben.service restarted at 2026-04-28 15:31:57 CST with PID 3572296",
+      "synthetic /lite status reports timeout=120s and /gemma status reports timeout=45s",
+      "journalctl warnings for openclaw-benben.service and openclaw-ollama-relay.service since rollout: no entries"
+    ],
+    "live_test_notes": [
+      "Remote node --test for the synced plugin test file failed with EACCES spawning /usr/local/lib/node-v22.22.1-linux-x64/bin/node; local product-repo tests passed and live synthetic dispatch passed.",
+      "No new real Feishu /gemma inbound was observed during the 75s journal follow after the dispatch fallback rollout."
+    ]
+  },
+  "residual_risk": [
+    "This verified shadow and synthetic/local paths only; no Feishu production cutover was performed.",
+    "Actual user-facing Feishu /gemma behavior still requires the user to send a new Feishu message and observe the live journal handling line."
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "date": "2026-04-27",
+  "task_level": "L3 repair execution",
+  "host": "oc-nas",
+  "goal": "Replace the broken old local_direct /lite behavior for the production openclaw-benben instance with the vNext plugin-owned local lane while keeping the same local Ollama relay/model.",
+  "changed_live_files": [
+    "/var/lib/openclaw-benben/.openclaw/workspace/plugins/openclaw-benben-vnext/index.js",
+    "/var/lib/openclaw-benben/.openclaw/workspace/plugins/openclaw-benben-vnext/openclaw.plugin.json"
+  ],
+  "unchanged_live_items": [
+    "Feishu production app/channel enablement",
+    "old openclaw-gateway.service rollback anchor",
+    "adminAI",
+    "Telegram and QQBot entries on openclaw-benben",
+    "openclaw-ollama-relay.service",
+    "Ollama model files"
+  ],
+  "backup": {
+    "path": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-local-lane-20260427T135425Z",
+    "contains": [
+      "openclaw-benben-vnext.before",
+      "openclaw.json.before"
+    ]
+  },
+  "service_restart": {
+    "service": "openclaw-benben.service",
+    "result": "active",
+    "health_http": 200
+  },
+  "verification": {
+    "config_validate": "ok",
+    "plugin_inspect": {
+      "status": "loaded",
+      "enabled": true,
+      "activated": true,
+      "typed_hook": "before_dispatch",
+      "priority": 90,
+      "diagnostics_count": 0
+    },
+    "journal": [
+      "Feishu websocket client restarted successfully",
+      "ws client ready"
+    ],
+    "synthetic_plugin_contract": {
+      "mode": "in-process fake adapter on NAS",
+      "scenario": "/lite -> hello -> /new",
+      "ok": true,
+      "adapter_fields": [
+        "model",
+        "provider",
+        "providerModel",
+        "sessionKeySha256",
+        "systemPrompt",
+        "text"
+      ]
+    },
+    "local_tests_before_sync": [
+      "openclaw-benben-vnext-plugin.test.mjs: 19 pass",
+      "vNext + Memory V4 focused suite: 115 pass",
+      "deployment/reset boundary suite: 61 pass"
+    ]
+  },
+  "behavior_contract": [
+    "/lite and /local are now handled by the vNext before_dispatch plugin for Feishu local lane sessions.",
+    "Profile facts are prompt context only and are not Memory V4 answer truth.",
+    "Ordinary chat and non-explicit creative writing should not be collapsed into unknown/not-sure replies.",
+    "Slash commands, cloud switches, and model switches fall through to OpenClaw/vNext command handling instead of being eaten by the local model.",
+    "The local model adapter receives sanitized request fields only, with session key hashed."
+  ],
+  "rollback": [
+    "Restore /var/lib/openclaw-benben/.openclaw/workspace/plugins/openclaw-benben-vnext from the backup directory.",
+    "Restart openclaw-benben.service.",
+    "Verify 18792 /health, Feishu websocket ready, and plugin inspect loaded/activated."
+  ],
+  "residual_risks": [
+    "A real Feishu /lite message has not yet been sent after this repair; operator should test a small controlled sequence.",
+    "vNext local lane state is in-process and will reset on service restart; this is intentional for rollback simplicity.",
+    "Formal Memory V4 migration/cutover is separate from this local lane repair."
+  ]
+}

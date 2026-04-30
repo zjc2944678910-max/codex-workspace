@@ -1,0 +1,107 @@
+{
+  "date": "2026-04-28",
+  "task_level": "L3 repair execution",
+  "host": "oc-nas",
+  "goal": "Repair openclaw-benben vNext group Memory V4 visibility so group chats can recall relevant memory by default unless a strict privacy decision such as never_quote or a subject mismatch blocks it.",
+  "authorization": {
+    "explicit_user_phrase": "进入修复阶段",
+    "repair_gate_status": "authorized"
+  },
+  "changed_live_files": [
+    "/var/lib/openclaw-benben/.openclaw/workspace/tools/openclaw-benben/answer-plan-kernel.mjs",
+    "/var/lib/openclaw-benben/.openclaw/workspace/tools/openclaw-benben/privacy-kernel.mjs",
+    "/var/lib/openclaw-benben/.openclaw/workspace/tools/openclaw-benben/model-prompt-kernel.mjs",
+    "/var/lib/openclaw-benben/.openclaw/workspace/tools/memory-v4/memory-v4-privacy-scope-gate.mjs",
+    "/var/lib/openclaw-benben/.openclaw/workspace/tools/memory-v4/memory-v4-benben-adapter.mjs"
+  ],
+  "unchanged_live_items": [
+    "Feishu app/callback/developer-console settings",
+    "openclaw-benben channel/config enablement",
+    "old openclaw-gateway.service rollback anchor",
+    "adminAI",
+    "Telegram and QQBot entries",
+    "Memory V4 database contents"
+  ],
+  "backup": {
+    "path": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-group-memory-20260428T102624",
+    "hashes": {
+      "answer-plan-kernel.mjs": "b7d27203cb2c554daed8ac29aaa9ba6841a4eb07d92b5458906a05fd591ad2e3",
+      "privacy-kernel.mjs": "4ad188d229d8a1af2db9baa4384eb53e34f660accce40590b0f69f7a01839976",
+      "model-prompt-kernel.mjs": "2cc9f45bac47de27086090042fe63adb64fb846ea4d2a90fa3560e28d7d45693",
+      "memory-v4-privacy-scope-gate.mjs": "6bc88fa427f7a38aa1b10405c00ea00890621e7c041163e58c656fa5a3400eaa",
+      "memory-v4-benben-adapter.mjs": "9c7be627f749f5efb632e70e26dcc99c9a7deded01a92add5b18501719adc286"
+    }
+  },
+  "live_hashes_after_sync": {
+    "answer-plan-kernel.mjs": "aaf3ce0f31bdc5b863db7fa4ee61cbbd9a980c746f7f9a3a84d9dad21fcc26e2",
+    "privacy-kernel.mjs": "b4dfb010c0dd80014d064de5b1c9ba291f9f7dca5591a2887f97567779c758d5",
+    "model-prompt-kernel.mjs": "00c432abf9f1c7834ab8c5316a6c99eb41653bd82f7a9bec87def693555441d2",
+    "memory-v4-privacy-scope-gate.mjs": "08353fdc405a57f23e58e44b11d1a61fba1bf42e6b703d9170f9b8e0a4f11cb0",
+    "memory-v4-benben-adapter.mjs": "5bfe08a13863b1ccf7cafa03c48d17f421c8ff6cc8dd3c2f4986525aa6e09de6"
+  },
+  "local_repo_verification_before_sync": {
+    "focused_suite": "node --test workspace/tools/tests/openclaw-benben/openclaw-benben-core.test.mjs workspace/tools/tests/openclaw-benben/openclaw-benben-turn-runner.test.mjs workspace/tools/tests/memory-v4/memory-v4-privacy-scope-gate.test.mjs workspace/tools/tests/memory-v4/memory-v4-answer-service.test.mjs workspace/tools/tests/memory-v4/memory-v4-benben-adapter.test.mjs workspace/tools/tests/memory-v4/memory-v4-canonical-recall.test.mjs workspace/tools/tests/memory-v4/memory-v4-auto-promote-policy.test.mjs workspace/tools/tests/memory-v4/memory-v4-benben-adapter-compat-matrix.test.mjs workspace/tools/tests/memory-v4/memory-v4-recall-acceptance-matrix.test.mjs workspace/tools/tests/memory-v4/memory-v4-benben-adapter-boundary-check.test.mjs: 71 pass",
+    "broader_suite": "node --test workspace/tools/tests/openclaw-benben/*.test.mjs plus focused Memory V4 adapter/privacy/canonical/matrix/live-session suites: 130 pass",
+    "diff_check": "git diff --check: clean"
+  },
+  "service_restart": {
+    "service": "openclaw-benben.service",
+    "result": "active",
+    "health_http": 200,
+    "health_body": {
+      "ok": true,
+      "status": "live"
+    },
+    "startup_note": "The first immediate health probe after restart hit the startup window; the follow-up poll returned healthy."
+  },
+  "post_restart_evidence": {
+    "new_gateway_ports_listening": [
+      18792,
+      18794
+    ],
+    "old_rollback_anchor": {
+      "service": "openclaw-gateway.service",
+      "active": true,
+      "ports_listening": [
+        18789,
+        18791
+      ]
+    },
+    "feishu_consumption_snapshot": {
+      "openclaw-benben_since_2026_04_28_10_28": [
+        "starting feishu[default] (mode: websocket)",
+        "WebSocket client started"
+      ],
+      "openclaw_gateway_since_2026_04_28_10_28": "no matching Feishu websocket or dispatch log lines observed",
+      "note": "Feishu production cutover was already recorded in openclaw-benben-vnext-feishu-cutover-20260427.json; this repair did not change channel enablement."
+    }
+  },
+  "synthetic_live_contract": {
+    "mode": "in-process synthetic turn on NAS using live runtime files and a fake Memory V4 adapter",
+    "result": "ok",
+    "checks": [
+      "unknown direct sender keeps memory_recall_allowed=false and does not call Memory V4",
+      "ordinary group owner sender allows Memory V4 recall and replies from the memory result",
+      "direct_only group recall uses the matching subject rather than trusting group viewer alone",
+      "never_quote remains allowed only as internal_only"
+    ]
+  },
+  "behavior_contract": [
+    "project_group, couple_group, and ordinary_group normal answers can call Memory V4.",
+    "direct_only atoms can emit in group scopes only when subject_entity_id or allowed_direct_subject_ids matches the atom subject.",
+    "relationship_only atoms can emit in groups by default when relationship refs match or the atom carries a relationship ref.",
+    "never_quote atoms remain internal_only and must not be directly emitted.",
+    "unknown direct senders remain blocked from memory recall.",
+    "V2/V3/projections/transcripts/raw archives remain rejected as answer truth surfaces."
+  ],
+  "rollback": [
+    "Restore the five changed files from /var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-group-memory-20260428T102624/workspace/ to /var/lib/openclaw-benben/.openclaw/workspace/.",
+    "Restart openclaw-benben.service.",
+    "Verify 18792 /health, Feishu websocket ready if production cutover remains intended, and the synthetic group-memory contract."
+  ],
+  "residual_risks": [
+    "Codex did not send a new real Feishu group message; validation used local tests and an in-process live synthetic turn.",
+    "Current production cutover state means openclaw-benben starts Feishu websocket; this repair did not change that state.",
+    "Actual answer wording still depends on downstream model/composer behavior after Memory V4 returns context."
+  ]
+}

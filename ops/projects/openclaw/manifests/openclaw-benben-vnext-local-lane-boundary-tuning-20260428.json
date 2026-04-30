@@ -1,0 +1,105 @@
+{
+  "date": "2026-04-28",
+  "task_level": "L3 repair execution",
+  "host": "oc-nas",
+  "goal": "Tune the live openclaw-benben vNext /lite local lane boundaries so local status is inspectable, adult creative prompts are passed to the local adapter, and clear piracy or paid-bypass requests fast-refuse before the local model can hang.",
+  "authorization": {
+    "explicit_user_phrase": "进入修复阶段",
+    "repair_gate_status": "authorized"
+  },
+  "changed_live_files": [
+    "/var/lib/openclaw-benben/.openclaw/workspace/plugins/openclaw-benben-vnext/index.js"
+  ],
+  "unchanged_live_items": [
+    "Feishu production app/channel entry",
+    "old openclaw-gateway.service rollback anchor",
+    "adminAI",
+    "Telegram and QQBot entries on openclaw-benben",
+    "openclaw-ollama-relay.service",
+    "Ollama model files",
+    "/var/lib/openclaw-benben/.openclaw/workspace/plugins/openclaw-benben-vnext/openclaw.plugin.json"
+  ],
+  "backup": {
+    "path": "/var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-boundary-tuning-20260428T012956Z",
+    "contains": [
+      "openclaw-benben-vnext"
+    ],
+    "pre_change_index_sha256": "f4c16b61a1d784a807525401878687df3006da113ed750c0ca78cb9daa235294"
+  },
+  "live_hashes_after_sync": {
+    "index.js": "a9d7ed944d8ec34143ba6d246649a54532b77885c8c751e4414fe4fbca23c1b4",
+    "openclaw.plugin.json": "d814ed4fa17c8c7cfac28c7119f62cdbc7e28f82e5499147a067f9eaf9f15f8d"
+  },
+  "local_repo_verification_before_sync": {
+    "plugin_test": "node --test workspace/tools/tests/openclaw-benben/openclaw-benben-vnext-plugin.test.mjs: 21 pass",
+    "focused_suite": "node --test workspace/tools/tests/openclaw-benben/*.test.mjs workspace/tools/tests/memory-v4/memory-v4-benben-adapter.test.mjs workspace/tools/tests/memory-v4/memory-v4-benben-adapter-boundary-check.test.mjs workspace/tools/tests/memory-v4/memory-v4-privacy-scope-gate.test.mjs workspace/tools/tests/memory-v4/memory-v4-answer-service.test.mjs workspace/tools/tests/memory-v4/memory-v4-live-session-delta.test.mjs: 117 pass",
+    "diff_check": "git diff --check: clean"
+  },
+  "service_restart": {
+    "service": "openclaw-benben.service",
+    "result": "active",
+    "health_http": 200,
+    "health_body": {
+      "ok": true,
+      "status": "live"
+    }
+  },
+  "post_restart_evidence": {
+    "gateway_ready": true,
+    "feishu_websocket_ready": true,
+    "browser_control_port": 18794,
+    "new_gateway_port": 18792,
+    "old_rollback_anchor": {
+      "service": "openclaw-gateway.service",
+      "active": true,
+      "health_http": 200
+    },
+    "channel_snapshot": {
+      "feishu_channel_enabled": true,
+      "feishu_plugin_enabled": true,
+      "vnext_plugin_enabled": true,
+      "telegram_channel_enabled": null,
+      "qqbot_channel_enabled": null
+    },
+    "local_relay_snapshot": {
+      "base_url": "http://127.0.0.1:11435",
+      "models_hot_loaded": [
+        "huihui_ai/qwen3.5-abliterated:9b",
+        "qwen2.5vl:7b"
+      ]
+    }
+  },
+  "synthetic_live_contract": {
+    "mode": "in-process fake adapter on NAS using the live plugin file",
+    "result": "ok",
+    "checks": [
+      "/lite status returns model/provider/timeout/ctx without calling adapter",
+      "/lite status redacts URL credentials and query values",
+      "adult-fiction prompt reaches local adapter",
+      "piracy prompt fast-refuses and does not call adapter",
+      "adminAI service marker does not activate the plugin"
+    ],
+    "adapter_calls": 1,
+    "adapter_texts": [
+      "你写一个黄色小说吧"
+    ]
+  },
+  "behavior_contract": [
+    "/lite status is a local-lane control/status command and should not invoke the model adapter.",
+    "Adult creative prompts are no longer blocked by a coarse plugin-level keyword gate.",
+    "Clear piracy, paid-bypass, and infringement-download instructions fast-refuse before local model invocation.",
+    "The local adapter request remains sanitized and carries the session key only as sha256.",
+    "The default local adapter timeout is 45 seconds unless localLane.timeoutMs overrides it.",
+    "Slash commands, cloud switches, and model switches still fall through to OpenClaw/vNext command handling."
+  ],
+  "rollback": [
+    "Restore /var/lib/openclaw-benben/.openclaw/workspace/plugins/openclaw-benben-vnext from /var/lib/openclaw-benben/.openclaw/rollback/benben-vnext-boundary-tuning-20260428T012956Z/openclaw-benben-vnext.",
+    "Restart openclaw-benben.service.",
+    "Verify 18792 /health, Feishu websocket ready, and synthetic /lite contract."
+  ],
+  "residual_risks": [
+    "This was validated with a synthetic in-process fake adapter, not by sending a new real Feishu user message after restart.",
+    "Keyword-based fast refusal may still need tuning for edge cases where the user asks about piracy in a purely educational or anti-piracy context.",
+    "The local model's own output behavior is still model-dependent once a prompt reaches the adapter."
+  ]
+}
