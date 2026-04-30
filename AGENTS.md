@@ -4,6 +4,9 @@ This root is a workspace-index, not a primary product repository.
 
 ## Canonical Project Paths
 
+- Current workspace root: `/Users/zhangjincheng/Documents/GitHub/codex-workspace`
+- Current workspace GitHub repo: `zjc2944678910-max/codex-workspace`
+- Legacy local workspace root: `/Users/zhangjincheng/Documents/GitHub/-`
 - Current OpenClaw mainline: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/openclaw/nas-openclaw-v22`
 - OpenClaw migration reference: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/migrations/openclaw-mac-migration`
 - OpenClaw sidecar state: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/state/project-data/openclaw`

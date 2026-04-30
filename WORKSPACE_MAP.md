@@ -2,6 +2,15 @@
 
 This file maps the old workspace root to the new `codex-workspace` layout.
 
+## Current Canonical Root
+
+- Canonical local root: `/Users/zhangjincheng/Documents/GitHub/codex-workspace`
+- Canonical GitHub repo: `zjc2944678910-max/codex-workspace`
+- Canonical spelling: `codex-workspace`
+- Non-canonical spelling: `codex-workplace`
+
+If a task or note refers to `codex-workplace`, treat it as a spelling mismatch unless a real directory or GitHub repository with that exact name is created later.
+
 ## Legacy Root
 
 - Old root: `/Users/zhangjincheng/Documents/GitHub/-`
@@ -51,6 +60,7 @@ This file maps the old workspace root to the new `codex-workspace` layout.
 - Legacy root: `/Users/zhangjincheng/Documents/GitHub/-/`
 - Current role: historical reference and migration fallback surface
 - Default rule: do not start new daily work there
+- GitHub note: do not confuse the legacy local root with the separate GitHub repository named `zjc2944678910-max/-`.
 - Allowed uses:
   - compare old vs new paths
   - recover missed documents or state references

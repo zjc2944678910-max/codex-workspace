@@ -39,7 +39,10 @@ test("root hygiene trackable-path gate matches workspace policy", () => {
   assert.equal(isTrackablePath(".codex/agents/repo-mapper.toml"), true);
   assert.equal(isTrackablePath("docs/workspace/repo-hygiene.mjs"), true);
   assert.equal(isTrackablePath("ops/projects/openclaw/manifests/test.json"), true);
+  assert.equal(isTrackablePath("projects/README.md"), false);
   assert.equal(isTrackablePath("projects/products/openclaw/file.txt"), false);
+  assert.equal(isTrackablePath("scratch/README.md"), false);
+  assert.equal(isTrackablePath("ops/projects/openclaw/rollback/README.md"), false);
   assert.equal(isTrackablePath("state/tmp.json"), false);
 });
 

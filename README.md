@@ -4,6 +4,15 @@ This directory is a long-lived Codex workspace root.
 
 It is designed to keep project code, operator evidence, temporary outputs, and machine-local state separated so future Codex sessions can locate the right surface quickly.
 
+## Canonical Identity
+
+- Local root: `/Users/zhangjincheng/Documents/GitHub/codex-workspace`
+- GitHub repo: `zjc2944678910-max/codex-workspace`
+- Canonical name: `codex-workspace`
+- Non-canonical names: `codex-workplace`, `-/`
+
+Use this repository as the default Codex workspace index. The legacy local `-/` directory is retained only as a historical reference and migration fallback surface.
+
 ## Main Areas
 
 - `docs/`: long-lived workspace-level documentation
@@ -39,6 +48,7 @@ It is designed to keep project code, operator evidence, temporary outputs, and m
 ## Default Daily Root
 
 - Use `codex-workspace` as the default root for future Codex sessions.
+- Do not rename this root to `codex-workplace`; that spelling is non-canonical.
 - Treat the old `-/` workspace as legacy reference only.
 - Return to the old root only when you need to verify migration completeness or inspect historical residue that has not been promoted into the new workspace.
 

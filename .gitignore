@@ -12,32 +12,11 @@ __pycache__/
 /state/
 
 /projects/*
-!/projects/README.md
-!/projects/products/
-/projects/products/*
-!/projects/products/README.md
-!/projects/infrastructure/
-/projects/infrastructure/*
-!/projects/infrastructure/README.md
-!/projects/research/
-/projects/research/*
-!/projects/research/README.md
-!/projects/migrations/
-/projects/migrations/*
-!/projects/migrations/README.md
 
 /scratch/*
-!/scratch/README.md
-!/scratch/projects/
-/scratch/projects/*
-!/scratch/projects/README.md
-!/scratch/shared/
-/scratch/shared/*
-!/scratch/shared/README.md
 
 /ops/projects/openclaw/mirrors/
 /ops/projects/openclaw/evidence/
 /ops/projects/openclaw/logs/
 /ops/projects/openclaw/quarantine/
 /ops/projects/openclaw/rollback/*
-!/ops/projects/openclaw/rollback/README.md
