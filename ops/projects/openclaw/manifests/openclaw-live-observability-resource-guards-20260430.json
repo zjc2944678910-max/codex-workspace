@@ -1,0 +1,135 @@
+{
+  "schema": "openclaw.live_repair.observability_resource_guards.v1",
+  "createdAt": "2026-04-30T16:25:18+08:00",
+  "taskLevel": "L3 repair execution",
+  "authorization": {
+    "explicitUserPhrase": "进入修复阶段",
+    "repairGateStatus": "authorized"
+  },
+  "host": "oc-nas",
+  "goal": "First-pass live repair after NAS OpenClaw audit: restore useful journal retention, add gateway resource guards, and fix a systemd unit ownership anomaly without broad architecture changes.",
+  "backup": {
+    "path": "/root/openclaw-repair-backups/20260430T161559+0800-codex-l3-first-pass",
+    "items": [
+      "/etc/systemd/journald.conf",
+      "/etc/systemd/journald.conf.d/90-openclaw-retention.conf",
+      "/etc/systemd/system/openclaw-adminai-gateway.service",
+      "/etc/systemd/system/openclaw-adminai-gateway.service.d/50-resource-guards.conf",
+      "/etc/systemd/system/openclaw-benben.service",
+      "/etc/systemd/system/openclaw-benben.service.d/50-resource-guards.conf",
+      "/etc/systemd/system/openclaw-memory-maintenance.service",
+      "/etc/systemd/system/openclaw-ollama-e2b-keepwarm.timer"
+    ]
+  },
+  "liveChanges": [
+    {
+      "path": "/etc/systemd/journald.conf.d/90-openclaw-retention.conf",
+      "change": "Added journald drop-in with SystemMaxUse=200M, SystemMaxFileSize=50M, MaxRetentionSec=14day.",
+      "hashAfter": "d38fee0ca760f69061e880d1cedbb02c6946f5f0a7255431e938e3ab2a1b1805"
+    },
+    {
+      "path": "/etc/systemd/system/openclaw-adminai-gateway.service.d/50-resource-guards.conf",
+      "change": "Added MemoryHigh=4G, MemoryMax=5G, CPUQuota=250%, TasksMax=2048.",
+      "hashAfter": "0a6240426e3b9bf39019a130015f529e7fa0c804a138edf0a09bfe0350511b91"
+    },
+    {
+      "path": "/etc/systemd/system/openclaw-benben.service.d/50-resource-guards.conf",
+      "change": "Added MemoryHigh=1200M, MemoryMax=1500M, CPUQuota=150%, TasksMax=2048.",
+      "hashAfter": "39c0dd79c4bd19126b7919bf59cb0887e71755361d99c3f4ca680639a2e9a0f3"
+    },
+    {
+      "path": "/etc/systemd/system/openclaw-memory-maintenance.service",
+      "change": "Changed owner from UNKNOWN:staff to root:root; mode remains 0644.",
+      "hashAfter": "0eb9f77b7d7d3a8cbc5ab942198ec7214a3b175a5ec03dd4f295328b258e9078"
+    }
+  ],
+  "commandsApplied": [
+    "systemctl restart systemd-journald.service",
+    "systemctl daemon-reload",
+    "systemctl restart openclaw-adminai-gateway.service openclaw-benben.service",
+    "chown root:root /etc/systemd/system/openclaw-memory-maintenance.service",
+    "chmod 0644 /etc/systemd/system/openclaw-memory-maintenance.service"
+  ],
+  "verification": {
+    "time": "2026-04-30T16:25:18+08:00",
+    "hostResourcesAfter": {
+      "loadAverage": "1.34, 1.02, 0.92",
+      "memory": "15Gi total, 8.4Gi used, 7.0Gi available",
+      "swap": "10Gi total, 3.2Gi used, 7.5Gi free",
+      "journalDiskUsage": "52.7M"
+    },
+    "openclawBenben": {
+      "service": "openclaw-benben.service",
+      "activeState": "active",
+      "subState": "running",
+      "nRestarts": 0,
+      "mainPid": 3322073,
+      "memoryCurrent": 499859456,
+      "memoryHigh": 1258291200,
+      "memoryMax": 1572864000,
+      "cpuQuotaPerSecUSec": "1.500000s",
+      "tasksMax": 2048,
+      "health": {
+        "ok": true,
+        "status": "live"
+      },
+      "ready": {
+        "ready": true,
+        "failing": []
+      }
+    },
+    "openclawAdminAI": {
+      "service": "openclaw-adminai-gateway.service",
+      "activeState": "active",
+      "subState": "running",
+      "nRestarts": 0,
+      "mainPid": 3322087,
+      "memoryCurrent": 1556451328,
+      "memoryHigh": 4294967296,
+      "memoryMax": 5368709120,
+      "cpuQuotaPerSecUSec": "2.500000s",
+      "tasksMax": 2048,
+      "health": {
+        "ok": true,
+        "status": "live"
+      },
+      "ready": {
+        "ready": true,
+        "failing": []
+      }
+    },
+    "supportingTimers": {
+      "openclaw-healthcheck.service": "Result=success",
+      "openclaw-adminai-healthcheck.service": "Result=success",
+      "openclaw-qwen9b-keepwarm.service": "Result=success"
+    },
+    "ollamaRelay": {
+      "qwen9bLoaded": true,
+      "contextLength": 32768
+    }
+  },
+  "postRepairFindings": [
+    "adminAI journald visibility is restored after restart; startup and channel logs are now visible in journal.",
+    "Both gateway health and ready endpoints returned healthy after startup windows.",
+    "adminAI Telegram startup still logged deleteWebhook/setMyCommands network failures. Direct Telegram/OpenAI egress timed out, while the local HTTP proxy reached Telegram/OpenAI public endpoints, so follow-up should focus on app/proxy integration rather than raw proxy availability.",
+    "Both gateways log a security warning: tools.exec.applyPatch.workspaceOnly=false.",
+    "Both gateways log an update notice: latest v2026.4.27, current v2026.4.9.",
+    "Old openclaw-gateway.service cleanup, e2b keepwarm enablement, and Ollama relay architecture changes were intentionally deferred."
+  ],
+  "rollback": [
+    "Restore files from /root/openclaw-repair-backups/20260430T161559+0800-codex-l3-first-pass, or remove the newly added drop-ins.",
+    "Run systemctl daemon-reload after restoring/removing systemd unit drop-ins.",
+    "Run systemctl restart systemd-journald.service if reverting journald retention.",
+    "Run systemctl restart openclaw-adminai-gateway.service openclaw-benben.service if reverting gateway resource guards.",
+    "Restore /etc/systemd/system/openclaw-memory-maintenance.service ownership to the backed-up owner only if a compatibility issue appears."
+  ],
+  "deferred": [
+    "Investigate adminAI Telegram command sync network failures.",
+    "Decide whether to enforce tools.exec.applyPatch.workspaceOnly=true.",
+    "Plan OpenClaw version update from v2026.4.9 to v2026.4.27.",
+    "Decide whether to enable openclaw-ollama-e2b-keepwarm.timer.",
+    "Clean or archive old openclaw-gateway.service residue after a separate dependency check.",
+    "Add a standard health endpoint for openclaw-ollama-relay.service."
+  ],
+  "result": "completed"
+}

@@ -7282,3 +7282,62 @@ Validation:
     - no matching Feishu websocket or dispatch log lines observed for `openclaw-gateway.service` in the same window
 - manifest:
   - `ops/projects/openclaw/manifests/openclaw-benben-vnext-group-memory-visibility-20260428.json`
+
+2026-04-30 OpenClaw live observability and resource-guard first-pass repair:
+
+- task level:
+  - L3 repair execution
+  - authorized by explicit user phrase: `进入修复阶段`
+- live scope:
+  - host: `oc-nas`
+  - active gateways:
+    - `openclaw-benben.service`
+    - `openclaw-adminai-gateway.service`
+  - old `openclaw-gateway.service` stayed inactive/disabled and was not cleaned in this pass
+- live backup:
+  - `/root/openclaw-repair-backups/20260430T161559+0800-codex-l3-first-pass`
+- live files changed:
+  - `/etc/systemd/journald.conf.d/90-openclaw-retention.conf`
+  - `/etc/systemd/system/openclaw-adminai-gateway.service.d/50-resource-guards.conf`
+  - `/etc/systemd/system/openclaw-benben.service.d/50-resource-guards.conf`
+  - `/etc/systemd/system/openclaw-memory-maintenance.service`
+- changes:
+  - added journald retention drop-in:
+    - `SystemMaxUse=200M`
+    - `SystemMaxFileSize=50M`
+    - `MaxRetentionSec=14day`
+  - added adminAI resource guards:
+    - `MemoryHigh=4G`
+    - `MemoryMax=5G`
+    - `CPUQuota=250%`
+    - `TasksMax=2048`
+  - added benben resource guards:
+    - `MemoryHigh=1200M`
+    - `MemoryMax=1500M`
+    - `CPUQuota=150%`
+    - `TasksMax=2048`
+  - fixed `/etc/systemd/system/openclaw-memory-maintenance.service` owner from `UNKNOWN:staff` to `root:root`
+- commands applied:
+  - `systemctl restart systemd-journald.service`
+  - `systemctl daemon-reload`
+  - `systemctl restart openclaw-adminai-gateway.service openclaw-benben.service`
+- verification after repair at `2026-04-30T16:25:18+08:00`:
+  - `openclaw-benben.service`: `active/running`, `NRestarts=0`, `MemoryCurrent=499859456`, `/health={"ok":true,"status":"live"}`, `/ready={"ready":true,"failing":[]}`
+  - `openclaw-adminai-gateway.service`: `active/running`, `NRestarts=0`, `MemoryCurrent=1556451328`, `/health={"ok":true,"status":"live"}`, `/ready={"ready":true,"failing":[]}`
+  - journald usage now has headroom under the new 200M cap: `52.7M`
+  - host memory improved after gateway restart: `15Gi total`, `7.0Gi available`, swap `3.2Gi used`
+  - `openclaw-adminai-healthcheck.service`, `openclaw-healthcheck.service`, and `openclaw-qwen9b-keepwarm.service` reported `Result=success`
+  - Ollama relay path still showed Qwen 9B loaded with `context_length=32768`
+- post-repair findings:
+  - adminAI journal visibility is restored after restart; startup and channel logs are now visible
+  - adminAI Telegram startup still logged `deleteWebhook` / `setMyCommands` network failures; tokenless probes showed direct Telegram/OpenAI egress times out while the local HTTP proxy reaches public endpoints
+  - both gateways still log `tools.exec.applyPatch.workspaceOnly=false` security warnings
+  - both gateways still report update available: latest `v2026.4.27`, current `v2026.4.9`
+- intentionally deferred:
+  - old `openclaw-gateway.service` cleanup
+  - `openclaw-ollama-e2b-keepwarm.timer` enablement
+  - Ollama relay local fallback or `/health` endpoint work
+  - OpenClaw package update
+  - changing `tools.exec.applyPatch.workspaceOnly`
+- manifest:
+  - `ops/projects/openclaw/manifests/openclaw-live-observability-resource-guards-20260430.json`
