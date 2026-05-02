@@ -7458,3 +7458,33 @@ Validation:
   - Memory V4 is the sole live benben memory truth source
   - V2/V3 and legacy markdown memory remain only as historical/archive/rollback evidence
   - old `openclaw-gateway.service` can no longer affect new benben unless an operator deliberately restores archived old-system state
+
+2026-05-02 OpenClaw benben session memory extraction uplift:
+
+- task level:
+  - L3 repair execution
+  - authorized by explicit user phrase: `进入修复阶段`
+- live backup:
+  - `/root/openclaw-repair-backups/20260502T144744+0800-memory-extraction-uplift/workspace-tools/session-memory-review.mjs.pre-uplift-20260502T153617+0800`
+- live file changed:
+  - `/var/lib/openclaw-benben/.openclaw/workspace/tools/session-memory-review.mjs`
+- changes:
+  - fixed lightweight rule capture accounting by allowing existing deterministic rule candidates to return `rule_lightweight_capture` only when the context is truly lightweight
+  - made lightweight coverage checks compare both normalized statements and evidence quotes, avoiding false misses when a rule rewrites a user line into a canonical current-state statement
+  - prevented `forceRule` / `rule_mode` no-candidate paths from being counted as true model retries
+- verification:
+  - local `node --check`: pass
+  - focused product test suite `node --test tools/tests/session-memory-review.test.mjs`: 48 pass
+  - NAS temporary probe: owner current-state short session classified as `durable_rule_capture_available` and reviewed as `rule_lightweight_capture`
+  - live file `node --check`: pass
+  - live-file fake session probe: `should_capture=true`, `review_mode=rule_lightweight_capture`, `retry_recommended=false`, `true_model_retry=false`
+  - no-candidate rule-mode probe: `retry_recommended=false`
+  - `openclaw-benben.service` health/ready endpoints remained OK
+  - V2/V3 active directories remained absent
+  - Memory V4 DB integrity remained `ok`; active atoms 37, candidate atoms 2, open conflict sets 0
+  - `openclaw-memory-standard.timer` naturally triggered at `2026-05-02 15:37:00 CST`; service result success
+  - manual `--reconcile-lightweight --max-sessions 5 --json` found 0 pending lightweight sessions, so historical 24h/7d capture metrics did not change immediately
+- current result:
+  - extraction logic is now better aligned with Memory V4 quality metrics
+  - improvements will appear when new real sessions matching deterministic lightweight rules enter review
+  - no Memory V4 data schema/content migration was performed
