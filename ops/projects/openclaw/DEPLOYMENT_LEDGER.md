@@ -7416,3 +7416,45 @@ Validation:
   - new benben is independent of the old OpenClaw gateway for memory truth
   - Memory V4 is the only live benben memory truth source
   - old gateway state is rollback archaeology only unless a deliberate rollback is started
+
+2026-05-02 OpenClaw benben Memory V4 sole-truth final closure:
+
+- task level:
+  - L3 repair execution
+  - authorized by explicit user phrase: `进入修复阶段`
+- live backup:
+  - `/root/openclaw-repair-backups/20260502T120028+0800-codex-memory-system-repair/`
+- live files changed in final closure:
+  - `/var/lib/openclaw-benben/.openclaw/openclaw.json`
+  - `/var/lib/openclaw-benben/.openclaw/workspace/tools/openclaw-cli-wrapper.sh`
+  - `/var/lib/openclaw-benben/.openclaw/workspace/tools/memory-health-summary.mjs`
+  - `/var/lib/openclaw-benben/.openclaw/workspace/tools/defaults-helper.mjs`
+  - `/var/lib/openclaw-benben/.openclaw/workspace/tools/observation-collector.mjs`
+  - `/var/lib/openclaw-benben/.openclaw/workspace/tools/rollout-instance-config.sh`
+  - `/var/lib/openclaw-benben/.openclaw/workspace/memory-admin/meta/mempalace-sidecar-config.json`
+- changes:
+  - disabled built-in legacy `agents.defaults.memorySearch` and `agents.defaults.compaction.memoryFlush`
+  - moved active defaults metadata away from legacy markdown memory into `memory-admin/meta/defaults.json`
+  - disabled the mempalace historical sidecar while preserving its index/state/log for audit and deliberate rollback
+  - corrected the benben wrapper env branch so `/etc/openclaw-benben/secrets.env` resolves to `openclaw-benben` roots instead of old `/var/lib/openclaw`
+  - added a wrapper short-circuit for disabled `memory status`; it now returns `[]` for JSON mode without invoking `/usr/bin/openclaw`, preventing legacy `.openclaw/memory/*.sqlite` initialization or mtime refresh
+- verification:
+  - `openclaw-benben.service`: active/running, `NRestarts=0`
+  - `openclaw-gateway.service`: inactive/dead and masked
+  - `openclaw-adminai-gateway.service`: active/running, independent
+  - `http://127.0.0.1:18792/health`: `{"ok":true,"status":"live"}`
+  - `http://127.0.0.1:18792/ready`: `{"ready":true,"failing":[]}`
+  - Memory V4 DB integrity: `ok`
+  - active Memory V4 atoms: 37
+  - open conflict sets: 0
+  - V2/V3 active directories: absent at both benben root and workspace top level
+  - retrieval telemetry: `current_source=memory_v4`, `legacy_scope_superseded=true`, `memory_v4_post_legacy_legacy_fallback_count=0`
+  - V2/V3 evals: `not_applicable` with note `memory_v4_authoritative`
+  - mempalace sidecar: `status=disabled`, `enabled=false`, `fallback_hit_count=0`
+  - session review: healthy, `pending_retry_count=0`, `pending_reconcile_count=0`
+  - `openclaw-cli-wrapper.sh memory status --json`: stdout `[]`, stderr empty, no legacy sqlite mtime changes
+  - memory timers remained active/waiting; event/standard/deep/weekly-review/daily-digest oneshot services last reported success
+- final architecture result:
+  - Memory V4 is the sole live benben memory truth source
+  - V2/V3 and legacy markdown memory remain only as historical/archive/rollback evidence
+  - old `openclaw-gateway.service` can no longer affect new benben unless an operator deliberately restores archived old-system state
