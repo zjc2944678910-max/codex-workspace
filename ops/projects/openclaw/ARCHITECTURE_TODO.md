@@ -3048,7 +3048,7 @@ Guardrails:
 - do not treat raw `agent:main:main` as automatically operator-only or user-only; inspect transcript type
 - do not exclude real conversational misses from the denominator just because they are low-signal
 - do not force rule-lightweight counts upward by relabeling model-rule-rescue captures
-- keep benben on `memory_v2` as the sole truth layer, with fallback order unchanged
+- historical 2026-04 guardrail at that time: keep benben on `memory_v2` as the sole truth layer, with fallback order unchanged
 
 Current truthful status split:
 

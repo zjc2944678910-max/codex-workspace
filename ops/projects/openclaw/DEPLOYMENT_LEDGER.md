@@ -157,20 +157,25 @@ Use this contract as a hard operating rule:
 
 ### Sessions / transcripts
 
-- Session stores live under: `/var/lib/openclaw/.openclaw/agents/<agent_id>/sessions/sessions.json`
-- Main agent session store: `/var/lib/openclaw/.openclaw/agents/main/sessions/sessions.json`
+- Current benben session stores live under: `/var/lib/openclaw-benben/.openclaw/agents/<agent_id>/sessions/sessions.json`
+- Current benben main agent session store: `/var/lib/openclaw-benben/.openclaw/agents/main/sessions/sessions.json`
+- Retired old gateway session stores remain under: `/var/lib/openclaw/.openclaw/agents/<agent_id>/sessions/sessions.json`
 - Session transcripts also live under the corresponding `agents/<agent_id>/sessions/` tree
 
 ## What Is Production And What Is Not
 
-### Production
+### Current production
 
 - `/usr/lib/node_modules/openclaw`
 - `/var/lib/openclaw-benben/.openclaw`
 - `/var/lib/openclaw-benben/.openclaw/workspace`
+- systemd units beginning with `openclaw-`
+
+### Retired production / rollback state
+
 - `/var/lib/openclaw/.openclaw`
 - `/var/lib/openclaw/.openclaw/workspace`
-- systemd units beginning with `openclaw-`
+- `openclaw-gateway.service`
 
 ### Not production
 
@@ -181,7 +186,7 @@ Use this contract as a hard operating rule:
 
 Those `cc`-side copies were identified as stale local/runtime copies and were cleaned to reduce confusion.
 
-## Active Services
+## Services
 
 ### Current benben service
 
@@ -190,6 +195,7 @@ Those `cc`-side copies were identified as stale local/runtime copies and were cl
 ### Retired old benben gateway
 
 - `openclaw-gateway.service`
+- current status as of 2026-05-02: retired/inactive
 
 ### adminAI service
 
@@ -4663,7 +4669,7 @@ What changed:
   - the message is a short recent grievance such as `今天cc没有说爱我`
   - this is treated as shared `partner current_state`, not as durable preference or noise
 - no fallback order changed
-- `memory_v2` remains the only benben truth layer
+- historical 2026-04 truth at that time: `memory_v2` remained the only benben truth layer
 - adminAI was untouched in this pass
 
 Live rerun truth:
@@ -7300,7 +7306,7 @@ Validation:
   - NAS `node --check` on all five live files: pass
   - `openclaw-benben.service`: active
   - `http://127.0.0.1:18792/health`: `{"ok":true,"status":"live"}`
-  - old rollback anchor `openclaw-gateway.service`: active, ports 18789/18791 listening
+  - historical 2026-04-28 rollback anchor state: old `openclaw-gateway.service` was active, ports 18789/18791 listening
   - live synthetic in-process turn:
     - unknown direct remains memory-blocked
     - ordinary group owner sender calls Memory V4 and replies from the memory result
@@ -7369,3 +7375,44 @@ Validation:
   - changing `tools.exec.applyPatch.workspaceOnly`
 - manifest:
   - `ops/projects/openclaw/manifests/openclaw-live-observability-resource-guards-20260430.json`
+
+2026-05-02 OpenClaw old gateway retirement and Memory V4 convergence:
+
+- task level:
+  - L3 repair execution
+  - authorized by explicit user phrase: `进入修复阶段`
+- live scope:
+  - host: `oc-nas`
+  - current benben service: `openclaw-benben.service`
+  - retired old gateway: `openclaw-gateway.service`
+  - adminAI service: `openclaw-adminai-gateway.service`
+- confirmed current benben state:
+  - state root: `/var/lib/openclaw-benben/.openclaw`
+  - workspace root: `/var/lib/openclaw-benben/.openclaw/workspace`
+  - health endpoint: `127.0.0.1:18792/health`
+  - memory mode: `OPENCLAW_MEMORY_V4_MODE=authoritative`
+  - top-level `memory_v*` surface contains only `memory_v4`
+  - `memory_v2` and `memory_v3` are absent from the current benben workspace top level
+- live changes:
+  - archived legacy Memory V2/V3 directories under `/var/lib/openclaw-benben/.openclaw/archives/memory-legacy-20260502T100201+0800/`
+  - hardened V2/V3 helper and direct-call paths so they skip or hard-stop while Memory V4 is authoritative
+  - verified vNext plugin code resolves against the benben workspace instead of the retired old gateway workspace
+  - retired old `openclaw-gateway.service`; it no longer carries benben Feishu or Telegram production traffic
+- backups / rollback:
+  - latest round3 V2 helper backup: `/var/lib/openclaw-benben/.openclaw/backups/codex-v4-hardening-round3-20260502-112312-+0800/workspace/tools/memory-v2-helper.mjs`
+  - latest live `memory-v2-helper.mjs` sha256: `aabc04f82de11a13d85cd4151e6570d0cda56c7a3beae277b08aa3effdb3d752`
+  - original backup sha256: `0404bfb214db935d0514b5f3f6633655348c015205513d51fc3f3aa286123e7b`
+  - restoring V2/V3 from archive is now a deliberate rollback operation, not a normal runtime path
+- verification:
+  - `openclaw-benben.service` was active and health returned OK
+  - `openclaw-gateway.service` was inactive/retired
+  - `openclaw-adminai-gateway.service` remained active and independent
+  - `node --check` passed for patched live helper paths
+  - direct V2 helper probes skipped and did not recreate V2/V3 directories
+  - governance write gate wrote `memory_v4/memory_v4.db`
+  - memory event extractor and memory event/standard oneshots did not recreate V2/V3
+  - grep/systemd/config checks found no current benben dependency on `/var/lib/openclaw/.openclaw`
+- current architecture result:
+  - new benben is independent of the old OpenClaw gateway for memory truth
+  - Memory V4 is the only live benben memory truth source
+  - old gateway state is rollback archaeology only unless a deliberate rollback is started
