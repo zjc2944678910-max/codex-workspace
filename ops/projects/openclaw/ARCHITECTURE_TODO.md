@@ -1,7 +1,7 @@
 # OpenClaw Architecture TODO
 
-Last updated: 2026-04-22
-Companion file: `OPENCLAW_DEPLOYMENT_LEDGER.md`
+Last updated: 2026-05-02
+Companion file: `DEPLOYMENT_LEDGER.md`
 
 ## Purpose
 
@@ -34,6 +34,22 @@ Treat this as mandatory:
 
 ## Current Truth Snapshot
 
+- current benben gateway: `openclaw-benben.service`
+  - state root: `/var/lib/openclaw-benben/.openclaw`
+  - workspace root: `/var/lib/openclaw-benben/.openclaw/workspace`
+  - live HTTP / websocket endpoint: `127.0.0.1:18792`
+- retired old benben gateway: `openclaw-gateway.service`
+  - inactive/retired as of 2026-05-02
+  - no longer carries benben Feishu or Telegram production traffic
+  - `/var/lib/openclaw/.openclaw` is rollback/historical state, not the current benben truth source
+- current benben memory truth:
+  - `OPENCLAW_MEMORY_V4_MODE=authoritative`
+  - Memory V4 is the only live memory truth source for benben
+  - current benben workspace top-level `memory_v*` contains only `memory_v4`
+  - `memory_v2` and `memory_v3` were archived under `/var/lib/openclaw-benben/.openclaw/archives/memory-legacy-20260502T100201+0800/`
+  - V2/V3 helper and direct-call paths now hard-stop or skip under V4 authoritative mode
+  - historical V2/V3 notes below are retained as dated history unless explicitly marked current after 2026-05-02
+- adminAI remains a separate service and state tree: `openclaw-adminai-gateway.service`, `/var/lib/openclaw-adminai/.openclaw`
 - cloud main default on benben/adminAI: `anyone/gpt-5.4`
 - explicit cloud routes:
   - bare `/codex` -> `openai-codex/gpt-5.4`
@@ -55,10 +71,37 @@ Treat this as mandatory:
 ### Live production surfaces
 
 - runtime package: `/usr/lib/node_modules/openclaw/dist/*.js`
-- live mutable config: `/var/lib/openclaw/.openclaw/openclaw.json`
-- live workspace logic: `/var/lib/openclaw/.openclaw/workspace/tools/*.mjs`
-- main session store: `/var/lib/openclaw/.openclaw/agents/main/sessions/sessions.json`
-- trace output: `/var/lib/openclaw/.openclaw/workspace/memory-admin/trace/`
+- current benben mutable config: `/var/lib/openclaw-benben/.openclaw/openclaw.json`
+- current benben workspace logic: `/var/lib/openclaw-benben/.openclaw/workspace/tools/*.mjs`
+- current benben Memory V4 state: `/var/lib/openclaw-benben/.openclaw/workspace/memory_v4/`
+- current benben trace output: `/var/lib/openclaw-benben/.openclaw/workspace/memory-admin/trace/`
+- adminAI mutable config: `/var/lib/openclaw-adminai/.openclaw/openclaw.json`
+- retired old gateway rollback/historical root: `/var/lib/openclaw/.openclaw`
+
+### 2026-05-02 Memory V4 convergence and old-gateway retirement
+
+- completed:
+  - new benben runs independently from `/var/lib/openclaw-benben/.openclaw`
+  - Memory V4 is authoritative and is the only live memory truth source
+  - live benben workspace no longer has top-level `memory_v2` or `memory_v3`
+  - legacy Memory V2/V3 directories were archived under `/var/lib/openclaw-benben/.openclaw/archives/memory-legacy-20260502T100201+0800/`
+  - old `openclaw-gateway.service` is inactive/retired and is no longer a live benben dependency
+  - vNext benben plugin paths depend on the benben workspace, not the old gateway workspace
+- architecture truth after the convergence:
+  - V2/V3 are rollback archaeology only for current benben
+  - direct V2 helper calls must skip or hard-stop while `OPENCLAW_MEMORY_V4_MODE=authoritative`
+  - memory governance, event, and standard maintenance writes land in Memory V4
+  - local profile facts remain prompt context only; they are not an alternate memory truth source
+  - adminAI remains isolated from this benben memory truth decision
+- verification evidence recorded in `DEPLOYMENT_LEDGER.md`:
+  - `openclaw-benben.service` active and health OK on `127.0.0.1:18792`
+  - `node --check` passed for the patched live helper paths
+  - direct V2 helper probes skipped without recreating V2/V3
+  - governance write gate wrote `memory_v4/memory_v4.db`
+  - memory event and standard oneshots did not recreate V2/V3
+- rollback boundary:
+  - restoring V2/V3 from archives is now a deliberate rollback operation, not a normal runtime path
+  - old gateway state under `/var/lib/openclaw/.openclaw` should not be used to answer current benben memory questions
 
 ### 2026-04-22 Anyone default repair
 
@@ -74,10 +117,11 @@ Treat this as mandatory:
 
 ### Memory stack shape
 
-- canonical working memory and daily capture already exist
-- stable memory, recall plane, governance, and maintenance are already richer than the Claude leak baseline
-- write gating exists and now carries richer metadata
-- recall routing exists and now has adaptive scope trimming
+- Memory V4 is the canonical working memory, recall, governance, and maintenance surface for current benben
+- the old V2/V3 filesystem trees are archived and absent from the current benben workspace top level
+- stable/current/recent answer truth must resolve through Memory V4, not a parallel V2/V3 layer
+- write gating exists and writes to Memory V4 under authoritative mode
+- recall routing exists and must not silently fall back to V2/V3 for current benben
 
 ### Session / trace shape
 
@@ -858,7 +902,9 @@ Remaining architecture debt after the cutover:
 ### Historical hybrid-memory rollout status
 
 - benben now has a live historical sidecar in `shadow_index`, so index + telemetry are no longer just repo-local
-- live architecture truth after the rollout:
+- supersession note:
+  - this section is retained as 2026-04 history and is superseded for current benben by the 2026-05-02 Memory V4 convergence above
+- 2026-04 live architecture truth after the rollout:
   - `memory_v2` remains the only truth layer
   - sidecar is currently evidence infrastructure only
   - live health/summary now observe sidecar freshness, source counts, and future fallback metrics
@@ -870,7 +916,7 @@ Remaining architecture debt after the cutover:
   - add a production-safe cutover for the current `runtime-D_ihCv7c.js` memory-search flow so it can emit structured `historical_evidence` and honor the hybrid answer contract
   - keep adminAI isolated
   - keep benben fallback order unchanged
-  - keep `memory_v2` authoritative even after sidecar retrieval is enabled
+  - historical instruction at that time: keep `memory_v2` authoritative even after sidecar retrieval is enabled
 
 ### Historical current gap after Codex usage repair
 
