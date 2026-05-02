@@ -1,6 +1,6 @@
 # OpenClaw Deployment Ledger
 
-Last updated: 2026-04-28
+Last updated: 2026-05-02
 Maintainer context: this file is the canonical runtime and deployment ledger for the production OpenClaw instance on `home-nas`.
 Companion architecture board: `OPENCLAW_ARCHITECTURE_TODO.md`
 
@@ -39,14 +39,23 @@ Use this contract as a hard operating rule:
 
 - host: `oc-nas`
 - instances:
-  - benben vNext Feishu production consumer: `openclaw-benben.service`
-  - old benben rollback anchor: `openclaw-gateway.service`
+  - benben vNext production consumer: `openclaw-benben.service`
+  - old benben gateway: `openclaw-gateway.service` is retired/inactive; it is no longer a live dependency
   - adminAI: `openclaw-adminai-gateway.service`
 - runtime package: `2026.4.9`
+- 2026-05-02 Memory V4 convergence:
+  - `openclaw-benben.service` is the only live benben gateway and listens on `127.0.0.1:18792`
+  - benben state root is `/var/lib/openclaw-benben/.openclaw`
+  - benben workspace root is `/var/lib/openclaw-benben/.openclaw/workspace`
+  - `OPENCLAW_MEMORY_V4_MODE=authoritative`
+  - live benben workspace top-level `memory_v*` surface contains only `memory_v4`; `memory_v2` and `memory_v3` are absent
+  - legacy Memory V2/V3 directories were archived under `/var/lib/openclaw-benben/.openclaw/archives/memory-legacy-20260502T100201+0800/`
+  - V2/V3 runtime/tool/direct-call write paths now hard-stop or skip under V4 authoritative; Memory V4 is the only live memory truth source
+  - old `openclaw-gateway.service` is inactive and no longer carries Feishu/Telegram production traffic for benben
 - 2026-04-27 Feishu cutover:
   - existing Feishu benben app consumption moved to `openclaw-benben.service`
   - `openclaw-benben.service` listens on `127.0.0.1:18792`, browser/control `127.0.0.1:18794`, state root `/var/lib/openclaw-benben/.openclaw`
-  - old `openclaw-gateway.service` remains active on `127.0.0.1:18789` as rollback anchor with Feishu channel/plugin disabled and Telegram still enabled
+  - stale as of 2026-05-02: old `openclaw-gateway.service` no longer remains active; it is inactive/retired and not a benben dependency
   - `openclaw-benben` has Feishu channel/plugin enabled; Telegram and QQBot channel/plugin entries remain disabled
   - vNext plugin `openclaw-benben-vnext` is loaded and activated with `before_dispatch` priority `90`
   - rollback snapshots: `/var/lib/openclaw/.openclaw/rollback/benben-feishu-cutover-20260427T124450Z` and `/var/lib/openclaw-benben/.openclaw/rollback/benben-feishu-cutover-20260427T124450Z`
@@ -88,27 +97,32 @@ Use this contract as a hard operating rule:
 
 ## Production Topology
 
-- Host alias: `home-nas`
+- Host alias: `oc-nas` / `home-nas`
 - Interactive login user: `cc`
 - Service users:
-  - `openclaw` for benben
+  - `openclaw-benben` for current benben vNext
+  - `openclaw` for the retired old benben gateway
   - `openclaw-adminai` for adminAI
 - Production package root: `/usr/lib/node_modules/openclaw`
-- Benben mutable state root: `/var/lib/openclaw/.openclaw`
-- Benben workspace root: `/var/lib/openclaw/.openclaw/workspace`
-- Benben gateway websocket: `ws://127.0.0.1:18789`
+- Current benben mutable state root: `/var/lib/openclaw-benben/.openclaw`
+- Current benben workspace root: `/var/lib/openclaw-benben/.openclaw/workspace`
+- Current benben gateway websocket / HTTP: `127.0.0.1:18792`
+- Retired old benben mutable state root: `/var/lib/openclaw/.openclaw`
+- Retired old benben workspace root: `/var/lib/openclaw/.openclaw/workspace`
+- Retired old benben gateway listen address: `127.0.0.1:18789`
 - adminAI mutable state root: `/var/lib/openclaw-adminai/.openclaw`
 - adminAI workspace root: `/var/lib/openclaw-adminai/.openclaw/workspace`
 - adminAI gateway websocket: `ws://127.0.0.1:18889`
-- Gateway service unit: `/etc/systemd/system/openclaw-gateway.service`
-- Main gateway listen address: `127.0.0.1:18789`
+- Current benben service unit: `/etc/systemd/system/openclaw-benben.service`
+- Retired old gateway service unit: `/etc/systemd/system/openclaw-gateway.service`
 - External exposure is not direct; access is expected to go through `nginx` and existing tunnel/proxy wiring
 
 ## Identity And Access Facts
 
-- NAS does not have an interactive `openclaw` login flow; normal SSH entry is `cc`
-- `openclaw` exists as a system service account, not as a normal human shell account
-- Use `ssh home-nas` first, then `sudo -u openclaw -H ...` when behavior must match the running service
+- NAS does not have an interactive `openclaw` or `openclaw-benben` login flow; normal SSH entry is `cc`
+- `openclaw-benben`, `openclaw`, and `openclaw-adminai` exist as system service accounts, not as normal human shell accounts
+- Use `ssh oc-nas` first, then `sudo -u openclaw-benben -H ...` when behavior must match current benben
+- Use `sudo -u openclaw -H ...` only when explicitly inspecting the retired old gateway state
 - Do not assume `/home/cc` content is production
 
 ## Canonical Production Paths
@@ -125,6 +139,10 @@ Use this contract as a hard operating rule:
 - `/var/lib/openclaw/.openclaw/openclaw.json`
 - `/etc/openclaw/gateway.env`
 - `/etc/openclaw/health.env`
+- Current benben vNext:
+  - `/var/lib/openclaw-benben/.openclaw/openclaw.json`
+  - `/etc/openclaw-benben/shadow.env`
+  - `/etc/openclaw-benben/secrets.env`
 
 ### Workspace / memory / tooling
 
@@ -132,6 +150,10 @@ Use this contract as a hard operating rule:
 - `/var/lib/openclaw/.openclaw/workspace/MEMORY.md`
 - `/var/lib/openclaw/.openclaw/workspace/tools/`
 - `/var/lib/openclaw/.openclaw/workspace/memory-admin/`
+- Current benben vNext:
+  - `/var/lib/openclaw-benben/.openclaw/workspace/tools/`
+  - `/var/lib/openclaw-benben/.openclaw/workspace/memory_v4/`
+  - `/var/lib/openclaw-benben/.openclaw/workspace/memory-admin/`
 
 ### Sessions / transcripts
 
@@ -144,6 +166,8 @@ Use this contract as a hard operating rule:
 ### Production
 
 - `/usr/lib/node_modules/openclaw`
+- `/var/lib/openclaw-benben/.openclaw`
+- `/var/lib/openclaw-benben/.openclaw/workspace`
 - `/var/lib/openclaw/.openclaw`
 - `/var/lib/openclaw/.openclaw/workspace`
 - systemd units beginning with `openclaw-`
@@ -159,7 +183,11 @@ Those `cc`-side copies were identified as stale local/runtime copies and were cl
 
 ## Active Services
 
-### Main service
+### Current benben service
+
+- `openclaw-benben.service`
+
+### Retired old benben gateway
 
 - `openclaw-gateway.service`
 
