@@ -1,6 +1,6 @@
 # OpenClaw Deployment Ledger
 
-Last updated: 2026-05-02
+Last updated: 2026-05-05
 Maintainer context: this file is the canonical runtime and deployment ledger for the production OpenClaw instance on `home-nas`.
 Companion architecture board: `OPENCLAW_ARCHITECTURE_TODO.md`
 
@@ -42,7 +42,19 @@ Use this contract as a hard operating rule:
   - benben vNext production consumer: `openclaw-benben.service`
   - old benben gateway: `openclaw-gateway.service` is retired/inactive; it is no longer a live dependency
   - adminAI: `openclaw-adminai-gateway.service`
-- runtime package: `2026.4.9`
+- runtime package: `2026.5.3-1`
+- external channel plugin package:
+  - `@openclaw/feishu@2026.5.3` is installed for both current live state roots
+  - plugin install records are service-readable so live runtime discovery can load Feishu from the per-state npm roots
+- 2026-05-05 stable package update:
+  - `openclaw-benben.service` and `openclaw-adminai-gateway.service` are both on the stable `2026.5.3-1` package line; beta `2026.5.4-beta.*` was intentionally not used
+  - `openclaw-benben.service` runs from shadow runtime `/var/lib/openclaw-benben/runtime/openclaw-2026.5.3-1-benben-shadow-20260505T132558+0800`
+  - old benben runtime `/var/lib/openclaw-benben/runtime/openclaw` remains a `2026.4.9` rollback anchor
+  - both live configs had legacy `agents.defaults.llm` removed for `2026.5.3-1` compatibility
+  - Feishu now runs as an external plugin instead of relying on the package-bundled `dist/extensions/feishu` tree
+  - local plugin ownership/readability and `plugins/installs.json` permissions were normalized for the stricter plugin loader
+  - Feishu plugin has a local env SecretRef runtime compatibility patch in `dist/accounts-Ba3-WP1z.js` for both live state roots; rollback copies are under each state root's `rollback/feishu-secretref-runtime-patch-20260505T143521+0800/`
+  - verification after restart: both gateways active, both health endpoints live, Telegram running, Feishu running, Feishu `lastError=null`
 - 2026-05-02 Memory V4 convergence:
   - `openclaw-benben.service` is the only live benben gateway and listens on `127.0.0.1:18792`
   - benben state root is `/var/lib/openclaw-benben/.openclaw`
@@ -214,7 +226,7 @@ Those `cc`-side copies were identified as stale local/runtime copies and were cl
 
 ## Current Model / Runtime Notes
 
-- Observed package version: `2026.4.9`
+- Observed package version: `2026.5.3-1`
 - Main configured default model on benben/adminAI: `anyone/gpt-5.4`
 - Benben memory-review/session-review/Class-B default provider on 2026-04-22:
   - `/etc/openclaw/gateway.env` now sets `OPENCLAW_MEMORY_LLM_PROVIDER=anyone`
@@ -7488,3 +7500,84 @@ Validation:
   - extraction logic is now better aligned with Memory V4 quality metrics
   - improvements will appear when new real sessions matching deterministic lightweight rules enter review
   - no Memory V4 data schema/content migration was performed
+
+2026-05-05 OpenClaw stable package update and Feishu external-plugin repair:
+
+- task level:
+  - L3 repair execution
+  - authorized by explicit user phrase: `进入修复阶段`
+- live scope:
+  - host: `oc-nas`
+  - current benben service: `openclaw-benben.service`
+  - adminAI service: `openclaw-adminai-gateway.service`
+  - retired old `openclaw-gateway.service` was not reactivated
+- version decision:
+  - stable package selected: `openclaw@2026.5.3-1`
+  - external Feishu plugin selected: `@openclaw/feishu@2026.5.3`
+  - beta `2026.5.4-beta.*` / "5.5 date" style update was intentionally not used
+  - reason: npm stable dist-tag resolved to `2026.5.3-1`; available newer-looking Feishu beta was not appropriate for production repair
+- live package/runtime changes:
+  - global package installed under `/usr`: `openclaw@2026.5.3-1`
+  - `openclaw --version` after repair: `OpenClaw 2026.5.3-1 (2eae30e)`
+  - `openclaw-adminai-gateway.service` now uses the updated global package line
+  - `openclaw-benben.service` was migrated from the old `2026.4.9` runtime to shadow runtime:
+    - `/var/lib/openclaw-benben/runtime/openclaw-2026.5.3-1-benben-shadow-20260505T132558+0800`
+  - old benben runtime remains intact as rollback anchor:
+    - `/var/lib/openclaw-benben/runtime/openclaw`
+- config compatibility repairs:
+  - removed legacy `agents.defaults.llm` from both live configs because `2026.5.3-1` rejects that old field
+  - updated adminAI systemd metadata from package `v2026.4.9` to package `v2026.5.3-1`
+  - benben drop-in now points at the shadow runtime:
+    - `/etc/systemd/system/openclaw-benben.service.d/20-shadow-runtime-copy.conf`
+  - benben cloud-response policy patch was ported into the shadow runtime bundle:
+    - marker: `BENBEN_CLOUD_RESPONSE_POLICY_MARKER`
+- Feishu external-plugin migration:
+  - confirmed the new OpenClaw package excludes bundled Feishu runtime files from the main package payload
+  - installed `@openclaw/feishu@2026.5.3` under both live state roots:
+    - `/var/lib/openclaw-benben/.openclaw/npm/node_modules/@openclaw/feishu`
+    - `/var/lib/openclaw-adminai/.openclaw/npm/node_modules/@openclaw/feishu`
+  - normalized local plugin ownership/readability for stricter `2026.5.3-1` plugin safety:
+    - `openclaw-benben-vnext`
+    - `local-lite-lane`
+    - `adminai-codex-bridge`
+  - fixed plugin install record readability so runtime services can read `plugins/installs.json`
+  - stale `qqbot` plugin warnings were intentionally left alone because they are not part of this stable update repair
+- Feishu SecretRef runtime repair:
+  - confirmed both service processes had `FEISHU_APP_SECRET` in process env
+  - confirmed both configs still used `channels.feishu.appSecret` as `env:default:FEISHU_APP_SECRET`
+  - confirmed the blocker was not missing env, missing plugin, or service crash
+  - root cause: `@openclaw/feishu@2026.5.3` strict runtime treated env SecretRefs as unavailable for required app credentials even though the service process env contained the key
+  - patched both installed plugin copies so env SecretRefs are resolved from `process.env` before strict runtime throws
+  - patched file in each state root:
+    - `npm/node_modules/@openclaw/feishu/dist/accounts-Ba3-WP1z.js`
+  - patch validation:
+    - `node --check` passed for both patched files
+- backups / rollback:
+  - benben migration rollback directory:
+    - `/var/lib/openclaw-benben/.openclaw/rollback/benben-v5531-migration-20260505T132558+0800`
+  - plugin load repair rollback/evidence directory:
+    - `/var/lib/openclaw-benben/.openclaw/rollback/plugin-load-repair-20260505T133249+0800`
+  - Feishu plugin SecretRef patch rollback directories:
+    - `/var/lib/openclaw-benben/.openclaw/rollback/feishu-secretref-runtime-patch-20260505T143521+0800`
+    - `/var/lib/openclaw-adminai/.openclaw/rollback/feishu-secretref-runtime-patch-20260505T143521+0800`
+  - rollback note:
+    - reinstalling or upgrading `@openclaw/feishu` may overwrite the local SecretRef patch
+    - if official Feishu plugin later fixes strict env SecretRef resolution, remove the local patch instead of preserving it indefinitely
+- verification after final restart:
+  - `openclaw-benben.service`: active
+  - `openclaw-adminai-gateway.service`: active
+  - `http://127.0.0.1:18792/health`: `{"ok":true,"status":"live"}`
+  - `http://127.0.0.1:18889/health`: `{"ok":true,"status":"live"}`
+  - benben channel status:
+    - Telegram running, `lastError=null`
+    - Feishu running, `lastError=null`
+    - Feishu default account running, `restartPending=false`, `reconnectAttempts=0`
+  - adminAI channel status:
+    - Telegram running, `lastError=null`
+    - Feishu running, `lastError=null`
+    - Feishu default account running, `restartPending=false`, `reconnectAttempts=0`
+  - restart-window logs showed both Feishu clients reaching websocket ready state
+- residual risks:
+  - Telegram still logged recoverable network warnings for `deleteWebhook` / `setMyCommands`; this is separate from the Feishu repair and was not changed
+  - both gateways still log existing security warnings for dangerous workspace tool flags
+  - local Feishu plugin patch must be rechecked on future plugin/package upgrades
