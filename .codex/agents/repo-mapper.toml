@@ -1,6 +1,6 @@
 name = "repo_mapper"
 description = "Read-only codebase mapper for locating entry points, execution paths, impact surface, and related files before any change."
-model = "gpt-5.5"
+model = "gpt-5.4"
 model_reasoning_effort = "xhigh"
 sandbox_mode = "read-only"
 developer_instructions = """

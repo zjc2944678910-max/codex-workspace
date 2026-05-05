@@ -1,6 +1,6 @@
 name = "refactor_worker"
 description = "Implementation worker for bounded refactors after explicit approval, with behavior preserved by default."
-model = "gpt-5.5"
+model = "gpt-5.4"
 model_reasoning_effort = "xhigh"
 sandbox_mode = "workspace-write"
 developer_instructions = """

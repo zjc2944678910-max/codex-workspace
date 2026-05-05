@@ -1,7 +1,7 @@
 #:schema https://developers.openai.com/codex/config-schema.json
 
-model = "gpt-5.5"
-review_model = "gpt-5.5"
+model = "gpt-5.4"
+review_model = "gpt-5.4"
 model_reasoning_effort = "xhigh"
 model_context_window = 539000
 model_auto_compact_token_limit = 500000
