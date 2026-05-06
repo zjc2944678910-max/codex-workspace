@@ -37,6 +37,16 @@ Reference:
 `repo-hygiene.mjs` supports workspace-root hygiene checks and checkpointing for
 allowed tracked paths.
 
+## Workspace Disk Report
+
+Use `workspace-disk-report.mjs` before cleanup work to classify disk hotspots
+into conservative `keep`, `delete`, `archive`, and `ask` buckets.
+
+```bash
+node docs/workspace/workspace-disk-report.mjs --limit 30
+node docs/workspace/workspace-disk-report.mjs --json --limit 30
+```
+
 Run all workspace tool tests:
 
 ```bash
