@@ -70,6 +70,11 @@ It also seeds `agents/T01/mapper-brief.md` and
 `agents/T02/review-brief.md` so the first mapper and review handoffs are ready
 without manual directory setup.
 
+Before sending any brief to a child agent, fill the Route Lock in
+`01-confirmed-context.md`. The lock records `target_project`, `target_surface`,
+`project_root`, `route_evidence`, and `forbidden_surfaces`; child agents must
+return `blocked` instead of switching projects if new evidence points elsewhere.
+
 It also creates reusable templates:
 
 - `brief-templates/dev-brief.md`
@@ -81,7 +86,7 @@ It also creates reusable templates:
 Before delegating any work, fill or update:
 
 - `00-request.md`: exact user goal and constraints
-- `01-confirmed-context.md`: risk level, project root, confirmed facts, hypotheses
+- `01-confirmed-context.md`: risk level, Route Lock, project root, confirmed facts, hypotheses
 - `02-plan.md`: current plan and implementation slices
 - `03-task-ledger.md`: task IDs and statuses
 - `04-risk-register.md`: risks, rollback idea, open questions

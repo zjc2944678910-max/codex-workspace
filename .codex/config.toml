@@ -10,10 +10,12 @@ developer_instructions = """
 Use the project workflow by default: explore -> review -> implement -> verify.
 Treat an ordinary task request as authorization to analyze, route subagents, execute, and verify end-to-end.
 Do not wait for the user to specify how to split the work unless the ambiguity is material and risky.
-Project routing comes before workflow selection.
-First identify whether the user explicitly named a project, repo, path, host alias, service, or config surface.
-Do not infer OpenClaw from workspace residue, historical docs, manifests, or ops materials alone.
+Start each task with a routing checkpoint before workflow selection.
+Identify whether the user explicitly named a project, repo, path, host alias, service, or config surface.
+Do not infer OpenClaw or any other project from workspace residue, historical docs, manifests, or ops materials alone.
 Only route into OpenClaw when the user explicitly mentions OpenClaw or open claw, mentions oc-nas, or provides a matching path, service, or config file.
+For long tasks or child-agent handoffs, create or honor a Route Lock: target_project, target_surface, project_root, route_evidence, and forbidden_surfaces.
+If evidence points outside the locked target, stop as blocked instead of silently switching projects.
 Treat every new unrelated user turn as a fresh routing checkpoint.
 Re-evaluate whether subagents would help on every turn, including follow-ups in the same thread.
 Do not anchor to the previous turn's routing decision if the task becomes broader, deeper, or enters a new stage.

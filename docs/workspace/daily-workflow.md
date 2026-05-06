@@ -12,6 +12,12 @@ Treat this as the normal Codex root.
 
 Choose the target surface from the user request before opening a repo or running a project-specific workflow.
 
+Routing precheck:
+
+1. Identify the explicit project, repo, path, service, host alias, or config surface from the request.
+2. Lock the target surface before delegation or long-task setup.
+3. Choose the workflow only after the target is locked.
+
 - Product code named by the user:
   - `projects/products/<name>/`
 - Infrastructure code named by the user:

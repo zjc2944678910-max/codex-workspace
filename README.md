@@ -31,7 +31,7 @@ Use this repository as the default Codex workspace index. The legacy local `-/` 
 - Long-task runbook:
   - `docs/workspace/codex-long-task-runbook.md`
 
-## Project Defaults
+## Project Types
 
 - Product project: `projects/products/<name>/`
 - Infrastructure project: `projects/infrastructure/<name>/`
@@ -43,6 +43,8 @@ Use this repository as the default Codex workspace index. The legacy local `-/` 
 Do not assume any single project by default from this workspace root.
 
 Use named project surfaces only when the task explicitly targets them.
+For long tasks, record the chosen project and surface in the run directory's
+Route Lock before delegating to child agents.
 
 OpenClaw surfaces:
 

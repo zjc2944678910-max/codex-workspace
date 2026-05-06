@@ -2,18 +2,15 @@
 
 This root is a workspace-index, not a primary product repository.
 
-## Canonical Project Paths
+## Canonical Workspace Identity
 
 - Current workspace root: `/Users/zhangjincheng/Documents/GitHub/codex-workspace`
 - Current workspace GitHub repo: `zjc2944678910-max/codex-workspace`
 - Legacy local workspace root: `/Users/zhangjincheng/Documents/GitHub/-`
-- Current OpenClaw mainline: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/openclaw/nas-openclaw-v22`
-- OpenClaw migration reference: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/migrations/openclaw-mac-migration`
-- OpenClaw sidecar state: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/state/project-data/openclaw`
-- OpenClaw operator docs and mirrors: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/ops/projects/openclaw`
-- Current live OpenClaw SSH alias for audits/repairs: `oc-nas`
 
-These are named reference surfaces, not default work targets.
+This root is the default workspace index. Project-specific paths are named
+surfaces that must be selected by explicit routing evidence, not by their
+presence in this repository.
 
 ## Root Responsibilities
 
@@ -27,10 +24,10 @@ The root repository should only track:
 - `docs/`
 - `ops/README.md`
 - `ops/projects/README.md`
-- `ops/projects/openclaw/README.md`
-- `ops/projects/openclaw/DEPLOYMENT_LEDGER.md`
-- `ops/projects/openclaw/ARCHITECTURE_TODO.md`
-- `ops/projects/openclaw/manifests/`
+- `ops/projects/<registered-project>/README.md`
+- `ops/projects/<registered-project>/DEPLOYMENT_LEDGER.md`
+- `ops/projects/<registered-project>/ARCHITECTURE_TODO.md`
+- `ops/projects/<registered-project>/manifests/`
 
 The root repository must not track:
 
@@ -38,11 +35,11 @@ The root repository must not track:
 - `scratch/`
 - `archive/`
 - `state/`
-- `ops/projects/openclaw/mirrors/`
-- `ops/projects/openclaw/evidence/`
-- `ops/projects/openclaw/logs/`
-- `ops/projects/openclaw/quarantine/`
-- `ops/projects/openclaw/rollback/`
+- `ops/projects/<registered-project>/mirrors/`
+- `ops/projects/<registered-project>/evidence/`
+- `ops/projects/<registered-project>/logs/`
+- `ops/projects/<registered-project>/quarantine/`
+- `ops/projects/<registered-project>/rollback/`
 
 ## Placement Rules
 
@@ -56,6 +53,18 @@ The root repository must not track:
 - Shared temporary outputs go in `scratch/shared/`
 - Local machine state, staging residue, and review residue go in `state/`
 
+## Project Registry
+
+Use this registry only after the request explicitly names or points to the
+project. These entries are not default work targets.
+
+- OpenClaw:
+  - Mainline code: `projects/products/openclaw/nas-openclaw-v22`
+  - Migration reference: `projects/migrations/openclaw-mac-migration`
+  - Project data/state: `state/project-data/openclaw`
+  - Operator docs and mirrors: `ops/projects/openclaw`
+  - Live SSH alias for audits/repairs: `oc-nas`
+
 ## Working Rule
 
 Project routing comes before implementation workflow.
@@ -65,6 +74,7 @@ Project routing comes before implementation workflow.
 - Route into `OpenClaw` only when the user explicitly mentions `OpenClaw` or `open claw`, mentions `oc-nas`, provides a matching path or service name, or asks for a file that belongs to that surface.
 - If the request is generic or the project is unnamed, stay at the workspace-index level until the target surface is identified.
 - After the target is identified, enter the relevant project repository or ops/config surface directly instead of treating this root as the codebase.
+- For long tasks or child-agent handoffs, write and honor a Route Lock before delegation: target project, target surface, project root, route evidence, and forbidden surfaces. If new evidence points to another project, stop as blocked instead of switching targets silently.
 
 ## Codex Subagent Workflow
 

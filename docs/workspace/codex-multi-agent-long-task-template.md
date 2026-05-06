@@ -62,6 +62,7 @@ Recommended layout:
 <run-root>/
   00-request.md
   01-confirmed-context.md
+    Route Lock: target_project, target_surface, project_root, route_evidence, forbidden_surfaces
   02-plan.md
   03-task-ledger.md
   04-risk-register.md
@@ -146,6 +147,8 @@ The main agent writes briefs before delegating:
 
 - `*-brief.md`: exact task, scope, allowed files, forbidden actions, expected
   output file, and stop condition.
+- `01-confirmed-context.md`: includes the Route Lock that every child agent
+  must honor.
 - `03-task-ledger.md`: task IDs, status, owner agent, file scope, retries, and
   verification state.
 - `04-risk-register.md`: confirmed risks, hypotheses, rollback idea, and
@@ -174,6 +177,25 @@ status: fail
 
 Avoid sending large implementation details or full test logs into the main
 conversation. Put them in files and return paths.
+
+## Route Lock
+
+Before any child-agent handoff, record the locked target in
+`01-confirmed-context.md`:
+
+```markdown
+## Route Lock
+
+- target_project: <project-or-shared>
+- target_surface: <repo/path/config/ops surface selected by the request>
+- project_root: <absolute project root, or N/A for workspace-index/shared work>
+- route_evidence: <exact user phrase, path, service, host alias, repo, or config surface>
+- forbidden_surfaces: <projects/repos/ops/state/scratch paths outside the locked target>
+```
+
+Child agents must work only inside `target_surface` and `project_root`. If new
+evidence points to another project or surface, they must return `blocked` and
+explain the mismatch instead of switching targets.
 
 ## Task Ledger Template
 
@@ -233,7 +255,7 @@ Use this as the user-facing command for a long task:
 
 为本任务创建一个 run directory，并通过文件维护任务状态。
 主 agent 只负责：
-1. 确认目标、约束、风险层级和项目路径。
+1. 确认目标、约束、风险层级和项目路径，并写入 Route Lock。
 2. 创建并维护 00-request.md、01-confirmed-context.md、02-plan.md、03-task-ledger.md、04-risk-register.md、05-decisions.md。
 3. 调度 repo_mapper、review_guard、docs_checker、surgical_fixer/refactor_worker、verifier。
 4. 读取必要的 result 文件，更新 ledger，决定下一步。
@@ -266,16 +288,20 @@ Role: planning/read-only mapper
 Input:
 - User request: <run-root>/00-request.md
 - Confirmed context: <run-root>/01-confirmed-context.md
+- Route Lock: <run-root>/01-confirmed-context.md
 - Project root: <absolute project path>
 
 Task:
-Map the real implementation surface for this request.
+Map the real implementation surface for this request inside the locked target.
 Identify entry points, files, symbols, call chains, data contracts, nearby tests,
 and likely blast radius.
 
 Constraints:
 - Read-only.
 - Do not edit files.
+- Honor the Route Lock.
+- Explore only target_surface/project_root from the Route Lock.
+- If evidence points outside the Route Lock, return blocked and explain; do not switch projects.
 - Separate confirmed facts from hypotheses.
 - Prefer concrete paths and commands over abstract advice.
 - Do not design a broad refactor unless explicitly asked.
@@ -311,6 +337,7 @@ Role: risk reviewer
 
 Input:
 - Request: <run-root>/00-request.md
+- Route Lock: <run-root>/01-confirmed-context.md
 - Plan: <run-root>/02-plan.md
 - Ledger: <run-root>/03-task-ledger.md
 - Mapper result: <run-root>/agents/<mapper-task>/mapper-result.md
@@ -322,6 +349,9 @@ missing tests, rollback concerns, and unclear assumptions.
 Constraints:
 - Read-only.
 - Do not implement.
+- Honor the Route Lock.
+- Review only target_surface/project_root from the Route Lock.
+- If the plan relies on another project or surface, return blocked and explain.
 - Lead with findings.
 - Ground every finding in concrete files, paths, contracts, or missing evidence.
 
@@ -343,15 +373,18 @@ Role: authoritative docs checker
 
 Input:
 - Question: <specific API/framework/version question>
+- Route Lock: <run-root>/01-confirmed-context.md
 - Project dependency evidence: <package/config files>
 - Plan: <run-root>/02-plan.md
 
 Task:
-Verify the relevant semantics against authoritative documentation or local
-version evidence.
+Verify the relevant semantics for the locked target against authoritative
+documentation or local version evidence.
 
 Constraints:
 - Read-only.
+- Honor the Route Lock.
+- Check only dependencies and version evidence for target_surface/project_root.
 - Do not guess from memory when documentation can answer it.
 - Report exact version-sensitive constraints.
 
@@ -374,6 +407,7 @@ Role: implementation worker
 Input:
 - Request: <run-root>/00-request.md
 - Confirmed context: <run-root>/01-confirmed-context.md
+- Route Lock: <run-root>/01-confirmed-context.md
 - Plan slice: <run-root>/agents/<task-id>/dev-brief.md
 - Decisions: <run-root>/05-decisions.md
 - Relevant mapper/review/docs result files.
@@ -388,6 +422,9 @@ Ownership:
 
 Constraints:
 - Smallest defensible change.
+- Honor the Route Lock.
+- Change only files in target_surface/project_root and the assigned write set.
+- If the required fix belongs to another project or surface, return blocked and explain.
 - No unrelated cleanup.
 - Preserve public behavior unless the brief explicitly says behavior changes.
 - If the task is broader than the assigned slice, stop and report why.
@@ -425,6 +462,7 @@ Role: verifier
 
 Input:
 - Request: <run-root>/00-request.md
+- Route Lock: <run-root>/01-confirmed-context.md
 - Dev result: <run-root>/agents/<dev-task>/dev-result.md
 - Plan: <run-root>/02-plan.md
 - Expected behavior: <specific acceptance criteria>
@@ -434,6 +472,9 @@ Reproduce or validate the assigned behavior with the smallest useful checks.
 
 Constraints:
 - Verify, do not redesign.
+- Honor the Route Lock.
+- Validate only target_surface/project_root from the Route Lock.
+- If verification requires another project or surface, return blocked and explain.
 - Do not make product code changes unless explicitly asked for a test-only fix.
 - Report exact commands and outcomes.
 - Separate confirmed failures from suspected failures.

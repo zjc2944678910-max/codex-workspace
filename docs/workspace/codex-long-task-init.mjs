@@ -132,9 +132,34 @@ function buildRunRoot(options = {}) {
   };
 }
 
+function buildRouteLock(options = {}, run = buildRunRoot(options)) {
+  const projectRoot = options.projectRoot ? path.resolve(options.projectRoot) : "";
+  const project = options.project || (options.shared ? "shared" : run.project);
+  return {
+    project,
+    targetSurface: projectRoot || "(fill in target surface before delegation)",
+    projectRoot: projectRoot || "(fill in absolute project root, or N/A for workspace-index/shared work)",
+    routeEvidence: "(fill in exact user phrase, path, service, host alias, repo, or config surface that selected this target)",
+    forbiddenSurfaces: "Any project, repo, ops surface, state path, or scratch path not listed in target_surface or project_root.",
+  };
+}
+
+function renderRouteLock(routeLock = {}) {
+  return `## Route Lock
+
+- target_project: ${routeLock.project}
+- target_surface: ${routeLock.targetSurface}
+- project_root: ${routeLock.projectRoot}
+- route_evidence: ${routeLock.routeEvidence}
+- forbidden_surfaces: ${routeLock.forbiddenSurfaces}
+`;
+}
+
 function buildFiles(options = {}) {
   const run = buildRunRoot(options);
   const projectRoot = options.projectRoot ? path.resolve(options.projectRoot) : "";
+  const routeLock = buildRouteLock(options, run);
+  const routeLockReference = "Route Lock in 01-confirmed-context.md";
   const task = String(options.task || "").trim() || "(fill in task goal)";
   const now = new Date().toISOString();
   const runPath = (...segments) => path.join(run.runRoot, ...segments);
@@ -167,6 +192,8 @@ ${options.project || (options.shared ? "shared" : run.project)}
 ## Project Root
 
 ${projectRoot || "(fill in absolute project root)"}
+
+${renderRouteLock(routeLock)}
 
 ## Risk Level
 
@@ -252,10 +279,11 @@ repo_mapper
 
 - Request: ${runPath("00-request.md")}
 - Confirmed context: ${runPath("01-confirmed-context.md")}
+- Route lock: ${runPath("01-confirmed-context.md")}
 
 ## Task
 
-Map the real implementation or investigation surface for this request.
+Map the real implementation or investigation surface for this request inside the locked target.
 Identify entry points, files, symbols, call chains, data contracts, nearby tests,
 and likely blast radius.
 
@@ -263,6 +291,9 @@ and likely blast radius.
 
 - Read-only.
 - Do not edit files.
+- Honor ${routeLockReference}.
+- Explore only target_surface/project_root from the Route Lock.
+- If evidence points outside the Route Lock, return blocked and explain; do not switch projects.
 - Separate confirmed facts from hypotheses.
 - Prefer concrete paths and commands over abstract advice.
 
@@ -285,6 +316,7 @@ review_guard
 
 - Request: ${runPath("00-request.md")}
 - Confirmed context: ${runPath("01-confirmed-context.md")}
+- Route lock: ${runPath("01-confirmed-context.md")}
 - Plan: ${runPath("02-plan.md")}
 - Ledger: ${runPath("03-task-ledger.md")}
 - Mapper result: ${runPath("agents", "T01", "mapper-result.md")}
@@ -298,6 +330,9 @@ security exposure, missing tests, rollback concerns, and unclear assumptions.
 
 - Read-only.
 - Do not implement.
+- Honor ${routeLockReference}.
+- Review only target_surface/project_root from the Route Lock.
+- If the plan relies on another project or surface, return blocked and explain.
 - Lead with concrete findings.
 - Ground findings in files, paths, contracts, or missing evidence.
 
@@ -323,6 +358,7 @@ surgical_fixer
 
 - Request: ${runPath("00-request.md")}
 - Confirmed context: ${runPath("01-confirmed-context.md")}
+- Route lock: ${runPath("01-confirmed-context.md")}
 - Plan: ${runPath("02-plan.md")}
 - Ledger: ${runPath("03-task-ledger.md")}
 - Decisions: ${runPath("05-decisions.md")}
@@ -341,6 +377,9 @@ surgical_fixer
 ## Constraints
 
 - Make the smallest defensible change.
+- Honor ${routeLockReference}.
+- Change only files in target_surface/project_root and the assigned write set.
+- If the required fix belongs to another project or surface, return blocked and explain.
 - Do not refactor unless this brief explicitly switches the role to refactor_worker.
 - Preserve public behavior unless the acceptance criteria says otherwise.
 - Stop and report if the required change exceeds this slice.
@@ -374,6 +413,7 @@ verifier
 
 - Request: ${runPath("00-request.md")}
 - Confirmed context: ${runPath("01-confirmed-context.md")}
+- Route lock: ${runPath("01-confirmed-context.md")}
 - Plan: ${runPath("02-plan.md")}
 - Ledger: ${runPath("03-task-ledger.md")}
 - Development result: ${runPath("agents", "<dev-task-id>", "dev-result.md")}
@@ -390,6 +430,9 @@ Verify the assigned behavior with the smallest useful checks.
 ## Constraints
 
 - Verify, do not redesign.
+- Honor ${routeLockReference}.
+- Validate only target_surface/project_root from the Route Lock.
+- If verification requires another project or surface, return blocked and explain.
 - Do not make product code changes unless explicitly asked for a test-only fix.
 - Report exact commands and outcomes.
 - Separate confirmed failures from suspected failures.
@@ -416,6 +459,7 @@ surgical_fixer
 
 - Request: ${runPath("00-request.md")}
 - Confirmed context: ${runPath("01-confirmed-context.md")}
+- Route lock: ${runPath("01-confirmed-context.md")}
 - Original development result: ${runPath("agents", "<dev-task-id>", "dev-result.md")}
 - Failing verification result: ${runPath("agents", "<verify-task-id>", "verify-result.md")}
 - Decisions: ${runPath("05-decisions.md")}
@@ -431,6 +475,9 @@ surgical_fixer
 ## Constraints
 
 - Fix only the failure described here.
+- Honor ${routeLockReference}.
+- Repair only target_surface/project_root from the Route Lock and the assigned write set.
+- If the fix belongs to another project or surface, return blocked and explain.
 - Prefer the same files changed in the original development attempt.
 - Do not start a refactor.
 - Stop after this repair if the fix would exceed the original task slice.
@@ -515,8 +562,10 @@ if (isCliEntry()) {
 export {
   buildFiles,
   buildRunRoot,
+  buildRouteLock,
   createLongTaskRun,
   defaultTimestamp,
   parseArgs,
+  renderRouteLock,
   slugify,
 };
