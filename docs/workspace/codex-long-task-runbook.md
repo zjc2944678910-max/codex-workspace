@@ -18,26 +18,30 @@ Use a long-task run directory for:
 Do not use this as a shortcut around L2/L3 gates. Production audits and repairs
 still follow `AGENTS.md`.
 
+Choose the target project from the user request first. Do not default
+`--project` to `openclaw`; use `openclaw` only when the task explicitly
+targets that surface.
+
 ## Initialize A Run
 
 Preferred unified entrypoint:
 
 ```bash
 node docs/workspace/codex-long-task.mjs init \
-  --project openclaw \
-  --project-root /Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/openclaw/nas-openclaw-v22 \
-  --slug remembered-preference-sync \
-  --task "Implement remembered preference sync"
+  --project sample-product \
+  --project-root /Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/sample-product \
+  --slug feature-flag-sync \
+  --task "Implement feature flag sync"
 ```
 
 Project-specific run:
 
 ```bash
 node docs/workspace/codex-long-task-init.mjs \
-  --project openclaw \
-  --project-root /Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/openclaw/nas-openclaw-v22 \
-  --slug remembered-preference-sync \
-  --task "Implement remembered preference sync"
+  --project sample-product \
+  --project-root /Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/sample-product \
+  --slug feature-flag-sync \
+  --task "Implement feature flag sync"
 ```
 
 Shared run:
@@ -53,7 +57,7 @@ Dry run:
 
 ```bash
 node docs/workspace/codex-long-task-init.mjs \
-  --project openclaw \
+  --project sample-product \
   --slug demo \
   --task "Demo long task" \
   --dry-run \
@@ -105,10 +109,10 @@ You can also append a ready-to-fill development and verification pair with:
 ```bash
 node docs/workspace/codex-long-task.mjs append \
   --run-root <run-root> \
-  --scope "Implement remembered preference sync" \
-  --owned "src/preferences.ts" \
-  --owned "tests/preferences.test.ts" \
-  --acceptance "preference changes are persisted" \
+  --scope "Implement feature flag sync" \
+  --owned "src/feature-flags.ts" \
+  --owned "tests/feature-flags.test.ts" \
+  --acceptance "feature flag changes are persisted" \
   --acceptance "focused tests pass"
 ```
 

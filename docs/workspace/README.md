@@ -8,6 +8,9 @@ daily Codex work.
 Use the unified long-task entrypoint when work is large enough to need a run
 directory, task ledger, agent handoffs, repair loops, or rechecks.
 
+Choose the project from the task first. Do not treat `openclaw` as the default
+project name in this workspace.
+
 ```bash
 node docs/workspace/codex-long-task.mjs --help
 ```
@@ -15,8 +18,8 @@ node docs/workspace/codex-long-task.mjs --help
 Common commands:
 
 ```bash
-node docs/workspace/codex-long-task.mjs init --project openclaw --task "Implement remembered preference sync"
-node docs/workspace/codex-long-task.mjs append --run-root <run-root> --scope "Implement preference sync"
+node docs/workspace/codex-long-task.mjs init --project sample-product --task "Implement feature flag sync"
+node docs/workspace/codex-long-task.mjs append --run-root <run-root> --scope "Implement feature flag sync"
 node docs/workspace/codex-long-task.mjs repair --run-root <run-root> --verify-result <run-root>/agents/T04/verify-result.md
 node docs/workspace/codex-long-task.mjs recheck --run-root <run-root> --repair-result <run-root>/agents/T03/repair-1-result.md
 node docs/workspace/codex-long-task.mjs close --run-root <run-root> --result <run-root>/agents/T04/recheck-1-result.md

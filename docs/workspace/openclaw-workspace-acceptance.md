@@ -2,7 +2,10 @@
 
 Updated: 2026-04-18
 
-This checklist records what has already been migrated into `codex-workspace`, what remains intentionally legacy-only, and which paths should be treated as the default working surfaces going forward.
+This checklist records what has already been migrated into `codex-workspace`,
+what remains intentionally legacy-only, and which paths should be used when a
+task explicitly targets OpenClaw. It is an OpenClaw-specific reference, not a
+workspace-wide default routing rule.
 
 ## Accepted In New Workspace
 
@@ -51,9 +54,9 @@ These areas still exist only in the old workspace root and remain reference-only
 
 These are not considered migration failures unless they contain unique canonical information missing from the new workspace.
 
-## Daily Working Defaults
+## OpenClaw Working Defaults
 
-Use these paths by default:
+If the task explicitly targets OpenClaw, use these paths:
 
 - For OpenClaw mainline code changes:
   - `projects/products/openclaw/nas-openclaw-v22/`

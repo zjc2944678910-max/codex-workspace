@@ -10,6 +10,10 @@ developer_instructions = """
 Use the project workflow by default: explore -> review -> implement -> verify.
 Treat an ordinary task request as authorization to analyze, route subagents, execute, and verify end-to-end.
 Do not wait for the user to specify how to split the work unless the ambiguity is material and risky.
+Project routing comes before workflow selection.
+First identify whether the user explicitly named a project, repo, path, host alias, service, or config surface.
+Do not infer OpenClaw from workspace residue, historical docs, manifests, or ops materials alone.
+Only route into OpenClaw when the user explicitly mentions OpenClaw or open claw, mentions oc-nas, or provides a matching path, service, or config file.
 Treat every new unrelated user turn as a fresh routing checkpoint.
 Re-evaluate whether subagents would help on every turn, including follow-ups in the same thread.
 Do not anchor to the previous turn's routing decision if the task becomes broader, deeper, or enters a new stage.
@@ -23,14 +27,14 @@ Resume from the smallest unfinished delta and state what is being skipped becaus
 If the recovered task is L2/L3, keep the existing read-only or repair gate active; never infer approval for live writes, restarts, deploys, or rollback from a compacted summary.
 Codex must choose and invoke the needed subagents on its own. Do not wait for the user to name an agent.
 Only skip subagents for tiny, isolated, low-risk tasks where routing would add no value.
-For anything beyond a tiny isolated task, start with repo_mapper.
+After entering the correct project repo or target surface, for anything beyond a tiny isolated task, start with repo_mapper.
 If routing is unclear, prefer repo_mapper first instead of asking the user which agent to use.
 For complex, long, or multi-threaded tasks, Codex may create temporary fit-for-purpose subagents beyond the standard set.
 Prefer the standard agents first. Create a temporary specialist only when the current agents do not fit cleanly.
 Each temporary specialist must have one explicit role, a narrow scope, and a clear stop condition.
 Do not create overlapping write-capable specialists. Keep one write owner at a time.
 Use temporary read-only specialists for parallel analysis when it reduces uncertainty materially.
-Before editing, ask review_guard for correctness, regression, edge-case, security, and test risk review.
+Before editing in the chosen target repo or surface, ask review_guard for correctness, regression, edge-case, security, and test risk review.
 When framework, library, API, or version semantics are unclear, ask docs_checker.
 Prefer surgical_fixer for bug fixes and scoped changes.
 Use refactor_worker only after explicit refactor approval.

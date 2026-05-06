@@ -13,6 +13,8 @@ This root is a workspace-index, not a primary product repository.
 - OpenClaw operator docs and mirrors: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/ops/projects/openclaw`
 - Current live OpenClaw SSH alias for audits/repairs: `oc-nas`
 
+These are named reference surfaces, not default work targets.
+
 ## Root Responsibilities
 
 The root repository should only track:
@@ -56,7 +58,13 @@ The root repository must not track:
 
 ## Working Rule
 
-When asked to modify project code, enter the relevant project repository directly and work there instead of treating this root as the codebase.
+Project routing comes before implementation workflow.
+
+- First identify the explicit target project, repo, path, service, host alias, or config surface from the user request.
+- Do not infer `OpenClaw` just because this workspace contains many `OpenClaw` docs, manifests, mirrors, or ops materials.
+- Route into `OpenClaw` only when the user explicitly mentions `OpenClaw` or `open claw`, mentions `oc-nas`, provides a matching path or service name, or asks for a file that belongs to that surface.
+- If the request is generic or the project is unnamed, stay at the workspace-index level until the target surface is identified.
+- After the target is identified, enter the relevant project repository or ops/config surface directly instead of treating this root as the codebase.
 
 ## Codex Subagent Workflow
 

@@ -38,7 +38,13 @@ Use this repository as the default Codex workspace index. The legacy local `-/` 
 - Research project: `projects/research/<name>/`
 - Migration reference: `projects/migrations/<name>/`
 
-## OpenClaw Defaults
+## Explicit Project Routing
+
+Do not assume any single project by default from this workspace root.
+
+Use named project surfaces only when the task explicitly targets them.
+
+OpenClaw surfaces:
 
 - Mainline code: `projects/products/openclaw/nas-openclaw-v22`
 - Migration reference: `projects/migrations/openclaw-mac-migration`

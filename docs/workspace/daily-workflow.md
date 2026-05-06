@@ -10,20 +10,37 @@ Treat this as the normal Codex root.
 
 ## Where To Work
 
-- OpenClaw mainline code:
-  - `projects/products/openclaw/nas-openclaw-v22/`
-- OpenClaw operator docs, mirrors, evidence, rollback:
-  - `ops/projects/openclaw/`
-- OpenClaw sidecar or project state:
-  - `state/project-data/openclaw/`
-- Migration/reference work:
-  - `projects/migrations/openclaw-mac-migration/`
+Choose the target surface from the user request before opening a repo or running a project-specific workflow.
+
+- Product code named by the user:
+  - `projects/products/<name>/`
+- Infrastructure code named by the user:
+  - `projects/infrastructure/<name>/`
+- Research code named by the user:
+  - `projects/research/<name>/`
+- Project ops, config, logs, or evidence named by the user:
+  - `ops/projects/<name>/`
+- Project sidecar or state named by the user:
+  - `state/project-data/<name>/`
+- Migration or reference work named by the user:
+  - `projects/migrations/<name>/`
 - Temporary project output:
   - `scratch/projects/<project>/`
 
+If the task explicitly targets OpenClaw, use:
+
+- Mainline code:
+  - `projects/products/openclaw/nas-openclaw-v22/`
+- Operator docs, mirrors, evidence, rollback:
+  - `ops/projects/openclaw/`
+- Sidecar or project state:
+  - `state/project-data/openclaw/`
+- Migration/reference work:
+  - `projects/migrations/openclaw-mac-migration/`
+
 ## Keep-First Clean
 
-- When a Codex turn ends inside the workspace root or the OpenClaw mainline repo, the local `turn-ended` hook now runs repo hygiene automatically.
+- When a Codex turn ends inside the workspace root or a nested project repo, the local `turn-ended` hook now runs repo hygiene automatically.
 - When the turn ends from the workspace root, the hook also checks known nested project repos that expose their own `repo-hygiene.mjs`.
 - The hygiene rule is keep-first:
   - preserve real source changes
