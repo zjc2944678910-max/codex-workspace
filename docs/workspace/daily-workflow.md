@@ -1,95 +1,52 @@
-# Daily Workflow
+# Daily Workflow Quickstart
 
-## Default Entry
+Full policy: `AGENTS.md`. Claude executor entrypoint: `CLAUDE.md`.
+Canonical long-task procedure: `codex-long-task-runbook.md`.
 
-Start future work in:
+## Short Task
 
-- `/Users/zhangjincheng/Documents/GitHub/codex-workspace`
+1. Identify the explicit target project or surface.
+2. State the risk layer, then route into the real repo or ops surface.
+3. If the scope is unclear or risky, run a quick `repo_mapper` or `review_guard`
+   pass. Otherwise skip directly to a narrow implementation slice.
+4. Delegate the default implementation slice to `claude_codegen_delegate`
+   / Claude Code worker.
+5. Close in Codex with `verifier` and the AGENTS.md output order.
 
-Treat this as the normal Codex root.
+## Long Task
 
-## Where To Work
+1. Identify the target project and write a Route Lock.
+2. Initialize a run directory:
+   ```bash
+   node docs/workspace/codex-long-task.mjs init \
+     --project <name> --task "<goal>"
+   ```
+3. Codex owns `00-request.md` through `05-decisions.md`, mapping, review, and
+   final verification.
+4. Claude Code worker owns the default development and repair slices.
+5. Append and repair with:
+   ```bash
+   node docs/workspace/codex-long-task.mjs append --run-root <run-root> --scope "<slice>"
+   node docs/workspace/codex-long-task.mjs repair --run-root <run-root> --verify-result <path>
+   node docs/workspace/codex-long-task.mjs recheck --run-root <run-root> --repair-result <path>
+   node docs/workspace/codex-long-task.mjs close --run-root <run-root> --result <path>
+   ```
 
-Choose the target surface from the user request before opening a repo or running a project-specific workflow.
+## Routing Cheat Sheet
 
-Routing precheck:
+| User targets... | Work in |
+| --- | --- |
+| Product code | `projects/products/<name>/` |
+| Infrastructure | `projects/infrastructure/<name>/` |
+| Research | `projects/research/<name>/` |
+| Migration | `projects/migrations/<name>/` |
+| Ops/config | `ops/projects/<name>/` |
+| State/sidecar | `state/project-data/<name>/` |
+| Temp output | `scratch/projects/<project>/` |
 
-1. Identify the explicit project, repo, path, service, host alias, or config surface from the request.
-2. Lock the target surface before delegation or long-task setup.
-3. Choose the workflow only after the target is locked.
+## Hygiene
 
-- Product code named by the user:
-  - `projects/products/<name>/`
-- Infrastructure code named by the user:
-  - `projects/infrastructure/<name>/`
-- Research code named by the user:
-  - `projects/research/<name>/`
-- Project ops, config, logs, or evidence named by the user:
-  - `ops/projects/<name>/`
-- Project sidecar or state named by the user:
-  - `state/project-data/<name>/`
-- Migration or reference work named by the user:
-  - `projects/migrations/<name>/`
-- Temporary project output:
-  - `scratch/projects/<project>/`
-
-If the task explicitly targets OpenClaw, use:
-
-- Mainline code:
-  - `projects/products/openclaw/nas-openclaw-v22/`
-- Operator docs, mirrors, evidence, rollback:
-  - `ops/projects/openclaw/`
-- Sidecar or project state:
-  - `state/project-data/openclaw/`
-- Migration/reference work:
-  - `projects/migrations/openclaw-mac-migration/`
-
-## Keep-First Clean
-
-- When a Codex turn ends inside the workspace root or a nested project repo, the local `turn-ended` hook now runs repo hygiene automatically.
-- When the turn ends from the workspace root, the hook also checks known nested project repos that expose their own `repo-hygiene.mjs`.
-- The hygiene rule is keep-first:
-  - preserve real source changes
-  - prune only explicit disposable outputs
-  - if source changes remain, create a local checkpoint commit so the repo returns to clean
-- Root workspace checkpointing is whitelist-gated:
-  - only paths allowed by the workspace-index policy are eligible for auto checkpoint
-  - if a non-trackable path appears, the repo stays dirty on purpose instead of silently committing it
-- If you are intentionally doing a hand-grouped multi-commit sequence, pause auto hygiene first:
-  - `~/.codex/tools/codex-repo-hygiene-guard.sh pause --repo <repo> --minutes 30 --reason manual-split-commit`
-  - `~/.codex/tools/codex-repo-hygiene-guard.sh resume --repo <repo>`
-- Or wrap the grouped command directly:
-  - `~/.codex/tools/codex-repo-hygiene-guard.sh with-pause --repo <repo> --minutes 30 --reason manual-split-commit -- <command ...>`
-- Short alias when you are already in the target repo:
-  - `~/.codex/tools/codex-with-pause.sh --minutes 30 --reason manual-split-commit -- <command ...>`
-- Specialized git commit wrapper when you are already in the target repo:
-  - `~/.codex/tools/codex-git-commit.sh -m "your message"`
-
-## When To Open The Legacy Root
-
-Only return to:
-
-- `/Users/zhangjincheng/Documents/GitHub/-/`
-
-when you need to:
-
-- compare a path that was not yet migrated
-- verify historical residue or reports
-- recover a missed document into the new workspace
-
-Do not use the legacy root for new daily development by default.
-
-## New Project Placement
-
-- New product project:
-  - `projects/products/<name>/`
-- New infrastructure project:
-  - `projects/infrastructure/<name>/`
-- New research or competition project:
-  - `projects/research/<name>/`
-- New migration/import/export tree:
-  - `projects/migrations/<name>/`
-- New project ops material:
-  - `ops/projects/<name>/`
-- New project state data:
-  - `state/project-data/<name>/`
+- Repo hygiene runs automatically on turn end via `repo-hygiene.mjs`.
+- Auto checkpoint stays whitelist-gated to trackable workspace-index files.
+- Pause hygiene for grouped multi-commit:
+  `~/.codex/tools/codex-repo-hygiene-guard.sh pause --repo <repo> --minutes 30`

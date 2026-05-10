@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 
 const TRACKABLE_EXACT_PATHS = new Set([
   "AGENTS.md",
+  "CLAUDE.md",
   ".gitignore",
   ".codex/config.toml",
   "README.md",
@@ -170,7 +171,7 @@ function summarizePathForCheckpoint(relativePath) {
   const normalized = String(relativePath || "").trim().replace(/\\/g, "/");
   if (!normalized) return "";
   if (normalized === ".gitignore") return "hygiene";
-  if (normalized === "AGENTS.md" || normalized === "README.md" || normalized === "WORKSPACE_MAP.md") return "workspace";
+  if (normalized === "AGENTS.md" || normalized === "CLAUDE.md" || normalized === "README.md" || normalized === "WORKSPACE_MAP.md") return "workspace";
   if (normalized.startsWith(".codex/")) return "codex-config";
   if (normalized.startsWith("docs/")) {
     if (normalized.startsWith("docs/workspace/")) return "workspace";

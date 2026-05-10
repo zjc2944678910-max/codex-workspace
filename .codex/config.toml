@@ -7,43 +7,15 @@ model_context_window = 539000
 model_auto_compact_token_limit = 500000
 
 developer_instructions = """
-Use the project workflow by default: explore -> review -> implement -> verify.
-Treat an ordinary task request as authorization to analyze, route subagents, execute, and verify end-to-end.
-Do not wait for the user to specify how to split the work unless the ambiguity is material and risky.
-Start each task with a routing checkpoint before workflow selection.
-Identify whether the user explicitly named a project, repo, path, host alias, service, or config surface.
-Do not infer OpenClaw or any other project from workspace residue, historical docs, manifests, or ops materials alone.
-Only route into OpenClaw when the user explicitly mentions OpenClaw or open claw, mentions oc-nas, or provides a matching path, service, or config file.
-For long tasks or child-agent handoffs, create or honor a Route Lock: target_project, target_surface, project_root, route_evidence, and forbidden_surfaces.
-If evidence points outside the locked target, stop as blocked instead of silently switching projects.
-Treat every new unrelated user turn as a fresh routing checkpoint.
-Re-evaluate whether subagents would help on every turn, including follow-ups in the same thread.
-Do not anchor to the previous turn's routing decision if the task becomes broader, deeper, or enters a new stage.
-Messages like "continue", "继续", "再看看", or scope expansions require a continuation check first, then a routing judgment only for the unfinished delta.
-After context compaction, interruption, model retry, or a long-running background-agent handoff, do not restart the task from the beginning.
-Treat "continue", "继续", "接着", "再看看", "where were we", and any compacted summary that lacks exact state as a continuation recovery trigger.
-Before doing new work after a recovery trigger, reconstruct a compact continuation checkpoint from evidence, not memory alone: user goal, risk level/gates, confirmed facts, completed stages, active or completed agents, files already inspected or changed, commands already run, blockers, and the next single action.
-If prior state is incomplete, inspect local git status, recent terminal output, relevant files, and when useful the local Codex session transcript under ~/.codex/sessions before rerunning broad mapping or review.
-Do not relaunch repo_mapper, review_guard, docs_checker, or verifier for the same scope unless their prior result is missing, stale, or explicitly contradicted.
-Resume from the smallest unfinished delta and state what is being skipped because it was already completed.
-If the recovered task is L2/L3, keep the existing read-only or repair gate active; never infer approval for live writes, restarts, deploys, or rollback from a compacted summary.
-Codex must choose and invoke the needed subagents on its own. Do not wait for the user to name an agent.
-Only skip subagents for tiny, isolated, low-risk tasks where routing would add no value.
-After entering the correct project repo or target surface, for anything beyond a tiny isolated task, start with repo_mapper.
-If routing is unclear, prefer repo_mapper first instead of asking the user which agent to use.
-For complex, long, or multi-threaded tasks, Codex may create temporary fit-for-purpose subagents beyond the standard set.
-Prefer the standard agents first. Create a temporary specialist only when the current agents do not fit cleanly.
-Each temporary specialist must have one explicit role, a narrow scope, and a clear stop condition.
-Do not create overlapping write-capable specialists. Keep one write owner at a time.
-Use temporary read-only specialists for parallel analysis when it reduces uncertainty materially.
-Before editing in the chosen target repo or surface, ask review_guard for correctness, regression, edge-case, security, and test risk review.
-When framework, library, API, or version semantics are unclear, ask docs_checker.
-Prefer surgical_fixer for bug fixes and scoped changes.
-Use refactor_worker only after explicit refactor approval.
-After changes, hand off to verifier for reproduction or tests.
-When a task naturally spans analysis, review, implementation, and verification, run those stages proactively.
-Keep concurrency conservative. Use at most one write-capable agent at a time. Parallelize only independent read-only work.
-Default to the smallest change that solves confirmed facts.
+Runtime summary. Full policy lives in AGENTS.md; read it before any task.
+
+Default workflow: explore -> review -> implement -> verify.
+Start each task with a routing checkpoint. Route Lock required for long tasks.
+After context compaction or recovery trigger, reconstruct a continuation
+checkpoint before resuming; never restart from the beginning.
+Codex chooses and invokes subagents. Claude Code worker follows CLAUDE.md.
+Default to the smallest defensible change. One write-capable agent at a time.
+Final output order: confirmed facts, changes, verification, risks, next steps.
 """
 
 sandbox_mode = "danger-full-access"

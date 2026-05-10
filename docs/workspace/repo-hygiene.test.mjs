@@ -25,6 +25,7 @@ async function createFixture() {
   await fs.mkdir(path.join(root, "docs", "workspace"), { recursive: true });
   await fs.mkdir(path.join(root, "ops", "projects", "openclaw", "manifests"), { recursive: true });
   await fs.writeFile(path.join(root, "AGENTS.md"), "agents\n", "utf8");
+  await fs.writeFile(path.join(root, "CLAUDE.md"), "claude executor\n", "utf8");
   await fs.writeFile(path.join(root, ".codex", "config.toml"), "model = \"gpt-5.4\"\n", "utf8");
   await fs.writeFile(path.join(root, "README.md"), "workspace\n", "utf8");
   await fs.writeFile(path.join(root, "WORKSPACE_MAP.md"), "map\n", "utf8");
@@ -36,6 +37,7 @@ async function createFixture() {
 
 test("root hygiene trackable-path gate matches workspace policy", () => {
   assert.equal(isTrackablePath("AGENTS.md"), true);
+  assert.equal(isTrackablePath("CLAUDE.md"), true);
   assert.equal(isTrackablePath(".codex/agents/repo-mapper.toml"), true);
   assert.equal(isTrackablePath("docs/workspace/repo-hygiene.mjs"), true);
   assert.equal(isTrackablePath("ops/projects/openclaw/manifests/test.json"), true);

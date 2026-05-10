@@ -3,8 +3,9 @@
 Use this runbook when a task is large enough that chat-only memory would become
 messy, but it is still local engineering work.
 
-For the design rationale and agent prompt templates, see
-`docs/workspace/codex-multi-agent-long-task-template.md`.
+Full workspace policy lives in `AGENTS.md`.
+`docs/workspace/codex-multi-agent-long-task-template.md` is a
+non-canonical prompt/layout reference only.
 
 ## When To Use
 
@@ -100,13 +101,16 @@ Before delegating any work, fill or update:
 4. Write the mapper result path into `03-task-ledger.md`.
 5. Ask `review_guard` for pre-change risk review.
 6. Use `docs_checker` if API, framework, or version behavior is unclear.
-7. Use `surgical_fixer` for the smallest safe implementation slice.
-8. Use `verifier` for the smallest useful validation.
+7. Delegate the default implementation slice to `claude_codegen_delegate`.
+   Use `refactor_worker` only after explicit refactor approval.
+   Use `surgical_fixer` only as a fallback for tiny or tightly coupled local fixes.
+8. Use `verifier` for Codex-side validation and acceptance.
 9. Update `06-final-summary.md` as the task converges.
 
 When moving from review into implementation, copy
 `brief-templates/dev-brief.md` into `agents/<task-id>/dev-brief.md`, then fill
-the write set and acceptance criteria. Do the same with
+the write set and acceptance criteria, then send it to Claude Code worker by
+default. Do the same with
 `brief-templates/verify-brief.md` for the verifier.
 
 You can also append a ready-to-fill development and verification pair with:
@@ -130,7 +134,7 @@ If verification fails:
 
 1. Mark the task `needs_fix` in `03-task-ledger.md`.
 2. Write `repair-N-brief.md` under that task's `agents/<task-id>/` directory.
-3. Send the repair brief back to the same development agent if its ID is known.
+3. Send the repair brief back to the same development worker if its ID is known.
 4. Send the repaired result back to the same verifier if its ID is known.
 5. Record IDs and resume rules in `07-agent-registry.md`.
 6. Stop after 3 failed repair attempts and mark the task `blocked` or `deferred`.

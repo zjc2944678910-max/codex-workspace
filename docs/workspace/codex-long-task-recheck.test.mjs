@@ -64,7 +64,7 @@ test("updateLedgerForRecheck marks dev and verifier as verifying", async () => {
     verifyTaskId: "T04",
     repairNumber: 1,
   });
-  assert.match(updated, /\| T03 \| verifying \| surgical_fixer/u);
+  assert.match(updated, /\| T03 \| verifying \| claude_codegen_delegate/u);
   assert.match(updated, /repair-1 submitted for recheck/u);
   assert.match(updated, /\| T04 \| verifying \| verifier/u);
   assert.match(updated, /recheck-1 requested/u);

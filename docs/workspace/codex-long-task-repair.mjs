@@ -206,7 +206,7 @@ function buildRepairBrief(runRoot, options = {}, ids = {}, verifyResultText = ""
 
 ## Role
 
-surgical_fixer
+claude_codegen_delegate
 
 ## Inputs
 
@@ -228,6 +228,7 @@ ${bulletList(options.expected, "<describe expected behavior>")}
 ## Constraints
 
 - Fix only the failure described here.
+- If the role is claude_codegen_delegate, follow CLAUDE.md.
 - Prefer the same files changed in the original development attempt.
 - Do not start a refactor.
 - Stop after this repair if the fix would exceed the original task slice.

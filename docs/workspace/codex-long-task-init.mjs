@@ -176,8 +176,8 @@ ${task}
 
 ## User Constraints
 
-- Follow AGENTS.md risk layering and final output format.
-- Use the Codex multi-agent long task template.
+- Follow AGENTS.md risk layering, Route Lock, and final output format.
+- Use codex-long-task-runbook.md as the canonical operational workflow.
 `],
       ["01-confirmed-context.md", `# Confirmed Context
 
@@ -214,7 +214,9 @@ ${renderRouteLock(routeLock)}
 1. Map the affected surface with repo_mapper when the task is non-trivial.
 2. Review risk with review_guard before edits.
 3. Use docs_checker if framework, API, or version semantics are unclear.
-4. Use surgical_fixer for the smallest safe implementation, or refactor_worker only after explicit refactor approval.
+4. Delegate the default implementation slice to claude_codegen_delegate.
+   Use refactor_worker only after explicit refactor approval.
+   Use surgical_fixer only as a fallback for tiny or tightly coupled fixes.
 5. Use verifier for focused checks.
 
 ## Implementation Slices
@@ -348,11 +350,12 @@ status: pass | changes_requested | blocked
       [path.join("brief-templates", "dev-brief.md"), `# Development Brief Template
 
 Copy this file to ${runPath("agents", "<task-id>", "dev-brief.md")} and fill in
-the placeholders before sending it to surgical_fixer or refactor_worker.
+the placeholders before sending it to claude_codegen_delegate or another
+explicitly selected executor.
 
 ## Role
 
-surgical_fixer
+claude_codegen_delegate
 
 ## Inputs
 
@@ -377,6 +380,7 @@ surgical_fixer
 ## Constraints
 
 - Make the smallest defensible change.
+- If the role is claude_codegen_delegate, follow CLAUDE.md.
 - Honor ${routeLockReference}.
 - Change only files in target_surface/project_root and the assigned write set.
 - If the required fix belongs to another project or surface, return blocked and explain.
@@ -453,7 +457,7 @@ and send it back to the same development agent when possible.
 
 ## Role
 
-surgical_fixer
+claude_codegen_delegate
 
 ## Inputs
 
@@ -475,6 +479,7 @@ surgical_fixer
 ## Constraints
 
 - Fix only the failure described here.
+- If the role is claude_codegen_delegate, follow CLAUDE.md.
 - Honor ${routeLockReference}.
 - Repair only target_surface/project_root from the Route Lock and the assigned write set.
 - If the fix belongs to another project or surface, return blocked and explain.

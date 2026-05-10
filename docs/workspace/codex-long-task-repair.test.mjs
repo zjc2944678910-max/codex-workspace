@@ -58,7 +58,7 @@ test("updateLedgerForRepair marks dev and verifier rows", async () => {
     verifyTaskId: "T04",
     repairNumber: 1,
   });
-  assert.match(updated, /\| T03 \| needs_fix \| surgical_fixer/u);
+  assert.match(updated, /\| T03 \| needs_fix \| claude_codegen_delegate/u);
   assert.match(updated, /\| T03 \| needs_fix [^\n]+ \| 1 \| implementation slice; repair-1 requested \|/u);
   assert.match(updated, /\| T04 \| blocked \| verifier/u);
   assert.match(updated, /failed; repair-1 requested for T03/u);
