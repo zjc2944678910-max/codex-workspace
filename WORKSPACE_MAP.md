@@ -22,8 +22,10 @@ If a task or note refers to `codex-workplace`, treat it as a spelling mismatch u
   - New `AGENTS.md`
 - Old `README.md`
   - New `README.md`
-- Old `docs/reports/*`
+- Old workspace-level `docs/reports/*`
   - New `docs/reports/*`
+- Old project-specific reports and runbooks
+  - New `ops/projects/<project>/reports/*` or `ops/projects/<project>/runbooks/*`
 - Old `.codex-remote-openclaw/*`
   - New `ops/projects/openclaw/*`
 - Old `projects/openclaw/main/nas-openclaw-v22`

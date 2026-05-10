@@ -15,16 +15,25 @@ const TRACKABLE_EXACT_PATHS = new Set([
   "WORKSPACE_MAP.md",
   "ops/README.md",
   "ops/projects/README.md",
-  "ops/projects/openclaw/README.md",
-  "ops/projects/openclaw/DEPLOYMENT_LEDGER.md",
-  "ops/projects/openclaw/ARCHITECTURE_TODO.md",
+  "ops/projects/PROJECT_TEMPLATE.md",
 ]);
 
 const TRACKABLE_PREFIXES = [
   ".codex/agents/",
   "docs/",
-  "ops/projects/openclaw/manifests/",
 ];
+
+const PROJECT_OPS_DOCS = new Set([
+  "README.md",
+  "DEPLOYMENT_LEDGER.md",
+  "ARCHITECTURE_TODO.md",
+]);
+
+const PROJECT_OPS_TRACKED_DIRS = new Set([
+  "manifests",
+  "reports",
+  "runbooks",
+]);
 
 const THEME_PRIORITY = new Map([
   ["workspace", 0],
@@ -140,6 +149,12 @@ function parseStatusEntries(repoRoot) {
     }));
 }
 
+function expandStatusPath(statusPath = "") {
+  const normalized = String(statusPath || "").trim();
+  if (!normalized.includes(" -> ")) return [normalized].filter(Boolean);
+  return normalized.split(" -> ").map((entry) => entry.trim()).filter(Boolean);
+}
+
 function classifyStatusEntries(entries = []) {
   const summary = {
     modifiedTracked: [],
@@ -147,15 +162,16 @@ function classifyStatusEntries(entries = []) {
     otherTracked: [],
   };
   for (const entry of entries) {
+    const paths = expandStatusPath(entry.path);
     if (entry.raw.startsWith("?? ")) {
-      summary.untrackedSource.push(entry.path);
+      summary.untrackedSource.push(...paths);
       continue;
     }
     if (/[MACRUDT]/u.test(entry.code)) {
-      summary.modifiedTracked.push(entry.path);
+      summary.modifiedTracked.push(...paths);
       continue;
     }
-    summary.otherTracked.push(entry.path);
+    summary.otherTracked.push(...paths);
   }
   return summary;
 }
@@ -164,7 +180,15 @@ function isTrackablePath(relativePath) {
   const normalized = String(relativePath || "").trim().replace(/\\/g, "/");
   if (!normalized) return false;
   if (TRACKABLE_EXACT_PATHS.has(normalized)) return true;
-  return TRACKABLE_PREFIXES.some((prefix) => normalized.startsWith(prefix));
+  if (TRACKABLE_PREFIXES.some((prefix) => normalized.startsWith(prefix))) return true;
+
+  const projectOpsMatch = normalized.match(/^ops\/projects\/([^/]+)\/([^/]+)$/u);
+  if (projectOpsMatch && PROJECT_OPS_DOCS.has(projectOpsMatch[2])) return true;
+
+  const projectOpsSubdirMatch = normalized.match(/^ops\/projects\/[^/]+\/([^/]+)\/.+/u);
+  if (projectOpsSubdirMatch && PROJECT_OPS_TRACKED_DIRS.has(projectOpsSubdirMatch[1])) return true;
+
+  return false;
 }
 
 function summarizePathForCheckpoint(relativePath) {
@@ -317,6 +341,7 @@ export {
   buildRepoHygieneSummary,
   buildCheckpointCommitMessage,
   classifyStatusEntries,
+  expandStatusPath,
   isTrackablePath,
   renderSummary,
   resolveRepoRoot,

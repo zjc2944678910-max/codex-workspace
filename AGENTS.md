@@ -22,13 +22,16 @@ The root repository should only track:
 - `.codex/agents/`
 - `README.md`
 - `WORKSPACE_MAP.md`
-- `docs/`
+- `docs/` for workspace-level documentation only
 - `ops/README.md`
 - `ops/projects/README.md`
+- `ops/projects/PROJECT_TEMPLATE.md`
 - `ops/projects/<registered-project>/README.md`
 - `ops/projects/<registered-project>/DEPLOYMENT_LEDGER.md`
 - `ops/projects/<registered-project>/ARCHITECTURE_TODO.md`
 - `ops/projects/<registered-project>/manifests/`
+- `ops/projects/<registered-project>/reports/`
+- `ops/projects/<registered-project>/runbooks/`
 
 The root repository must not track:
 
@@ -49,6 +52,8 @@ The root repository must not track:
 - Research work goes in `projects/research/<name>/`
 - Migration or import/export work goes in `projects/migrations/<name>/`
 - Project operator materials go in `ops/projects/<name>/`
+- Project-specific durable reports go in `ops/projects/<name>/reports/`
+- Project-specific runbooks go in `ops/projects/<name>/runbooks/`
 - Project-specific state goes in `state/project-data/<name>/`
 - Project temporary outputs go in `scratch/projects/<name>/`
 - Shared temporary outputs go in `scratch/shared/`
@@ -56,15 +61,18 @@ The root repository must not track:
 
 ## Project Registry
 
-Use this registry only after the request explicitly names or points to the
-project. These entries are not default work targets.
+Project records live under `ops/projects/<project>/README.md`.
+A project is registered when that README exists and names its code, ops, state,
+scratch, durable docs, and optional host/service aliases.
 
-- OpenClaw:
-  - Mainline code: `projects/products/openclaw/nas-openclaw-v22`
-  - Migration reference: `projects/migrations/openclaw-mac-migration`
-  - Project data/state: `state/project-data/openclaw`
-  - Operator docs and mirrors: `ops/projects/openclaw`
-  - Live SSH alias for audits/repairs: `oc-nas`
+The root policy must stay project-neutral:
+
+- No registered project is a default work target.
+- Do not hardcode project-specific route rules in this file.
+- Add or update project-specific routing evidence in that project's README.
+- Use `ops/projects/PROJECT_TEMPLATE.md` when registering a new project.
+
+Discover registered project records with `ops/projects/*/README.md`.
 
 ## Risk Layering
 
@@ -84,10 +92,10 @@ Use the highest applicable level. If uncertain, raise the level by one.
   changes that do not directly touch production. Codex should give a short plan,
   then orchestrate mapping, review, implementation, and verification.
 - `L2` high-risk read-only audit:
-  OpenClaw, `oc-nas`, live or production config, logs, status, slow replies,
-  performance incidents, unclear root cause, or any read-only investigation
-  where a wrong conclusion would be expensive. Keep the first pass in Codex,
-  stay read-only, and do not default into repair.
+  any registered live or production project, host alias, service status, config,
+  logs, slow replies, performance incidents, unclear root cause, or read-only
+  investigation where a wrong conclusion would be expensive. Keep the first
+  pass in Codex, stay read-only, and do not default into repair.
 - `L3` repair execution:
   config writes, service restarts, deploys, runtime parameter changes,
   production file writes, rollbacks, or any live state-changing command. Stop at
@@ -139,7 +147,7 @@ Quick routing decision table:
 | Work type | Default owner | Notes |
 | --- | --- | --- |
 | Target selection, risk layer, Route Lock | Codex | Never delegate project routing from workspace residue. |
-| Architecture, root cause, high-risk judgment | Codex | Includes live, NAS, VPS, OpenClaw, production, auth, secrets, deploy, and config-heavy analysis. |
+| Architecture, root cause, high-risk judgment | Codex | Includes live, NAS, VPS, production, auth, secrets, deploy, and config-heavy analysis. |
 | Read-only mapping and pre-change risk review | Codex agents | Use `repo_mapper`, `review_guard`, or `docs_checker` as needed. |
 | Bounded L0/L1 implementation slice | Claude Code worker | Use `claude_codegen_delegate` after scope, owner files, and acceptance criteria are clear. |
 | Repair after verifier failure | Claude Code worker | Send the focused failure evidence back to the same development worker when possible. |
@@ -147,17 +155,37 @@ Quick routing decision table:
 | Tiny local fix where delegation adds latency | Codex fallback | Use direct Codex edit or `surgical_fixer`; keep it narrow. |
 | Approved structural refactor | Claude Code worker or fallback `refactor_worker` | Must have explicit write scope and behavior-preservation criteria. |
 
+## Claude Repair Routing
+
+After a `claude_codegen_delegate` implementation slice, Codex reviews and
+verifies the result locally. If Codex finds L0/L1 implementation defects, the
+default repair path is to send a focused repair brief back to
+`claude_codegen_delegate`, ideally the same worker/thread when the client can
+resume it.
+
+Codex may direct-patch only when one of these bypass reasons applies:
+
+- tiny mechanical fix (typo, comment, import order, whitespace)
+- Claude Code worker is unavailable or unresponsive
+- L2/L3/live/deploy/auth/secrets/config-heavy issue where Codex judgment is the
+  main value
+- explicit user request to bypass Claude
+
+When Codex bypasses the default repair routing, the final output must include a
+`why_no_claude` field stating the reason. The same bypass rule applies inside
+long-task repair loops (see `docs/workspace/codex-long-task-runbook.md`).
+
 ## Working Rule
 
 Project routing comes before implementation workflow.
 
 - First identify the explicit target project, repo, path, service, host alias,
   or config surface from the user request.
-- Do not infer `OpenClaw` just because this workspace contains many
-  `OpenClaw` docs, manifests, mirrors, or ops materials.
-- Route into `OpenClaw` only when the user explicitly mentions `OpenClaw` or
-  `open claw`, mentions `oc-nas`, provides a matching path or service name, or
-  asks for a file that belongs to that surface.
+- Do not infer any project just because this workspace contains its docs,
+  manifests, mirrors, historical reports, or ops materials.
+- Route into a registered project only when the user explicitly names that
+  project, names an alias or host/service listed in its README, provides a
+  matching path, or asks for a file that belongs to that project surface.
 - If the request is generic or the project is unnamed, stay at the
   workspace-index level until the target surface is identified.
 - After the target is identified, enter the relevant project repository or

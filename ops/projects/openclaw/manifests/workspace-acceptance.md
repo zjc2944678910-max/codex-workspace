@@ -1,4 +1,4 @@
-# OpenClaw Workspace Acceptance
+# OpenClaw Workspace Acceptance Manifest
 
 Updated: 2026-04-18
 
@@ -34,12 +34,12 @@ These surfaces are present and should be treated as the new canonical layout:
 
 The following long-lived documents from the old workspace have been imported and should now be read from the new workspace:
 
-- `docs/reports/openclaw_claude_code_assessment_20260401.md`
-- `docs/reports/security_best_practices_report.md`
-- `docs/reports/knowledge-layer-inventory-20260322.md`
-- `docs/reports/legacy-runtime-inventory-20260322.md`
-- `docs/runbooks/openclaw-sre-troubleshooting-runbook.md`
-- `docs/runbooks/openclaw-upgrade-impact-assessment.md`
+- `ops/projects/openclaw/reports/claude-code-assessment-20260401.md`
+- `ops/projects/openclaw/reports/knowledge-layer-inventory-20260322.md`
+- `ops/projects/openclaw/reports/legacy-runtime-inventory-20260322.md`
+- `ops/projects/openclaw/reports/security-best-practices-report-20260314.md`
+- `ops/projects/openclaw/runbooks/sre-troubleshooting-runbook.md`
+- `ops/projects/openclaw/runbooks/upgrade-impact-assessment.md`
 - `ops/projects/openclaw/manifests/runtime-patch-inventory.md`
 - `ops/projects/openclaw/manifests/write-safety-notes.md`
 
@@ -74,7 +74,8 @@ If the task explicitly targets OpenClaw, use these paths:
 - Keep the legacy root `-/` as read-only reference until the new workspace has been used successfully for a sustained period.
 - If a later audit finds a missing canonical document in the old workspace, import it into:
   - `docs/reports/`
-  - `docs/runbooks/`
+  - `ops/projects/openclaw/reports/`
+  - `ops/projects/openclaw/runbooks/`
   - or `ops/projects/openclaw/manifests/`
   depending on its role.
 - Do not reintroduce old absolute paths into new entrypoint docs.

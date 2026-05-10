@@ -82,6 +82,11 @@ test("createRepair writes repair brief and updates ledger", async () => {
   assert.match(brief, /Expected persisted state/u);
   assert.match(brief, /preference changes are persisted/u);
   assert.match(brief, /send the result back to verifier task T04/u);
+  assert.match(brief, /## Codex Verifier\/Review Findings/u);
+  assert.match(brief, /Codex verifier\/review findings/u);
+  assert.match(brief, /claude_codegen_delegate/u);
+  assert.match(brief, /Do not broaden scope/u);
+  assert.match(brief, /why_no_claude|bypass/u);
   assert.match(ledger, /\| T03 \| needs_fix/u);
   assert.match(ledger, /\| T04 \| blocked/u);
 });

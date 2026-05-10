@@ -15,8 +15,8 @@ __pycache__/
 
 /scratch/*
 
-/ops/projects/openclaw/mirrors/
-/ops/projects/openclaw/evidence/
-/ops/projects/openclaw/logs/
-/ops/projects/openclaw/quarantine/
-/ops/projects/openclaw/rollback/*
+/ops/projects/*/mirrors/
+/ops/projects/*/evidence/
+/ops/projects/*/logs/
+/ops/projects/*/quarantine/
+/ops/projects/*/rollback/*

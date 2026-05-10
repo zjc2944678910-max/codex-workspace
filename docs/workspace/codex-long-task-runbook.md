@@ -20,8 +20,8 @@ Do not use this as a shortcut around L2/L3 gates. Production audits and repairs
 still follow `AGENTS.md`.
 
 Choose the target project from the user request first. Do not default
-`--project` to `openclaw`; use `openclaw` only when the task explicitly
-targets that surface.
+`--project` to any registered project; use a project slug only when the task
+explicitly targets that surface.
 
 ## Initialize A Run
 
@@ -130,14 +130,34 @@ This creates the next `agents/Txx/dev-brief.md` and
 
 ## Repair Loop
 
+The repair loop follows: Codex verifier/review finding -> Claude repair brief
+-> Codex recheck. Codex identifies defects during verification or review and
+packages them into a focused repair brief. The repair brief is routed back to
+`claude_codegen_delegate` (Claude Code worker) by default, ideally the same
+worker/thread when resumable. Codex does not direct-patch L0/L1 implementation
+defects inside the repair loop unless a bypass reason applies.
+
 If verification fails:
 
 1. Mark the task `needs_fix` in `03-task-ledger.md`.
 2. Write `repair-N-brief.md` under that task's `agents/<task-id>/` directory.
-3. Send the repair brief back to the same development worker if its ID is known.
+   The brief must include the Codex verifier/review findings, forbid scope
+   expansion, and name Claude Code worker (`claude_codegen_delegate`) as the
+   default repair executor.
+3. Send the repair brief back to the same Claude Code worker if its ID is known.
 4. Send the repaired result back to the same verifier if its ID is known.
 5. Record IDs and resume rules in `07-agent-registry.md`.
 6. Stop after 3 failed repair attempts and mark the task `blocked` or `deferred`.
+
+Codex may direct-patch inside the repair loop only for:
+
+- tiny mechanical fix (typo, comment, import order, whitespace)
+- Claude Code worker unavailable or unresponsive
+- L2/L3/live/deploy/auth/secrets/config-heavy issue
+- explicit user request to bypass Claude
+
+When Codex direct-patches, the final output must include `why_no_claude` stating
+the bypass reason.
 
 If the client cannot resume the same child agent, give the replacement agent the
 previous `dev-result.md`, `verify-result.md`, and latest repair brief as input.

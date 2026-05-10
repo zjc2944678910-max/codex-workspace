@@ -44,6 +44,17 @@ orchestrator has already granted implementation permission.
   on its own authority.
 - Does not override the Route Lock.
 
+## Repair Brief Expectations
+
+When receiving a repair brief (e.g. `repair-N-brief.md`):
+
+- Preserve the prior implementation unless a specific finding contradicts it.
+- Fix only the Codex findings or failing evidence listed in the brief.
+- Do not broaden scope, refactor, or clean up unrelated code.
+- Follow CLAUDE.md constraints and the Route Lock from the parent task.
+- Return structured output: `summary`, `changed_files`, `tests_run`, `risks`,
+  `followups`.
+
 ## Final Output Order
 
 Use this fixed order for structured responses:

@@ -5,7 +5,7 @@ import path from "node:path";
 import test from "node:test";
 import { spawnSync } from "node:child_process";
 
-import { buildCheckpointCommitMessage, buildRepoHygieneSummary, isTrackablePath, summarizeCheckpointScope } from "./repo-hygiene.mjs";
+import { buildCheckpointCommitMessage, buildRepoHygieneSummary, classifyStatusEntries, expandStatusPath, isTrackablePath, summarizeCheckpointScope } from "./repo-hygiene.mjs";
 
 function runGit(repoRoot, args) {
   const result = spawnSync("git", ["-C", repoRoot, ...args], {
@@ -23,12 +23,15 @@ async function createFixture() {
 
   await fs.mkdir(path.join(root, ".codex", "agents"), { recursive: true });
   await fs.mkdir(path.join(root, "docs", "workspace"), { recursive: true });
-  await fs.mkdir(path.join(root, "ops", "projects", "openclaw", "manifests"), { recursive: true });
+  await fs.mkdir(path.join(root, "ops", "projects", "sample-product", "manifests"), { recursive: true });
   await fs.writeFile(path.join(root, "AGENTS.md"), "agents\n", "utf8");
   await fs.writeFile(path.join(root, "CLAUDE.md"), "claude executor\n", "utf8");
   await fs.writeFile(path.join(root, ".codex", "config.toml"), "model = \"gpt-5.4\"\n", "utf8");
   await fs.writeFile(path.join(root, "README.md"), "workspace\n", "utf8");
   await fs.writeFile(path.join(root, "WORKSPACE_MAP.md"), "map\n", "utf8");
+  await fs.writeFile(path.join(root, "ops", "projects", "PROJECT_TEMPLATE.md"), "template\n", "utf8");
+  await fs.writeFile(path.join(root, "ops", "projects", "sample-product", "README.md"), "sample\n", "utf8");
+  await fs.writeFile(path.join(root, "ops", "projects", "sample-product", "DEPLOYMENT_LEDGER.md"), "ledger\n", "utf8");
   await fs.writeFile(path.join(root, ".gitignore"), "/state/\n/projects/\n", "utf8");
   runGit(root, ["add", "."]);
   runGit(root, ["commit", "-m", "fixture"]);
@@ -40,11 +43,18 @@ test("root hygiene trackable-path gate matches workspace policy", () => {
   assert.equal(isTrackablePath("CLAUDE.md"), true);
   assert.equal(isTrackablePath(".codex/agents/repo-mapper.toml"), true);
   assert.equal(isTrackablePath("docs/workspace/repo-hygiene.mjs"), true);
-  assert.equal(isTrackablePath("ops/projects/openclaw/manifests/test.json"), true);
+  assert.equal(isTrackablePath("ops/projects/PROJECT_TEMPLATE.md"), true);
+  assert.equal(isTrackablePath("ops/projects/sample-product/README.md"), true);
+  assert.equal(isTrackablePath("ops/projects/sample-product/DEPLOYMENT_LEDGER.md"), true);
+  assert.equal(isTrackablePath("ops/projects/sample-product/ARCHITECTURE_TODO.md"), true);
+  assert.equal(isTrackablePath("ops/projects/sample-product/manifests/test.json"), true);
+  assert.equal(isTrackablePath("ops/projects/sample-product/reports/audit.md"), true);
+  assert.equal(isTrackablePath("ops/projects/sample-product/runbooks/restart.md"), true);
   assert.equal(isTrackablePath("projects/README.md"), false);
-  assert.equal(isTrackablePath("projects/products/openclaw/file.txt"), false);
+  assert.equal(isTrackablePath("projects/products/sample-product/file.txt"), false);
   assert.equal(isTrackablePath("scratch/README.md"), false);
-  assert.equal(isTrackablePath("ops/projects/openclaw/rollback/README.md"), false);
+  assert.equal(isTrackablePath("ops/projects/sample-product/rollback/README.md"), false);
+  assert.equal(isTrackablePath("ops/projects/sample-product/evidence/run.json"), false);
   assert.equal(isTrackablePath("state/tmp.json"), false);
 });
 
@@ -95,4 +105,25 @@ test("root hygiene blocks checkpoint when non-trackable paths are present", asyn
   assert.equal(summary.checkpoint_commit?.ok, false);
   assert.equal(summary.checkpoint_commit?.skipped, "non_trackable_paths_present");
   assert.deepEqual(summary.checkpoint_commit?.blocked_paths, ["tmp/notes.txt"]);
+});
+
+test("root hygiene expands rename paths before trackability checks", () => {
+  assert.deepEqual(expandStatusPath("docs/reports/a.md -> projects/products/sample-product/a.md"), [
+    "docs/reports/a.md",
+    "projects/products/sample-product/a.md",
+  ]);
+
+  const summary = classifyStatusEntries([
+    {
+      raw: "R  docs/reports/a.md -> projects/products/sample-product/a.md",
+      code: "R ",
+      path: "docs/reports/a.md -> projects/products/sample-product/a.md",
+    },
+  ]);
+
+  assert.deepEqual(summary.modifiedTracked, [
+    "docs/reports/a.md",
+    "projects/products/sample-product/a.md",
+  ]);
+  assert.equal(summary.modifiedTracked.every(isTrackablePath), false);
 });

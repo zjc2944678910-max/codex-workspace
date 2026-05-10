@@ -2,14 +2,39 @@
 
 This directory is the operator-facing surface for OpenClaw.
 
+## Routing Evidence
+
+- Project name: `OpenClaw`
+- Aliases: `open claw`
+- Main code: `projects/products/openclaw/nas-openclaw-v22`
+- Migration reference: `projects/migrations/openclaw-mac-migration`
+- State/data: `state/project-data/openclaw`
+- Ops surface: `ops/projects/openclaw`
+- Reports: `ops/projects/openclaw/reports`
+- Runbooks: `ops/projects/openclaw/runbooks`
+- Live host aliases: `oc-nas`
+
+Route into this project only when the user explicitly names one of these
+entries, provides a matching path, or asks for a file that belongs to this
+surface.
+
 ## Stable Docs
 
 - `DEPLOYMENT_LEDGER.md`
 - `ARCHITECTURE_TODO.md`
+- `manifests/workspace-acceptance.md`
+- `reports/claude-code-assessment-20260401.md`
+- `reports/knowledge-layer-inventory-20260322.md`
+- `reports/legacy-runtime-inventory-20260322.md`
+- `reports/security-best-practices-report-20260314.md`
+- `runbooks/sre-troubleshooting-runbook.md`
+- `runbooks/upgrade-impact-assessment.md`
 
 ## Subdirectories
 
 - `manifests/`: tracked operator manifests and inventory notes
+- `reports/`: tracked durable project reports and audit writeups
+- `runbooks/`: tracked project-specific operational procedures
 - `mirrors/`: local mirrors of systemd units, tools, and runtime-live artifacts
 - `evidence/`: timestamped evidence bundles for audits and repairs
 - `rollback/`: timestamped rollback bundles for reversible change sets

@@ -453,7 +453,8 @@ status: pass | fail | blocked
       [path.join("brief-templates", "repair-brief.md"), `# Repair Brief Template
 
 Copy this file to ${runPath("agents", "<dev-task-id>", "repair-<n>-brief.md")}
-and send it back to the same development agent when possible.
+and send it back to the same Claude Code worker (claude_codegen_delegate) when
+possible.
 
 ## Role
 
@@ -468,6 +469,10 @@ claude_codegen_delegate
 - Failing verification result: ${runPath("agents", "<verify-task-id>", "verify-result.md")}
 - Decisions: ${runPath("05-decisions.md")}
 
+## Codex Verifier/Review Findings
+
+<Paste the exact Codex verifier or review findings here.>
+
 ## Failing Evidence
 
 <Paste the smallest exact failing evidence here.>
@@ -478,8 +483,14 @@ claude_codegen_delegate
 
 ## Constraints
 
-- Fix only the failure described here.
+- Fix only the Codex verifier/review findings and failing evidence listed above.
+- Repair executor: Claude Code worker (claude_codegen_delegate). This is the
+  default; Codex must not direct-patch L0/L1 implementation defects unless a
+  bypass reason applies (tiny mechanical fix, Claude unavailable, L2/L3/deploy
+  issue, explicit user request).
 - If the role is claude_codegen_delegate, follow CLAUDE.md.
+- Preserve the prior implementation unless a finding directly contradicts it.
+- Do not broaden scope, refactor, or clean up unrelated code.
 - Honor ${routeLockReference}.
 - Repair only target_surface/project_root from the Route Lock and the assigned write set.
 - If the fix belongs to another project or surface, return blocked and explain.
@@ -497,6 +508,9 @@ claude_codegen_delegate
 result: ${runPath("agents", "<dev-task-id>", "repair-<n>-result.md")}
 status: implemented | blocked
 changed_files: <comma-separated paths>
+tests_run: <commands or checks actually run>
+risks: <residual risks or empty>
+followups: <optional next steps or empty>
 `],
       [path.join("agents", ".gitkeep"), ""],
     ]),

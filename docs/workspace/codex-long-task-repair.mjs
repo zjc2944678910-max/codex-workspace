@@ -217,6 +217,11 @@ claude_codegen_delegate
 - Original development result: ${runPath("agents", devTaskId, "dev-result.md")}
 - Failing verification result: ${verifyResultPath}
 
+## Codex Verifier/Review Findings
+
+Refer to the failing verification result for the exact Codex verifier/review findings:
+${verifyResultPath}
+
 ## Failing Evidence
 
 ${failingEvidenceBlock(options, verifyResultText)}
@@ -227,8 +232,14 @@ ${bulletList(options.expected, "<describe expected behavior>")}
 
 ## Constraints
 
-- Fix only the failure described here.
+- Fix only the Codex verifier/review findings and failing evidence listed above.
+- Repair executor: Claude Code worker (claude_codegen_delegate). This is the
+  default; Codex must not direct-patch L0/L1 implementation defects unless a
+  bypass reason applies (tiny mechanical fix, Claude unavailable, L2/L3/deploy
+  issue, explicit user request).
 - If the role is claude_codegen_delegate, follow CLAUDE.md.
+- Preserve the prior implementation unless a finding directly contradicts it.
+- Do not broaden scope, refactor, or clean up unrelated code.
 - Prefer the same files changed in the original development attempt.
 - Do not start a refactor.
 - Stop after this repair if the fix would exceed the original task slice.
@@ -243,6 +254,9 @@ ${bulletList(options.expected, "<describe expected behavior>")}
 result: ${runPath("agents", devTaskId, `repair-${repairNumber}-result.md`)}
 status: implemented | blocked
 changed_files: <comma-separated paths>
+tests_run: <commands or checks actually run>
+risks: <residual risks or empty>
+followups: <optional next steps or empty>
 
 ## Recheck
 

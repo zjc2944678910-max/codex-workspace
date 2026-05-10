@@ -46,12 +46,13 @@ Use named project surfaces only when the task explicitly targets them.
 For long tasks, record the chosen project and surface in the run directory's
 Route Lock before delegating to child agents.
 
-OpenClaw surfaces:
+Registered project records live in:
 
-- Mainline code: `projects/products/openclaw/nas-openclaw-v22`
-- Migration reference: `projects/migrations/openclaw-mac-migration`
-- Project data/state: `state/project-data/openclaw`
-- Operator truth and mirrors: `ops/projects/openclaw`
+- `ops/projects/<project>/README.md`
+
+Use `ops/projects/PROJECT_TEMPLATE.md` when adding a new project. Registered
+projects are discovered from `ops/projects/*/README.md`; none is the workspace
+default.
 
 ## Default Daily Root
 

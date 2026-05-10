@@ -100,6 +100,10 @@ test("createLongTaskRun writes the expected file protocol", async () => {
   assert.match(verifyTemplate, /status: pass \| fail \| blocked/u);
   assert.match(repairTemplate, /Route lock:/u);
   assert.match(repairTemplate, /Repair only target_surface\/project_root/u);
+  assert.match(repairTemplate, /Codex Verifier\/Review Findings/u);
+  assert.match(repairTemplate, /claude_codegen_delegate/u);
+  assert.match(repairTemplate, /Do not broaden scope/u);
+  assert.match(repairTemplate, /bypass/u);
   assert.match(repairTemplate, /Failing Evidence/u);
 });
 
