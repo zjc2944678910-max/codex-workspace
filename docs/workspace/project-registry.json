@@ -95,6 +95,26 @@
       "scratch_archive": "archive/cleanup/2026-05-11-scratch-retention/scratch/projects/mathorcup-upload",
       "aliases": ["mathorcup_D", "MathorCup_D_repo"],
       "gitnexus_indexed": true
+    },
+    {
+      "slug": "cumcm-2026-workbench",
+      "name": "CUMCM-2026-Workbench",
+      "kind": "research",
+      "surfaces": [
+        "projects/research/cumcm-2026-workbench"
+      ],
+      "code_roots": [
+        {
+          "path": "projects/research/cumcm-2026-workbench",
+          "role": "research-workspace",
+          "gitnexus_status": "not_targeted"
+        }
+      ],
+      "ops_surface": "ops/projects/cumcm-2026-workbench",
+      "state_data": null,
+      "scratch": null,
+      "aliases": ["cumcm-2026-workbench", "cumcm2026", "cumcm-workbench"],
+      "gitnexus_indexed": false
     }
   ],
   "known_scratch_projects": [
