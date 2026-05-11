@@ -206,7 +206,7 @@ function buildRepairBrief(runRoot, options = {}, ids = {}, verifyResultText = ""
 
 ## Role
 
-claude_codegen_delegate
+model_worker_delegate
 
 ## Inputs
 
@@ -233,11 +233,12 @@ ${bulletList(options.expected, "<describe expected behavior>")}
 ## Constraints
 
 - Fix only the Codex verifier/review findings and failing evidence listed above.
-- Repair executor: Claude Code worker (claude_codegen_delegate). This is the
+- Repair executor: model worker (model_worker_delegate). This is the
   default; Codex must not direct-patch L0/L1 implementation defects unless a
-  bypass reason applies (tiny mechanical fix, Claude unavailable, L2/L3/deploy
+  bypass reason applies (tiny mechanical fix, worker unavailable, L2/L3/deploy
   issue, explicit user request).
-- If the role is claude_codegen_delegate, follow CLAUDE.md.
+- If Codex bypasses worker repair, the final output must include why_no_worker.
+- If the role is model_worker_delegate, follow WORKER.md.
 - Preserve the prior implementation unless a finding directly contradicts it.
 - Do not broaden scope, refactor, or clean up unrelated code.
 - Prefer the same files changed in the original development attempt.
@@ -343,7 +344,7 @@ async function createRepair(options = {}) {
     verify_task_id: verifyTaskId,
     repair_number: repairNumber,
     file: targetRelativePath,
-    next_action: `send ${targetPath} back to the same development agent for ${devTaskId}`,
+    next_action: `send ${targetPath} back to model_worker_delegate (same model worker if resumable) for ${devTaskId}`,
   };
 
   if (options.dryRun === true) return {

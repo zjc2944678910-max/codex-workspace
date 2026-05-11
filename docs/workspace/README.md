@@ -1,7 +1,7 @@
 # Workspace Tools
 
 Workspace-level runbooks, long-task CLI, and hygiene tools.
-Full policy authority: `AGENTS.md`. Claude executor entrypoint: `CLAUDE.md`.
+Full policy authority: `AGENTS.md`. Worker executor contract: `WORKER.md`.
 
 ## Quick Links
 

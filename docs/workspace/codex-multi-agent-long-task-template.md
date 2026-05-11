@@ -21,7 +21,7 @@ Do not copy policy from here into new documents. If this file disagrees with
 
 - `Codex`:
   route, risk-layer, write Route Lock, map, review, verify, accept, summarize
-- `Claude Code worker` via `claude_codegen_delegate`:
+- model worker via `model_worker_delegate`:
   implement the default development slice and repair loop
 - `surgical_fixer` / `refactor_worker`:
   fallback-only local executors when Codex explicitly chooses them
@@ -74,7 +74,7 @@ node docs/workspace/codex-long-task.mjs append --run-root <run-root> --scope "<s
 
 Default interpretation:
 
-- development brief -> send to `claude_codegen_delegate`
+- development brief -> send to `model_worker_delegate`
 - verification brief -> send to `verifier`
 - repair brief -> send back to the same development worker
 
@@ -84,7 +84,7 @@ Default interpretation:
 # Development Brief
 
 ## Role
-claude_codegen_delegate
+model_worker_delegate
 
 ## Inputs
 - Request: <run-root>/00-request.md

@@ -101,7 +101,7 @@ Before delegating any work, fill or update:
 4. Write the mapper result path into `03-task-ledger.md`.
 5. Ask `review_guard` for pre-change risk review.
 6. Use `docs_checker` if API, framework, or version behavior is unclear.
-7. Delegate the default implementation slice to `claude_codegen_delegate`.
+7. Delegate the default implementation slice to `model_worker_delegate`.
    Use `refactor_worker` only after explicit refactor approval.
    Use `surgical_fixer` only as a fallback for tiny or tightly coupled local fixes.
 8. Use `verifier` for Codex-side validation and acceptance.
@@ -109,7 +109,7 @@ Before delegating any work, fill or update:
 
 When moving from review into implementation, copy
 `brief-templates/dev-brief.md` into `agents/<task-id>/dev-brief.md`, then fill
-the write set and acceptance criteria, then send it to Claude Code worker by
+the write set and acceptance criteria, then send it to the model worker by
 default. Do the same with
 `brief-templates/verify-brief.md` for the verifier.
 
@@ -130,10 +130,10 @@ This creates the next `agents/Txx/dev-brief.md` and
 
 ## Repair Loop
 
-The repair loop follows: Codex verifier/review finding -> Claude repair brief
+The repair loop follows: Codex verifier/review finding -> worker repair brief
 -> Codex recheck. Codex identifies defects during verification or review and
 packages them into a focused repair brief. The repair brief is routed back to
-`claude_codegen_delegate` (Claude Code worker) by default, ideally the same
+`model_worker_delegate` by default, ideally the same
 worker/thread when resumable. Codex does not direct-patch L0/L1 implementation
 defects inside the repair loop unless a bypass reason applies.
 
@@ -142,9 +142,9 @@ If verification fails:
 1. Mark the task `needs_fix` in `03-task-ledger.md`.
 2. Write `repair-N-brief.md` under that task's `agents/<task-id>/` directory.
    The brief must include the Codex verifier/review findings, forbid scope
-   expansion, and name Claude Code worker (`claude_codegen_delegate`) as the
+   expansion, and name model worker (`model_worker_delegate`) as the
    default repair executor.
-3. Send the repair brief back to the same Claude Code worker if its ID is known.
+3. Send the repair brief back to the same model worker if its ID is known.
 4. Send the repaired result back to the same verifier if its ID is known.
 5. Record IDs and resume rules in `07-agent-registry.md`.
 6. Stop after 3 failed repair attempts and mark the task `blocked` or `deferred`.
@@ -152,11 +152,11 @@ If verification fails:
 Codex may direct-patch inside the repair loop only for:
 
 - tiny mechanical fix (typo, comment, import order, whitespace)
-- Claude Code worker unavailable or unresponsive
+- model worker unavailable or unresponsive
 - L2/L3/live/deploy/auth/secrets/config-heavy issue
-- explicit user request to bypass Claude
+- explicit user request to bypass worker repair
 
-When Codex direct-patches, the final output must include `why_no_claude` stating
+When Codex direct-patches, the final output must include `why_no_worker` stating
 the bypass reason.
 
 If the client cannot resume the same child agent, give the replacement agent the

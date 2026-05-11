@@ -1,6 +1,6 @@
 # Daily Workflow Quickstart
 
-Full policy: `AGENTS.md`. Claude executor entrypoint: `CLAUDE.md`.
+Full policy: `AGENTS.md`. Worker executor contract: `WORKER.md`.
 Canonical long-task procedure: `codex-long-task-runbook.md`.
 
 ## Short Task
@@ -9,8 +9,7 @@ Canonical long-task procedure: `codex-long-task-runbook.md`.
 2. State the risk layer, then route into the real repo or ops surface.
 3. If the scope is unclear or risky, run a quick `repo_mapper` or `review_guard`
    pass. Otherwise skip directly to a narrow implementation slice.
-4. Delegate the default implementation slice to `claude_codegen_delegate`
-   / Claude Code worker.
+4. Delegate the default implementation slice to `model_worker_delegate`.
 5. Close in Codex with `verifier` and the AGENTS.md output order.
 
 ## Long Task
@@ -23,7 +22,7 @@ Canonical long-task procedure: `codex-long-task-runbook.md`.
    ```
 3. Codex owns `00-request.md` through `05-decisions.md`, mapping, review, and
    final verification.
-4. Claude Code worker owns the default development and repair slices.
+4. Model worker owns the default development and repair slices.
 5. Append and repair with:
    ```bash
    node docs/workspace/codex-long-task.mjs append --run-root <run-root> --scope "<slice>"

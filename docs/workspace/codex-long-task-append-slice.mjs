@@ -9,7 +9,7 @@ function parseArgs(argv = []) {
   const options = {
     runRoot: "",
     scope: "",
-    devAgent: "claude_codegen_delegate",
+    devAgent: "model_worker_delegate",
     devTaskId: "",
     verifyTaskId: "",
     owned: [],
@@ -75,7 +75,7 @@ function printHelp() {
   node docs/workspace/codex-long-task-append-slice.mjs --run-root <path> --scope <slice> [options]
 
 Options:
-  --dev-agent <name>       claude_codegen_delegate (default), refactor_worker, or surgical_fixer.
+  --dev-agent <name>       model_worker_delegate (default), refactor_worker, or surgical_fixer.
   --dev-task-id <id>       Explicit development task ID, e.g. T03.
   --verify-task-id <id>    Explicit verification task ID, e.g. T04.
   --owned <path/module>    Repeatable owned write scope line.
@@ -156,7 +156,7 @@ function resolveTaskIds(ledgerText = "", options = {}) {
 function buildSliceFiles(runRoot, options = {}, taskIds = {}) {
   const scope = String(options.scope || "").trim();
   if (!scope) throw new Error("--scope is required");
-  const devAgent = String(options.devAgent || "claude_codegen_delegate").trim() || "claude_codegen_delegate";
+  const devAgent = String(options.devAgent || "model_worker_delegate").trim() || "model_worker_delegate";
   const { devTaskId, verifyTaskId } = taskIds;
   const runPath = (...segments) => path.join(runRoot, ...segments);
 
@@ -187,7 +187,7 @@ ${bulletList(options.owned, "<explicit write set>")}
 ## Constraints
 
 - Make the smallest defensible change.
-- If the role is claude_codegen_delegate, follow CLAUDE.md.
+- If the role is model_worker_delegate, follow WORKER.md.
 - Do not refactor unless the role is refactor_worker.
 - Preserve public behavior unless the acceptance criteria says otherwise.
 - Stop and report if the required change exceeds this slice.
@@ -283,7 +283,7 @@ async function appendSlice(options = {}) {
     verify_task_id: taskIds.verifyTaskId,
     files: [...slice.files.keys()],
     ledger_rows: slice.ledgerRows,
-    next_action: `send ${path.join(runRoot, "agents", taskIds.devTaskId, "dev-brief.md")} to ${options.devAgent || "claude_codegen_delegate"}${(options.devAgent || "claude_codegen_delegate") === "claude_codegen_delegate" ? " (Claude Code worker)" : ""}`,
+    next_action: `send ${path.join(runRoot, "agents", taskIds.devTaskId, "dev-brief.md")} to ${options.devAgent || "model_worker_delegate"}${(options.devAgent || "model_worker_delegate") === "model_worker_delegate" ? " (model worker)" : ""}`,
   };
 
   if (options.dryRun === true) return result;

@@ -17,6 +17,7 @@ presence in this repository.
 The root repository should only track:
 
 - `AGENTS.md`
+- `WORKER.md`
 - `CLAUDE.md`
 - `.codex/config.toml`
 - `.codex/agents/`
@@ -86,7 +87,7 @@ Use the highest applicable level. If uncertain, raise the level by one.
 
 - `L0` normal development:
   local code, scripts, tests, docs, or ordinary bugs. Codex may execute
-  directly or route a bounded implementation slice to Claude Code worker.
+  directly or route a bounded implementation slice to a model worker.
 - `L1` medium-risk engineering:
   cross-module local changes, workflow or tooling changes, dependency or build
   changes that do not directly touch production. Codex should give a short plan,
@@ -101,7 +102,7 @@ Use the highest applicable level. If uncertain, raise the level by one.
   production file writes, rollbacks, or any live state-changing command. Stop at
   the plan stage until the user explicitly says `进入修复阶段`.
 
-## Codex And Claude Code
+## Codex Control Plane And Model Workers
 
 Codex is the default front-end and primary orchestrator.
 
@@ -110,33 +111,41 @@ Codex is the default front-end and primary orchestrator.
   Route Lock enforcement, root-cause analysis, live or production read-only
   audits, `repo_mapper`, `review_guard`, `docs_checker`, `verifier`, final
   acceptance, and user-facing synthesis.
-- `Claude Code worker` via `claude_codegen_delegate` owns:
+- `model_worker_delegate` owns:
   bounded L0/L1 local implementation slices, edit/test/fix loops, mechanical
   patching, and approved local refactors inside an explicit write scope.
 - `surgical_fixer` and `refactor_worker` stay available as fallback-only local
-  executors when Claude delegation is a poor fit, unavailable, or the change is
+  executors when worker delegation is a poor fit, unavailable, or the change is
   tiny and tightly coupled.
 
 Current operational preference:
 
-- Default simple implementation slices to Claude Code worker because the local
-  Claude Code setup currently runs `mino-v2.5pro`.
+- Default normal implementation slices to `model_worker_delegate` with
+  `worker_profile=mino_strong`.
+- Use `worker_profile=mino_fast` only for narrow, low-risk mechanical edits or
+  tight repair loops.
+- The v1 worker runtime may use a legacy local adapter underneath, but policy
+  must treat it as a generic model worker, not as a named runtime strategy role.
 - Treat that as a current routing preference, not a permanent architectural
   promise. Re-evaluate if the local model or toolchain changes later.
 
-Never delegate these to Claude Code worker:
+Never delegate these to a model worker:
 
 - route selection from workspace residue
 - L2 or L3 work
 - live or production changes
 - deploy, auth, secrets, or config-heavy tasks where Codex judgment is the main value
+- architecture judgment, root-cause judgment, safety boundary decisions, or final acceptance
 
 Default route table:
 
 - explanation, architecture, debugging strategy, root cause, live audit:
   stay in Codex
 - ordinary local implementation once the scope is clear:
-  use `claude_codegen_delegate`
+  use `model_worker_delegate` with `worker_profile=mino_strong`
+- small mechanical implementation:
+  use `model_worker_delegate` with `worker_profile=mino_fast`, unless Codex
+  direct edit is smaller and safer
 - verification, regression judgment, and final acceptance:
   keep in Codex `verifier`
 - tiny isolated local fixes:
@@ -149,30 +158,52 @@ Quick routing decision table:
 | Target selection, risk layer, Route Lock | Codex | Never delegate project routing from workspace residue. |
 | Architecture, root cause, high-risk judgment | Codex | Includes live, NAS, VPS, production, auth, secrets, deploy, and config-heavy analysis. |
 | Read-only mapping and pre-change risk review | Codex agents | Use `repo_mapper`, `review_guard`, or `docs_checker` as needed. |
-| Bounded L0/L1 implementation slice | Claude Code worker | Use `claude_codegen_delegate` after scope, owner files, and acceptance criteria are clear. |
-| Repair after verifier failure | Claude Code worker | Send the focused failure evidence back to the same development worker when possible. |
+| Bounded L0/L1 implementation slice | model worker | Use `model_worker_delegate` after scope, owner files, and acceptance criteria are clear. |
+| Repair after verifier failure | model worker | Send the focused failure evidence back to the same development worker when possible. |
 | Verification and final acceptance | Codex | Use `verifier` for focused checks; Codex owns the final judgment. |
 | Tiny local fix where delegation adds latency | Codex fallback | Use direct Codex edit or `surgical_fixer`; keep it narrow. |
-| Approved structural refactor | Claude Code worker or fallback `refactor_worker` | Must have explicit write scope and behavior-preservation criteria. |
+| Approved structural refactor | model worker or fallback `refactor_worker` | Must have explicit write scope and behavior-preservation criteria. |
 
-## Claude Repair Routing
+## Model Worker Policy
 
-After a `claude_codegen_delegate` implementation slice, Codex reviews and
-verifies the result locally. If Codex finds L0/L1 implementation defects, the
-default repair path is to send a focused repair brief back to
-`claude_codegen_delegate`, ideally the same worker/thread when the client can
-resume it.
+`model_worker_delegate` is the generic implementation boundary. The worker is
+not a policy authority.
+
+Inputs must be bounded:
+
+- `task`: the concrete implementation or repair task
+- `cwd`: absolute working directory
+- `scope_hint`: relevant files, directories, or modules
+- `acceptance`: completion criteria and verification targets
+- `constraints`: forbidden actions and style or safety constraints
+- `worker_profile`: `mino_strong` by default, `mino_fast` for small mechanical work
+- `origin`, `delegate_depth`, and `handoff_context` when useful
+
+Worker output must use the `WORKER.md` result shape:
+
+- `summary`
+- `changed_files`
+- `tests_run`
+- `risks`
+- `followups`
+
+## Worker Repair Routing
+
+After a `model_worker_delegate` implementation slice, Codex reviews and verifies
+the result locally. If Codex finds L0/L1 implementation defects, the default
+repair path is to send a focused repair brief back to `model_worker_delegate`,
+ideally the same worker/thread when the client can resume it.
 
 Codex may direct-patch only when one of these bypass reasons applies:
 
 - tiny mechanical fix (typo, comment, import order, whitespace)
-- Claude Code worker is unavailable or unresponsive
+- model worker is unavailable or unresponsive
 - L2/L3/live/deploy/auth/secrets/config-heavy issue where Codex judgment is the
   main value
-- explicit user request to bypass Claude
+- explicit user request to bypass worker repair
 
 When Codex bypasses the default repair routing, the final output must include a
-`why_no_claude` field stating the reason. The same bypass rule applies inside
+`why_no_worker` field stating the reason. The same bypass rule applies inside
 long-task repair loops (see `docs/workspace/codex-long-task-runbook.md`).
 
 ## Working Rule
@@ -201,9 +232,9 @@ Project routing comes before implementation workflow.
 Use the lighter path unless the task really needs long-task state.
 
 - Short task:
-  `route -> risk judge -> optional quick review -> Claude Code worker executes -> Codex verifier/acceptance`
+  `route -> risk judge -> optional quick review -> model worker executes -> Codex verifier/acceptance`
 - Long task:
-  `route -> Route Lock -> explore -> review -> Claude Code worker executes -> Codex verify -> repair loop`
+  `route -> Route Lock -> explore -> review -> model worker executes -> Codex verify -> repair loop`
 
 Long-task rules:
 
@@ -213,7 +244,7 @@ Long-task rules:
   state.
 - Codex owns `00-request.md` through `05-decisions.md`, the task ledger, risk
   register, and final summary.
-- Claude Code worker owns the default development and repair slices unless
+- Model worker owns the default development and repair slices unless
   Codex explicitly selects a fallback local executor.
 - Keep repair loops bounded to 3 attempts per slice before marking the slice
   `blocked` or `deferred`.
@@ -247,9 +278,10 @@ Long-task rules:
 - `docs_checker`:
   read-only verification of framework, library, API, and version semantics.
   No code changes.
-- `claude_codegen_delegate` / Claude Code worker:
-  delegated executor for scoped implementation and repair slices. Must follow
-  `CLAUDE.md`, honor Route Lock, and avoid self-approved high-risk actions.
+- `model_worker_delegate`:
+  generic delegated executor for scoped implementation and repair slices. Must
+  follow `WORKER.md`, honor Route Lock, and avoid self-approved high-risk
+  actions.
 - `surgical_fixer`:
   fallback-only minimal local fix. Avoid refactors and unrelated cleanup.
 - `refactor_worker`:
@@ -264,9 +296,9 @@ Long-task rules:
 - Short default phrase:
   `按项目默认协作流自行分析、拆解、执行和验证。`
 - Equivalent short phrase:
-  `Codex 审计和验收，Claude Code 处理简单实现。`
+  `Codex 审计和验收，model worker 处理普通实现。`
 - Equivalent short phrase:
-  `按默认工作流处理，必要时自行选择 Claude Code worker 或 fallback agent。`
+  `按默认工作流处理，必要时自行选择 model worker 或 fallback agent。`
 
 ## Final Output Format
 

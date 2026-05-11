@@ -68,7 +68,7 @@ test("updateLedgerForClose marks pass as verified and done", async () => {
     status: "pass",
     resultName: "recheck-1-result.md",
   });
-  assert.match(updated, /\| T03 \| verified \| claude_codegen_delegate/u);
+  assert.match(updated, /\| T03 \| verified \| model_worker_delegate/u);
   assert.match(updated, /verified by recheck-1-result\.md/u);
   assert.match(updated, /\| T04 \| done \| verifier/u);
   assert.match(updated, /closed by recheck-1-result\.md/u);
@@ -83,7 +83,7 @@ test("updateLedgerForClose marks fail as needs_fix and blocked", async () => {
     status: "fail",
     resultName: "recheck-1-result.md",
   });
-  assert.match(updated, /\| T03 \| needs_fix \| claude_codegen_delegate/u);
+  assert.match(updated, /\| T03 \| needs_fix \| model_worker_delegate/u);
   assert.match(updated, /failed in recheck-1-result\.md; repair needed/u);
   assert.match(updated, /\| T04 \| blocked \| verifier/u);
   assert.match(updated, /failed in recheck-1-result\.md; run repair/u);

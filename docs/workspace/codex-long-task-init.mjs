@@ -214,7 +214,7 @@ ${renderRouteLock(routeLock)}
 1. Map the affected surface with repo_mapper when the task is non-trivial.
 2. Review risk with review_guard before edits.
 3. Use docs_checker if framework, API, or version semantics are unclear.
-4. Delegate the default implementation slice to claude_codegen_delegate.
+4. Delegate the default implementation slice to model_worker_delegate.
    Use refactor_worker only after explicit refactor approval.
    Use surgical_fixer only as a fallback for tiny or tightly coupled fixes.
 5. Use verifier for focused checks.
@@ -350,12 +350,12 @@ status: pass | changes_requested | blocked
       [path.join("brief-templates", "dev-brief.md"), `# Development Brief Template
 
 Copy this file to ${runPath("agents", "<task-id>", "dev-brief.md")} and fill in
-the placeholders before sending it to claude_codegen_delegate or another
+the placeholders before sending it to model_worker_delegate or another
 explicitly selected executor.
 
 ## Role
 
-claude_codegen_delegate
+model_worker_delegate
 
 ## Inputs
 
@@ -380,7 +380,7 @@ claude_codegen_delegate
 ## Constraints
 
 - Make the smallest defensible change.
-- If the role is claude_codegen_delegate, follow CLAUDE.md.
+- If the role is model_worker_delegate, follow WORKER.md.
 - Honor ${routeLockReference}.
 - Change only files in target_surface/project_root and the assigned write set.
 - If the required fix belongs to another project or surface, return blocked and explain.
@@ -453,12 +453,12 @@ status: pass | fail | blocked
       [path.join("brief-templates", "repair-brief.md"), `# Repair Brief Template
 
 Copy this file to ${runPath("agents", "<dev-task-id>", "repair-<n>-brief.md")}
-and send it back to the same Claude Code worker (claude_codegen_delegate) when
+and send it back to the same model worker (model_worker_delegate) when
 possible.
 
 ## Role
 
-claude_codegen_delegate
+model_worker_delegate
 
 ## Inputs
 
@@ -484,11 +484,12 @@ claude_codegen_delegate
 ## Constraints
 
 - Fix only the Codex verifier/review findings and failing evidence listed above.
-- Repair executor: Claude Code worker (claude_codegen_delegate). This is the
+- Repair executor: model worker (model_worker_delegate). This is the
   default; Codex must not direct-patch L0/L1 implementation defects unless a
-  bypass reason applies (tiny mechanical fix, Claude unavailable, L2/L3/deploy
+  bypass reason applies (tiny mechanical fix, worker unavailable, L2/L3/deploy
   issue, explicit user request).
-- If the role is claude_codegen_delegate, follow CLAUDE.md.
+- If Codex bypasses worker repair, the final output must include why_no_worker.
+- If the role is model_worker_delegate, follow WORKER.md.
 - Preserve the prior implementation unless a finding directly contradicts it.
 - Do not broaden scope, refactor, or clean up unrelated code.
 - Honor ${routeLockReference}.

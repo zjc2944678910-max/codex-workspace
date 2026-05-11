@@ -13,7 +13,7 @@ Default workflow: explore -> review -> implement -> verify.
 Start each task with a routing checkpoint. Route Lock required for long tasks.
 After context compaction or recovery trigger, reconstruct a continuation
 checkpoint before resuming; never restart from the beginning.
-Codex chooses and invokes subagents. Claude Code worker follows CLAUDE.md.
+Codex chooses and invokes subagents. Model worker follows WORKER.md.
 Default to the smallest defensible change. One write-capable agent at a time.
 Final output order: confirmed facts, changes, verification, risks, next steps.
 """

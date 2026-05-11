@@ -62,7 +62,7 @@ test("appendSlice writes dev and verify briefs and updates the ledger", async ()
   const devBrief = await fs.readFile(path.join(run.run_root, "agents", "T03", "dev-brief.md"), "utf8");
   const verifyBrief = await fs.readFile(path.join(run.run_root, "agents", "T04", "verify-brief.md"), "utf8");
 
-  assert.match(ledger, /\| T03 \| pending \| claude_codegen_delegate \| Implement preference sync/u);
+  assert.match(ledger, /\| T03 \| pending \| model_worker_delegate \| Implement preference sync/u);
   assert.match(ledger, /\| T04 \| pending \| verifier \| verify Implement preference sync/u);
   assert.match(devBrief, /src\/preferences\.ts/u);
   assert.match(devBrief, /preference changes are persisted/u);
