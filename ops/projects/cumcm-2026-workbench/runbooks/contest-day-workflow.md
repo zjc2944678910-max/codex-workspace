@@ -40,8 +40,9 @@ Beijing time.
 ## Final 6 Hours
 
 1. Run `smoke-test`.
-2. Run `build-paper`.
-3. Run `build-support`.
-4. Run `verify-submission` until it passes.
-5. Manually inspect anonymity, appendix file lists, and final bundle sizes.
-6. If a TeX engine is installed, run `compile-paper` and confirm page limits.
+2. Run `build-support`.
+3. Run `build-paper`.
+4. If a TeX engine is installed, run `compile-paper` and confirm page limits.
+5. Run `package-submission`.
+6. Run `verify-submission` until it passes.
+7. Manually inspect anonymity, appendix file lists, zip contents, and final bundle sizes.
