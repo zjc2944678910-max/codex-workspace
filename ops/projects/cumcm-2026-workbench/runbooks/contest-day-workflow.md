@@ -7,7 +7,7 @@ Beijing time.
 ## T-30 Days
 
 1. Verify the workbench CLI still runs locally.
-2. Refresh the local LaTeX template snapshot and offline notes.
+2. Refresh the local LaTeX template snapshot with `python3 src/main.py fetch-template`.
 3. Rehearse one old problem with the current bundle workflow.
 4. Confirm each team member knows the case directory structure.
 
@@ -16,7 +16,8 @@ Beijing time.
 1. Re-run a timed dry run using one archived problem.
 2. Check that `smoke-test`, `build-paper`, `build-support`, and `verify-submission` still pass.
 3. Confirm local Python and optional PDF tooling are available.
-4. Freeze any nonessential tool changes.
+4. If `latexmk` or `xelatex` is available, run `compile-paper` once on the dry-run case.
+5. Freeze any nonessential tool changes.
 
 ## T-1 Day
 
@@ -43,4 +44,4 @@ Beijing time.
 3. Run `build-support`.
 4. Run `verify-submission` until it passes.
 5. Manually inspect anonymity, appendix file lists, and final bundle sizes.
-6. If a TeX engine is installed, compile the final PDF and confirm page limits.
+6. If a TeX engine is installed, run `compile-paper` and confirm page limits.

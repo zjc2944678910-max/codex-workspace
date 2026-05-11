@@ -8,6 +8,8 @@ browsing checklist.
 
 - `latexstudio/CUMCMThesis`
   - Use for local LaTeX template snapshots aligned with CUMCM-style structure.
+  - Localize with `python3 src/main.py fetch-template` before contest day.
+  - Keep it under ignored `templates/vendor/`; the current checked snapshot has no explicit top-level license file, so do not vendor it into the workbench repo by default.
 - `chenboshuo/cumcm_template`
   - Use for workflow ideas around split files, scripts, and template assembly.
 
