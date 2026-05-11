@@ -1,30 +1,11 @@
-# Codex Multi-Agent Long Task Template
+# Codex Long Task Template Reference
 
-> **NON-CANONICAL REFERENCE**
+> **NON-CANONICAL**
 >
-> Use this file for prompt snippets and layout examples only.
-> Workspace policy lives in `AGENTS.md`.
-> The canonical operational procedure lives in `codex-long-task-runbook.md`.
+> Policy lives in `AGENTS.md`.
+> Operational details live in `codex-long-task-runbook.md`.
 
-## What This File Is For
-
-Use this reference when you need a compact example of:
-
-- long-task run-directory layout
-- the parent/worker split
-- the default brief/result shape
-
-Do not copy policy from here into new documents. If this file disagrees with
-`AGENTS.md` or `codex-long-task-runbook.md`, those canonical files win.
-
-## Default Split
-
-- `Codex`:
-  route, risk-layer, write Route Lock, map, review, verify, accept, summarize
-- model worker via `model_worker_delegate`:
-  implement the default development slice and repair loop
-- `surgical_fixer` / `refactor_worker`:
-  fallback-only local executors when Codex explicitly chooses them
+Use this file only for compact prompt/layout examples.
 
 ## Minimal Run Layout
 
@@ -44,41 +25,23 @@ Do not copy policy from here into new documents. If this file disagrees with
     repair-brief.md
   agents/
     T01/mapper-brief.md
-    T01/mapper-result.md
     T02/review-brief.md
-    T02/review-result.md
     T03/dev-brief.md
-    T03/dev-result.md
     T04/verify-brief.md
-    T04/verify-result.md
 ```
 
-## Parent Responsibilities
-
-The parent Codex agent owns:
-
-- `00-request.md` through `05-decisions.md`
-- Route Lock and risk-layer declaration
-- ledger status updates
-- delegating the implementation slice
-- final verification and user-facing closeout
-
-## Worker Handoff Defaults
-
-Use the existing CLI to generate briefs:
+## Handoff Defaults
 
 ```bash
 node docs/workspace/codex-long-task.mjs init --project <name> --task "<goal>"
 node docs/workspace/codex-long-task.mjs append --run-root <run-root> --scope "<slice>"
 ```
 
-Default interpretation:
+- Development brief: send to `model_worker_delegate`.
+- Verification brief: send to `verifier`.
+- Repair brief: send back to the same worker when resumable.
 
-- development brief -> send to `model_worker_delegate`
-- verification brief -> send to `verifier`
-- repair brief -> send back to the same development worker
-
-## Example Dev Brief Skeleton
+## Dev Brief Skeleton
 
 ```markdown
 # Development Brief
@@ -101,15 +64,3 @@ model_worker_delegate
 ## Acceptance Criteria
 - <criterion>
 ```
-
-## Example Result Shape
-
-Prefer a compact result:
-
-```text
-result: <run-root>/agents/T03/dev-result.md
-status: implemented
-changed_files: <comma-separated paths>
-```
-
-Keep long logs in files, not in the parent conversation.

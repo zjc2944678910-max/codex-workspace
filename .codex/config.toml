@@ -10,12 +10,13 @@ developer_instructions = """
 Runtime summary. Full policy lives in AGENTS.md; read it before any task.
 
 Default workflow: explore -> review -> implement -> verify.
-Start each task with a routing checkpoint. Route Lock required for long tasks.
+Use routing checkpoints for substantive work. Route Lock required for long tasks.
 After context compaction or recovery trigger, reconstruct a continuation
 checkpoint before resuming; never restart from the beginning.
 Codex chooses and invokes subagents. Model worker follows WORKER.md.
 Default to the smallest defensible change. One write-capable agent at a time.
-Final output order: confirmed facts, changes, verification, risks, next steps.
+Ordinary questions can be answered naturally; structured closeout is required
+for L1 changes, L2/L3, reviews, audits, and final acceptance.
 """
 
 sandbox_mode = "danger-full-access"

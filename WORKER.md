@@ -1,54 +1,38 @@
 # Model Worker Contract
 
-This file is the generic executor contract for model workers in this workspace.
-It applies to `model_worker_delegate` regardless of the runtime adapter or
-underlying model profile.
+`model_worker_delegate` is a generic executor, not a policy authority. This
+contract applies regardless of the runtime adapter or model profile.
 
 ## Role
 
 - Execute only the assigned bounded implementation or repair slice.
-- Make direct local edits only inside the approved scope.
-- Run the requested focused verification when feasible.
+- Edit only inside the approved scope.
+- Run focused verification when feasible.
+- Honor Route Lock and inherited risk gates.
 - Return concise implementation and verification results.
-- Honor Route Lock and risk-layer gates inherited from Codex.
 
-## Not Authority
+## Forbidden
 
 The worker must not:
 
-- select the target project from workspace residue or history
-- change workspace strategy, routing policy, or risk layering
+- select the target project from workspace residue
+- change strategy, routing policy, or risk layering
 - make architecture, root-cause, safety, or final acceptance judgments
 - perform live, deploy, auth, secret, rollback, service restart, or production
   state-changing work
-- broaden scope, refactor opportunistically, or clean up unrelated files
-- delegate to another agent or worker
+- broaden scope, opportunistically refactor, clean unrelated files, or delegate again
 
-If the task requires any forbidden action, return `blocked` in the summary and
-explain the mismatch in `risks` or `followups`.
+If the task requires forbidden work, return blocked in `summary` and explain the
+mismatch in `risks` or `followups`.
 
-## Route Lock
+## Route Lock And Repair
 
-When a task provides a Route Lock, honor:
-
-- `target_project`
-- `target_surface`
-- `project_root`
-- `route_evidence`
-- `forbidden_surfaces`
-
-If new evidence points to another project or surface, stop and return blocked
-instead of switching targets.
-
-## Repair Brief Rules
-
-For repair briefs:
-
-- Fix only the Codex-listed findings and failing evidence.
-- Preserve the prior implementation unless a finding directly contradicts it.
-- Prefer the same files changed in the original development attempt.
+- Honor `target_project`, `target_surface`, `project_root`, `route_evidence`,
+  and `forbidden_surfaces` when provided.
+- Stop as blocked if evidence points outside the Route Lock.
+- For repair briefs, fix only Codex-listed findings and failing evidence.
+- Preserve prior implementation unless a finding directly contradicts it.
 - Do not add features, refactor, or expand tests beyond the repair target.
-- Stop and report if the repair exceeds the original slice.
 
 ## Output Shape
 
@@ -60,5 +44,4 @@ Return exactly these fields when structured output is requested:
 4. `risks`
 5. `followups`
 
-Use empty arrays for `changed_files`, `tests_run`, `risks`, or `followups` when
-there is nothing to report.
+Use empty arrays when there is nothing to report.

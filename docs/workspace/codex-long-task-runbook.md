@@ -1,31 +1,19 @@
 # Codex Long Task Runbook
 
-Use this runbook when a task is large enough that chat-only memory would become
-messy, but it is still local engineering work.
-
-Full workspace policy lives in `AGENTS.md`.
-`docs/workspace/codex-multi-agent-long-task-template.md` is a
-non-canonical prompt/layout reference only.
+Use this when chat-only memory would get messy. Policy gates live in
+`AGENTS.md`; this file only describes the run-directory workflow.
 
 ## When To Use
 
-Use a long-task run directory for:
+Use a long-task run for multi-step local engineering, broad debugging,
+map/review/implement/verify work, or tasks likely to need repair loops.
 
-- multi-step implementation work
-- broad debugging with several hypotheses
-- work that needs mapping, review, implementation, and verification
-- tasks likely to need one or more repair loops
+Do not use this to bypass L2/L3 gates. Choose the target project from explicit
+user evidence first; do not default `--project` to any registered project.
 
-Do not use this as a shortcut around L2/L3 gates. Production audits and repairs
-still follow `AGENTS.md`.
+## Initialize
 
-Choose the target project from the user request first. Do not default
-`--project` to any registered project; use a project slug only when the task
-explicitly targets that surface.
-
-## Initialize A Run
-
-Preferred unified entrypoint:
+Preferred entrypoint:
 
 ```bash
 node docs/workspace/codex-long-task.mjs init \
@@ -35,20 +23,10 @@ node docs/workspace/codex-long-task.mjs init \
   --task "Implement feature flag sync"
 ```
 
-Project-specific run:
-
-```bash
-node docs/workspace/codex-long-task-init.mjs \
-  --project sample-product \
-  --project-root /Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/sample-product \
-  --slug feature-flag-sync \
-  --task "Implement feature flag sync"
-```
-
 Shared run:
 
 ```bash
-node docs/workspace/codex-long-task-init.mjs \
+node docs/workspace/codex-long-task.mjs init \
   --shared \
   --slug agent-template-research \
   --task "Research and summarize agent template options"
@@ -57,7 +35,7 @@ node docs/workspace/codex-long-task-init.mjs \
 Dry run:
 
 ```bash
-node docs/workspace/codex-long-task-init.mjs \
+node docs/workspace/codex-long-task.mjs init \
   --project sample-product \
   --slug demo \
   --task "Demo long task" \
@@ -65,55 +43,39 @@ node docs/workspace/codex-long-task-init.mjs \
   --json
 ```
 
-The script prints the new `run_root`.
+The init command creates:
 
-It also seeds `agents/T01/mapper-brief.md` and
-`agents/T02/review-brief.md` so the first mapper and review handoffs are ready
-without manual directory setup.
+- state docs: `00-request.md` through `07-agent-registry.md`
+- first handoff briefs: `agents/T01/mapper-brief.md`,
+  `agents/T02/review-brief.md`
+- reusable templates: `brief-templates/dev-brief.md`,
+  `verify-brief.md`, `repair-brief.md`
 
-Before sending any brief to a child agent, fill the Route Lock in
-`01-confirmed-context.md`. The lock records `target_project`, `target_surface`,
-`project_root`, `route_evidence`, and `forbidden_surfaces`; child agents must
-return `blocked` instead of switching projects if new evidence points elsewhere.
-
-It also creates reusable templates:
-
-- `brief-templates/dev-brief.md`
-- `brief-templates/verify-brief.md`
-- `brief-templates/repair-brief.md`
+Before any handoff, fill the Route Lock in `01-confirmed-context.md`:
+`target_project`, `target_surface`, `project_root`, `route_evidence`,
+`forbidden_surfaces`.
 
 ## First Fill-In Pass
 
-Before delegating any work, fill or update:
+Update:
 
-- `00-request.md`: exact user goal and constraints
-- `01-confirmed-context.md`: risk level, Route Lock, project root, confirmed facts, hypotheses
-- `02-plan.md`: current plan and implementation slices
+- `00-request.md`: exact goal and user constraints
+- `01-confirmed-context.md`: risk level, Route Lock, confirmed facts, hypotheses
+- `02-plan.md`: strategy and implementation slices
 - `03-task-ledger.md`: task IDs and statuses
 - `04-risk-register.md`: risks, rollback idea, open questions
 - `05-decisions.md`: decisions future agents must honor
 
-## Main Agent Loop
+## Main Loop
 
-1. State the risk layer and execution strategy.
-2. Create or locate the run directory.
-3. Use `repo_mapper` for non-trivial code mapping.
-4. Write the mapper result path into `03-task-ledger.md`.
-5. Ask `review_guard` for pre-change risk review.
-6. Use `docs_checker` if API, framework, or version behavior is unclear.
-7. Delegate the default implementation slice to `model_worker_delegate`.
-   Use `refactor_worker` only after explicit refactor approval.
-   Use `surgical_fixer` only as a fallback for tiny or tightly coupled local fixes.
-8. Use `verifier` for Codex-side validation and acceptance.
-9. Update `06-final-summary.md` as the task converges.
+1. Map non-trivial surfaces with `repo_mapper`.
+2. Review risk with `review_guard`; use `docs_checker` only for unclear API,
+   framework, or version semantics.
+3. Send bounded implementation slices to `model_worker_delegate` by default.
+4. Verify with Codex-side `verifier`.
+5. Update ledger, decisions, and `06-final-summary.md` as state changes.
 
-When moving from review into implementation, copy
-`brief-templates/dev-brief.md` into `agents/<task-id>/dev-brief.md`, then fill
-the write set and acceptance criteria, then send it to the model worker by
-default. Do the same with
-`brief-templates/verify-brief.md` for the verifier.
-
-You can also append a ready-to-fill development and verification pair with:
+Append a ready development/verification pair:
 
 ```bash
 node docs/workspace/codex-long-task.mjs append \
@@ -125,44 +87,27 @@ node docs/workspace/codex-long-task.mjs append \
   --acceptance "focused tests pass"
 ```
 
-This creates the next `agents/Txx/dev-brief.md` and
-`agents/Tyy/verify-brief.md`, then appends both rows to `03-task-ledger.md`.
+This creates `agents/Txx/dev-brief.md`, `agents/Tyy/verify-brief.md`, and
+appends both ledger rows. The default development executor remains
+`model_worker_delegate`.
 
 ## Repair Loop
 
-The repair loop follows: Codex verifier/review finding -> worker repair brief
--> Codex recheck. Codex identifies defects during verification or review and
-packages them into a focused repair brief. The repair brief is routed back to
-`model_worker_delegate` by default, ideally the same
-worker/thread when resumable. Codex does not direct-patch L0/L1 implementation
-defects inside the repair loop unless a bypass reason applies.
+Default loop:
+
+```text
+Codex verifier/review finding -> worker repair brief -> Codex recheck
+```
 
 If verification fails:
 
-1. Mark the task `needs_fix` in `03-task-ledger.md`.
-2. Write `repair-N-brief.md` under that task's `agents/<task-id>/` directory.
-   The brief must include the Codex verifier/review findings, forbid scope
-   expansion, and name model worker (`model_worker_delegate`) as the
-   default repair executor.
-3. Send the repair brief back to the same model worker if its ID is known.
-4. Send the repaired result back to the same verifier if its ID is known.
-5. Record IDs and resume rules in `07-agent-registry.md`.
-6. Stop after 3 failed repair attempts and mark the task `blocked` or `deferred`.
+1. Generate a focused repair brief with the exact failing evidence.
+2. Send it back to `model_worker_delegate`, preferably the same worker/thread.
+3. Send the repair result back to the same verifier when resumable.
+4. Stop after 3 failed repair attempts and mark the slice `blocked` or
+   `deferred`.
 
-Codex may direct-patch inside the repair loop only for:
-
-- tiny mechanical fix (typo, comment, import order, whitespace)
-- model worker unavailable or unresponsive
-- L2/L3/live/deploy/auth/secrets/config-heavy issue
-- explicit user request to bypass worker repair
-
-When Codex direct-patches, the final output must include `why_no_worker` stating
-the bypass reason.
-
-If the client cannot resume the same child agent, give the replacement agent the
-previous `dev-result.md`, `verify-result.md`, and latest repair brief as input.
-
-You can generate the repair brief and update the ledger with:
+Generate a repair brief:
 
 ```bash
 node docs/workspace/codex-long-task.mjs repair \
@@ -171,13 +116,10 @@ node docs/workspace/codex-long-task.mjs repair \
   --expected "focused tests pass"
 ```
 
-The tool infers the verifier task from the result path, finds the development
-task from `03-task-ledger.md`, writes `agents/<dev-task>/repair-N-brief.md`,
-marks the development row `needs_fix`, and marks the verifier row `blocked`
-while it waits for the repair.
+Codex may direct-patch only when a bypass reason from `AGENTS.md` applies. If
+that happens, final output must include `why_no_worker`.
 
-After the repair agent writes `repair-N-result.md`, send the result back to the
-same verifier with:
+Recheck after worker repair:
 
 ```bash
 node docs/workspace/codex-long-task.mjs recheck \
@@ -185,12 +127,7 @@ node docs/workspace/codex-long-task.mjs recheck \
   --repair-result <run-root>/agents/T03/repair-1-result.md
 ```
 
-The tool infers the development task and repair number from the repair result
-path, finds the verifier task from `03-task-ledger.md`, writes
-`agents/<verify-task>/recheck-N-brief.md`, and marks both rows `verifying`.
-
-When the verifier writes `verify-result.md` or `recheck-N-result.md`, close the
-slice with:
+Close the slice:
 
 ```bash
 node docs/workspace/codex-long-task.mjs close \
@@ -198,14 +135,9 @@ node docs/workspace/codex-long-task.mjs close \
   --result <run-root>/agents/T04/recheck-1-result.md
 ```
 
-If the result status is `pass`, the tool marks the development row `verified`
-and the verifier row `done`. If it is `fail`, it marks the development row
-`needs_fix`, marks the verifier row `blocked`, and points back to the repair
-tool.
+## Ledger Statuses
 
-## Status Discipline
-
-Use these statuses in `03-task-ledger.md`:
+Use:
 
 - `pending`
 - `mapping`
@@ -222,10 +154,6 @@ Use these statuses in `03-task-ledger.md`:
 
 ## Finalize
 
-At the end:
-
-- update `06-final-summary.md`
-- report changed files
-- report verification commands and outcomes
-- separate confirmed facts, hypotheses, and residual risks
-- keep the final chat answer in the `AGENTS.md` section order
+At the end, update `06-final-summary.md` with the outcome, changed files,
+verification, residual risks, and next steps. Keep detailed logs in the run
+directory, not the parent conversation.

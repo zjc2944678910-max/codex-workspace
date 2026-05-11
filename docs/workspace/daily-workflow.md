@@ -1,51 +1,33 @@
 # Daily Workflow Quickstart
 
-Full policy: `AGENTS.md`. Worker executor contract: `WORKER.md`.
-Canonical long-task procedure: `codex-long-task-runbook.md`.
+Policy: `AGENTS.md`. Worker contract: `WORKER.md`.
+Long-task details: `codex-long-task-runbook.md`.
 
 ## Short Task
 
-1. Identify the explicit target project or surface.
-2. State the risk layer, then route into the real repo or ops surface.
-3. If the scope is unclear or risky, run a quick `repo_mapper` or `review_guard`
-   pass. Otherwise skip directly to a narrow implementation slice.
-4. Delegate the default implementation slice to `model_worker_delegate`.
-5. Close in Codex with `verifier` and the AGENTS.md output order.
+1. Route from explicit project/path/service evidence.
+2. Classify risk. Keep generic requests at workspace-index level.
+3. For ordinary implementation, delegate a bounded slice to
+   `model_worker_delegate`; Codex verifies and accepts.
+4. For tiny fixes, architecture, root cause, safety, live/deploy/auth/secrets,
+   keep the work in Codex.
+5. If worker output fails verification, send a focused repair brief back to the
+   worker unless a `why_no_worker` bypass applies.
 
 ## Long Task
 
-1. Identify the target project and write a Route Lock.
-2. Initialize a run directory:
-   ```bash
-   node docs/workspace/codex-long-task.mjs init \
-     --project <name> --task "<goal>"
-   ```
-3. Codex owns `00-request.md` through `05-decisions.md`, mapping, review, and
-   final verification.
-4. Model worker owns the default development and repair slices.
-5. Append and repair with:
-   ```bash
-   node docs/workspace/codex-long-task.mjs append --run-root <run-root> --scope "<slice>"
-   node docs/workspace/codex-long-task.mjs repair --run-root <run-root> --verify-result <path>
-   node docs/workspace/codex-long-task.mjs recheck --run-root <run-root> --repair-result <path>
-   node docs/workspace/codex-long-task.mjs close --run-root <run-root> --result <path>
-   ```
+```bash
+node docs/workspace/codex-long-task.mjs init --project <name> --task "<goal>"
+node docs/workspace/codex-long-task.mjs append --run-root <run-root> --scope "<slice>"
+node docs/workspace/codex-long-task.mjs repair --run-root <run-root> --verify-result <path>
+node docs/workspace/codex-long-task.mjs recheck --run-root <run-root> --repair-result <path>
+node docs/workspace/codex-long-task.mjs close --run-root <run-root> --result <path>
+```
 
-## Routing Cheat Sheet
-
-| User targets... | Work in |
-| --- | --- |
-| Product code | `projects/products/<name>/` |
-| Infrastructure | `projects/infrastructure/<name>/` |
-| Research | `projects/research/<name>/` |
-| Migration | `projects/migrations/<name>/` |
-| Ops/config | `ops/projects/<name>/` |
-| State/sidecar | `state/project-data/<name>/` |
-| Temp output | `scratch/projects/<project>/` |
+Use a Route Lock before handoffs. Keep long logs in the run directory.
 
 ## Hygiene
 
-- Repo hygiene runs automatically on turn end via `repo-hygiene.mjs`.
-- Auto checkpoint stays whitelist-gated to trackable workspace-index files.
-- Pause hygiene for grouped multi-commit:
+- Auto hygiene is whitelist-gated by `repo-hygiene.mjs`.
+- Pause grouped work:
   `~/.codex/tools/codex-repo-hygiene-guard.sh pause --repo <repo> --minutes 30`
