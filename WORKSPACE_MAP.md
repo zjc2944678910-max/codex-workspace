@@ -36,8 +36,6 @@ If a task or note refers to `codex-workplace`, treat it as a spelling mismatch u
   - New `state/project-data/openclaw`
 - Old `projects/platform/nas-platform`
   - New `projects/infrastructure/nas-platform`
-- Old `projects/non-openclaw/qigate`
-  - New `projects/products/qigate`
 - Old `projects/non-openclaw/mathorcup_D`
   - New `projects/research/mathorcup_D`
 - Old `scratch/output/qqbot`

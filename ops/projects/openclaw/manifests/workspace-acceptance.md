@@ -26,7 +26,6 @@ These surfaces are present and should be treated as the new canonical layout:
 - OpenClaw scratch output:
   - `scratch/projects/openclaw/`
 - Other project trees:
-  - `projects/products/qigate/`
   - `projects/infrastructure/nas-platform/`
   - `projects/research/mathorcup_D/`
 
