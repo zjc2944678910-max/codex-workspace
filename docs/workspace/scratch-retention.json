@@ -1,0 +1,111 @@
+{
+  "$schema": "workspace-scratch-retention/v1",
+  "description": "Scratch retention manifest. Each entry declares a scratch path, owning project, purpose, retention intent, and disposition. The disk report flags scratch paths >=100MB without an entry.",
+  "updated": "2026-05-11",
+  "default_retention_days": 30,
+  "entries": [
+    {
+      "path": "scratch/projects",
+      "owner": "workspace",
+      "project": null,
+      "purpose": "Parent container for project-scoped temporary outputs",
+      "active": true,
+      "retention_days": 30,
+      "retention_intent": "retain container; child paths carry the concrete retention decisions",
+      "disposition": "retain",
+      "last_active": "2026-05-11"
+    },
+    {
+      "path": "scratch/shared",
+      "owner": "workspace",
+      "project": null,
+      "purpose": "Parent container for shared scratch outputs and long-task artifacts",
+      "active": true,
+      "retention_days": 30,
+      "retention_intent": "retain container; child paths carry the concrete retention decisions",
+      "disposition": "retain",
+      "last_active": "2026-05-11"
+    },
+    {
+      "path": "scratch/projects/openclaw",
+      "owner": "openclaw",
+      "project": "openclaw",
+      "purpose": "Active openclaw scratch with memory migration and repair runs",
+      "active": true,
+      "retention_days": 90,
+      "retention_intent": "keep while openclaw is actively developed",
+      "disposition": "retain",
+      "last_active": "2026-05-05"
+    },
+    {
+      "path": "scratch/projects/mathorcup-upload",
+      "owner": "mathorcup-d",
+      "project": "mathorcup-d",
+      "purpose": "MathorCup extraction scratch and upload staging",
+      "active": false,
+      "retention_days": 60,
+      "retention_intent": "large one-off upload staging; contents archived on 2026-05-11 and recreated only if upload work resumes",
+      "disposition": "archive",
+      "archive_destination": "archive/cleanup/2026-05-11-scratch-retention/scratch/projects/mathorcup-upload",
+      "last_active": "2026-04-30"
+    },
+    {
+      "path": "scratch/projects/mimo-100t-evidence",
+      "owner": null,
+      "project": null,
+      "purpose": "MIMO evidence scratch for audit trail",
+      "active": false,
+      "retention_days": 30,
+      "retention_intent": "archive after evidence review completes",
+      "disposition": "archive",
+      "last_active": "2026-05-01"
+    },
+    {
+      "path": "scratch/projects/misc",
+      "owner": null,
+      "project": null,
+      "purpose": "Miscellaneous temporary outputs and one-off experiments",
+      "active": false,
+      "retention_days": 14,
+      "retention_intent": "short-lived; prune when stale",
+      "disposition": "prune",
+      "last_active": "2026-03-01"
+    },
+    {
+      "path": "scratch/shared/codex-runs",
+      "owner": "workspace",
+      "project": null,
+      "purpose": "Codex long-task run artifacts, route locks, and delegation logs",
+      "active": true,
+      "retention_days": 30,
+      "retention_intent": "rotate; keep latest 1 shared run plus any explicit keep list entries",
+      "disposition": "rotate",
+      "last_active": "2026-05-05",
+      "keep_latest": 1,
+      "keep": []
+    },
+    {
+      "path": "scratch/shared/douyin-7633454865993256234",
+      "owner": null,
+      "project": null,
+      "purpose": "Douyin video download scratch for content archive reference",
+      "active": false,
+      "retention_days": 60,
+      "retention_intent": "one-off media/reference bundle; contents archived on 2026-05-11",
+      "disposition": "archive",
+      "archive_destination": "archive/cleanup/2026-05-11-scratch-retention/scratch/shared/douyin-7633454865993256234",
+      "last_active": "2026-04-29"
+    },
+    {
+      "path": "scratch/shared/hatch-pet",
+      "owner": null,
+      "project": null,
+      "purpose": "Hatch pet experiment scratch and scaffolding outputs",
+      "active": true,
+      "retention_days": 60,
+      "retention_intent": "keep through the current evaluation window; archive if there is no follow-up",
+      "disposition": "retain",
+      "last_active": "2026-05-06"
+    }
+  ]
+}

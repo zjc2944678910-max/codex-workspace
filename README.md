@@ -73,4 +73,17 @@ default.
 - Shared temporary material that is not clearly project-owned goes in `scratch/shared/`
 - Cleanup records, snapshots, and retired material go in `archive/`
 
+## Registration Rule
+
+Long-lived project surfaces under `projects/*/*` must be registered via
+`ops/projects/<project>/README.md`.  See
+`docs/workspace/project-registry.json` for the machine-readable registry and
+`docs/workspace/project-surfaces.md` for the human-readable summary.
+
+## Scratch-First Rule
+
+Tests, scaffolds, and one-off experiments must start in
+`scratch/projects/<name>/` until they are promoted to `projects/` with a
+corresponding `ops/projects/<name>/README.md`.
+
 See `WORKSPACE_MAP.md` for legacy-to-current path mapping.

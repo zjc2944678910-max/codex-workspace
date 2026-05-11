@@ -81,3 +81,17 @@ If a task or note refers to `codex-workplace`, treat it as a spelling mismatch u
 - If it is project-specific data or sidecar state rather than code, place it under `state/project-data/<project>/`.
 - If it is temporary project output, place it under `scratch/projects/<project>/`.
 - If it is temporary but not clearly tied to one project, place it under `scratch/shared/`.
+
+## Registration Rule
+
+Long-lived project surfaces under `projects/*/*` must be registered via
+`ops/projects/<project>/README.md`.  Unregistered project code roots are
+flagged by workspace hygiene checks.  See
+`docs/workspace/project-registry.json` for the machine-readable registry and
+`docs/workspace/project-surfaces.md` for the human-readable summary.
+
+## Scratch-First Rule
+
+Tests, scaffolds, and one-off experiments must start in
+`scratch/projects/<name>/` until they are promoted to `projects/` with a
+corresponding `ops/projects/<name>/README.md`.

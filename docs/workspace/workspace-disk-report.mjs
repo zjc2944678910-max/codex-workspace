@@ -6,12 +6,14 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 
 const DEFAULT_LIMIT = 25;
+const DEFAULT_RETENTION_GAP_BYTES = 100 * 1024 * 1024; // 100MB
 
 function parseArgs(argv = []) {
   const options = {
     repo: "",
     json: false,
     limit: DEFAULT_LIMIT,
+    retentionGapThreshold: DEFAULT_RETENTION_GAP_BYTES,
   };
   for (let index = 0; index < argv.length; index += 1) {
     const arg = String(argv[index] || "").trim();
@@ -27,6 +29,12 @@ function parseArgs(argv = []) {
     if (arg === "--limit") {
       const parsed = Number.parseInt(String(argv[index + 1] || ""), 10);
       if (Number.isFinite(parsed) && parsed > 0) options.limit = parsed;
+      index += 1;
+      continue;
+    }
+    if (arg === "--retention-gap-threshold") {
+      const parsed = Number.parseInt(String(argv[index + 1] || ""), 10);
+      if (Number.isFinite(parsed) && parsed >= 0) options.retentionGapThreshold = parsed;
       index += 1;
     }
   }
@@ -248,6 +256,38 @@ function formatBytes(bytes) {
   return `${value}B`;
 }
 
+async function loadScratchRetention(repoRoot) {
+  const manifestPath = path.join(repoRoot, "docs", "workspace", "scratch-retention.json");
+  try {
+    const raw = await fs.readFile(manifestPath, "utf8");
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function findRetentionGaps(entries, retentionManifest, thresholdBytes) {
+  if (!retentionManifest || !retentionManifest.entries) return [];
+  const covered = new Set(
+    retentionManifest.entries.map((e) => String(e.path || "").replace(/\\/g, "/")),
+  );
+  return entries
+    .filter((entry) => {
+      if (!entry.path.startsWith("scratch/")) return false;
+      if (entry.bytes < thresholdBytes) return false;
+      // Check if any retention entry is a prefix of this path
+      return ![...covered].some(
+        (c) => entry.path === c || entry.path.startsWith(`${c}/`),
+      );
+    })
+    .map((entry) => ({
+      path: entry.path,
+      bytes: entry.bytes,
+      pretty: entry.pretty,
+      reason: "scratch path >= threshold with no retention entry",
+    }));
+}
+
 async function buildWorkspaceDiskReport(options = {}) {
   const repoRoot = path.resolve(options.repo || process.cwd());
   await ensureWorkspaceRoot(repoRoot);
@@ -272,6 +312,11 @@ async function buildWorkspaceDiskReport(options = {}) {
 
   const limit = Number.isFinite(options.limit) && options.limit > 0 ? options.limit : DEFAULT_LIMIT;
   const obviousGarbage = await collectObviousGarbage(repoRoot);
+  const retentionManifest = await loadScratchRetention(repoRoot);
+  const retentionThreshold = Number.isFinite(options.retentionGapThreshold)
+    ? options.retentionGapThreshold
+    : DEFAULT_RETENTION_GAP_BYTES;
+  const retentionGaps = findRetentionGaps(entries, retentionManifest, retentionThreshold);
   return {
     repo_root: repoRoot,
     limit,
@@ -291,6 +336,9 @@ async function buildWorkspaceDiskReport(options = {}) {
       archive: entries.filter((entry) => entry.bucket === "archive").slice(0, limit),
       ask: entries.filter((entry) => entry.bucket === "ask").slice(0, limit),
     },
+    retention_gaps: retentionGaps,
+    retention_gap_threshold_bytes: retentionThreshold,
+    retention_manifest_loaded: retentionManifest !== null,
   };
 }
 
@@ -315,6 +363,16 @@ function renderReport(report) {
     for (const entry of entries) {
       const count = entry.count ? `, ${entry.count} files` : "";
       lines.push(`- ${entry.pretty}${count}\t${entry.path}\t${entry.reason}`);
+    }
+  }
+  lines.push("", `retention_manifest_loaded: ${report.retention_manifest_loaded ? "yes" : "no"}`);
+  lines.push(`retention_gap_threshold: ${formatBytes(report.retention_gap_threshold_bytes)}`);
+  lines.push("retention_gaps:");
+  if (!report.retention_gaps || report.retention_gaps.length === 0) {
+    lines.push("- (none)");
+  } else {
+    for (const gap of report.retention_gaps) {
+      lines.push(`- ${gap.pretty}\t${gap.path}\t${gap.reason}`);
     }
   }
   return `${lines.join("\n")}\n`;
@@ -344,6 +402,8 @@ export {
   classifyCleanupBucket,
   collectObviousGarbage,
   collectInventoryPaths,
+  findRetentionGaps,
   formatBytes,
+  loadScratchRetention,
   renderReport,
 };

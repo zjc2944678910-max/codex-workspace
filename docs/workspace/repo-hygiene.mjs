@@ -283,6 +283,126 @@ function createCheckpointCommit(repoRoot, statusSummary = {}, options = {}) {
   };
 }
 
+async function loadProjectRegistry(repoRoot) {
+  const registryPath = path.join(repoRoot, "docs", "workspace", "project-registry.json");
+  try {
+    const raw = await fs.readFile(registryPath, "utf8");
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+async function listProjectSurfaces(repoRoot) {
+  const projectRoots = [];
+  for (const kind of ["products", "infrastructure", "research", "migrations"]) {
+    const kindDir = path.join(repoRoot, "projects", kind);
+    try {
+      const entries = await fs.readdir(kindDir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.isDirectory()) {
+          projectRoots.push(`projects/${kind}/${entry.name}`);
+        }
+      }
+    } catch { /* kind dir may not exist */ }
+  }
+  return projectRoots.sort();
+}
+
+function findUnregisteredSurfaces(projectSurfaces, registry) {
+  if (!registry || !registry.projects) return projectSurfaces;
+  const registered = new Set();
+  for (const proj of registry.projects) {
+    const candidates = Array.isArray(proj.surfaces) && proj.surfaces.length > 0
+      ? proj.surfaces
+      : (proj.code_roots || []);
+    for (const entry of candidates) {
+      const root = typeof entry === "string"
+        ? entry
+        : (typeof entry?.surface === "string" ? entry.surface : "");
+      const normalized = String(root || "").replace(/\\/g, "/");
+      if (/^projects\/[^/]+\/[^/]+$/u.test(normalized)) {
+        registered.add(normalized);
+      }
+    }
+  }
+  return projectSurfaces.filter((surface) => !registered.has(surface));
+}
+
+const PROJECTS_REF_RE = /(?<!\/)projects\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+(?:\/[a-zA-Z0-9_.-]+)*/gu;
+
+async function walkMdFiles(dirPath) {
+  const files = [];
+  let entries;
+  try {
+    entries = await fs.readdir(dirPath, { withFileTypes: true });
+  } catch {
+    return files;
+  }
+  for (const entry of entries) {
+    const fullPath = path.join(dirPath, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...await walkMdFiles(fullPath));
+    } else if (entry.isFile() && entry.name.endsWith(".md")) {
+      files.push(fullPath);
+    }
+  }
+  return files;
+}
+
+async function findNonexistentProjectRefs(repoRoot) {
+  const scanFiles = [];
+  // Root-level policy docs only (exclude WORKSPACE_MAP.md which contains legacy mapping paths)
+  const rootDocs = ["README.md", "AGENTS.md"];
+  for (const name of rootDocs) {
+    scanFiles.push(path.join(repoRoot, name));
+  }
+  // docs/workspace/*.md (not recursive — only workspace entrypoints)
+  try {
+    const wsDir = path.join(repoRoot, "docs", "workspace");
+    const entries = await fs.readdir(wsDir, { withFileTypes: true });
+    for (const entry of entries) {
+      if (entry.isFile() && entry.name.endsWith(".md")) {
+        scanFiles.push(path.join(wsDir, entry.name));
+      }
+    }
+  } catch { /* docs/workspace may not exist */ }
+  // ops/projects/*/README.md only (entrypoint READMEs, not deep manifests/reports)
+  try {
+    const opsDir = path.join(repoRoot, "ops", "projects");
+    const opsEntries = await fs.readdir(opsDir, { withFileTypes: true });
+    for (const entry of opsEntries) {
+      if (entry.isDirectory()) {
+        const readmePath = path.join(opsDir, entry.name, "README.md");
+        if (await pathExists(readmePath)) {
+          scanFiles.push(readmePath);
+        }
+      }
+    }
+  } catch { /* ops/projects may not exist */ }
+
+  const missing = [];
+  const seen = new Set();
+  for (const filePath of scanFiles) {
+    let content;
+    try {
+      content = await fs.readFile(filePath, "utf8");
+    } catch {
+      continue;
+    }
+    for (const match of content.matchAll(PROJECTS_REF_RE)) {
+      const ref = match[0];
+      if (seen.has(ref)) continue;
+      seen.add(ref);
+      const absRef = path.join(repoRoot, ref);
+      if (!(await pathExists(absRef))) {
+        missing.push(ref);
+      }
+    }
+  }
+  return missing.sort();
+}
+
 async function buildRepoHygieneSummary(options = {}) {
   const repoRoot = path.resolve(options.repo || resolveRepoRoot(options.cwd || process.cwd()));
   await ensureWorkspaceRoot(repoRoot);
@@ -290,6 +410,12 @@ async function buildRepoHygieneSummary(options = {}) {
   const beforeStatus = classifyStatusEntries(parseStatusEntries(repoRoot));
   const checkpointCommit = options.checkpointCommit ? createCheckpointCommit(repoRoot, beforeStatus, options) : null;
   const afterStatus = classifyStatusEntries(parseStatusEntries(repoRoot));
+
+  const registry = await loadProjectRegistry(repoRoot);
+  const projectSurfaces = await listProjectSurfaces(repoRoot);
+  const unregisteredSurfaces = findUnregisteredSurfaces(projectSurfaces, registry);
+  const nonexistentRefs = await findNonexistentProjectRefs(repoRoot);
+
   return {
     repo_root: repoRoot,
     dry_run: options.dryRun === true,
@@ -306,17 +432,26 @@ async function buildRepoHygieneSummary(options = {}) {
     },
     checkpoint_commit: checkpointCommit,
     git_clean: afterStatus.modifiedTracked.length === 0 && afterStatus.untrackedSource.length === 0 && afterStatus.otherTracked.length === 0,
+    unregistered_project_surfaces: unregisteredSurfaces,
+    nonexistent_project_references: nonexistentRefs,
   };
 }
 
 function renderSummary(summary) {
-  return [
+  const lines = [
     `repo_root: ${summary.repo_root}`,
     `git_clean: ${summary.git_clean ? "yes" : "no"}`,
     `checkpoint_commit: ${summary.checkpoint_commit?.commit || summary.checkpoint_commit?.skipped || "(none)"}`,
     `modified_tracked: ${summary.after.modified_tracked.length}`,
     `untracked_source: ${summary.after.untracked_source.length}`,
-  ].join("\n") + "\n";
+  ];
+  if (summary.unregistered_project_surfaces?.length > 0) {
+    lines.push(`unregistered_project_surfaces: ${summary.unregistered_project_surfaces.join(", ")}`);
+  }
+  if (summary.nonexistent_project_references?.length > 0) {
+    lines.push(`nonexistent_project_references: ${summary.nonexistent_project_references.join(", ")}`);
+  }
+  return lines.join("\n") + "\n";
 }
 
 async function main() {
@@ -343,7 +478,11 @@ export {
   buildCheckpointCommitMessage,
   classifyStatusEntries,
   expandStatusPath,
+  findNonexistentProjectRefs,
+  findUnregisteredSurfaces,
   isTrackablePath,
+  listProjectSurfaces,
+  loadProjectRegistry,
   renderSummary,
   resolveRepoRoot,
   summarizeCheckpointScope,

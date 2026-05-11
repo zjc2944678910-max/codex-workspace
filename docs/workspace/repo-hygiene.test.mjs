@@ -5,7 +5,7 @@ import path from "node:path";
 import test from "node:test";
 import { spawnSync } from "node:child_process";
 
-import { buildCheckpointCommitMessage, buildRepoHygieneSummary, classifyStatusEntries, expandStatusPath, isTrackablePath, summarizeCheckpointScope } from "./repo-hygiene.mjs";
+import { buildCheckpointCommitMessage, buildRepoHygieneSummary, classifyStatusEntries, expandStatusPath, findNonexistentProjectRefs, findUnregisteredSurfaces, isTrackablePath, listProjectSurfaces, loadProjectRegistry, summarizeCheckpointScope } from "./repo-hygiene.mjs";
 
 function runGit(repoRoot, args) {
   const result = spawnSync("git", ["-C", repoRoot, ...args], {
@@ -128,4 +128,176 @@ test("root hygiene expands rename paths before trackability checks", () => {
     "projects/products/sample-product/a.md",
   ]);
   assert.equal(summary.modifiedTracked.every(isTrackablePath), false);
+});
+
+test("repo hygiene loads project registry from fixture", async () => {
+  const repoRoot = await createFixture();
+  const registry = {
+    projects: [
+      { slug: "sample-product", code_roots: ["projects/products/sample-product"] },
+    ],
+  };
+  await fs.writeFile(
+    path.join(repoRoot, "docs", "workspace", "project-registry.json"),
+    JSON.stringify(registry),
+    "utf8",
+  );
+  const loaded = await loadProjectRegistry(repoRoot);
+  assert.equal(loaded.projects[0].slug, "sample-product");
+});
+
+test("repo hygiene detects unregistered project surfaces", async () => {
+  const repoRoot = await createFixture();
+  // Create two project surfaces: one registered, one not
+  await fs.mkdir(path.join(repoRoot, "projects", "products", "sample-product"), { recursive: true });
+  await fs.mkdir(path.join(repoRoot, "projects", "products", "rogue-app"), { recursive: true });
+  await fs.writeFile(path.join(repoRoot, "projects", "products", "sample-product", "src.txt"), "code\n", "utf8");
+  await fs.writeFile(path.join(repoRoot, "projects", "products", "rogue-app", "src.txt"), "code\n", "utf8");
+
+  const registry = {
+    projects: [
+      { slug: "sample-product", code_roots: ["projects/products/sample-product"] },
+    ],
+  };
+
+  const surfaces = await listProjectSurfaces(repoRoot);
+  assert.ok(surfaces.includes("projects/products/sample-product"));
+  assert.ok(surfaces.includes("projects/products/rogue-app"));
+
+  const unregistered = findUnregisteredSurfaces(surfaces, registry);
+  assert.deepEqual(unregistered, ["projects/products/rogue-app"]);
+});
+
+test("repo hygiene prefers registered surfaces over nested code roots", async () => {
+  const repoRoot = await createFixture();
+  await fs.mkdir(path.join(repoRoot, "projects", "products", "sample-product"), { recursive: true });
+  await fs.writeFile(path.join(repoRoot, "projects", "products", "sample-product", "src.txt"), "code\n", "utf8");
+
+  const surfaces = await listProjectSurfaces(repoRoot);
+  const registry = {
+    projects: [
+      {
+        slug: "sample-product",
+        surfaces: ["projects/products/sample-product"],
+        code_roots: [
+          {
+            path: "projects/products/sample-product/app",
+            role: "repo",
+            gitnexus_status: "indexed",
+          },
+        ],
+      },
+    ],
+  };
+
+  const unregistered = findUnregisteredSurfaces(surfaces, registry);
+  assert.deepEqual(unregistered, []);
+});
+
+test("repo hygiene detects nonexistent project references in docs", async () => {
+  const repoRoot = await createFixture();
+  // Write a doc that references a nonexistent project path
+  await fs.writeFile(
+    path.join(repoRoot, "docs", "workspace", "notes.md"),
+    "See projects/products/ghost-app/src for details.\n",
+    "utf8",
+  );
+  // Create a real project so it is not flagged
+  await fs.mkdir(path.join(repoRoot, "projects", "products", "sample-product"), { recursive: true });
+  await fs.writeFile(
+    path.join(repoRoot, "README.md"),
+    "workspace has projects/products/sample-product\n",
+    "utf8",
+  );
+
+  const missing = await findNonexistentProjectRefs(repoRoot);
+  assert.ok(missing.includes("projects/products/ghost-app/src"));
+  assert.ok(!missing.includes("projects/products/sample-product"));
+});
+
+test("repo hygiene scan boundary is narrowed to entrypoint markdown only", async () => {
+  const repoRoot = await createFixture();
+  // Create a deep markdown file under ops/projects with a bad ref — should NOT be scanned
+  await fs.mkdir(path.join(repoRoot, "ops", "projects", "sample-product", "manifests"), { recursive: true });
+  await fs.writeFile(
+    path.join(repoRoot, "ops", "projects", "sample-product", "manifests", "notes.md"),
+    "See projects/products/deep-ghost for details.\n",
+    "utf8",
+  );
+  // Write a docs/workspace/*.md file with a bad ref — SHOULD be scanned
+  await fs.writeFile(
+    path.join(repoRoot, "docs", "workspace", "workspace-notes.md"),
+    "See projects/products/shallow-ghost for details.\n",
+    "utf8",
+  );
+
+  const missing = await findNonexistentProjectRefs(repoRoot);
+  // Deep ops file should not be scanned
+  assert.ok(!missing.includes("projects/products/deep-ghost"));
+  // docs/workspace/*.md should be scanned
+  assert.ok(missing.includes("projects/products/shallow-ghost"));
+});
+
+test("repo hygiene scans ops/projects/*/README.md entrypoints", async () => {
+  const repoRoot = await createFixture();
+  // Write a bad ref in an ops project README — should be detected
+  await fs.writeFile(
+    path.join(repoRoot, "ops", "projects", "sample-product", "README.md"),
+    "This project depends on projects/products/phantom-lib.\n",
+    "utf8",
+  );
+
+  const missing = await findNonexistentProjectRefs(repoRoot);
+  assert.ok(missing.includes("projects/products/phantom-lib"));
+});
+
+test("repo hygiene does not flag ops/projects substring as nonexistent projects ref", async () => {
+  const repoRoot = await createFixture();
+  // Create a real project so projects/products/sample-product exists on disk
+  await fs.mkdir(path.join(repoRoot, "projects", "products", "sample-product"), { recursive: true });
+  await fs.writeFile(
+    path.join(repoRoot, "README.md"),
+    "Registered project records live in:\n\n- `ops/projects/<project>/README.md`\n",
+    "utf8",
+  );
+  await fs.writeFile(
+    path.join(repoRoot, "WORKSPACE_MAP.md"),
+    "Old `projects/openclaw/migration/openclaw-mac-migration`\n- New `projects/migrations/openclaw-mac-migration`\n",
+    "utf8",
+  );
+
+  const missing = await findNonexistentProjectRefs(repoRoot);
+  // ops/projects should not be parsed as projects/... refs
+  for (const ref of missing) {
+    assert.ok(
+      !ref.startsWith("projects/projects"),
+      `false positive: ${ref} was incorrectly extracted from ops/projects substring`,
+    );
+  }
+});
+
+test("repo hygiene summary includes new policy fields", async () => {
+  const repoRoot = await createFixture();
+  await fs.mkdir(path.join(repoRoot, "projects", "products", "unregistered"), { recursive: true });
+  await fs.writeFile(path.join(repoRoot, "projects", "products", "unregistered", "app.js"), "// code\n", "utf8");
+
+  const registry = {
+    projects: [
+      { slug: "sample-product", code_roots: ["projects/products/sample-product"] },
+    ],
+  };
+  await fs.writeFile(
+    path.join(repoRoot, "docs", "workspace", "project-registry.json"),
+    JSON.stringify(registry),
+    "utf8",
+  );
+
+  const summary = await buildRepoHygieneSummary({ repo: repoRoot });
+  assert.ok(Array.isArray(summary.unregistered_project_surfaces));
+  assert.ok(summary.unregistered_project_surfaces.includes("projects/products/unregistered"));
+  assert.ok(Array.isArray(summary.nonexistent_project_references));
+  // existing fields still present
+  assert.ok("git_clean" in summary);
+  assert.ok("before" in summary);
+  assert.ok("after" in summary);
 });

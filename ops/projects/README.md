@@ -33,3 +33,7 @@ Local-only subdirectories should stay ignored by the root repository:
 - `rollback/`
 
 Start new project records from `PROJECT_TEMPLATE.md`.
+
+See `docs/workspace/project-registry.json` for the machine-readable registry,
+`docs/workspace/project-surfaces.md` for the human-readable summary, and
+`docs/workspace/scratch-retention.json` for scratch path retention policy.

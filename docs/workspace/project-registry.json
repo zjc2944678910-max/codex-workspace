@@ -1,0 +1,106 @@
+{
+  "$schema": "workspace-project-registry/v1",
+  "description": "Machine-readable workspace project registry. Each registered project has an ops README under ops/projects/<slug>/README.md, one or more long-lived surfaces under projects/*/*, and zero or more concrete code roots used for day-to-day work and GitNexus targeting.",
+  "updated": "2026-05-11",
+  "projects": [
+    {
+      "slug": "openclaw",
+      "name": "OpenClaw",
+      "kind": "product",
+      "surfaces": [
+        "projects/products/openclaw",
+        "projects/migrations/openclaw-mac-migration"
+      ],
+      "code_roots": [
+        {
+          "path": "projects/products/openclaw/nas-openclaw-v22",
+          "role": "mainline",
+          "gitnexus_status": "indexed"
+        },
+        {
+          "path": "projects/migrations/openclaw-mac-migration",
+          "role": "migration-reference",
+          "gitnexus_status": "not_targeted"
+        }
+      ],
+      "ops_surface": "ops/projects/openclaw",
+      "state_data": "state/project-data/openclaw",
+      "scratch": "scratch/projects/openclaw",
+      "aliases": ["open claw", "oc-nas", "openclaw-mac-migration"],
+      "gitnexus_indexed": true
+    },
+    {
+      "slug": "nas-platform",
+      "name": "NAS Platform",
+      "kind": "infrastructure",
+      "surfaces": [
+        "projects/infrastructure/nas-platform"
+      ],
+      "code_roots": [
+        {
+          "path": "projects/infrastructure/nas-platform",
+          "role": "infrastructure-config-root",
+          "gitnexus_status": "not_targeted"
+        }
+      ],
+      "ops_surface": "ops/projects/nas-platform",
+      "state_data": null,
+      "scratch": null,
+      "aliases": ["nas-platform", "oc-nas"],
+      "gitnexus_indexed": false
+    },
+    {
+      "slug": "telegram-dual-relay",
+      "name": "Telegram Dual Relay",
+      "kind": "infrastructure",
+      "surfaces": [
+        "projects/infrastructure/telegram-dual-relay"
+      ],
+      "code_roots": [
+        {
+          "path": "projects/infrastructure/telegram-dual-relay",
+          "role": "service-repo",
+          "gitnexus_status": "indexed"
+        }
+      ],
+      "ops_surface": "ops/projects/telegram-dual-relay",
+      "state_data": "state/project-data/telegram-dual-relay",
+      "scratch": null,
+      "aliases": ["telegram-dual-relay"],
+      "gitnexus_indexed": true
+    },
+    {
+      "slug": "mathorcup-d",
+      "name": "MathorCup-D",
+      "kind": "research",
+      "surfaces": [
+        "projects/research/mathorcup_D",
+        "projects/products/MathorCup_D_repo"
+      ],
+      "code_roots": [
+        {
+          "path": "projects/products/MathorCup_D_repo",
+          "role": "submission-repo",
+          "gitnexus_status": "indexed"
+        },
+        {
+          "path": "projects/research/mathorcup_D",
+          "role": "research-workspace",
+          "gitnexus_status": "not_targeted"
+        }
+      ],
+      "ops_surface": "ops/projects/mathorcup-d",
+      "state_data": null,
+      "scratch": null,
+      "scratch_archive": "archive/cleanup/2026-05-11-scratch-retention/scratch/projects/mathorcup-upload",
+      "aliases": ["mathorcup_D", "MathorCup_D_repo"],
+      "gitnexus_indexed": true
+    }
+  ],
+  "known_scratch_projects": [
+    "mathorcup-upload",
+    "mimo-100t-evidence",
+    "misc",
+    "openclaw"
+  ]
+}
