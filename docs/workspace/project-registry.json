@@ -1,7 +1,7 @@
 {
   "$schema": "workspace-project-registry/v1",
   "description": "Machine-readable workspace project registry. Each registered project has an ops README under ops/projects/<slug>/README.md, one or more long-lived surfaces under projects/*/*, and zero or more concrete code roots used for day-to-day work and GitNexus targeting.",
-  "updated": "2026-05-11",
+  "updated": "2026-05-12",
   "projects": [
     {
       "slug": "openclaw",
@@ -95,6 +95,30 @@
       "scratch_archive": "archive/cleanup/2026-05-11-scratch-retention/scratch/projects/mathorcup-upload",
       "aliases": ["mathorcup_D", "MathorCup_D_repo"],
       "gitnexus_indexed": true
+    },
+    {
+      "slug": "bigdata-spark-research-workbench",
+      "name": "BigData-Spark-Research-Workbench",
+      "kind": "research",
+      "surfaces": [
+        "projects/research/bigdata-spark-research-workbench"
+      ],
+      "code_roots": [
+        {
+          "path": "projects/research/bigdata-spark-research-workbench",
+          "role": "research-workspace",
+          "gitnexus_status": "not_targeted"
+        }
+      ],
+      "ops_surface": "ops/projects/bigdata-spark-research-workbench",
+      "state_data": null,
+      "scratch": null,
+      "aliases": [
+        "bigdata-spark-research-workbench",
+        "bigdata-spark-research",
+        "spark-research-workbench"
+      ],
+      "gitnexus_indexed": false
     },
     {
       "slug": "cumcm-2026-workbench",
