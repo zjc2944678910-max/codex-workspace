@@ -14,9 +14,9 @@ Beijing time.
 ## T-7 Days
 
 1. Re-run a timed dry run using one archived problem.
-2. Check that `smoke-test`, `build-paper`, `build-support`, and `verify-submission` still pass.
-3. Confirm local Python and optional PDF tooling are available.
-4. If `latexmk` or `xelatex` is available, run `compile-paper` once on the dry-run case.
+2. Check that `smoke-test`, `build-support`, `build-paper`, `compile-paper`, `package-submission`, and `verify-submission` still pass.
+3. Confirm local Python, `latexmk` or `xelatex`, `pdfinfo`, and `pdftotext` are available; final verification fails without the PDF tools.
+4. Confirm `package-submission` receives a compiled `submission/paper/main.pdf`.
 5. Freeze any nonessential tool changes.
 
 ## T-1 Day
@@ -42,7 +42,7 @@ Beijing time.
 1. Run `smoke-test`.
 2. Run `build-support`.
 3. Run `build-paper`.
-4. If a TeX engine is installed, run `compile-paper` and confirm page limits.
+4. Run `compile-paper` and confirm page limits.
 5. Run `package-submission`.
 6. Run `verify-submission` until it passes.
 7. Manually inspect anonymity, appendix file lists, zip contents, and final bundle sizes.
