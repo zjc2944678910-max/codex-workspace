@@ -1,7 +1,7 @@
 {
   "$schema": "workspace-scratch-retention/v1",
   "description": "Scratch retention manifest. Each entry declares a scratch path, owning project, purpose, retention intent, and disposition. The disk report flags scratch paths >=100MB without an entry.",
-  "updated": "2026-05-11",
+  "updated": "2026-05-12",
   "default_retention_days": 30,
   "entries": [
     {
@@ -25,6 +25,17 @@
       "retention_intent": "retain container; child paths carry the concrete retention decisions",
       "disposition": "retain",
       "last_active": "2026-05-11"
+    },
+    {
+      "path": "scratch/projects/openai-responses-starter-sub2api",
+      "owner": null,
+      "project": null,
+      "purpose": "OpenAI Responses starter prototype used for sub2api integration experiments",
+      "active": true,
+      "retention_days": 30,
+      "retention_intent": "retain during current evaluation; archive or prune generated node_modules/.next outputs when inactive",
+      "disposition": "retain",
+      "last_active": "2026-05-12"
     },
     {
       "path": "scratch/projects/openclaw",

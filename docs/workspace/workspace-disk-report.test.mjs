@@ -118,6 +118,18 @@ test("findRetentionGaps returns empty when all scratch paths have entries", () =
   assert.equal(gaps.length, 0);
 });
 
+test("findRetentionGaps does not let scratch container entries cover child workspaces", () => {
+  const entries = [
+    { path: "scratch/projects", bytes: 900 * 1024 * 1024, pretty: "900M", bucket: "ask" },
+    { path: "scratch/projects/prototype", bytes: 300 * 1024 * 1024, pretty: "300M", bucket: "ask" },
+  ];
+  const manifest = {
+    entries: [{ path: "scratch/projects", retention_days: 30 }],
+  };
+  const gaps = findRetentionGaps(entries, manifest, 100 * 1024 * 1024);
+  assert.deepEqual(gaps.map((gap) => gap.path), ["scratch/projects/prototype"]);
+});
+
 test("findRetentionGaps respects overridden threshold in tests", () => {
   const entries = [
     { path: "scratch/projects/tiny", bytes: 500, pretty: "500B", bucket: "ask" },

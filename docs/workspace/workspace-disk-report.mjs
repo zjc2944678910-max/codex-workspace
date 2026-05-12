@@ -271,14 +271,16 @@ function findRetentionGaps(entries, retentionManifest, thresholdBytes) {
   const covered = new Set(
     retentionManifest.entries.map((e) => String(e.path || "").replace(/\\/g, "/")),
   );
+  const coversPath = (coveredPath, entryPath) => {
+    if (entryPath === coveredPath) return true;
+    if (coveredPath === "scratch/projects" || coveredPath === "scratch/shared") return false;
+    return entryPath.startsWith(`${coveredPath}/`);
+  };
   return entries
     .filter((entry) => {
       if (!entry.path.startsWith("scratch/")) return false;
       if (entry.bytes < thresholdBytes) return false;
-      // Check if any retention entry is a prefix of this path
-      return ![...covered].some(
-        (c) => entry.path === c || entry.path.startsWith(`${c}/`),
-      );
+      return ![...covered].some((c) => coversPath(c, entry.path));
     })
     .map((entry) => ({
       path: entry.path,
