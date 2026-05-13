@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
@@ -39,13 +41,105 @@ function count(value) {
   return Array.isArray(value) ? value.length : 0;
 }
 
-function overallStatus(hygiene = {}, disk = {}) {
+async function readTextIfExists(filePath) {
+  try {
+    return await fs.readFile(filePath, "utf8");
+  } catch (error) {
+    if (error && error.code === "ENOENT") return "";
+    throw error;
+  }
+}
+
+function parseTomlStringValue(text = "", key = "") {
+  const escapedKey = String(key).replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+  const match = text.match(new RegExp(`^\\s*${escapedKey}\\s*=\\s*"([^"]*)"`, "mu"));
+  return match ? match[1] : "";
+}
+
+function parseNotifyArray(configText = "") {
+  const match = configText.match(/^\s*notify\s*=\s*(\[[^\n]*\])/mu);
+  if (!match) return null;
+  try {
+    const parsed = JSON.parse(match[1]);
+    return Array.isArray(parsed) ? parsed.map((value) => String(value)) : null;
+  } catch {
+    return null;
+  }
+}
+
+async function readAutomationState(homeDir, id) {
+  const automationPath = path.join(homeDir, ".codex", "automations", id, "automation.toml");
+  const text = await readTextIfExists(automationPath);
+  if (!text) return { exists: false, status: "missing" };
+  return {
+    exists: true,
+    kind: parseTomlStringValue(text, "kind"),
+    name: parseTomlStringValue(text, "name"),
+    status: parseTomlStringValue(text, "status") || "unknown",
+  };
+}
+
+async function buildCodexWorkflowSummary(options = {}) {
+  const homeDir = options.homeDir || os.homedir();
+  const expectedNotify = [
+    path.join(homeDir, ".codex", "tools", "codex-turn-ended-notify.sh"),
+    "turn-ended",
+  ];
+  const configText = await readTextIfExists(path.join(homeDir, ".codex", "config.toml"));
+  const notify = parseNotifyArray(configText);
+  const notifyWrapperOnly = JSON.stringify(notify) === JSON.stringify(expectedNotify);
+  const notifyViaDesktopClient = Array.isArray(notify)
+    ? notify.some((entry) => entry.includes("SkyComputerUseClient"))
+    : false;
+  const notifyHasPreviousNotify = Array.isArray(notify)
+    ? notify.includes("--previous-notify")
+    : false;
+
+  const notifyConfigText = await readTextIfExists(path.join(homeDir, ".codex", "notify-config.json"));
+  let notifyConfig = {};
+  try {
+    notifyConfig = notifyConfigText ? JSON.parse(notifyConfigText) : {};
+  } catch {
+    notifyConfig = {};
+  }
+
+  const workspaceHealthDaily = await readAutomationState(homeDir, "workspace-health-daily");
+  const mobileBridgeHeartbeat = await readAutomationState(homeDir, "mobile-codex-bridge-heartbeat");
+  const barkEnabled = notifyConfig.bark?.enabled === true;
+  const telegramEnabled = notifyConfig.telegram?.enabled === true;
+  const workspaceHealthNotifyEnabled = notifyConfig.workspace_health?.enabled === true;
+
+  const issues = [];
+  if (!notifyWrapperOnly) issues.push("notify_not_wrapper_only");
+  if (notifyViaDesktopClient) issues.push("notify_via_desktop_client");
+  if (notifyHasPreviousNotify) issues.push("notify_has_previous_notify");
+  if (!barkEnabled) issues.push("bark_disabled");
+  if (telegramEnabled) issues.push("telegram_enabled");
+  if (!workspaceHealthNotifyEnabled) issues.push("workspace_health_notify_disabled");
+  if (workspaceHealthDaily.status !== "ACTIVE") issues.push("workspace_health_daily_not_active");
+  if (mobileBridgeHeartbeat.status !== "PAUSED") issues.push("mobile_bridge_heartbeat_not_paused");
+
+  return {
+    notify_wrapper_only: notifyWrapperOnly,
+    notify_via_desktop_client: notifyViaDesktopClient,
+    notify_has_previous_notify: notifyHasPreviousNotify,
+    bark_enabled: barkEnabled,
+    telegram_enabled: telegramEnabled,
+    workspace_health_notify_enabled: workspaceHealthNotifyEnabled,
+    workspace_health_daily: workspaceHealthDaily.status,
+    mobile_bridge_heartbeat: mobileBridgeHeartbeat.status,
+    issues,
+  };
+}
+
+function overallStatus(hygiene = {}, disk = {}, codexWorkflow = {}) {
   const structuralIssues = hygiene.git_clean !== true
     || count(hygiene.unregistered_project_surfaces) > 0
     || count(hygiene.nonexistent_project_references) > 0
     || count(hygiene.project_route_metadata_mismatches) > 0
     || count(disk.retention_gaps) > 0
-    || disk.retention_manifest_loaded === false;
+    || disk.retention_manifest_loaded === false
+    || count(codexWorkflow.issues) > 0;
   return structuralIssues ? "attention" : "ok";
 }
 
@@ -54,18 +148,21 @@ async function buildWorkspaceHealth(options = {}) {
   const limit = Number.isFinite(options.limit) && options.limit > 0 ? options.limit : DEFAULT_LIMIT;
   const hygiene = await buildRepoHygieneSummary({ repo });
   const disk = await buildWorkspaceDiskReport({ repo, limit });
+  const codexWorkflow = await buildCodexWorkflowSummary(options);
   return {
     repo_root: repo,
-    status: overallStatus(hygiene, disk),
+    status: overallStatus(hygiene, disk, codexWorkflow),
     hygiene,
     disk,
+    codex_workflow: codexWorkflow,
   };
 }
 
 function renderHealthSummary(result = {}) {
   const hygiene = result.hygiene || {};
   const disk = result.disk || {};
-  const status = result.status || overallStatus(hygiene, disk);
+  const codexWorkflow = result.codex_workflow || {};
+  const status = result.status || overallStatus(hygiene, disk, codexWorkflow);
   const garbage = disk.cleanup_buckets?.delete?.[0] || null;
   const lines = [
     `repo_root: ${hygiene.repo_root || result.repo_root || ""}`,
@@ -76,6 +173,13 @@ function renderHealthSummary(result = {}) {
     `project_route_metadata_mismatches: ${count(hygiene.project_route_metadata_mismatches)}`,
     `retention_manifest_loaded: ${disk.retention_manifest_loaded ? "yes" : "no"}`,
     `retention_gaps: ${count(disk.retention_gaps)}`,
+    `codex_notify_wrapper: ${codexWorkflow.notify_wrapper_only ? "ok" : "attention"}`,
+    `bark_enabled: ${codexWorkflow.bark_enabled ? "yes" : "no"}`,
+    `telegram_enabled: ${codexWorkflow.telegram_enabled ? "yes" : "no"}`,
+    `workspace_health_notify: ${codexWorkflow.workspace_health_notify_enabled ? "yes" : "no"}`,
+    `workspace_health_daily: ${codexWorkflow.workspace_health_daily || "unknown"}`,
+    `mobile_bridge_heartbeat: ${codexWorkflow.mobile_bridge_heartbeat || "unknown"}`,
+    `codex_workflow_issues: ${count(codexWorkflow.issues)}`,
   ];
   if (garbage) {
     const fileCount = garbage.count ? `, ${garbage.count} files` : "";
@@ -116,6 +220,7 @@ if (entryPath === modulePath) {
 }
 
 export {
+  buildCodexWorkflowSummary,
   buildWorkspaceHealth,
   overallStatus,
   parseArgs,

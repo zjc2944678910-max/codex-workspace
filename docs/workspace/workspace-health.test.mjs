@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import test from "node:test";
 
-import { overallStatus, renderHealthSummary } from "./workspace-health.mjs";
+import { buildCodexWorkflowSummary, overallStatus, renderHealthSummary } from "./workspace-health.mjs";
 
 test("overallStatus flags structural issues before cleanup notes", () => {
   const hygiene = {
@@ -26,6 +29,7 @@ test("overallStatus flags structural issues before cleanup notes", () => {
     ...hygiene,
     project_route_metadata_mismatches: [{ project: "Sample", field: "aliases" }],
   }, disk), "attention");
+  assert.equal(overallStatus(hygiene, disk, { issues: ["notify_not_wrapper_only"] }), "attention");
 });
 
 test("renderHealthSummary gives a compact structure report", () => {
@@ -48,12 +52,67 @@ test("renderHealthSummary gives a compact structure report", () => {
       },
       retention_manifest_loaded: true,
     },
+    codex_workflow: {
+      notify_wrapper_only: true,
+      bark_enabled: true,
+      telegram_enabled: false,
+      workspace_health_notify_enabled: true,
+      workspace_health_daily: "ACTIVE",
+      mobile_bridge_heartbeat: "PAUSED",
+      issues: [],
+    },
   });
 
   assert.match(summary, /status: ok/u);
   assert.match(summary, /git_clean: yes/u);
   assert.match(summary, /project_route_metadata_mismatches: 0/u);
   assert.match(summary, /retention_gaps: 0/u);
+  assert.match(summary, /codex_notify_wrapper: ok/u);
+  assert.match(summary, /workspace_health_daily: ACTIVE/u);
+  assert.match(summary, /mobile_bridge_heartbeat: PAUSED/u);
   assert.match(summary, /largest_paths:/u);
   assert.match(summary, /obvious_garbage: 17M, 113 files/u);
+});
+
+test("codex workflow summary flags notify drift without exposing secrets", async () => {
+  const homeDir = await fs.mkdtemp(path.join(os.tmpdir(), "codex-workflow-health-"));
+  const codexDir = path.join(homeDir, ".codex");
+  await fs.mkdir(path.join(codexDir, "automations", "workspace-health-daily"), { recursive: true });
+  await fs.mkdir(path.join(codexDir, "automations", "mobile-codex-bridge-heartbeat"), { recursive: true });
+  await fs.writeFile(
+    path.join(codexDir, "config.toml"),
+    'notify = ["/tmp/SkyComputerUseClient", "turn-ended", "--previous-notify", "[\\"/tmp/wrapper\\",\\"turn-ended\\"]"]\n',
+    "utf8",
+  );
+  await fs.writeFile(
+    path.join(codexDir, "notify-config.json"),
+    JSON.stringify({
+      bark: { enabled: true, device_key: "secret-device-key" },
+      telegram: { enabled: false, bot_token: "secret-bot-token", chat_id: "secret-chat-id" },
+      workspace_health: { enabled: true },
+    }),
+    "utf8",
+  );
+  await fs.writeFile(
+    path.join(codexDir, "automations", "workspace-health-daily", "automation.toml"),
+    'kind = "cron"\nstatus = "ACTIVE"\nname = "Workspace health daily"\n',
+    "utf8",
+  );
+  await fs.writeFile(
+    path.join(codexDir, "automations", "mobile-codex-bridge-heartbeat", "automation.toml"),
+    'kind = "heartbeat"\nstatus = "PAUSED"\nname = "Mobile Codex Bridge heartbeat"\n',
+    "utf8",
+  );
+
+  const summary = await buildCodexWorkflowSummary({ homeDir });
+  const serialized = JSON.stringify(summary);
+  assert.equal(summary.notify_wrapper_only, false);
+  assert.equal(summary.notify_via_desktop_client, true);
+  assert.equal(summary.notify_has_previous_notify, true);
+  assert.deepEqual(summary.issues, [
+    "notify_not_wrapper_only",
+    "notify_via_desktop_client",
+    "notify_has_previous_notify",
+  ]);
+  assert.doesNotMatch(serialized, /secret-device-key|secret-bot-token|secret-chat-id/u);
 });
