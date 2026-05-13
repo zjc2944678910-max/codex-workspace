@@ -30,11 +30,31 @@ test("session hook injects workspace routing context", () => {
 test("prompt hook emits route and risk hints for OpenClaw live work", () => {
   const output = runHook("user-prompt-submit", {
     session_id: "workspace-hooks-test",
-    prompt: "看看 OpenClaw oc-nas 状态",
+    prompt: "看看 OpenClaw openclaw-gateway 状态",
   });
   assert.equal(output.hookSpecificOutput.hookEventName, "UserPromptSubmit");
   assert.match(output.hookSpecificOutput.additionalContext, /OpenClaw/u);
   assert.match(output.hookSpecificOutput.additionalContext, /L2 read-only/u);
+});
+
+test("prompt hook warns on shared live alias ambiguity", () => {
+  const output = runHook("user-prompt-submit", {
+    session_id: "workspace-hooks-test",
+    prompt: "看看 oc-nas 状态",
+  });
+  assert.equal(output.hookSpecificOutput.hookEventName, "UserPromptSubmit");
+  assert.match(output.hookSpecificOutput.additionalContext, /shared live host alias/u);
+  assert.doesNotMatch(output.hookSpecificOutput.additionalContext, /Route hint from prompt:/u);
+});
+
+test("prompt hook keeps explicit route evidence when shared live alias is present", () => {
+  const output = runHook("user-prompt-submit", {
+    session_id: "workspace-hooks-test",
+    prompt: "看看 OpenClaw oc-nas 状态",
+  });
+  assert.equal(output.hookSpecificOutput.hookEventName, "UserPromptSubmit");
+  assert.match(output.hookSpecificOutput.additionalContext, /Route hint from prompt: OpenClaw/u);
+  assert.match(output.hookSpecificOutput.additionalContext, /shared live host alias/u);
 });
 
 test("pre-tool hook denies destructive git commands", () => {
@@ -56,6 +76,35 @@ test("pre-tool hook warns but does not deny read-only live evidence commands", (
   });
   assert.match(output.systemMessage, /L2 read-only/u);
   assert.equal(output.hookSpecificOutput, undefined);
+});
+
+test("pre-tool hook allows inspection searches that mention blocked text", () => {
+  const output = runHook("pre-tool-use", {
+    tool_input: {
+      command: "rg -n 'git reset --hard|rm -rf' AGENTS.md WORKER.md",
+    },
+  });
+  assert.deepEqual(output, {});
+});
+
+test("pre-tool hook still denies shell wrapper execution of blocked commands", () => {
+  const output = runHook("pre-tool-use", {
+    tool_input: {
+      command: "bash -lc 'git reset --hard HEAD~1'",
+    },
+  });
+  assert.equal(output.hookSpecificOutput.hookEventName, "PreToolUse");
+  assert.equal(output.hookSpecificOutput.permissionDecision, "deny");
+  assert.match(output.hookSpecificOutput.permissionDecisionReason, /git reset --hard/u);
+});
+
+test("pre-tool hook treats git status with flags as inspection", () => {
+  const output = runHook("pre-tool-use", {
+    tool_input: {
+      command: "git -C /tmp/example status --short",
+    },
+  });
+  assert.deepEqual(output, {});
 });
 
 test("permission hook denies L3 approval requests without repair gate", () => {

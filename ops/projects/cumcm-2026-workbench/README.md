@@ -6,9 +6,11 @@ Operator-facing surface for the CUMCM 2026 workbench research project.
 
 - Project name: `CUMCM-2026-Workbench`
 - Aliases: `cumcm-2026-workbench`, `cumcm2026`, `cumcm-workbench`
+- Registry routing keywords: `cumcm-2026-workbench`, `cumcm2026`, `cumcm-workbench`
 - Code root: `projects/research/cumcm-2026-workbench`
 - Ops surface: `ops/projects/cumcm-2026-workbench`
 - Kind: `research`
+- Registry risk profile: `research_local`
 
 ## Stable Docs
 

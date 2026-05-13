@@ -6,9 +6,11 @@ Operator-facing surface for the BigData Spark Research workbench project.
 
 - Project name: `bigdata-spark-research-workbench`
 - Aliases: `bigdata-spark-research`, `spark-research-workbench`
+- Registry routing keywords: `bigdata-spark-research-workbench`, `spark-research-workbench`, `bigdata-spark-research`
 - Code root: `projects/research/bigdata-spark-research-workbench`
 - Ops surface: `ops/projects/bigdata-spark-research-workbench`
 - Kind: `research`
+- Registry risk profile: `research_local`
 - Orientation: Hadoop/Spark course-project research (NOT CUMCM)
 - Route evidence: user explicitly requested this project by name and provided implementation plan
 

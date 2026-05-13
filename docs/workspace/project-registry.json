@@ -7,6 +7,7 @@
       "slug": "openclaw",
       "name": "OpenClaw",
       "kind": "product",
+      "risk_profile": "live_product",
       "surfaces": [
         "projects/products/openclaw",
         "projects/migrations/openclaw-mac-migration"
@@ -27,12 +28,16 @@
       "state_data": "state/project-data/openclaw",
       "scratch": "scratch/projects/openclaw",
       "aliases": ["open claw", "oc-nas", "openclaw-mac-migration"],
+      "routing_keywords": ["openclaw", "open claw", "benben", "adminai", "openclaw-mac-migration"],
+      "live_host_aliases": ["oc-nas"],
+      "service_names": ["openclaw-gateway", "openclaw-benben"],
       "gitnexus_indexed": true
     },
     {
       "slug": "nas-platform",
       "name": "NAS Platform",
       "kind": "infrastructure",
+      "risk_profile": "live_infra",
       "surfaces": [
         "projects/infrastructure/nas-platform"
       ],
@@ -47,12 +52,15 @@
       "state_data": null,
       "scratch": null,
       "aliases": ["nas-platform", "oc-nas"],
+      "live_host_aliases": ["oc-nas"],
+      "service_names": ["nas-platform"],
       "gitnexus_indexed": false
     },
     {
       "slug": "telegram-dual-relay",
       "name": "Telegram Dual Relay",
       "kind": "infrastructure",
+      "risk_profile": "live_infra",
       "surfaces": [
         "projects/infrastructure/telegram-dual-relay"
       ],
@@ -67,12 +75,15 @@
       "state_data": "state/project-data/telegram-dual-relay",
       "scratch": null,
       "aliases": ["telegram-dual-relay"],
+      "live_host_aliases": ["oc-nas"],
+      "service_names": ["telegram-dual-relay"],
       "gitnexus_indexed": true
     },
     {
       "slug": "mathorcup-d",
       "name": "MathorCup-D",
       "kind": "research",
+      "risk_profile": "research_local",
       "surfaces": [
         "projects/research/mathorcup_D",
         "projects/products/MathorCup_D_repo"
@@ -94,12 +105,14 @@
       "scratch": null,
       "scratch_archive": "archive/cleanup/2026-05-11-scratch-retention/scratch/projects/mathorcup-upload",
       "aliases": ["mathorcup_D", "MathorCup_D_repo"],
+      "routing_keywords": ["mathorcup-d", "mathorcup_d", "mathorcup", "mathorcup_d_repo"],
       "gitnexus_indexed": true
     },
     {
       "slug": "bigdata-spark-research-workbench",
       "name": "BigData-Spark-Research-Workbench",
       "kind": "research",
+      "risk_profile": "research_local",
       "surfaces": [
         "projects/research/bigdata-spark-research-workbench"
       ],
@@ -113,6 +126,11 @@
       "ops_surface": "ops/projects/bigdata-spark-research-workbench",
       "state_data": null,
       "scratch": null,
+      "routing_keywords": [
+        "bigdata-spark-research-workbench",
+        "spark-research-workbench",
+        "bigdata-spark-research"
+      ],
       "aliases": [
         "bigdata-spark-research-workbench",
         "bigdata-spark-research",
@@ -124,6 +142,7 @@
       "slug": "cumcm-2026-workbench",
       "name": "CUMCM-2026-Workbench",
       "kind": "research",
+      "risk_profile": "research_local",
       "surfaces": [
         "projects/research/cumcm-2026-workbench"
       ],
@@ -137,6 +156,7 @@
       "ops_surface": "ops/projects/cumcm-2026-workbench",
       "state_data": null,
       "scratch": null,
+      "routing_keywords": ["cumcm-2026-workbench", "cumcm2026", "cumcm-workbench"],
       "aliases": ["cumcm-2026-workbench", "cumcm2026", "cumcm-workbench"],
       "gitnexus_indexed": false
     }

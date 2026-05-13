@@ -1,7 +1,8 @@
 # Codex Long Task Runbook
 
-Use this when chat-only memory would get messy. Policy gates live in
-`AGENTS.md`; this file only describes the run-directory workflow.
+Use this when chat-only memory would get messy or a task no longer fits the
+short-task workflow in `daily-workflow.md`. Policy gates live in `AGENTS.md`;
+this file only describes the run-directory workflow.
 
 ## When To Use
 

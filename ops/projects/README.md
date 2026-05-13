@@ -37,3 +37,12 @@ Start new project records from `PROJECT_TEMPLATE.md`.
 See `docs/workspace/project-registry.json` for the machine-readable registry,
 `docs/workspace/project-surfaces.md` for the human-readable summary, and
 `docs/workspace/scratch-retention.json` for scratch path retention policy.
+
+Keep routing metadata in both places with distinct roles:
+
+- `docs/workspace/project-registry.json`: machine-readable routing keywords,
+  live host aliases, service names, and risk profile for hooks and scripts
+- `ops/projects/<project>/README.md`: human-facing routing evidence and stable
+  project entrypoint
+
+`docs/workspace/repo-hygiene.mjs` checks these records for route metadata drift.

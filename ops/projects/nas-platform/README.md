@@ -5,12 +5,15 @@ This directory is the operator-facing surface for NAS Platform.
 ## Routing Evidence
 
 - Project name: `NAS Platform`
-- Aliases: `nas-platform`
+- Aliases: `nas-platform`, `oc-nas`
+- Registry routing keywords: `NAS Platform`, `nas-platform`, `oc-nas`
 - Main code: `projects/infrastructure/nas-platform`
 - Ops surface: `ops/projects/nas-platform`
 - Reports: `ops/projects/nas-platform/reports`
 - Runbooks: `ops/projects/nas-platform/runbooks`
 - Live host aliases: `oc-nas`
+- Service names: `nas-platform`
+- Registry risk profile: `live_infra`
 
 Route into this project only when the user explicitly names one of these
 entries, provides a matching path, or asks for a file that belongs to this

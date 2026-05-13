@@ -12,6 +12,8 @@ commands, but they are not a complete security sandbox.
 - `.codex/config.toml`: enables `codex_hooks`.
 - `.codex/hooks.json`: wires lifecycle events to the hook runner.
 - `.codex/hooks/workspace_guard.py`: implements the workspace policy.
+- `docs/workspace/project-registry.json`: machine-readable source for route
+  hints, live host aliases, and service names.
 - `docs/workspace/workspace-hooks.test.mjs`: regression tests for hook behavior.
 
 ## Installed Hooks
@@ -19,8 +21,8 @@ commands, but they are not a complete security sandbox.
 | Event | Purpose | Behavior |
 | --- | --- | --- |
 | `SessionStart` | Load workspace rules | Adds context that this root is a workspace index, not a product repo. |
-| `UserPromptSubmit` | Route by prompt | Adds route/risk hints for registered projects such as OpenClaw, NAS Platform, Telegram Dual Relay, MathorCup-D, Spark, and CUMCM. |
-| `PreToolUse` | Command guard | Blocks destructive local commands and L3-looking live mutations unless the repair gate is open. |
+| `UserPromptSubmit` | Route by prompt | Adds registry-derived route and risk hints for registered projects and warns on shared live aliases such as `oc-nas`. |
+| `PreToolUse` | Command guard | Blocks destructive local commands and L3-looking live mutations unless the repair gate is open, while allowing read-only inspection commands that merely mention blocked strings. |
 | `PermissionRequest` | Approval guard | Denies dangerous approval requests if approval prompts are enabled in a future profile. |
 | `PostToolUse` | Hygiene check | Runs workspace hygiene after file edits and only warns when policy-relevant issues appear. |
 | `Stop` | Closeout reminder | Reminds high-risk L2/L3/live answers to include evidence, risks, and next steps. |
@@ -42,6 +44,21 @@ repair window for 30 minutes in:
 
 The gate only relaxes L3-looking command blocking. It does not authorize broad
 scope changes, production cutovers, deploys, or unrelated cleanup.
+
+## Routing Metadata
+
+Hooks load project metadata from `docs/workspace/project-registry.json`.
+Each project may define:
+
+- `routing_keywords`
+- `live_host_aliases`
+- `service_names`
+- `risk_profile`
+
+The project ops README remains the human-facing routing record. Shared live
+aliases should stay explicit in both places.
+`repo-hygiene.mjs` reports `project_route_metadata_mismatches` when registry
+fields drift from the matching ops README.
 
 ## Command Policy
 
@@ -67,8 +84,9 @@ including common patterns around:
 - `scp` or `rsync` involving `oc-nas`
 - `ssh oc-nas` commands that mutate services or `/etc`
 
-Read-only live evidence commands, such as `journalctl` probes, are not blocked.
-They get an L2 read-only reminder.
+Read-only inspection commands, such as `rg`, `sed -n`, `git show`, `git status`,
+and `journalctl` probes, are not blocked just because they mention risky text.
+They still get an L2 read-only reminder when live terms are present.
 
 ## Verification
 

@@ -43,6 +43,7 @@ function overallStatus(hygiene = {}, disk = {}) {
   const structuralIssues = hygiene.git_clean !== true
     || count(hygiene.unregistered_project_surfaces) > 0
     || count(hygiene.nonexistent_project_references) > 0
+    || count(hygiene.project_route_metadata_mismatches) > 0
     || count(disk.retention_gaps) > 0
     || disk.retention_manifest_loaded === false;
   return structuralIssues ? "attention" : "ok";
@@ -72,6 +73,7 @@ function renderHealthSummary(result = {}) {
     `git_clean: ${hygiene.git_clean ? "yes" : "no"}`,
     `unregistered_project_surfaces: ${count(hygiene.unregistered_project_surfaces)}`,
     `nonexistent_project_references: ${count(hygiene.nonexistent_project_references)}`,
+    `project_route_metadata_mismatches: ${count(hygiene.project_route_metadata_mismatches)}`,
     `retention_manifest_loaded: ${disk.retention_manifest_loaded ? "yes" : "no"}`,
     `retention_gaps: ${count(disk.retention_gaps)}`,
   ];

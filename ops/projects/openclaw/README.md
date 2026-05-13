@@ -5,7 +5,8 @@ This directory is the operator-facing surface for OpenClaw.
 ## Routing Evidence
 
 - Project name: `OpenClaw`
-- Aliases: `open claw`
+- Aliases: `open claw`, `oc-nas`, `openclaw-mac-migration`
+- Registry routing keywords: `openclaw`, `open claw`, `benben`, `adminai`, `openclaw-mac-migration`
 - Main code: `projects/products/openclaw/nas-openclaw-v22`
 - Migration reference: `projects/migrations/openclaw-mac-migration`
 - State/data: `state/project-data/openclaw`
@@ -13,6 +14,8 @@ This directory is the operator-facing surface for OpenClaw.
 - Reports: `ops/projects/openclaw/reports`
 - Runbooks: `ops/projects/openclaw/runbooks`
 - Live host aliases: `oc-nas`
+- Service names: `openclaw-gateway`, `openclaw-benben`
+- Registry risk profile: `live_product`
 
 Route into this project only when the user explicitly names one of these
 entries, provides a matching path, or asks for a file that belongs to this

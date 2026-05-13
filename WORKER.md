@@ -10,6 +10,8 @@ contract applies regardless of the runtime adapter or model profile.
 - Run focused verification when feasible.
 - Honor Route Lock and inherited risk gates.
 - Return concise implementation and verification results.
+- Fit the worker-first short-task path: implement, verify, report back, and let
+  Codex own acceptance.
 
 ## Forbidden
 

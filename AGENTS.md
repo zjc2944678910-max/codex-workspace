@@ -2,7 +2,7 @@
 
 This root is a workspace index, not a primary product repository.
 
-## Workspace Identity
+## Workspace Identity And Routing
 
 - Workspace root: `/Users/zhangjincheng/Documents/GitHub/codex-workspace`
 - GitHub repo: `zjc2944678910-max/codex-workspace`
@@ -10,8 +10,6 @@ This root is a workspace index, not a primary product repository.
 
 Project-specific paths are named surfaces. Select them only from explicit
 routing evidence, not from historical residue in this repository.
-
-## Root Tracking Policy
 
 Track only workspace-level control files:
 
@@ -42,14 +40,14 @@ Placement defaults:
 - Project state: `state/project-data/<name>/`
 - Temporary outputs: `scratch/projects/<name>/` or `scratch/shared/`
 
-## Project Routing
-
 Project routing comes before implementation workflow.
 
 - Registered projects live under `ops/projects/<project>/README.md`.
+- `docs/workspace/project-registry.json` is the machine-readable routing source
+  for scripts and hooks.
 - No registered project is a default work target.
-- Keep root policy project-neutral; put project-specific aliases and routing
-  facts in that project's README.
+- Keep root policy project-neutral. Put project-specific aliases and routing
+  facts in the project registry and the matching ops README.
 - Route into a project only when the user names the project, a registered alias
   or host/service, a matching path, or a file inside that project surface.
 - If the request is generic or unnamed, stay at the workspace-index level.
@@ -70,16 +68,16 @@ before acting. Simple questions can be answered naturally.
 | Level | Meaning | Required behavior |
 | --- | --- | --- |
 | `L0` | Local docs, scripts, tests, ordinary bugs, tiny fixes | Codex may answer or edit directly; use worker only when it reduces effort. |
-| `L1` | Cross-file local edits, workflow/tooling changes, local refactors, dependency/build/CI script changes without production impact | Give a short plan, then map/review/implement/verify as needed. |
+| `L1` | Cross-file local edits, workflow/tooling changes, local refactors, dependency/build/CI script changes without production impact | Give a short plan, then map, review, implement, and verify as needed. |
 | `L2` | High-risk read-only audit: live/production/NAS/VPS/OpenClaw, logs, service status, config, slow replies, unclear root cause, expensive wrong conclusion | Codex keeps first pass read-only. Do not modify, restart, patch, deploy, or default into repair. |
-| `L3` | State-changing repair: config writes, service restarts, deploys, runtime changes, production file writes, rollback | Stop at plan stage until the user explicitly says `进入修复阶段`. |
+| `L3` | State-changing repair: config writes, service restarts, deploys, runtime changes, production file writes, rollback | Stop at the plan stage until the user explicitly says `进入修复阶段`. |
 
 Keep confirmed evidence, hypotheses, and next actions separate. Never present
 guesses as facts.
 
-## Codex Control Plane And Model Workers
+## Codex And Workers
 
-Codex is the only control plane.
+Codex is the control plane.
 
 | Work type | Default owner |
 | --- | --- |
@@ -91,6 +89,16 @@ Codex is the only control plane.
 | Small mechanical implementation or tight repair loop | `model_worker_delegate` with `worker_profile=mino_fast` |
 | Verification, regression judgment, final acceptance, user synthesis | Codex, optionally `verifier` |
 
+Default short-task path:
+
+```text
+Codex route/judge -> worker implements by default -> verifier/Codex accepts
+```
+
+Keep the work in Codex when the task is tiny, the main value is diagnosis or
+judgment, or the request is L2/L3, live, deploy, auth, secrets, or config
+heavy.
+
 Never delegate these to a model worker:
 
 - project routing from workspace residue
@@ -100,10 +108,10 @@ Never delegate these to a model worker:
 - architecture, root-cause, safety, or final acceptance judgment
 
 The v1 worker runtime may use a legacy adapter underneath, but policy treats it
-only as a generic model worker. `CLAUDE.md` is a legacy adapter shim, not a
-strategy source.
+only as a generic model worker. `CLAUDE.md` is a runtime shim, not a strategy
+source.
 
-## Worker Handoff Contract
+## Worker Repair Loop
 
 `model_worker_delegate` is for bounded execution only. Worker instructions live
 in `WORKER.md`.
@@ -119,11 +127,9 @@ Pass a bounded brief with:
 
 Codex must review worker results before presenting completion.
 
-## Worker Repair Routing
-
 After worker implementation, Codex verifies locally. If Codex finds L0/L1
 implementation defects, default repair goes back to `model_worker_delegate`,
-ideally the same worker/thread when resumable.
+ideally the same worker or thread when resumable.
 
 Codex may bypass worker repair only for:
 
@@ -133,28 +139,28 @@ Codex may bypass worker repair only for:
 - explicit user request to bypass worker repair
 
 When Codex bypasses worker repair, include `why_no_worker` in the final result.
-Long-task repair loops follow `docs/workspace/codex-long-task-runbook.md`.
-
-## Long Tasks And Recovery
 
 Use long-task state only when chat memory would become messy.
 
 - Canonical runbook: `docs/workspace/codex-long-task-runbook.md`
 - CLI: `node docs/workspace/codex-long-task.mjs`
-- Codex owns request/context/plan/ledger/risk/decisions/final summary.
-- Worker owns default development and repair slices.
 - Keep repair loops to 3 attempts per slice before `blocked` or `deferred`.
+- Reconstruct continuation state from git status, recent outputs, relevant
+  files, and run directories after interruption or compaction.
 
-Continuation triggers include `continue`, `继续`, `接着`, `再看看`,
-context compaction, interruption, retry, and long-running handoff recovery.
-Reconstruct state from git status, recent outputs, relevant files, and run
-directories. Resume from the smallest unfinished delta and preserve L2/L3 gates.
-
-## Output Rules
+## Output And Closeout
 
 - Ordinary questions: answer naturally and briefly.
-- L0 tiny edits: summarize change and verification.
-- L1 code/workflow changes: include confirmed facts, changes, verification,
+- L0 tiny edits: summarize changes and verification.
+- L1 code or workflow changes: include confirmed facts, changes, verification,
   residual risks, and next steps.
 - L2/L3, audit, review, and final acceptance: keep structured output and
   separate evidence, hypotheses, risks, and next actions.
+
+When useful, end with a compact status:
+
+- completed
+- confirmed
+- unconfirmed
+- risks
+- next steps

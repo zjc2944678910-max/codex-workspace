@@ -5,7 +5,7 @@ import path from "node:path";
 import test from "node:test";
 import { spawnSync } from "node:child_process";
 
-import { buildCheckpointCommitMessage, buildRepoHygieneSummary, classifyStatusEntries, expandStatusPath, findNonexistentProjectRefs, findUnregisteredSurfaces, isTrackablePath, listProjectSurfaces, loadProjectRegistry, summarizeCheckpointScope } from "./repo-hygiene.mjs";
+import { buildCheckpointCommitMessage, buildRepoHygieneSummary, classifyStatusEntries, expandStatusPath, findNonexistentProjectRefs, findProjectRouteMetadataMismatches, findUnregisteredSurfaces, isTrackablePath, listProjectSurfaces, loadProjectRegistry, parseArgs, renderSummary, summarizeCheckpointScope } from "./repo-hygiene.mjs";
 
 function runGit(repoRoot, args) {
   const result = spawnSync("git", ["-C", repoRoot, ...args], {
@@ -278,6 +278,113 @@ test("repo hygiene does not flag ops/projects substring as nonexistent projects 
   }
 });
 
+test("repo hygiene accepts mirrored project route metadata", async () => {
+  const repoRoot = await createFixture();
+  await fs.writeFile(
+    path.join(repoRoot, "ops", "projects", "sample-product", "README.md"),
+    [
+      "# Sample Product Ops Surface",
+      "",
+      "## Routing Evidence",
+      "",
+      "- Project name: `Sample Product`",
+      "- Aliases: `sample`, `sample-live`",
+      "- Registry routing keywords: `sample-product`, `sample`, `sample-live`",
+      "- Main code: `projects/products/sample-product`",
+      "- Ops surface: `ops/projects/sample-product`",
+      "- Live host aliases: `sample-live`",
+      "- Service names: `sample-api`",
+      "- Registry risk profile: `live_product`",
+      "",
+    ].join("\n"),
+    "utf8",
+  );
+  const registry = {
+    projects: [
+      {
+        slug: "sample-product",
+        name: "Sample Product",
+        aliases: ["sample", "sample-live"],
+        routing_keywords: ["sample-product", "sample", "sample-live"],
+        code_roots: [{ path: "projects/products/sample-product" }],
+        ops_surface: "ops/projects/sample-product",
+        live_host_aliases: ["sample-live"],
+        service_names: ["sample-api"],
+        risk_profile: "live_product",
+      },
+    ],
+  };
+
+  const mismatches = await findProjectRouteMetadataMismatches(repoRoot, registry);
+  assert.deepEqual(mismatches, []);
+});
+
+test("repo hygiene detects project route metadata drift", async () => {
+  const repoRoot = await createFixture();
+  await fs.writeFile(
+    path.join(repoRoot, "ops", "projects", "sample-product", "README.md"),
+    [
+      "# Sample Product Ops Surface",
+      "",
+      "## Routing Evidence",
+      "",
+      "- Project name: `Sample Product`",
+      "- Main code: `projects/products/sample-product`",
+      "- Ops surface: `ops/projects/sample-product`",
+      "",
+    ].join("\n"),
+    "utf8",
+  );
+  const registry = {
+    projects: [
+      {
+        slug: "sample-product",
+        name: "Sample Product",
+        aliases: ["sample-alias"],
+        code_roots: [{ path: "projects/products/sample-product" }],
+        ops_surface: "ops/projects/sample-product",
+        live_host_aliases: ["sample-live"],
+        service_names: ["sample-api"],
+        risk_profile: "live_product",
+      },
+    ],
+  };
+
+  const mismatches = await findProjectRouteMetadataMismatches(repoRoot, registry);
+  assert.deepEqual(mismatches.map((entry) => entry.field).sort(), [
+    "aliases",
+    "live_host_aliases",
+    "risk_profile",
+    "service_names",
+  ]);
+});
+
+test("repo hygiene can explain project route metadata drift", () => {
+  const summary = {
+    repo_root: "/workspace",
+    git_clean: true,
+    checkpoint_commit: null,
+    after: {
+      modified_tracked: [],
+      untracked_source: [],
+    },
+    project_route_metadata_mismatches: [
+      {
+        project: "Sample Product",
+        field: "service_names",
+        missing: ["sample-api"],
+        readme: "ops/projects/sample-product/README.md",
+      },
+    ],
+  };
+
+  assert.equal(parseArgs(["--explain-mismatch"]).explainMismatch, true);
+  const rendered = renderSummary(summary, { explainMismatch: true });
+  assert.match(rendered, /project_route_metadata_mismatch_details:/u);
+  assert.match(rendered, /Sample Product service_names missing/u);
+  assert.match(rendered, /sample-api/u);
+});
+
 test("repo hygiene summary includes new policy fields", async () => {
   const repoRoot = await createFixture();
   await fs.mkdir(path.join(repoRoot, "projects", "products", "unregistered"), { recursive: true });
@@ -298,6 +405,7 @@ test("repo hygiene summary includes new policy fields", async () => {
   assert.ok(Array.isArray(summary.unregistered_project_surfaces));
   assert.ok(summary.unregistered_project_surfaces.includes("projects/products/unregistered"));
   assert.ok(Array.isArray(summary.nonexistent_project_references));
+  assert.ok(Array.isArray(summary.project_route_metadata_mismatches));
   // existing fields still present
   assert.ok("git_clean" in summary);
   assert.ok("before" in summary);

@@ -6,6 +6,7 @@ This directory is the operator-facing surface for Telegram Dual Relay.
 
 - Project name: `Telegram Dual Relay`
 - Aliases: `telegram-dual-relay`
+- Registry routing keywords: `Telegram Dual Relay`, `telegram-dual-relay`
 - Main code: `projects/infrastructure/telegram-dual-relay`
 - Ops surface: `ops/projects/telegram-dual-relay`
 - State/data: `state/project-data/telegram-dual-relay`
@@ -13,6 +14,7 @@ This directory is the operator-facing surface for Telegram Dual Relay.
 - Runbooks: `ops/projects/telegram-dual-relay/runbooks`
 - Live host aliases: `oc-nas`
 - Service names: `telegram-dual-relay`
+- Registry risk profile: `live_infra`
 
 Route into this project only when the user explicitly names one of these
 entries, provides a matching path, or asks for a file that belongs to this

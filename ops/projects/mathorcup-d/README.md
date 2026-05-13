@@ -6,11 +6,13 @@ This directory is the operator-facing surface for MathorCup D题 (fixed-vehicle 
 
 - Project name: `MathorCup-D`
 - Aliases: `mathorcup-d`, `mathorcup_D`, `MathorCup_D_repo`
+- Registry routing keywords: `mathorcup-d`, `mathorcup_d`, `mathorcup`, `mathorcup_d_repo`
 - Main code: `projects/research/mathorcup_D`
 - Additional reference: `projects/products/MathorCup_D_repo`
 - Ops surface: `ops/projects/mathorcup-d`
 - Scratch staging archive: `archive/cleanup/2026-05-11-scratch-retention/scratch/projects/mathorcup-upload`
 - Reports: `ops/projects/mathorcup-d/reports`
+- Registry risk profile: `research_local`
 
 Route into this project only when the user explicitly names one of these
 entries, provides a matching path, or asks for a file that belongs to this

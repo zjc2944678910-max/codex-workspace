@@ -8,6 +8,7 @@ test("overallStatus flags structural issues before cleanup notes", () => {
     git_clean: true,
     unregistered_project_surfaces: [],
     nonexistent_project_references: [],
+    project_route_metadata_mismatches: [],
   };
   const disk = {
     retention_gaps: [],
@@ -21,6 +22,10 @@ test("overallStatus flags structural issues before cleanup notes", () => {
     ...hygiene,
     unregistered_project_surfaces: ["projects/products/rogue"],
   }, disk), "attention");
+  assert.equal(overallStatus({
+    ...hygiene,
+    project_route_metadata_mismatches: [{ project: "Sample", field: "aliases" }],
+  }, disk), "attention");
 });
 
 test("renderHealthSummary gives a compact structure report", () => {
@@ -30,6 +35,7 @@ test("renderHealthSummary gives a compact structure report", () => {
       git_clean: true,
       unregistered_project_surfaces: [],
       nonexistent_project_references: [],
+      project_route_metadata_mismatches: [],
     },
     disk: {
       largest_paths: [
@@ -46,6 +52,7 @@ test("renderHealthSummary gives a compact structure report", () => {
 
   assert.match(summary, /status: ok/u);
   assert.match(summary, /git_clean: yes/u);
+  assert.match(summary, /project_route_metadata_mismatches: 0/u);
   assert.match(summary, /retention_gaps: 0/u);
   assert.match(summary, /largest_paths:/u);
   assert.match(summary, /obvious_garbage: 17M, 113 files/u);

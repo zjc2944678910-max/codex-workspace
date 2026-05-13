@@ -56,6 +56,7 @@ function parseArgs(argv = []) {
     json: false,
     quiet: false,
     auto: false,
+    explainMismatch: false,
   };
   for (let index = 0; index < argv.length; index += 1) {
     const arg = String(argv[index] || "").trim();
@@ -88,6 +89,10 @@ function parseArgs(argv = []) {
     }
     if (arg === "--quiet") {
       options.quiet = true;
+      continue;
+    }
+    if (arg === "--explain-mismatch" || arg === "--explain-mismatches") {
+      options.explainMismatch = true;
       continue;
     }
     if (arg === "--auto") {
@@ -405,6 +410,105 @@ async function findNonexistentProjectRefs(repoRoot) {
   return missing.sort();
 }
 
+function registryStringList(value) {
+  return Array.isArray(value)
+    ? value.filter((entry) => typeof entry === "string" && entry.trim()).map((entry) => entry.trim())
+    : [];
+}
+
+function registryCodeRootPaths(project = {}) {
+  const roots = [];
+  for (const entry of Array.isArray(project.code_roots) ? project.code_roots : []) {
+    if (typeof entry === "string" && entry.trim()) {
+      roots.push(entry.trim());
+      continue;
+    }
+    if (typeof entry?.path === "string" && entry.path.trim()) {
+      roots.push(entry.path.trim());
+    }
+  }
+  if (roots.length > 0) return roots;
+  return registryStringList(project.surfaces);
+}
+
+function readmeMentions(readmeContent = "", value = "") {
+  const needle = String(value || "").trim().toLowerCase();
+  if (!needle) return true;
+  return String(readmeContent || "").toLowerCase().includes(needle);
+}
+
+function missingReadmeValues(readmeContent = "", values = []) {
+  const seen = new Set();
+  const missing = [];
+  for (const value of values) {
+    const normalized = String(value || "").trim();
+    if (!normalized || seen.has(normalized)) continue;
+    seen.add(normalized);
+    if (!readmeMentions(readmeContent, normalized)) missing.push(normalized);
+  }
+  return missing;
+}
+
+async function findProjectRouteMetadataMismatches(repoRoot, registry = null) {
+  const loadedRegistry = registry || await loadProjectRegistry(repoRoot);
+  const projects = Array.isArray(loadedRegistry?.projects) ? loadedRegistry.projects : [];
+  const mismatches = [];
+
+  for (const project of projects) {
+    const slug = String(project?.slug || "").trim();
+    const projectName = String(project?.name || slug).trim();
+    const opsSurface = String(project?.ops_surface || "").trim();
+    const readmePath = opsSurface ? path.join(repoRoot, opsSurface, "README.md") : "";
+    const relativeReadmePath = opsSurface ? `${opsSurface}/README.md` : "";
+
+    if (!opsSurface) {
+      mismatches.push({
+        project: projectName || slug || "(unknown)",
+        field: "ops_surface",
+        missing: ["ops_surface"],
+        readme: "",
+      });
+      continue;
+    }
+
+    if (!(await pathExists(readmePath))) {
+      mismatches.push({
+        project: projectName || slug || opsSurface,
+        field: "ops_readme",
+        missing: [relativeReadmePath],
+        readme: relativeReadmePath,
+      });
+      continue;
+    }
+
+    const readmeContent = await fs.readFile(readmePath, "utf8");
+    const fieldChecks = [
+      ["project_name", [projectName || slug]],
+      ["aliases", registryStringList(project.aliases)],
+      ["routing_keywords", registryStringList(project.routing_keywords)],
+      ["code_roots", registryCodeRootPaths(project)],
+      ["ops_surface", [opsSurface]],
+      ["live_host_aliases", registryStringList(project.live_host_aliases)],
+      ["service_names", registryStringList(project.service_names)],
+      ["risk_profile", typeof project.risk_profile === "string" ? [project.risk_profile] : []],
+    ];
+
+    for (const [field, values] of fieldChecks) {
+      const missing = missingReadmeValues(readmeContent, values);
+      if (missing.length > 0) {
+        mismatches.push({
+          project: projectName || slug || opsSurface,
+          field,
+          missing,
+          readme: relativeReadmePath,
+        });
+      }
+    }
+  }
+
+  return mismatches;
+}
+
 async function buildRepoHygieneSummary(options = {}) {
   const repoRoot = path.resolve(options.repo || resolveRepoRoot(options.cwd || process.cwd()));
   await ensureWorkspaceRoot(repoRoot);
@@ -417,6 +521,7 @@ async function buildRepoHygieneSummary(options = {}) {
   const projectSurfaces = await listProjectSurfaces(repoRoot);
   const unregisteredSurfaces = findUnregisteredSurfaces(projectSurfaces, registry);
   const nonexistentRefs = await findNonexistentProjectRefs(repoRoot);
+  const routeMetadataMismatches = await findProjectRouteMetadataMismatches(repoRoot, registry);
 
   return {
     repo_root: repoRoot,
@@ -436,10 +541,24 @@ async function buildRepoHygieneSummary(options = {}) {
     git_clean: afterStatus.modifiedTracked.length === 0 && afterStatus.untrackedSource.length === 0 && afterStatus.otherTracked.length === 0,
     unregistered_project_surfaces: unregisteredSurfaces,
     nonexistent_project_references: nonexistentRefs,
+    project_route_metadata_mismatches: routeMetadataMismatches,
   };
 }
 
-function renderSummary(summary) {
+function renderRouteMetadataMismatchDetails(mismatches = []) {
+  if (!Array.isArray(mismatches) || mismatches.length === 0) return [];
+  const lines = ["", "project_route_metadata_mismatch_details:"];
+  for (const entry of mismatches) {
+    const project = entry?.project || "(unknown)";
+    const field = entry?.field || "(unknown_field)";
+    const readme = entry?.readme || "(missing README)";
+    const missing = Array.isArray(entry?.missing) ? entry.missing.join(", ") : "";
+    lines.push(`- ${project} ${field} missing in ${readme}: ${missing}`);
+  }
+  return lines;
+}
+
+function renderSummary(summary, options = {}) {
   const lines = [
     `repo_root: ${summary.repo_root}`,
     `git_clean: ${summary.git_clean ? "yes" : "no"}`,
@@ -453,6 +572,19 @@ function renderSummary(summary) {
   if (summary.nonexistent_project_references?.length > 0) {
     lines.push(`nonexistent_project_references: ${summary.nonexistent_project_references.join(", ")}`);
   }
+  if (summary.project_route_metadata_mismatches?.length > 0) {
+    const preview = summary.project_route_metadata_mismatches
+      .slice(0, 5)
+      .map((entry) => `${entry.project}:${entry.field}`)
+      .join(", ");
+    const suffix = summary.project_route_metadata_mismatches.length > 5
+      ? ` (+${summary.project_route_metadata_mismatches.length - 5} more)`
+      : "";
+    lines.push(`project_route_metadata_mismatches: ${preview}${suffix}`);
+    if (options.explainMismatch === true) {
+      lines.push(...renderRouteMetadataMismatchDetails(summary.project_route_metadata_mismatches));
+    }
+  }
   return lines.join("\n") + "\n";
 }
 
@@ -463,7 +595,7 @@ async function main() {
     process.stdout.write(`${JSON.stringify(summary)}\n`);
     return;
   }
-  if (!options.quiet) process.stdout.write(renderSummary(summary));
+  if (!options.quiet) process.stdout.write(renderSummary(summary, options));
 }
 
 const entryPath = process.argv[1] ? path.resolve(process.argv[1]) : "";
@@ -481,10 +613,13 @@ export {
   classifyStatusEntries,
   expandStatusPath,
   findNonexistentProjectRefs,
+  findProjectRouteMetadataMismatches,
   findUnregisteredSurfaces,
   isTrackablePath,
   listProjectSurfaces,
   loadProjectRegistry,
+  parseArgs,
+  renderRouteMetadataMismatchDetails,
   renderSummary,
   resolveRepoRoot,
   summarizeCheckpointScope,

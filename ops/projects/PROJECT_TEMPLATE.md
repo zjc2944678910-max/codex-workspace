@@ -6,6 +6,7 @@ This directory is the operator-facing surface for `<project-slug>`.
 
 - Project name:
 - Aliases:
+- Registry routing keywords:
 - Main code:
 - Ops surface:
 - State/data:
@@ -14,10 +15,15 @@ This directory is the operator-facing surface for `<project-slug>`.
 - Runbooks:
 - Live host aliases:
 - Service names:
+- Registry risk profile:
 
 Route into this project only when the user explicitly names one of these
 entries, provides a matching path, or asks for a file that belongs to this
 surface.
+
+Mirror the machine-readable fields for this project in
+`docs/workspace/project-registry.json`. Keep this README human-facing and keep
+the registry entry script-friendly.
 
 ## Stable Docs
 

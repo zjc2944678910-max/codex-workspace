@@ -9,54 +9,17 @@ import re
 import subprocess
 import sys
 import time
+import shlex
 from pathlib import Path
 from typing import Any
 
 
 WORKSPACE_ROOT = Path("/Users/zhangjincheng/Documents/GitHub/codex-workspace")
 STATE_PATH = Path.home() / ".codex" / "state" / "codex-workspace-hooks.json"
+PROJECT_REGISTRY_PATH = WORKSPACE_ROOT / "docs" / "workspace" / "project-registry.json"
 REPAIR_PHRASE = "进入修复阶段"
 REPAIR_AUTH_TTL_SECONDS = 30 * 60
 
-
-ROUTE_HINTS = [
-    {
-        "project": "OpenClaw",
-        "keywords": ["openclaw", "open claw", "benben", "adminai", "openclaw-mac-migration"],
-        "surface": "ops/projects/openclaw; projects/products/openclaw/nas-openclaw-v22",
-        "risk": "OpenClaw/live/NAS requests are L2 read-only by default; L3 changes require the exact repair phrase.",
-    },
-    {
-        "project": "NAS Platform",
-        "keywords": ["nas-platform"],
-        "surface": "ops/projects/nas-platform; projects/infrastructure/nas-platform",
-        "risk": "NAS host/config/service work is L2 read-only unless repair is explicitly opened.",
-    },
-    {
-        "project": "Telegram Dual Relay",
-        "keywords": ["telegram-dual-relay", "telegram dual relay"],
-        "surface": "ops/projects/telegram-dual-relay; projects/infrastructure/telegram-dual-relay",
-        "risk": "Relay service changes are L3 when they touch live service state.",
-    },
-    {
-        "project": "MathorCup-D",
-        "keywords": ["mathorcup-d", "mathorcup_d", "mathorcup", "mathorcup_d_repo"],
-        "surface": "ops/projects/mathorcup-d; projects/products/MathorCup_D_repo",
-        "risk": "Research/submission work is normally L0/L1 unless it changes publication or delivery state.",
-    },
-    {
-        "project": "BigData-Spark-Research-Workbench",
-        "keywords": ["bigdata-spark-research-workbench", "spark-research-workbench", "bigdata-spark-research"],
-        "surface": "ops/projects/bigdata-spark-research-workbench; projects/research/bigdata-spark-research-workbench",
-        "risk": "Research workbench changes are normally L0/L1.",
-    },
-    {
-        "project": "CUMCM-2026-Workbench",
-        "keywords": ["cumcm-2026-workbench", "cumcm2026", "cumcm-workbench"],
-        "surface": "ops/projects/cumcm-2026-workbench; projects/research/cumcm-2026-workbench",
-        "risk": "Competition/research work is normally L0/L1 unless external submission state changes.",
-    },
-]
 
 READ_ONLY_LIVE_TERMS = [
     "oc-nas",
@@ -124,6 +87,18 @@ L3_BLOCK_PATTERNS = [
     (re.compile(r"\b(?:scp|rsync)\b.+\boc-nas\b|\boc-nas\b.+\b(?:scp|rsync)\b", re.I | re.S), "Copying files to or from oc-nas is L3 unless explicitly scoped as read-only evidence collection."),
     (re.compile(r"\bssh\b.+\boc-nas\b.+(?:systemctl|docker|kubectl|helm|terraform|sed\s+-i|tee\s+/etc|>\s*/etc|rm\s+-|mv\s+/etc|cp\s+.+/etc)", re.I | re.S), "Remote live-host mutation through oc-nas is L3 repair execution."),
 ]
+
+RISK_PROFILE_MESSAGES = {
+    "live_product": "live product work is L2 read-only by default; L3 changes require the exact repair phrase.",
+    "live_infra": "live infrastructure work is L2 read-only unless repair is explicitly opened.",
+    "research_local": "research and local work is normally L0/L1 unless it changes external delivery state.",
+}
+
+SHELL_WRAPPERS = {"sh", "bash", "zsh"}
+INSPECTION_PROGRAMS = {"rg", "grep", "cat", "head", "tail", "nl"}
+GIT_INSPECTION_SUBCOMMANDS = {"show", "status", "log", "diff", "grep", "rev-parse"}
+FIND_MUTATION_FLAGS = {"-delete"}
+PIPE_OPERATORS = {"|", "||", "&&", ";", ">", ">>", "<", "<<", "2>", "2>>", "&>", "&>>"}
 
 
 def load_payload() -> dict[str, Any]:
@@ -207,6 +182,108 @@ def write_state(state: dict[str, Any]) -> None:
     STATE_PATH.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
+def load_project_registry() -> list[dict[str, Any]]:
+    try:
+        raw = json.loads(PROJECT_REGISTRY_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+    projects = raw.get("projects") if isinstance(raw, dict) else None
+    return [item for item in projects if isinstance(item, dict)] if isinstance(projects, list) else []
+
+
+def normalize_keywords(project: dict[str, Any]) -> list[str]:
+    configured = project.get("routing_keywords")
+    values = configured if isinstance(configured, list) and configured else [
+        project.get("name"),
+        project.get("slug"),
+        *(project.get("aliases") or []),
+    ]
+    keywords = []
+    seen = set()
+    for value in values:
+        if not isinstance(value, str):
+            continue
+        normalized = value.strip().lower()
+        if normalized and normalized not in seen:
+            seen.add(normalized)
+            keywords.append(normalized)
+    return keywords
+
+
+def project_surface_text(project: dict[str, Any]) -> str:
+    surfaces: list[str] = []
+    ops_surface = project.get("ops_surface")
+    if isinstance(ops_surface, str) and ops_surface.strip():
+        surfaces.append(ops_surface.strip())
+
+    code_roots = project.get("code_roots")
+    if isinstance(code_roots, list):
+        for item in code_roots:
+            if isinstance(item, dict):
+                path_value = item.get("path")
+                if isinstance(path_value, str) and path_value.strip():
+                    surfaces.append(path_value.strip())
+
+    fallback_surfaces = project.get("surfaces")
+    if isinstance(fallback_surfaces, list):
+        for item in fallback_surfaces:
+            if isinstance(item, str) and item.strip():
+                surfaces.append(item.strip())
+
+    unique = []
+    seen = set()
+    for item in surfaces:
+        if item not in seen:
+            seen.add(item)
+            unique.append(item)
+    return "; ".join(unique)
+
+
+def risk_message_for_project(project: dict[str, Any]) -> str:
+    risk_profile = project.get("risk_profile")
+    if isinstance(risk_profile, str):
+        message = RISK_PROFILE_MESSAGES.get(risk_profile.strip())
+        if message:
+            return message
+    return "work follows the workspace risk ladder; check context before broadening scope."
+
+
+def route_hint_records() -> list[dict[str, str | list[str]]]:
+    records = []
+    for project in load_project_registry():
+        name = str(project.get("name") or project.get("slug") or "").strip()
+        if not name:
+            continue
+        records.append(
+            {
+                "project": name,
+                "keywords": normalize_keywords(project),
+                "surface": project_surface_text(project),
+                "risk": risk_message_for_project(project),
+                "live_host_aliases": [
+                    item.strip().lower()
+                    for item in (project.get("live_host_aliases") or [])
+                    if isinstance(item, str) and item.strip()
+                ],
+                "service_names": [
+                    item.strip().lower()
+                    for item in (project.get("service_names") or [])
+                    if isinstance(item, str) and item.strip()
+                ],
+            }
+        )
+    return records
+
+
+def shared_live_aliases() -> set[str]:
+    alias_counts: dict[str, int] = {}
+    for route in route_hint_records():
+        for alias in route.get("live_host_aliases") or []:
+            if isinstance(alias, str) and alias:
+                alias_counts[alias] = alias_counts.get(alias, 0) + 1
+    return {alias for alias, count in alias_counts.items() if count > 1}
+
+
 def record_repair_auth(payload: dict[str, Any]) -> None:
     state = read_state()
     now = int(time.time())
@@ -237,10 +314,42 @@ def workspace_context() -> str:
 def matching_routes(prompt: str) -> list[dict[str, str]]:
     lowered = prompt.lower()
     matches = []
-    for route in ROUTE_HINTS:
-        if any(keyword in lowered for keyword in route["keywords"]):
+    shared_aliases = shared_live_aliases()
+    for route in route_hint_records():
+        terms = [
+            *(route.get("keywords") or []),
+            *(route.get("service_names") or []),
+        ]
+        route_terms = [
+            term
+            for term in terms
+            if isinstance(term, str) and term not in shared_aliases
+        ]
+        if any(keyword in lowered for keyword in route_terms):
             matches.append(route)
     return matches
+
+
+def shared_live_alias_warning(prompt: str, matches: list[dict[str, str]]) -> str:
+    lowered = f" {prompt.lower()} "
+    alias_to_projects: dict[str, list[str]] = {}
+    for route in route_hint_records():
+        aliases = route.get("live_host_aliases") or []
+        for alias in aliases:
+            if isinstance(alias, str):
+                alias_to_projects.setdefault(alias, []).append(str(route["project"]))
+
+    for alias, projects in alias_to_projects.items():
+        if len(projects) < 2:
+            continue
+        token = f" {alias} "
+        if alias in lowered or token in lowered:
+            project_text = ", ".join(projects)
+            return (
+                f"{alias} is a shared live host alias across registered projects ({project_text}); "
+                "do not infer the target project without clearer service/path evidence."
+            )
+    return ""
 
 
 def prompt_context(payload: dict[str, Any]) -> str:
@@ -249,6 +358,7 @@ def prompt_context(payload: dict[str, Any]) -> str:
     parts = []
 
     matches = matching_routes(prompt)
+    ambiguity = shared_live_alias_warning(prompt, matches)
     if matches:
         route_lines = [
             f"{item['project']}: route via {item['surface']}. {item['risk']}"
@@ -256,10 +366,8 @@ def prompt_context(payload: dict[str, Any]) -> str:
         ]
         parts.append("Route hint from prompt: " + " | ".join(route_lines))
 
-    if "oc-nas" in lowered and not any(name in lowered for name in (" openclaw ", " nas-platform ", " telegram-dual-relay ")):
-        parts.append(
-            "oc-nas is a shared live host alias across registered projects; do not infer the target project without clearer service/path evidence."
-        )
+    if ambiguity:
+        parts.append(ambiguity)
 
     if any(term in lowered for term in (" live ", " production ", " prod ", " ssh ", " systemctl ", " restart ", " deploy ", " rollback ", " oc-nas ")):
         parts.append(
@@ -291,15 +399,83 @@ def has_live_terms(command: str) -> bool:
     return any(term in lowered for term in READ_ONLY_LIVE_TERMS)
 
 
+def tokenize_command(command: str) -> list[str]:
+    try:
+        lexer = shlex.shlex(command, posix=True, punctuation_chars="|&;<>")
+        lexer.whitespace_split = True
+        lexer.commenters = ""
+        return list(lexer)
+    except ValueError:
+        return []
+
+
+def is_shell_wrapper(tokens: list[str]) -> bool:
+    if len(tokens) < 2:
+        return False
+    first = Path(tokens[0]).name.lower()
+    if first not in SHELL_WRAPPERS:
+        return False
+    for token in tokens[1:]:
+        if token == "-c":
+            return True
+        if token.startswith("-") and "c" in token[1:]:
+            return True
+    return False
+
+
+def git_subcommand(tokens: list[str]) -> str:
+    index = 1
+    while index < len(tokens):
+        token = tokens[index]
+        if not token:
+            index += 1
+            continue
+        if token in {"-C", "--git-dir", "--work-tree", "-c"}:
+            index += 2
+            continue
+        if token.startswith("-"):
+            index += 1
+            continue
+        return token.lower()
+    return ""
+
+
+def is_inspection_command(command: str) -> bool:
+    tokens = tokenize_command(command)
+    if not tokens:
+        return False
+    if is_shell_wrapper(tokens):
+        return False
+    if any(token in PIPE_OPERATORS for token in tokens):
+        return False
+
+    program = Path(tokens[0]).name.lower()
+    if program in INSPECTION_PROGRAMS:
+        return True
+    if program == "sed":
+        return len(tokens) > 1 and tokens[1] == "-n"
+    if program == "find":
+        return not any(flag in tokens for flag in FIND_MUTATION_FLAGS)
+    if program == "git":
+        return git_subcommand(tokens) in GIT_INSPECTION_SUBCOMMANDS
+    return False
+
+
 def classify_command(command: str) -> tuple[str, str]:
     if not command:
         return "", ""
 
+    inspection_command = is_inspection_command(command)
+
     for pattern, reason in HARD_BLOCK_PATTERNS:
+        if inspection_command and "curl" not in pattern.pattern and "wget" not in pattern.pattern:
+            continue
         if pattern.search(command):
             return "hard_block", reason
 
     for pattern, reason in L3_BLOCK_PATTERNS:
+        if inspection_command:
+            continue
         if pattern.search(command):
             return "l3_block", reason
 
