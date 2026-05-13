@@ -32,6 +32,19 @@ Explain project route metadata drift:
 node docs/workspace/repo-hygiene.mjs --repo "$PWD" --explain-mismatch
 ```
 
+## Phone Notifications
+
+Codex completion notifications use the global wrapper:
+
+```text
+/Users/zhangjincheng/.codex/tools/codex-turn-ended-notify.sh
+```
+
+The default phone channel is Bark. Telegram credentials may stay configured for
+future mobile-continuation work, but Telegram completion notifications are off
+by default. The wrapper can include a compact workspace-health warning in the
+phone notification when health status becomes `attention`.
+
 ## Run Tests
 
 ```bash

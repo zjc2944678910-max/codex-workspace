@@ -44,3 +44,13 @@ Use a Route Lock before handoffs. Keep long logs in the run directory.
   to show the exact missing project, field, README, and values.
 - Pause grouped work:
   `~/.codex/tools/codex-repo-hygiene-guard.sh pause --repo <repo> --minutes 30`
+
+## Phone Closeout
+
+- Completion notifications go through
+  `/Users/zhangjincheng/.codex/tools/codex-turn-ended-notify.sh`.
+- Bark is the default phone push channel.
+- Telegram completion notifications are disabled by default, but credentials can
+  remain in `~/.codex/notify-config.json` for a future mobile-continuation flow.
+- The wrapper checks workspace health and adds a compact phone warning only when
+  `workspace-health` reports `attention` or fails.
