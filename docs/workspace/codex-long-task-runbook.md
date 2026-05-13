@@ -12,6 +12,17 @@ map/review/implement/verify work, or tasks likely to need repair loops.
 Do not use this to bypass L2/L3 gates. Choose the target project from explicit
 user evidence first; do not default `--project` to any registered project.
 
+## When To Escalate From Daily Workflow
+
+Stay on the short-task path for ordinary local work. Start a run directory when
+the task needs multiple implementation slices, spans repos or broad modules,
+needs more than two continuation/recovery turns, requires worker repair, or a
+verification failure starts a repair loop.
+
+Before creating the run, confirm the route and risk level. Live, NAS, OpenClaw,
+deploy, auth, secrets, and config-heavy work still follows `AGENTS.md`; a run
+directory never opens L3 repair by itself.
+
 ## Initialize
 
 Preferred entrypoint:

@@ -17,11 +17,36 @@ Long-task details: `codex-long-task-runbook.md`.
    repair brief back to the worker unless a `why_no_worker` bypass applies.
 7. Close out with confirmed facts, verification, residual risks, and next steps.
 
+## Capability Defaults
+
+Use these as default checks before choosing tools. They support the workflow;
+they do not replace routing, risk classification, worker ownership, or final
+Codex acceptance.
+
+| Situation | Default capability |
+| --- | --- |
+| L1 multi-file change, core function, cross-module refactor, API route, or unknown call chain | Check GitNexus `list_repos`; if the target repo is indexed, use `query`, `context`, and `impact`. For API routes, prefer `api_impact`. |
+| GitNexus target missing or stale | Record `GitNexus unavailable/stale`, then fall back to `rg`, focused tests, and local review. |
+| Tiny edit, typo, small docs update, or isolated script tweak | Skip GitNexus unless the user asks for impact analysis. |
+| PDF, Word, spreadsheet, presentation, Figma, Sentry, Playwright, OpenAI docs, security, cleanup, or notification task | Use the matching skill first, then apply workspace routing and risk gates. |
+| Review with a concrete file/line finding | Prefer `::code-comment{...}` for actionable line-specific feedback. |
+| Architecture, process, testing strategy, or cross-file review concern | Use normal review text with findings, residual risks, and testing gaps. |
+
+For frontend or local web UI work, verify with Browser or Playwright when a
+target is available. Use Chrome only when the task needs the user's real
+logged-in profile, cookies, extensions, or an existing remote tab. Use Computer
+Use only for desktop-app workflows without a reliable CLI, API, or browser
+surface.
+
 ## Long Task
 
 Escalate to a run-directory workflow when the task spans multiple slices, needs
 handoff state, or enters repeated repair loops. Keep ordinary tasks on the
 short-task path above.
+
+Escalate from the short-task path when any of these apply: multiple slices,
+cross-repo or broad cross-module work, more than two continuation/recovery
+turns, worker repair is needed, or verification failure starts a repair loop.
 
 ```bash
 node docs/workspace/codex-long-task.mjs init --project <name> --task "<goal>"

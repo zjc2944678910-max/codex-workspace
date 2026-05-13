@@ -8,7 +8,7 @@ Policy: `AGENTS.md`. Worker contract: `WORKER.md`.
 | Tool | Purpose |
 | --- | --- |
 | `codex-long-task.mjs` | Unified long-task CLI: init, append, repair, recheck, close |
-| `daily-workflow.md` | Default short-task workflow: route, classify, worker-first execute, verify, close out |
+| `daily-workflow.md` | Default short-task workflow plus capability defaults for GitNexus, skills, inline review comments, and long-task escalation |
 | `codex-long-task-runbook.md` | **Canonical** operational long-task workflow |
 | `codex-hooks.md` | Repo-local Codex hook guardrails, verification, and rollback |
 | `codex-multi-agent-long-task-template.md` | Non-canonical prompt examples and layout reference |
