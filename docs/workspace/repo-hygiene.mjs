@@ -12,6 +12,7 @@ const TRACKABLE_EXACT_PATHS = new Set([
   "CLAUDE.md",
   ".gitignore",
   ".codex/config.toml",
+  ".codex/hooks.json",
   "README.md",
   "WORKSPACE_MAP.md",
   "ops/README.md",
@@ -21,6 +22,7 @@ const TRACKABLE_EXACT_PATHS = new Set([
 
 const TRACKABLE_PREFIXES = [
   ".codex/agents/",
+  ".codex/hooks/",
   "docs/",
 ];
 

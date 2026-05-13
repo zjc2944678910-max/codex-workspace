@@ -1,0 +1,134 @@
+import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
+import path from "node:path";
+import test from "node:test";
+
+const repoRoot = path.resolve(import.meta.dirname, "..", "..");
+const hookScript = path.join(repoRoot, ".codex", "hooks", "workspace_guard.py");
+
+function runHook(event, payload = {}) {
+  const result = spawnSync("python3", [hookScript, event], {
+    cwd: repoRoot,
+    input: JSON.stringify(payload),
+    encoding: "utf8",
+    stdio: ["pipe", "pipe", "pipe"],
+  });
+  if (result.status !== 0) {
+    throw new Error((result.stderr || result.stdout || `hook exited ${result.status}`).trim());
+  }
+  const stdout = result.stdout.trim();
+  return stdout ? JSON.parse(stdout) : {};
+}
+
+test("session hook injects workspace routing context", () => {
+  const output = runHook("session-start", { source: "startup" });
+  assert.equal(output.hookSpecificOutput.hookEventName, "SessionStart");
+  assert.match(output.hookSpecificOutput.additionalContext, /workspace index/u);
+  assert.match(output.hookSpecificOutput.additionalContext, /L3 state changes/u);
+});
+
+test("prompt hook emits route and risk hints for OpenClaw live work", () => {
+  const output = runHook("user-prompt-submit", {
+    session_id: "workspace-hooks-test",
+    prompt: "看看 OpenClaw oc-nas 状态",
+  });
+  assert.equal(output.hookSpecificOutput.hookEventName, "UserPromptSubmit");
+  assert.match(output.hookSpecificOutput.additionalContext, /OpenClaw/u);
+  assert.match(output.hookSpecificOutput.additionalContext, /L2 read-only/u);
+});
+
+test("pre-tool hook denies destructive git commands", () => {
+  const output = runHook("pre-tool-use", {
+    tool_input: {
+      command: "git reset --hard HEAD~1",
+    },
+  });
+  assert.equal(output.hookSpecificOutput.hookEventName, "PreToolUse");
+  assert.equal(output.hookSpecificOutput.permissionDecision, "deny");
+  assert.match(output.hookSpecificOutput.permissionDecisionReason, /blocked/u);
+});
+
+test("pre-tool hook warns but does not deny read-only live evidence commands", () => {
+  const output = runHook("pre-tool-use", {
+    tool_input: {
+      command: "ssh oc-nas 'journalctl -u openclaw-gateway -n 50 --no-pager'",
+    },
+  });
+  assert.match(output.systemMessage, /L2 read-only/u);
+  assert.equal(output.hookSpecificOutput, undefined);
+});
+
+test("permission hook denies L3 approval requests without repair gate", () => {
+  const output = runHook("permission-request", {
+    tool_input: {
+      command: "ssh oc-nas 'sudo systemctl restart openclaw-gateway'",
+    },
+  });
+  assert.equal(output.hookSpecificOutput.hookEventName, "PermissionRequest");
+  assert.equal(output.hookSpecificOutput.decision.behavior, "deny");
+  assert.match(output.hookSpecificOutput.decision.message, /进入修复阶段/u);
+});
+
+test("stop hook reminds high-risk answers to include structured closeout", () => {
+  const output = runHook("stop", {
+    last_assistant_message: "OpenClaw oc-nas live audit looked concerning.",
+  });
+  assert.match(output.systemMessage, /confirmed evidence/u);
+});
+
+test("stop hook stays quiet for normal completed closeouts", () => {
+  const output = runHook("stop", {
+    last_assistant_message: "completed\nconfirmed: local tests passed\nrisks: none",
+  });
+  assert.deepEqual(output, {});
+});
+
+test("hygiene summarizer only reports non-trackable workspace paths", () => {
+  const python = `
+import importlib.util
+import json
+import pathlib
+
+script = pathlib.Path(${JSON.stringify(hookScript)})
+spec = importlib.util.spec_from_file_location("workspace_guard", script)
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+
+cases = [
+    {
+        "after": {
+            "modified_tracked": [".codex/config.toml"],
+            "untracked_source": [".codex/hooks/workspace_guard.py"],
+            "other_tracked": [],
+        },
+        "unregistered_project_surfaces": [],
+        "nonexistent_project_references": [],
+    },
+    {
+        "after": {
+            "modified_tracked": [],
+            "untracked_source": ["projects/products/example/file.txt"],
+            "other_tracked": [],
+        },
+        "unregistered_project_surfaces": [],
+        "nonexistent_project_references": [],
+    },
+]
+
+print(json.dumps([module.summarize_hygiene_issues(case) for case in cases]))
+`;
+
+  const result = spawnSync("python3", ["-c", python], {
+    cwd: repoRoot,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  if (result.status !== 0) {
+    throw new Error((result.stderr || result.stdout || `python exited ${result.status}`).trim());
+  }
+
+  const [cleanMessage, dirtyMessage] = JSON.parse(result.stdout);
+  assert.equal(cleanMessage, "");
+  assert.match(dirtyMessage, /non-trackable workspace paths changed/u);
+  assert.match(dirtyMessage, /projects\/products\/example\/file\.txt/u);
+});

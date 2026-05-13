@@ -16,7 +16,7 @@ routing evidence, not from historical residue in this repository.
 Track only workspace-level control files:
 
 - `AGENTS.md`, `WORKER.md`, `CLAUDE.md`
-- `.codex/config.toml`, `.codex/agents/`
+- `.codex/config.toml`, `.codex/hooks.json`, `.codex/agents/`, `.codex/hooks/`
 - `README.md`, `WORKSPACE_MAP.md`
 - `docs/` for workspace-level docs
 - `ops/README.md`, `ops/projects/README.md`, `ops/projects/PROJECT_TEMPLATE.md`

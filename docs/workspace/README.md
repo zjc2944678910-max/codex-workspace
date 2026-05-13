@@ -9,6 +9,7 @@ Policy: `AGENTS.md`. Worker contract: `WORKER.md`.
 | --- | --- |
 | `codex-long-task.mjs` | Unified long-task CLI: init, append, repair, recheck, close |
 | `codex-long-task-runbook.md` | **Canonical** operational long-task workflow |
+| `codex-hooks.md` | Repo-local Codex hook guardrails, verification, and rollback |
 | `codex-multi-agent-long-task-template.md` | Non-canonical prompt examples and layout reference |
 | `repo-hygiene.mjs` | Workspace root hygiene checks and checkpointing |
 | `workspace-disk-report.mjs` | Classify disk hotspots before cleanup |

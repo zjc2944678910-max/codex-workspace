@@ -1,0 +1,80 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/workspace_guard.py\" session-start",
+            "timeout": 10,
+            "statusMessage": "Loading workspace guardrails"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/workspace_guard.py\" user-prompt-submit",
+            "timeout": 10,
+            "statusMessage": "Checking workspace route"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|exec_command|functions\\.exec_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/workspace_guard.py\" pre-tool-use",
+            "timeout": 10,
+            "statusMessage": "Checking command policy"
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "matcher": "Bash|exec_command|functions\\.exec_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/workspace_guard.py\" permission-request",
+            "timeout": 10,
+            "statusMessage": "Checking approval policy"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "apply_patch|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/workspace_guard.py\" post-tool-use",
+            "timeout": 30,
+            "statusMessage": "Checking workspace hygiene"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/workspace_guard.py\" stop",
+            "timeout": 10,
+            "statusMessage": "Checking closeout"
+          }
+        ]
+      }
+    ]
+  }
+}
