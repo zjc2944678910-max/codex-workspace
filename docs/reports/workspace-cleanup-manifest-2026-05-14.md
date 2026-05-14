@@ -43,6 +43,27 @@ Post-cleanup verification on 2026-05-14:
 - `obvious_garbage`: `0B`
 - Workspace git status: clean
 
+## Generated Cache Cleanup
+
+Completed on 2026-05-14 after user confirmation:
+
+| Path | Before | After | Reason |
+| --- | ---: | ---: | --- |
+| `scratch/projects/openai-responses-starter-sub2api/node_modules` | 498M | removed | Reinstallable Node dependency cache. |
+| `scratch/projects/openai-responses-starter-sub2api/.next` | 277M | removed | Regenerable Next.js build cache. |
+| `scratch/projects/codexplusplus/.venv` | 16M | removed | Recreate from `pyproject.toml`. |
+| `scratch/projects/codexplusplus/.pytest_cache` | 32K | removed | Regenerable pytest cache. |
+| `scratch/projects/codexplusplus/build` | 396K | removed | Regenerable Python build output. |
+| `scratch/projects/codexplusplus/codex_session_delete.egg-info` | 24K | removed | Regenerable package metadata. |
+
+Post-cleanup sizes:
+
+- `scratch/projects/openai-responses-starter-sub2api`: 1.2M
+- `scratch/projects/codexplusplus`: 3.0M
+- `scratch`: 205M to 219M depending on disk-report timing and filesystem
+  accounting
+- `workspace-health`: `status: ok`, `obvious_garbage: 0B`
+
 ## Archive
 
 | Path | Size | Reason | Action |
