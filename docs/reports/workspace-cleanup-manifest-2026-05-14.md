@@ -31,11 +31,17 @@ unconfirmed scratch work.
 
 | Candidate | Size | Reason | Action |
 | --- | ---: | --- | --- |
-| Obvious garbage files | 259K, 31 files | `.DS_Store`, `Thumbs.db`, `__pycache__`, or `.pyc` patterns. | Delete only after explicit cleanup confirmation. |
+| Obvious garbage files | 259K, 31 files | `.DS_Store`, `Thumbs.db`, `__pycache__`, or `.pyc` patterns. | Completed on 2026-05-14 with exact-path deletion. |
 
 The focused `find scratch` check did not find obvious garbage under `scratch/`
 at the time of this report. The disk report's obvious garbage count may include
 ignored generated files elsewhere in the workspace.
+
+Post-cleanup verification on 2026-05-14:
+
+- `workspace-health`: `status: ok`
+- `obvious_garbage`: `0B`
+- Workspace git status: clean
 
 ## Archive
 
