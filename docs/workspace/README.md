@@ -9,6 +9,7 @@ Policy: `AGENTS.md`. Worker contract: `WORKER.md`.
 | --- | --- |
 | `codex-long-task.mjs` | Unified long-task CLI: init, append, repair, recheck, close |
 | `daily-workflow.md` | Entry point for `L0 tiny` fast path, ordinary short-task workflow, capability defaults, and long-task escalation |
+| `token-budget.md` | Profile selection, agent budget, output limits, evidence pointers, decision reuse, and GitNexus-first rules |
 | `codex-long-task-runbook.md` | **Canonical** operational long-task workflow for multi-slice work, handoff state, and repair loops |
 | `codex-hooks.md` | Repo-local Codex hook guardrails, verification, and rollback |
 | `codex-multi-agent-long-task-template.md` | Non-canonical prompt examples and layout reference |
@@ -25,6 +26,8 @@ Policy: `AGENTS.md`. Worker contract: `WORKER.md`.
 
 - Start with `daily-workflow.md` for ordinary work. Use its `L0 tiny` fast path
   for simple questions, small docs edits, typos, and lightweight checks.
+- Use `token-budget.md` when deciding whether to use `fast`, `standard`, or
+  `audit`, or when evidence and command output may bloat the main context.
 - Escalate to `codex-long-task-runbook.md` only when work spans multiple slices,
   needs handoff state, or enters repeated repair loops.
 - Use `workspace-health.mjs` for policy, hygiene, or cleanup validation. It is

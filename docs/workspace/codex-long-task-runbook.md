@@ -93,8 +93,25 @@ Update:
 6. Update ledger, decisions, and `06-final-summary.md` as state changes.
 
 All agent briefs should request compact results: conclusion, changed files,
-commands run, key outcomes, risks, and followups only. Keep long logs and
-source excerpts in files when they are needed as evidence.
+commands run, key outcomes, evidence pointers, risks, and followups only. Keep
+long logs and source excerpts in files when they are needed as evidence.
+
+Agent budget:
+
+- L0 and small known-scope L1 slices use zero agents by default.
+- Ordinary L1 slices use at most one helper agent.
+- Run the full mapper/review/worker/verifier chain only when at least two risk
+  signals are present: unknown call chain, cross-module contract, API route,
+  security/auth/secret boundary, flaky or failing verification, broad refactor,
+  repeated repair, or messy handoff state.
+
+Decision reuse:
+
+- Record confirmed routes, entry points, commands, contracts, and stable
+  architecture facts in `05-decisions.md`.
+- Reuse those facts before re-exploring; recheck only when a related file
+  changed, an index is stale, a command fails, or new evidence contradicts the
+  ledger.
 
 Append a ready development/verification pair:
 

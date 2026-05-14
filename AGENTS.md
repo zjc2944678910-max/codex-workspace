@@ -98,6 +98,14 @@ L2 audits, architecture judgment, complex root-cause analysis, production
 audits, hard regressions, or cases where failed reasoning is more expensive than
 extra tokens.
 
+Use Codex config profiles to avoid carrying one high-cost default into every
+task:
+
+- `fast`: ordinary questions, tiny edits, known-scope local fixes.
+- `standard`: default local development and focused workflow work.
+- `audit`: L2, architecture, complex root cause, production audits, hard
+  regressions, or other expensive wrong-answer cases.
+
 ## Codex And Workers
 
 Codex is the control plane.
@@ -125,6 +133,17 @@ auth, secrets, or config heavy. Use mapper/review/worker/verifier only when an
 unknown call chain, cross-module change, unclear contract, likely repair loop,
 or messy handoff state makes the extra tokens worth it.
 
+Agent budget:
+
+- L0 and small known-scope L1 default to zero agents.
+- Ordinary L1 should use at most one helper agent unless two or more risk
+  signals are present: unknown call chain, cross-module contract, API route,
+  security/auth/secret boundary, flaky or failing verification, broad refactor,
+  or repeated repair.
+- The full mapper -> review -> worker -> verifier chain is reserved for complex
+  L1 and L2 read-only audit workflows where independent passes materially reduce
+  risk.
+
 Never delegate these to a model worker:
 
 - project routing from workspace residue
@@ -151,7 +170,22 @@ Pass a bounded brief with:
 - constraints and forbidden actions
 - `worker_profile`: `mino_strong` by default, `mino_fast` for narrow mechanical work
 - compact output requirements: summary, changed files, tests run, risks, and
-  followups only; no long source excerpts, full diffs, or large logs
+  followups plus evidence pointers only; no long source excerpts, full diffs, or
+  large logs
+
+## Token Budget
+
+- Prefer file pointers over pasted context: path, line number, conclusion,
+  evidence summary, and next action.
+- Keep command output bounded. Default to targeted paths and line/range limits;
+  summarize large test logs to the first failing block plus the final summary.
+- Store durable evidence, decisions, verification results, and long logs in run
+  directories or project ops docs; keep the conversation to pointers and
+  decisions.
+- Reuse confirmed decisions from `05-decisions.md` or the project ops README
+  before re-exploring. Recheck only when there is drift evidence.
+- For indexed projects, prefer GitNexus `query`, `context`, `impact`, or
+  `api_impact` before broad `rg`/file-reading sweeps.
 
 Codex must review worker results before presenting completion.
 

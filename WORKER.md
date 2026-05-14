@@ -44,8 +44,9 @@ Return exactly these fields when structured output is requested:
 1. `summary`
 2. `changed_files`
 3. `tests_run`
-4. `risks`
-5. `followups`
+4. `evidence_pointers`
+5. `risks`
+6. `followups`
 
 Use empty arrays when there is nothing to report.
 Keep each field compact and reference files or commands instead of copying large

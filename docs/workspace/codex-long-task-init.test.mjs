@@ -70,6 +70,8 @@ test("createLongTaskRun writes the expected file protocol", async () => {
   const request = await fs.readFile(path.join(result.run_root, "00-request.md"), "utf8");
   const context = await fs.readFile(path.join(result.run_root, "01-confirmed-context.md"), "utf8");
   const ledger = await fs.readFile(path.join(result.run_root, "03-task-ledger.md"), "utf8");
+  const plan = await fs.readFile(path.join(result.run_root, "02-plan.md"), "utf8");
+  const decisions = await fs.readFile(path.join(result.run_root, "05-decisions.md"), "utf8");
   const mapperBrief = await fs.readFile(path.join(result.run_root, "agents", "T01", "mapper-brief.md"), "utf8");
   const reviewBrief = await fs.readFile(path.join(result.run_root, "agents", "T02", "review-brief.md"), "utf8");
   const devTemplate = await fs.readFile(path.join(result.run_root, "brief-templates", "dev-brief.md"), "utf8");
@@ -81,23 +83,34 @@ test("createLongTaskRun writes the expected file protocol", async () => {
   assert.match(context, new RegExp(`target_surface: ${path.join(workspaceRoot, "projects", "products", "sample-product").replace(/[.*+?^${}()|[\]\\]/gu, "\\$&")}`, "u"));
   assert.match(context, /route_evidence:/u);
   assert.match(context, /forbidden_surfaces:/u);
+  assert.match(plan, /## Agent Budget/u);
+  assert.match(plan, /evidence pointers/u);
   assert.match(ledger, /repo_mapper/u);
   assert.match(ledger, /review_guard/u);
+  assert.match(ledger, /\| T01 \| deferred \| repo_mapper/u);
+  assert.match(ledger, /\| T02 \| deferred \| review_guard/u);
+  assert.match(decisions, /## Reusable Facts/u);
+  assert.match(decisions, /## Common Commands/u);
+  assert.match(decisions, /## Drift Triggers/u);
   assert.match(mapperBrief, new RegExp(`${result.run_root.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&")}/00-request\\.md`, "u"));
   assert.match(mapperBrief, /Route lock:/u);
   assert.match(mapperBrief, /Honor Route Lock/u);
   assert.match(mapperBrief, /return blocked and explain; do not switch projects/u);
   assert.match(mapperBrief, /status: mapped \| blocked/u);
+  assert.match(mapperBrief, /evidence_pointers:/u);
   assert.match(reviewBrief, new RegExp(`${result.run_root.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&")}/agents/T01/mapper-result\\.md`, "u"));
   assert.match(reviewBrief, /Route lock:/u);
   assert.match(reviewBrief, /Review only target_surface\/project_root/u);
   assert.match(reviewBrief, /status: pass \| changes_requested \| blocked/u);
+  assert.match(reviewBrief, /evidence_pointers:/u);
   assert.match(devTemplate, /Route lock:/u);
   assert.match(devTemplate, /Change only files in target_surface\/project_root/u);
   assert.match(devTemplate, /status: implemented \| blocked/u);
+  assert.match(devTemplate, /evidence_pointers:/u);
   assert.match(verifyTemplate, /Route lock:/u);
   assert.match(verifyTemplate, /Validate only target_surface\/project_root/u);
   assert.match(verifyTemplate, /status: pass \| fail \| blocked/u);
+  assert.match(verifyTemplate, /evidence_pointers:/u);
   assert.match(repairTemplate, /Route lock:/u);
   assert.match(repairTemplate, /Repair only target_surface\/project_root/u);
   assert.match(repairTemplate, /Codex Verifier\/Review Findings/u);
@@ -105,6 +118,7 @@ test("createLongTaskRun writes the expected file protocol", async () => {
   assert.match(repairTemplate, /Do not broaden scope/u);
   assert.match(repairTemplate, /bypass/u);
   assert.match(repairTemplate, /Failing Evidence/u);
+  assert.match(repairTemplate, /evidence_pointers:/u);
 });
 
 test("createLongTaskRun dry run does not write files", async () => {

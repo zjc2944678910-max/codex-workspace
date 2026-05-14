@@ -43,7 +43,9 @@ node docs/workspace/codex-long-task.mjs append --run-root <run-root> --scope "<s
   worth the extra context.
 - Repair brief: send back to the same worker when resumable.
 - All results should stay compact: conclusion, changed files, commands run, key
-  outcomes, risks, and followups only.
+  outcomes, evidence pointers, risks, and followups only.
+- Reuse `05-decisions.md` before re-exploring; recheck only when drift evidence
+  appears.
 
 ## Dev Brief Skeleton
 
@@ -74,4 +76,5 @@ changed_files: <paths or empty>
 tests_run: <commands or checks>
 risks: <residual risks or empty>
 followups: <optional next steps or empty>
+evidence_pointers: <path:line finding list>
 ```

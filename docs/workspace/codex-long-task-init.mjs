@@ -220,6 +220,18 @@ ${renderRouteLock(routeLock)}
    Use surgical_fixer only as a fallback for tiny or tightly coupled fixes.
 6. Verify locally for known-scope slices; use verifier when independent validation is worth the extra context.
 
+## Agent Budget
+
+- L0 and small known-scope L1 slices use zero agents by default.
+- Ordinary L1 slices use at most one helper agent unless two or more risk signals are present.
+- Run the full mapper/review/worker/verifier chain only for complex slices where independent passes materially reduce risk.
+
+## Evidence Budget
+
+- Prefer evidence pointers: file path, line number, confirmed finding, risk, next action.
+- Keep long logs and large excerpts out of chat; store them in this run directory when needed.
+- Reuse 05-decisions.md before re-exploring; recheck only when drift evidence appears.
+
 ## Implementation Slices
 
 - T01: (fill in first slice)
@@ -228,8 +240,8 @@ ${renderRouteLock(routeLock)}
 
 | ID | Status | Agent | Scope | Inputs | Outputs | Retries | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| T01 | pending | repo_mapper | map task surface | 00-request.md, 01-confirmed-context.md | agents/T01/mapper-result.md | 0 |  |
-| T02 | pending | review_guard | pre-change risk review | 02-plan.md, agents/T01/mapper-result.md | agents/T02/review-result.md | 0 |  |
+| T01 | deferred | repo_mapper | map task surface if delegation gate opens | 00-request.md, 01-confirmed-context.md | agents/T01/mapper-result.md | 0 | optional; use only when surface/contract/impact is unclear |
+| T02 | deferred | review_guard | pre-change risk review if risk gate opens | 02-plan.md, agents/T01/mapper-result.md | agents/T02/review-result.md | 0 | optional; use only for concrete correctness/security/rollback/test risk |
 `],
       ["04-risk-register.md", `# Risk Register
 
@@ -254,6 +266,18 @@ ${renderRouteLock(routeLock)}
 | Time | Decision | Rationale | Applies To |
 | --- | --- | --- | --- |
 | ${now} | Created long-task run directory | Preserve state outside chat context | whole run |
+
+## Reusable Facts
+
+- (record confirmed project routes, entry points, test commands, contracts, and architecture facts)
+
+## Common Commands
+
+- (record verified commands so future slices do not rediscover them)
+
+## Drift Triggers
+
+- Recheck a cached fact only when a related file changed, an index is stale, a command fails, or new evidence contradicts this ledger.
 `],
       ["06-final-summary.md", `# Final Summary
 
@@ -283,6 +307,7 @@ repo_mapper
 - Request: ${runPath("00-request.md")}
 - Confirmed context: ${runPath("01-confirmed-context.md")}
 - Route lock: ${runPath("01-confirmed-context.md")}
+- Decisions: ${runPath("05-decisions.md")}
 
 ## Task
 
@@ -301,6 +326,7 @@ and likely blast radius.
 - Prefer concrete paths and commands over abstract advice.
 - Keep output compact: files, symbols, execution paths, risks, and open questions only.
 - Do not paste long source excerpts, full command output, or large logs.
+- Return evidence pointers instead of pasted context when possible.
 
 ## Write
 
@@ -310,6 +336,7 @@ and likely blast radius.
 
 result: ${runPath("agents", "T01", "mapper-result.md")}
 status: mapped | blocked
+evidence_pointers: <path:line finding list>
 risks: <residual risks or empty>
 followups: <optional next steps or empty>
 `],
@@ -327,6 +354,7 @@ review_guard
 - Plan: ${runPath("02-plan.md")}
 - Ledger: ${runPath("03-task-ledger.md")}
 - Mapper result: ${runPath("agents", "T01", "mapper-result.md")}
+- Decisions: ${runPath("05-decisions.md")}
 
 ## Task
 
@@ -344,6 +372,7 @@ security exposure, missing tests, rollback concerns, and unclear assumptions.
 - Ground findings in files, paths, contracts, or missing evidence.
 - Keep output compact: findings, evidence paths, missing tests, risks, and followups only.
 - Do not paste long source excerpts, full diffs, or large logs.
+- Return evidence pointers instead of pasted context when possible.
 
 ## Write
 
@@ -353,6 +382,7 @@ security exposure, missing tests, rollback concerns, and unclear assumptions.
 
 result: ${runPath("agents", "T02", "review-result.md")}
 status: pass | changes_requested | blocked
+evidence_pointers: <path:line finding list>
 risks: <residual risks or empty>
 followups: <optional next steps or empty>
 `],
@@ -398,6 +428,7 @@ model_worker_delegate
 - Stop and report if the required change exceeds this slice.
 - Keep output compact.
 - Do not paste long source excerpts, full diffs, or large logs.
+- Return evidence pointers instead of pasted context when possible.
 
 ## Acceptance Criteria
 
@@ -415,6 +446,7 @@ result: ${runPath("agents", "<task-id>", "dev-result.md")}
 status: implemented | blocked
 changed_files: <comma-separated paths>
 tests_run: <commands or checks actually run>
+evidence_pointers: <path:line finding list>
 risks: <residual risks or empty>
 followups: <optional next steps or empty>
 `],
@@ -434,6 +466,7 @@ verifier
 - Route lock: ${runPath("01-confirmed-context.md")}
 - Plan: ${runPath("02-plan.md")}
 - Ledger: ${runPath("03-task-ledger.md")}
+- Decisions: ${runPath("05-decisions.md")}
 - Development result: ${runPath("agents", "<dev-task-id>", "dev-result.md")}
 
 ## Task
@@ -456,6 +489,7 @@ Verify the assigned behavior with the smallest useful checks.
 - Separate confirmed failures from suspected failures.
 - Keep output compact.
 - Do not paste long source excerpts, full logs, or unrelated output.
+- Return evidence pointers instead of pasted context when possible.
 
 ## Write
 
@@ -466,6 +500,7 @@ Verify the assigned behavior with the smallest useful checks.
 result: ${runPath("agents", "<task-id>", "verify-result.md")}
 status: pass | fail | blocked
 tests_run: <commands or checks actually run>
+evidence_pointers: <path:line finding list>
 risks: <residual risks or empty>
 followups: <optional next steps or empty>
 `],
@@ -519,6 +554,7 @@ model_worker_delegate
 - Stop after this repair if the fix would exceed the original task slice.
 - Keep output compact.
 - Do not paste long source excerpts, full diffs, or large logs.
+- Return evidence pointers instead of pasted context when possible.
 
 ## Write
 
@@ -531,6 +567,7 @@ result: ${runPath("agents", "<dev-task-id>", "repair-<n>-result.md")}
 status: implemented | blocked
 changed_files: <comma-separated paths>
 tests_run: <commands or checks actually run>
+evidence_pointers: <path:line finding list>
 risks: <residual risks or empty>
 followups: <optional next steps or empty>
 `],

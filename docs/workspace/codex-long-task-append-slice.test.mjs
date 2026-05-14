@@ -66,7 +66,11 @@ test("appendSlice writes dev and verify briefs and updates the ledger", async ()
   assert.match(ledger, /\| T04 \| pending \| verifier \| verify Implement preference sync/u);
   assert.match(devBrief, /src\/preferences\.ts/u);
   assert.match(devBrief, /preference changes are persisted/u);
+  assert.match(devBrief, /Decisions:/u);
+  assert.match(devBrief, /evidence_pointers:/u);
   assert.match(verifyBrief, new RegExp(`${run.run_root.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&")}/agents/T03/dev-result\\.md`, "u"));
+  assert.match(verifyBrief, /Decisions:/u);
+  assert.match(verifyBrief, /evidence_pointers:/u);
 });
 
 test("appendSlice dry run does not write files or mutate the ledger", async () => {

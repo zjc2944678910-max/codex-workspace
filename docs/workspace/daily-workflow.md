@@ -88,12 +88,24 @@ surface.
 
 ## Token Budget
 
-- Default reasoning is for daily high-quality work; reserve `xhigh` for L2,
-  architecture judgment, complex root cause, production audits, and hard
-  regressions.
+- Use the `fast` profile for ordinary questions, tiny edits, and known-scope
+  local fixes; use `standard` for default development; use `audit` for L2,
+  architecture, complex root cause, production audits, and hard regressions.
+- L0 and small known-scope L1 use zero agents by default. Ordinary L1 should use
+  at most one helper agent unless two or more risk signals are present: unknown
+  call chain, cross-module contract, API route, security/auth/secret boundary,
+  flaky or failing verification, broad refactor, or repeated repair.
 - Agents and workers should return only conclusions, changed files, commands
-  run, key outcomes, risks, and followups. Do not request long source excerpts,
-  full diffs, or large logs unless they are the evidence under review.
+  run, key outcomes, risks, followups, and evidence pointers. Do not request long
+  source excerpts, full diffs, or large logs unless they are the evidence under
+  review.
+- Keep command output bounded: target paths, use `rg -n` with specific terms,
+  read file ranges, prefer `git diff --stat` or scoped diffs first, and summarize
+  test failures to the first failing block plus the final summary.
+- Prefer file pointers over pasted context: path, line number, conclusion,
+  evidence summary, and next action.
+- Reuse `05-decisions.md`, project ops READMEs, and GitNexus results before
+  re-exploring; recheck only when there is drift evidence.
 - Prefer long-task run files for durable state before the chat context becomes
   large.
 

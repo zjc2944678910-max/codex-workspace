@@ -246,6 +246,7 @@ ${bulletList(options.expected, "<describe expected behavior>")}
 - Stop after this repair if the fix would exceed the original task slice.
 - Keep output compact.
 - Do not paste long source excerpts, full diffs, or large logs.
+- Return evidence pointers instead of pasted context when possible.
 
 ## Write
 
@@ -258,6 +259,7 @@ result: ${runPath("agents", devTaskId, `repair-${repairNumber}-result.md`)}
 status: implemented | blocked
 changed_files: <comma-separated paths>
 tests_run: <commands or checks actually run>
+evidence_pointers: <path:line finding list>
 risks: <residual risks or empty>
 followups: <optional next steps or empty>
 

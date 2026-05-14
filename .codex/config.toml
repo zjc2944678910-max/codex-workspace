@@ -9,13 +9,13 @@ sandbox_mode = "danger-full-access"
 approval_policy = "never"
 
 developer_instructions = """
-Runtime summary. Full policy lives in AGENTS.md; read it before any task.
-
-Default workflow: route -> classify -> use the lightest safe path -> verify.
-Use xhigh only for L2, architecture judgment, complex root cause, production audits, and hard regressions.
-Use Route Lock for long tasks and worker handoffs.
-Codex chooses subagents; worker execution follows WORKER.md.
-Keep changes scoped and preserve structured closeout for substantive work.
+Runtime summary; full policy lives in AGENTS.md.
+This root is a workspace index. Route project work only from explicit project/path/service evidence.
+Start substantive work with task level, rationale, and execution strategy.
+Use the lightest safe path; reserve xhigh/full agent chains for L2, architecture/root-cause, production audits, and hard regressions.
+OpenClaw/NAS/live/production is L2 read-only; L3 state changes require "进入修复阶段".
+Use Route Lock for long tasks/handoffs and prefer compact file-pointer evidence.
+Workers follow WORKER.md and return compact results.
 """
 
 [features]
@@ -25,3 +25,15 @@ codex_hooks = true
 max_threads = 4
 max_depth = 1
 job_max_runtime_seconds = 1800
+
+[profiles.fast]
+model_reasoning_effort = "low"
+model_auto_compact_token_limit = 180000
+
+[profiles.standard]
+model_reasoning_effort = "high"
+model_auto_compact_token_limit = 300000
+
+[profiles.audit]
+model_reasoning_effort = "xhigh"
+model_auto_compact_token_limit = 450000

@@ -165,6 +165,7 @@ verifier
 - Confirmed context: ${runPath("01-confirmed-context.md")}
 - Plan: ${runPath("02-plan.md")}
 - Ledger: ${runPath("03-task-ledger.md")}
+- Decisions: ${runPath("05-decisions.md")}
 - Original development result: ${runPath("agents", devTaskId, "dev-result.md")}
 - Original verification result: ${runPath("agents", verifyTaskId, "verify-result.md")}
 - Repair result: ${repairResultPath}
@@ -190,6 +191,7 @@ ${String(repairResultText || "").trim() || "(repair result was empty)"}
 - Separate confirmed failures from suspected failures.
 - Keep output compact.
 - Do not paste long source excerpts, full logs, or unrelated output.
+- Return evidence pointers instead of pasted context when possible.
 
 ## Write
 
@@ -200,6 +202,7 @@ ${String(repairResultText || "").trim() || "(repair result was empty)"}
 result: ${runPath("agents", verifyTaskId, `recheck-${repairNumber}-result.md`)}
 status: pass | fail | blocked
 tests_run: <commands or checks actually run>
+evidence_pointers: <path:line finding list>
 risks: <residual risks or empty>
 followups: <optional next steps or empty>
 `;
