@@ -211,13 +211,14 @@ ${renderRouteLock(routeLock)}
 
 ## Strategy
 
-1. Map the affected surface with repo_mapper when the task is non-trivial.
-2. Review risk with review_guard before edits.
-3. Use docs_checker if framework, API, or version semantics are unclear.
-4. Delegate the default implementation slice to model_worker_delegate.
+1. Choose the lightest safe path for each slice.
+2. Map with repo_mapper only when entry points, contracts, or impact are unclear.
+3. Review with review_guard only when correctness, regression, security, rollback, or missing-test risk needs a separate pass.
+4. Use docs_checker only if framework, API, or version semantics are unclear.
+5. Delegate to model_worker_delegate only when the slice is broad, repetitive, cross-module, or likely to need repair.
    Use refactor_worker only after explicit refactor approval.
    Use surgical_fixer only as a fallback for tiny or tightly coupled fixes.
-5. Use verifier for focused checks.
+6. Verify locally for known-scope slices; use verifier when independent validation is worth the extra context.
 
 ## Implementation Slices
 
@@ -298,6 +299,8 @@ and likely blast radius.
 - If evidence points outside the Route Lock, return blocked and explain; do not switch projects.
 - Separate confirmed facts from hypotheses.
 - Prefer concrete paths and commands over abstract advice.
+- Keep output compact: files, symbols, execution paths, risks, and open questions only.
+- Do not paste long source excerpts, full command output, or large logs.
 
 ## Write
 
@@ -307,6 +310,8 @@ and likely blast radius.
 
 result: ${runPath("agents", "T01", "mapper-result.md")}
 status: mapped | blocked
+risks: <residual risks or empty>
+followups: <optional next steps or empty>
 `],
       [path.join("agents", "T02", "review-brief.md"), `# Review Brief
 
@@ -337,6 +342,8 @@ security exposure, missing tests, rollback concerns, and unclear assumptions.
 - If the plan relies on another project or surface, return blocked and explain.
 - Lead with concrete findings.
 - Ground findings in files, paths, contracts, or missing evidence.
+- Keep output compact: findings, evidence paths, missing tests, risks, and followups only.
+- Do not paste long source excerpts, full diffs, or large logs.
 
 ## Write
 
@@ -346,6 +353,8 @@ security exposure, missing tests, rollback concerns, and unclear assumptions.
 
 result: ${runPath("agents", "T02", "review-result.md")}
 status: pass | changes_requested | blocked
+risks: <residual risks or empty>
+followups: <optional next steps or empty>
 `],
       [path.join("brief-templates", "dev-brief.md"), `# Development Brief Template
 
@@ -387,6 +396,8 @@ model_worker_delegate
 - Do not refactor unless this brief explicitly switches the role to refactor_worker.
 - Preserve public behavior unless the acceptance criteria says otherwise.
 - Stop and report if the required change exceeds this slice.
+- Keep output compact.
+- Do not paste long source excerpts, full diffs, or large logs.
 
 ## Acceptance Criteria
 
@@ -403,6 +414,9 @@ model_worker_delegate
 result: ${runPath("agents", "<task-id>", "dev-result.md")}
 status: implemented | blocked
 changed_files: <comma-separated paths>
+tests_run: <commands or checks actually run>
+risks: <residual risks or empty>
+followups: <optional next steps or empty>
 `],
       [path.join("brief-templates", "verify-brief.md"), `# Verification Brief Template
 
@@ -440,6 +454,8 @@ Verify the assigned behavior with the smallest useful checks.
 - Do not make product code changes unless explicitly asked for a test-only fix.
 - Report exact commands and outcomes.
 - Separate confirmed failures from suspected failures.
+- Keep output compact.
+- Do not paste long source excerpts, full logs, or unrelated output.
 
 ## Write
 
@@ -449,6 +465,9 @@ Verify the assigned behavior with the smallest useful checks.
 
 result: ${runPath("agents", "<task-id>", "verify-result.md")}
 status: pass | fail | blocked
+tests_run: <commands or checks actually run>
+risks: <residual risks or empty>
+followups: <optional next steps or empty>
 `],
       [path.join("brief-templates", "repair-brief.md"), `# Repair Brief Template
 
@@ -498,6 +517,8 @@ model_worker_delegate
 - Prefer the same files changed in the original development attempt.
 - Do not start a refactor.
 - Stop after this repair if the fix would exceed the original task slice.
+- Keep output compact.
+- Do not paste long source excerpts, full diffs, or large logs.
 
 ## Write
 

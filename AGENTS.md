@@ -79,6 +79,12 @@ compress the level/rationale/strategy into one short line, and skip Route Lock,
 GitNexus, model workers, and workspace health checks unless the task evidence
 requires them.
 
+Use a small known-scope path when the target project, files or tests, and
+acceptance criteria are already explicit, and there is no API route, deploy,
+auth, secret, live, production, or cross-module uncertainty. In that case Codex
+may implement directly, run focused verification, and skip mapper/worker/verifier
+handoffs unless new evidence raises the risk.
+
 Escalate out of `L0 tiny` when the work touches multiple modules, shared core
 logic, API routes, dependency/build/CI behavior, unclear project routing, or any
 live/production/deploy/auth/secrets/config-heavy surface. The `L0 tiny` fast
@@ -86,6 +92,11 @@ path never overrides `L2` read-only or `L3` repair gates.
 
 Keep confirmed evidence, hypotheses, and next actions separate. Never present
 guesses as facts.
+
+Default reasoning should stay light enough for daily work. Reserve `xhigh` for
+L2 audits, architecture judgment, complex root-cause analysis, production
+audits, hard regressions, or cases where failed reasoning is more expensive than
+extra tokens.
 
 ## Codex And Workers
 
@@ -95,22 +106,24 @@ Codex is the control plane.
 | --- | --- |
 | Project routing, risk layer, Route Lock | Codex |
 | Architecture, root cause, safety, security boundary, live/deploy/auth/secrets/config-heavy judgment | Codex |
-| Read-only mapping or pre-change risk review | Codex agents: `repo_mapper`, `review_guard`, `docs_checker` |
+| Read-only mapping or pre-change risk review when the surface or contracts are unclear | Codex agents: `repo_mapper`, `review_guard`, `docs_checker` |
 | `L0 tiny` question, check, or isolated fix | Codex direct |
-| Bounded non-tiny L0/L1 implementation, multi-file patch, test/fix loop | `model_worker_delegate` with `worker_profile=mino_strong` |
+| Small known-scope L0/L1 implementation with explicit files/tests and no risky surface | Codex direct |
+| Bounded non-tiny L0/L1 implementation with unknown call chain, cross-module risk, or likely repair loop | `model_worker_delegate` with `worker_profile=mino_strong` |
 | Small mechanical implementation or tight repair loop | `model_worker_delegate` with `worker_profile=mino_fast` |
 | Verification, regression judgment, final acceptance, user synthesis | Codex, optionally `verifier` |
 
-Default non-tiny short-task path:
+Default short-task path:
 
 ```text
-Codex route/judge -> worker implements by default -> verifier/Codex accepts
+Codex route/judge -> choose the lightest safe path -> implement or delegate -> focused verification -> Codex accepts
 ```
 
-Keep the work in Codex when the task is `L0 tiny`, the main value is diagnosis
-or judgment, or the request is L2/L3, live, deploy, auth, secrets, or config
-heavy. Use model workers for multi-file implementation, repetitive edit loops,
-test/fix loops, and mechanical refactors where the handoff reduces total effort.
+Keep the work in Codex when the task is `L0 tiny`, small known-scope L0/L1, the
+main value is diagnosis or judgment, or the request is L2/L3, live, deploy,
+auth, secrets, or config heavy. Use mapper/review/worker/verifier only when an
+unknown call chain, cross-module change, unclear contract, likely repair loop,
+or messy handoff state makes the extra tokens worth it.
 
 Never delegate these to a model worker:
 
@@ -137,6 +150,8 @@ Pass a bounded brief with:
 - acceptance criteria
 - constraints and forbidden actions
 - `worker_profile`: `mino_strong` by default, `mino_fast` for narrow mechanical work
+- compact output requirements: summary, changed files, tests run, risks, and
+  followups only; no long source excerpts, full diffs, or large logs
 
 Codex must review worker results before presenting completion.
 

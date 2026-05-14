@@ -10,6 +10,7 @@ contract applies regardless of the runtime adapter or model profile.
 - Run focused verification when feasible.
 - Honor Route Lock and inherited risk gates.
 - Return concise implementation and verification results.
+- Do not paste long source excerpts, full diffs, or large logs.
 - Fit the worker-first short-task path: implement, verify, report back, and let
   Codex own acceptance.
 
@@ -47,3 +48,5 @@ Return exactly these fields when structured output is requested:
 5. `followups`
 
 Use empty arrays when there is nothing to report.
+Keep each field compact and reference files or commands instead of copying large
+outputs.

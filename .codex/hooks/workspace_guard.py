@@ -89,9 +89,9 @@ L3_BLOCK_PATTERNS = [
 ]
 
 RISK_PROFILE_MESSAGES = {
-    "live_product": "live product work is L2 read-only by default; L3 changes require the exact repair phrase.",
-    "live_infra": "live infrastructure work is L2 read-only unless repair is explicitly opened.",
-    "research_local": "research and local work is normally L0/L1 unless it changes external delivery state.",
+    "live_product": "L2 read-only by default; L3 needs the repair phrase.",
+    "live_infra": "L2 read-only unless repair is explicitly opened.",
+    "research_local": "normally L0/L1 unless delivery state changes.",
 }
 
 SHELL_WRAPPERS = {"sh", "bash", "zsh"}
@@ -303,11 +303,10 @@ def repair_auth_active(payload: dict[str, Any]) -> bool:
 
 def workspace_context() -> str:
     return (
-        "Workspace guardrails: this root is the codex-workspace index, not a default product repo. "
-        "Start substantive work by stating task level, rationale, and execution strategy. "
-        "Route project work only from explicit evidence in ops/projects/<project>/README.md or a named path/service. "
-        "OpenClaw/NAS/live/production work is L2 read-only by default; L3 state changes require the exact phrase "
-        f"{REPAIR_PHRASE!r}. Use Route Lock for long tasks and keep root tracking limited to workspace control files."
+        "Workspace guardrails: codex-workspace is a workspace index, not a default product repo. "
+        "For substantive work state level/rationale/strategy, and route only from explicit project/path/service evidence. "
+        "OpenClaw/NAS/live/production is L2 read-only; L3 state changes require "
+        f"{REPAIR_PHRASE!r}. Use Route Lock for long tasks."
     )
 
 
@@ -346,8 +345,8 @@ def shared_live_alias_warning(prompt: str, matches: list[dict[str, str]]) -> str
         if alias in lowered or token in lowered:
             project_text = ", ".join(projects)
             return (
-                f"{alias} is a shared live host alias across registered projects ({project_text}); "
-                "do not infer the target project without clearer service/path evidence."
+                f"{alias} is a shared live host alias ({project_text}); "
+                "need clearer service/path evidence before routing."
             )
     return ""
 
@@ -361,7 +360,7 @@ def prompt_context(payload: dict[str, Any]) -> str:
     ambiguity = shared_live_alias_warning(prompt, matches)
     if matches:
         route_lines = [
-            f"{item['project']}: route via {item['surface']}. {item['risk']}"
+            f"{item['project']} -> {item['surface']}. {item['risk']}"
             for item in matches
         ]
         parts.append("Route hint from prompt: " + " | ".join(route_lines))
@@ -371,7 +370,7 @@ def prompt_context(payload: dict[str, Any]) -> str:
 
     if any(term in lowered for term in (" live ", " production ", " prod ", " ssh ", " systemctl ", " restart ", " deploy ", " rollback ", " oc-nas ")):
         parts.append(
-            "Risk reminder: live/production/status/config/service investigations are L2 read-only; service changes, deploys, restarts, rollback, or config writes are L3."
+            "Risk: live/status/config/service checks are L2 read-only; service changes, deploys, restarts, rollback, or config writes are L3."
         )
 
     if REPAIR_PHRASE in prompt:

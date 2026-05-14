@@ -37,9 +37,13 @@ node docs/workspace/codex-long-task.mjs init --project <name> --task "<goal>"
 node docs/workspace/codex-long-task.mjs append --run-root <run-root> --scope "<slice>"
 ```
 
-- Development brief: send to `model_worker_delegate`.
-- Verification brief: send to `verifier`.
+- Development brief: send to `model_worker_delegate` only when delegation is
+  worth the extra context.
+- Verification brief: send to `verifier` only when independent validation is
+  worth the extra context.
 - Repair brief: send back to the same worker when resumable.
+- All results should stay compact: conclusion, changed files, commands run, key
+  outcomes, risks, and followups only.
 
 ## Dev Brief Skeleton
 
@@ -63,4 +67,11 @@ model_worker_delegate
 
 ## Acceptance Criteria
 - <criterion>
+
+## Return
+summary: <compact result>
+changed_files: <paths or empty>
+tests_run: <commands or checks>
+risks: <residual risks or empty>
+followups: <optional next steps or empty>
 ```

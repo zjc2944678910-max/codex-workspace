@@ -20,8 +20,8 @@ commands, but they are not a complete security sandbox.
 
 | Event | Purpose | Behavior |
 | --- | --- | --- |
-| `SessionStart` | Load workspace rules | Adds context that this root is a workspace index, not a product repo. |
-| `UserPromptSubmit` | Route by prompt | Adds registry-derived route and risk hints for registered projects and warns on shared live aliases such as `oc-nas`. |
+| `SessionStart` | Load workspace rules | Adds compact context that this root is a workspace index, not a product repo. |
+| `UserPromptSubmit` | Route by prompt | Adds compact registry-derived route/risk hints and warns on shared live aliases such as `oc-nas`. |
 | `PreToolUse` | Command guard | Blocks destructive local commands and L3-looking live mutations unless the repair gate is open, while allowing read-only inspection commands that merely mention blocked strings. |
 | `PermissionRequest` | Approval guard | Denies dangerous approval requests if approval prompts are enabled in a future profile. |
 | `PostToolUse` | Hygiene check | Runs workspace hygiene after file edits and only warns when policy-relevant issues appear. |

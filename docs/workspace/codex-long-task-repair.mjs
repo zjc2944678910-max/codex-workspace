@@ -244,6 +244,8 @@ ${bulletList(options.expected, "<describe expected behavior>")}
 - Prefer the same files changed in the original development attempt.
 - Do not start a refactor.
 - Stop after this repair if the fix would exceed the original task slice.
+- Keep output compact.
+- Do not paste long source excerpts, full diffs, or large logs.
 
 ## Write
 

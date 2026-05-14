@@ -80,12 +80,21 @@ Update:
 
 ## Main Loop
 
-1. Map non-trivial surfaces with `repo_mapper`.
-2. Review risk with `review_guard`; use `docs_checker` only for unclear API,
-   framework, or version semantics.
-3. Send bounded implementation slices to `model_worker_delegate` by default.
-4. Verify with Codex-side `verifier`.
-5. Update ledger, decisions, and `06-final-summary.md` as state changes.
+1. Use the lightest safe path for each slice.
+2. Map with `repo_mapper` only when entry points, contracts, or impact surface
+   are unclear.
+3. Review with `review_guard` only when correctness, regression, security,
+   rollback, or missing-test risk needs a separate pass; use `docs_checker` only
+   for unclear API, framework, or version semantics.
+4. Send bounded implementation slices to `model_worker_delegate` when the work
+   is broad, repetitive, cross-module, or likely to need repair.
+5. Verify locally for known-scope slices; use `verifier` when reproduction,
+   regression confidence, or independent validation is worth the extra context.
+6. Update ledger, decisions, and `06-final-summary.md` as state changes.
+
+All agent briefs should request compact results: conclusion, changed files,
+commands run, key outcomes, risks, and followups only. Keep long logs and
+source excerpts in files when they are needed as evidence.
 
 Append a ready development/verification pair:
 

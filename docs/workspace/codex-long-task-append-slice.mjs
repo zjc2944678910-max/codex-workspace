@@ -191,6 +191,8 @@ ${bulletList(options.owned, "<explicit write set>")}
 - Do not refactor unless the role is refactor_worker.
 - Preserve public behavior unless the acceptance criteria says otherwise.
 - Stop and report if the required change exceeds this slice.
+- Keep output compact.
+- Do not paste long source excerpts, full diffs, or large logs.
 
 ## Acceptance Criteria
 
@@ -206,6 +208,9 @@ ${bulletList(options.acceptance, "<criterion>")}
 result: ${runPath("agents", devTaskId, "dev-result.md")}
 status: implemented | blocked
 changed_files: <comma-separated paths>
+tests_run: <commands or checks actually run>
+risks: <residual risks or empty>
+followups: <optional next steps or empty>
 `;
 
   const verifyBrief = `# Verification Brief
@@ -236,6 +241,8 @@ ${bulletList(options.acceptance, "<criterion>")}
 - Do not make product code changes unless explicitly asked for a test-only fix.
 - Report exact commands and outcomes.
 - Separate confirmed failures from suspected failures.
+- Keep output compact.
+- Do not paste long source excerpts, full logs, or unrelated output.
 
 ## Write
 
@@ -245,6 +252,9 @@ ${bulletList(options.acceptance, "<criterion>")}
 
 result: ${runPath("agents", verifyTaskId, "verify-result.md")}
 status: pass | fail | blocked
+tests_run: <commands or checks actually run>
+risks: <residual risks or empty>
+followups: <optional next steps or empty>
 `;
 
   const ledgerRows = [

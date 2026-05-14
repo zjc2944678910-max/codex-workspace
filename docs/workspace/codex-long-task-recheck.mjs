@@ -188,6 +188,8 @@ ${String(repairResultText || "").trim() || "(repair result was empty)"}
 - Do not make product code changes unless explicitly asked for a test-only fix.
 - Report exact commands and outcomes.
 - Separate confirmed failures from suspected failures.
+- Keep output compact.
+- Do not paste long source excerpts, full logs, or unrelated output.
 
 ## Write
 
@@ -197,6 +199,9 @@ ${String(repairResultText || "").trim() || "(repair result was empty)"}
 
 result: ${runPath("agents", verifyTaskId, `recheck-${repairNumber}-result.md`)}
 status: pass | fail | blocked
+tests_run: <commands or checks actually run>
+risks: <residual risks or empty>
+followups: <optional next steps or empty>
 `;
 }
 

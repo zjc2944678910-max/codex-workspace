@@ -1,9 +1,9 @@
 #:schema https://developers.openai.com/codex/config-schema.json
 
 review_model = "gpt-5.4"
-model_reasoning_effort = "xhigh"
+model_reasoning_effort = "high"
 model_context_window = 539000
-model_auto_compact_token_limit = 500000
+model_auto_compact_token_limit = 300000
 
 sandbox_mode = "danger-full-access"
 approval_policy = "never"
@@ -11,7 +11,8 @@ approval_policy = "never"
 developer_instructions = """
 Runtime summary. Full policy lives in AGENTS.md; read it before any task.
 
-Default workflow: route -> classify -> implement -> verify.
+Default workflow: route -> classify -> use the lightest safe path -> verify.
+Use xhigh only for L2, architecture judgment, complex root cause, production audits, and hard regressions.
 Use Route Lock for long tasks and worker handoffs.
 Codex chooses subagents; worker execution follows WORKER.md.
 Keep changes scoped and preserve structured closeout for substantive work.
