@@ -10,11 +10,11 @@ Source of truth for scripts: [`project-registry.json`](./project-registry.json).
 | Project | Registered Surface(s) | Working Code Root(s) | Ops Surface | GitNexus |
 | --- | --- | --- | --- | --- |
 | OpenClaw | `projects/products/openclaw`, `projects/migrations/openclaw-mac-migration` | `projects/products/openclaw/nas-openclaw-v22`; `projects/migrations/openclaw-mac-migration` | `ops/projects/openclaw` | mainline indexed; migration not targeted |
-| NAS Platform | `projects/infrastructure/nas-platform` | `projects/infrastructure/nas-platform` | `ops/projects/nas-platform` | not targeted |
+| NAS Platform | `projects/infrastructure/nas-platform` | `projects/infrastructure/nas-platform` | `ops/projects/nas-platform` | indexed |
 | Telegram Dual Relay | `projects/infrastructure/telegram-dual-relay` | `projects/infrastructure/telegram-dual-relay` | `ops/projects/telegram-dual-relay` | indexed |
 | MathorCup-D | `projects/research/mathorcup_D`, `projects/products/MathorCup_D_repo` | `projects/products/MathorCup_D_repo`; `projects/research/mathorcup_D` | `ops/projects/mathorcup-d` | submission repo indexed; research workspace not targeted |
-| BigData-Spark-Research-Workbench | `projects/research/bigdata-spark-research-workbench` | `projects/research/bigdata-spark-research-workbench` | `ops/projects/bigdata-spark-research-workbench` | not targeted |
-| CUMCM-2026-Workbench | `projects/research/cumcm-2026-workbench` | `projects/research/cumcm-2026-workbench` | `ops/projects/cumcm-2026-workbench` | not targeted |
+| BigData-Spark-Research-Workbench | `projects/research/bigdata-spark-research-workbench` | `projects/research/bigdata-spark-research-workbench` | `ops/projects/bigdata-spark-research-workbench` | indexed |
+| CUMCM-2026-Workbench | `projects/research/cumcm-2026-workbench` | `projects/research/cumcm-2026-workbench` | `ops/projects/cumcm-2026-workbench` | indexed |
 
 Legacy GitNexus reference: the old workspace root `-/` remains a legacy-only
 reference after the active code roots above are indexed.

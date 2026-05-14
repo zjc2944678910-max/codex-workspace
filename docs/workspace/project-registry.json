@@ -1,7 +1,7 @@
 {
   "$schema": "workspace-project-registry/v1",
   "description": "Machine-readable workspace project registry. Each registered project has an ops README under ops/projects/<slug>/README.md, one or more long-lived surfaces under projects/*/*, and zero or more concrete code roots used for day-to-day work and GitNexus targeting.",
-  "updated": "2026-05-12",
+  "updated": "2026-05-14",
   "projects": [
     {
       "slug": "openclaw",
@@ -45,7 +45,7 @@
         {
           "path": "projects/infrastructure/nas-platform",
           "role": "infrastructure-config-root",
-          "gitnexus_status": "not_targeted"
+          "gitnexus_status": "indexed"
         }
       ],
       "ops_surface": "ops/projects/nas-platform",
@@ -54,7 +54,7 @@
       "aliases": ["nas-platform", "oc-nas"],
       "live_host_aliases": ["oc-nas"],
       "service_names": ["nas-platform"],
-      "gitnexus_indexed": false
+      "gitnexus_indexed": true
     },
     {
       "slug": "telegram-dual-relay",
@@ -120,7 +120,7 @@
         {
           "path": "projects/research/bigdata-spark-research-workbench",
           "role": "research-workspace",
-          "gitnexus_status": "not_targeted"
+          "gitnexus_status": "indexed"
         }
       ],
       "ops_surface": "ops/projects/bigdata-spark-research-workbench",
@@ -136,7 +136,7 @@
         "bigdata-spark-research",
         "spark-research-workbench"
       ],
-      "gitnexus_indexed": false
+      "gitnexus_indexed": true
     },
     {
       "slug": "cumcm-2026-workbench",
@@ -150,7 +150,7 @@
         {
           "path": "projects/research/cumcm-2026-workbench",
           "role": "research-workspace",
-          "gitnexus_status": "not_targeted"
+          "gitnexus_status": "indexed"
         }
       ],
       "ops_surface": "ops/projects/cumcm-2026-workbench",
@@ -158,7 +158,7 @@
       "scratch": null,
       "routing_keywords": ["cumcm-2026-workbench", "cumcm2026", "cumcm-workbench"],
       "aliases": ["cumcm-2026-workbench", "cumcm2026", "cumcm-workbench"],
-      "gitnexus_indexed": false
+      "gitnexus_indexed": true
     }
   ],
   "known_scratch_projects": [

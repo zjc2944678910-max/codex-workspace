@@ -11,6 +11,7 @@ Operator-facing surface for the CUMCM 2026 workbench research project.
 - Ops surface: `ops/projects/cumcm-2026-workbench`
 - Kind: `research`
 - Registry risk profile: `research_local`
+- GitNexus status: indexed
 
 ## Stable Docs
 

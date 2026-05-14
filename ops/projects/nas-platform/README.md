@@ -14,6 +14,7 @@ This directory is the operator-facing surface for NAS Platform.
 - Live host aliases: `oc-nas`
 - Service names: `nas-platform`
 - Registry risk profile: `live_infra`
+- GitNexus status: indexed
 
 Route into this project only when the user explicitly names one of these
 entries, provides a matching path, or asks for a file that belongs to this

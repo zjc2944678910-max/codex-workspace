@@ -11,6 +11,7 @@ Operator-facing surface for the BigData Spark Research workbench project.
 - Ops surface: `ops/projects/bigdata-spark-research-workbench`
 - Kind: `research`
 - Registry risk profile: `research_local`
+- GitNexus status: indexed
 - Orientation: Hadoop/Spark course-project research (NOT CUMCM)
 - Route evidence: user explicitly requested this project by name and provided implementation plan
 

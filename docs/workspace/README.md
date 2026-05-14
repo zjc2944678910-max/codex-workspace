@@ -48,6 +48,11 @@ Explain project route metadata drift:
 node docs/workspace/repo-hygiene.mjs --repo "$PWD" --explain-mismatch
 ```
 
+Use this drift explainer whenever a project alias, surface, live host, service
+name, risk profile, or GitNexus status changes. The registry remains the
+machine-readable source, and `ops/projects/<project>/README.md` remains the
+human-facing route record.
+
 ## Phone Notifications
 
 Codex completion notifications use the global wrapper:

@@ -45,4 +45,17 @@ Keep routing metadata in both places with distinct roles:
 - `ops/projects/<project>/README.md`: human-facing routing evidence and stable
   project entrypoint
 
+When adding or changing project routing facts, update both files in the same
+change. Do not add aliases, live host names, service names, project surfaces, or
+GitNexus status in only one place.
+
+Use the drift explainer before and after routing changes:
+
+```bash
+node docs/workspace/repo-hygiene.mjs --repo "$PWD" --explain-mismatch
+```
+
 `docs/workspace/repo-hygiene.mjs` checks these records for route metadata drift.
+If it reports `project_route_metadata_mismatches`, treat the registry as the
+machine source and the matching ops README as the human-facing entrypoint, then
+bring both back into agreement.
