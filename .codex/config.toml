@@ -1,6 +1,5 @@
 #:schema https://developers.openai.com/codex/config-schema.json
 
-model = "gpt-5.4"
 review_model = "gpt-5.4"
 model_reasoning_effort = "xhigh"
 model_context_window = 539000
