@@ -28,7 +28,7 @@ Codex acceptance.
 | L1 multi-file change, core function, cross-module refactor, API route, or unknown call chain | Check GitNexus `list_repos`; if the target repo is indexed, use `query`, `context`, and `impact`. For API routes, prefer `api_impact`. |
 | GitNexus target missing or stale | Record `GitNexus unavailable/stale`, then fall back to `rg`, focused tests, and local review. |
 | Tiny edit, typo, small docs update, or isolated script tweak | Skip GitNexus unless the user asks for impact analysis. |
-| PDF, Word, spreadsheet, presentation, Figma, Sentry, Playwright, OpenAI docs, security, cleanup, or notification task | Use the matching skill first, then apply workspace routing and risk gates. |
+| PDF, Word, spreadsheet, presentation, Figma, Sentry, Playwright, OpenAI docs, security, cleanup, or notification task | Use the matching skill first, then apply workspace routing and risk gates. For Playwright CLI from this workspace root, launch via `docs/workspace/playwright-scratch.sh --label <label> -- ...` so `.playwright-cli/` stays under `scratch/shared/`. |
 | Review with a concrete file/line finding | Prefer `::code-comment{...}` for actionable line-specific feedback. |
 | Architecture, process, testing strategy, or cross-file review concern | Use normal review text with findings, residual risks, and testing gaps. |
 

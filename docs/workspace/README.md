@@ -16,6 +16,7 @@ Policy: `AGENTS.md`. Worker contract: `WORKER.md`.
 | `workspace-disk-report.mjs` | Classify disk hotspots before cleanup |
 | `workspace-health.mjs` | Compact health summary combining hygiene, disk, and Codex workflow drift checks |
 | `codex-run-retention.mjs` | Rotate `scratch/shared/codex-runs` into cleanup archive |
+| `playwright-scratch.sh` | Run Playwright CLI from `scratch/shared/playwright-cli/<label>/` instead of the repo root |
 | `project-registry.json` | Machine-readable workspace project registry and hook routing metadata |
 | `project-surfaces.md` | Human-readable project surfaces and GitNexus status |
 | `scratch-retention.json` | Scratch retention manifest with per-path policy |
@@ -49,6 +50,17 @@ The default phone channel is Bark. Telegram credentials may stay configured for
 future mobile-continuation work, but Telegram completion notifications are off
 by default. The wrapper can include a compact workspace-health warning in the
 phone notification when health status becomes `attention`.
+
+## Playwright
+
+When using Playwright CLI from this workspace root, run it through the
+scratch wrapper so `.playwright-cli/` state lands under `scratch/shared/`
+instead of the repository root:
+
+```bash
+docs/workspace/playwright-scratch.sh --label workspace-root -- open https://example.com --headed
+docs/workspace/playwright-scratch.sh --label workspace-root -- snapshot
+```
 
 ## Run Tests
 
