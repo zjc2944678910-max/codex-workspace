@@ -72,6 +72,18 @@ before acting. Simple questions can be answered naturally.
 | `L2` | High-risk read-only audit: live/production/NAS/VPS/OpenClaw, logs, service status, config, slow replies, unclear root cause, expensive wrong conclusion | Codex keeps first pass read-only. Do not modify, restart, patch, deploy, or default into repair. |
 | `L3` | State-changing repair: config writes, service restarts, deploys, runtime changes, production file writes, rollback | Stop at the plan stage until the user explicitly says `进入修复阶段`. |
 
+`L0 tiny` is the fast path for ordinary questions, lightweight state checks,
+typos, single-file small docs edits, or one localized script/test fix with no
+public contract change. For `L0 tiny`, Codex may answer or patch directly,
+compress the level/rationale/strategy into one short line, and skip Route Lock,
+GitNexus, model workers, and workspace health checks unless the task evidence
+requires them.
+
+Escalate out of `L0 tiny` when the work touches multiple modules, shared core
+logic, API routes, dependency/build/CI behavior, unclear project routing, or any
+live/production/deploy/auth/secrets/config-heavy surface. The `L0 tiny` fast
+path never overrides `L2` read-only or `L3` repair gates.
+
 Keep confirmed evidence, hypotheses, and next actions separate. Never present
 guesses as facts.
 
@@ -84,20 +96,21 @@ Codex is the control plane.
 | Project routing, risk layer, Route Lock | Codex |
 | Architecture, root cause, safety, security boundary, live/deploy/auth/secrets/config-heavy judgment | Codex |
 | Read-only mapping or pre-change risk review | Codex agents: `repo_mapper`, `review_guard`, `docs_checker` |
-| Tiny isolated fix where delegation adds latency | Codex direct edit, or fallback `surgical_fixer` |
-| Bounded L0/L1 implementation, multi-file patch, test/fix loop | `model_worker_delegate` with `worker_profile=mino_strong` |
+| `L0 tiny` question, check, or isolated fix | Codex direct |
+| Bounded non-tiny L0/L1 implementation, multi-file patch, test/fix loop | `model_worker_delegate` with `worker_profile=mino_strong` |
 | Small mechanical implementation or tight repair loop | `model_worker_delegate` with `worker_profile=mino_fast` |
 | Verification, regression judgment, final acceptance, user synthesis | Codex, optionally `verifier` |
 
-Default short-task path:
+Default non-tiny short-task path:
 
 ```text
 Codex route/judge -> worker implements by default -> verifier/Codex accepts
 ```
 
-Keep the work in Codex when the task is tiny, the main value is diagnosis or
-judgment, or the request is L2/L3, live, deploy, auth, secrets, or config
-heavy.
+Keep the work in Codex when the task is `L0 tiny`, the main value is diagnosis
+or judgment, or the request is L2/L3, live, deploy, auth, secrets, or config
+heavy. Use model workers for multi-file implementation, repetitive edit loops,
+test/fix loops, and mechanical refactors where the handoff reduces total effort.
 
 Never delegate these to a model worker:
 
@@ -151,7 +164,8 @@ Use long-task state only when chat memory would become messy.
 ## Output And Closeout
 
 - Ordinary questions: answer naturally and briefly.
-- L0 tiny edits: summarize changes and verification.
+- L0 tiny tasks: keep the closeout short; summarize the direct answer or edit
+  and any focused verification.
 - L1 code or workflow changes: include confirmed facts, changes, verification,
   residual risks, and next steps.
 - L2/L3, audit, review, and final acceptance: keep structured output and
