@@ -8,6 +8,7 @@ Policy: `AGENTS.md`. Worker contract: `WORKER.md`.
 | Tool | Purpose |
 | --- | --- |
 | `codex-long-task.mjs` | Unified long-task CLI: init, append, repair, recheck, close |
+| `harness-contract.md` | Cross-cutting workspace harness contract for routing, permissions, tasks, verification, memory, and workers |
 | `daily-workflow.md` | Entry point for `L0 tiny` fast path, ordinary short-task workflow, capability defaults, and long-task escalation |
 | `token-budget.md` | Profile selection, agent budget, output limits, evidence pointers, decision reuse, and GitNexus-first rules |
 | `codex-long-task-runbook.md` | **Canonical** operational long-task workflow for multi-slice work, handoff state, and repair loops |
@@ -26,6 +27,9 @@ Policy: `AGENTS.md`. Worker contract: `WORKER.md`.
 
 - Start with `daily-workflow.md` for ordinary work. Use its `L0 tiny` fast path
   for simple questions, small docs edits, typos, and lightweight checks.
+- Use `harness-contract.md` when introducing a new agent, worker flow, hook, or
+  runbook. It explains how the workspace harness layers fit together; keep
+  `daily-workflow.md` as the day-to-day entry point.
 - Use `token-budget.md` when deciding whether to use `fast`, `standard`, or
   `audit`, or when evidence and command output may bloat the main context.
 - Escalate to `codex-long-task-runbook.md` only when work spans multiple slices,
