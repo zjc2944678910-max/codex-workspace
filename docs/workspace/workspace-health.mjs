@@ -116,7 +116,9 @@ async function buildCodexWorkflowSummary(options = {}) {
   if (!barkEnabled) issues.push("bark_disabled");
   if (telegramEnabled) issues.push("telegram_enabled");
   if (!workspaceHealthNotifyEnabled) issues.push("workspace_health_notify_disabled");
-  if (workspaceHealthDaily.status !== "ACTIVE") issues.push("workspace_health_daily_not_active");
+  if (!["ACTIVE", "PAUSED"].includes(workspaceHealthDaily.status)) {
+    issues.push("workspace_health_daily_not_active");
+  }
   if (mobileBridgeHeartbeat.status !== "PAUSED") issues.push("mobile_bridge_heartbeat_not_paused");
 
   return {

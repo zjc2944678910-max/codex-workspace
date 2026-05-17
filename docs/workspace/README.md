@@ -45,9 +45,13 @@ node docs/workspace/workspace-health.mjs --repo "$PWD" --limit 12
 
 This also checks Codex workflow drift such as notification wrapper wiring,
 Bark/Telegram policy, the daily health automation, and the paused mobile bridge
-heartbeat. It reports only booleans and status strings, never notification
-secrets. Large scratch paths reported here are candidates for later review, not
-automatic deletion targets.
+heartbeat. The current policy allows the daily workspace health automation to be
+`ACTIVE` or intentionally `PAUSED`; missing or unknown automation state remains
+attention-worthy. It reports only booleans and status strings, never
+notification secrets. Large scratch paths reported here are candidates for later
+review, not automatic deletion targets. Scratch retention decisions come from
+`scratch-retention.json`; a healthy report should load that manifest and show
+`retention_gaps: 0`.
 
 Explain project route metadata drift:
 
@@ -68,10 +72,13 @@ Codex completion notifications use the global wrapper:
 /Users/zhangjincheng/.codex/tools/codex-turn-ended-notify.sh
 ```
 
-The default phone channel is Bark. Telegram credentials may stay configured for
-future mobile-continuation work, but Telegram completion notifications are off
-by default. The wrapper can include a compact workspace-health warning in the
-phone notification when health status becomes `attention`.
+The active notification strategy is wrapper + Bark: `~/.codex/config.toml`
+points only at the wrapper, Bark stays enabled for phone push, and Telegram
+completion notifications stay disabled by default. Telegram credentials may
+stay configured for future mobile-continuation work, but `telegram.enabled`
+should remain `false` unless that channel is deliberately reactivated. The
+wrapper can include a compact workspace-health warning in the phone notification
+when health status becomes `attention`.
 
 ## Playwright
 

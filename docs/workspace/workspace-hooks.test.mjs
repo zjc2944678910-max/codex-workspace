@@ -9,6 +9,7 @@ const hookScript = path.join(repoRoot, ".codex", "hooks", "workspace_guard.py");
 function runHook(event, payload = {}) {
   const result = spawnSync("python3", [hookScript, event], {
     cwd: repoRoot,
+    env: { ...process.env, PYTHONDONTWRITEBYTECODE: "1" },
     input: JSON.stringify(payload),
     encoding: "utf8",
     stdio: ["pipe", "pipe", "pipe"],
@@ -169,6 +170,7 @@ print(json.dumps([module.summarize_hygiene_issues(case) for case in cases]))
 
   const result = spawnSync("python3", ["-c", python], {
     cwd: repoRoot,
+    env: { ...process.env, PYTHONDONTWRITEBYTECODE: "1" },
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
   });
