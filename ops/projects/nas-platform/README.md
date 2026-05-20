@@ -25,6 +25,7 @@ surface.
 - `README.md`
 - `reports/`
 - `runbooks/`
+- `runbooks/nas-wg-ssh-access.md`
 
 ## Subdirectories
 
