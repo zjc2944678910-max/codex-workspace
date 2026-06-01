@@ -1,0 +1,21 @@
+{
+    "error_string": "Success.",
+    "export_time": 234,
+    "layer_height": 0.0,
+    "plate_index": 0,
+    "prepare_time": 163,
+    "return_code": 0,
+    "sparse_infill_density": 0.0,
+    "upward_compatible_machine": [
+        "Bambu Lab P1P 0.4 nozzle",
+        "Bambu Lab X1 0.4 nozzle",
+        "Bambu Lab X1 Carbon 0.4 nozzle",
+        "Bambu Lab X1E 0.4 nozzle",
+        "Bambu Lab A1 0.4 nozzle",
+        "Bambu Lab H2D 0.4 nozzle",
+        "Bambu Lab H2D Pro 0.4 nozzle",
+        "Bambu Lab H2S 0.4 nozzle",
+        "Bambu Lab P2S 0.4 nozzle"
+    ],
+    "wall_loops": 0
+}
