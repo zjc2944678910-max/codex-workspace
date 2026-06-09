@@ -47,6 +47,18 @@ course research project using the bigdata-spark-research-workbench.
 
 **Deliverable:** Working Spark code, smoke test passing, initial results
 
+## HW4 Checkpoint: Complete Project Draft
+
+- Current requirement file: `作业/作业4/PHLCSYK-401007-A班-HW4-要求说明.docx`
+- Current submitted file: `作业/作业4/PHLCSYK-401007-A班-G9-HW4.docx`
+- Deadline: `2026-06-13 12:00` Beijing time
+- Submit a Word-format complete project draft with title, author information,
+  introduction, method, results and discussion, conclusion, and references
+- Target length is about 1500 Chinese characters; groups ahead of schedule may
+  write more
+- Keep the submitted `.docx` under topic `support/homework/hw4/`; promote only
+  intentionally revised prose, figures, tables, and results into report sources
+
 ## Week 5: Final Report & Defense Preparation
 
 - Complete all report sections

@@ -1,7 +1,7 @@
 {
   "$schema": "workspace-project-registry/v1",
   "description": "Machine-readable workspace project registry. Each registered project has an ops README under ops/projects/<slug>/README.md, one or more long-lived surfaces under projects/*/*, and zero or more concrete code roots used for day-to-day work and GitNexus targeting.",
-  "updated": "2026-05-14",
+  "updated": "2026-06-08",
   "projects": [
     {
       "slug": "openclaw",
@@ -159,6 +159,38 @@
       "routing_keywords": ["cumcm-2026-workbench", "cumcm2026", "cumcm-workbench"],
       "aliases": ["cumcm-2026-workbench", "cumcm2026", "cumcm-workbench"],
       "gitnexus_indexed": true
+    },
+    {
+      "slug": "tianchi-purchase-redemption",
+      "name": "Tianchi Purchase Redemption",
+      "kind": "research",
+      "risk_profile": "research_local",
+      "surfaces": [
+        "projects/research/tianchi-purchase-redemption"
+      ],
+      "code_roots": [
+        {
+          "path": "projects/research/tianchi-purchase-redemption",
+          "role": "research-workspace",
+          "gitnexus_status": "not_indexed"
+        }
+      ],
+      "ops_surface": "ops/projects/tianchi-purchase-redemption",
+      "state_data": null,
+      "scratch": null,
+      "routing_keywords": [
+        "tianchi-purchase-redemption",
+        "tianchi-231573",
+        "purchase-redemption",
+        "资金流入流出预测"
+      ],
+      "aliases": [
+        "tianchi-purchase-redemption",
+        "tianchi-231573",
+        "purchase-redemption",
+        "资金流入流出预测"
+      ],
+      "gitnexus_indexed": false
     }
   ],
   "known_scratch_projects": [

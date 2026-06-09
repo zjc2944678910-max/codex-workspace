@@ -42,6 +42,10 @@ do not physically merge the desktop course folder into the workbench root.
 | `作业/作业1/PHLCSYK-401007-A班-G9-HW1.docx` | Submitted homework | topic `support/homework/hw1/` or topic `report/appendix/homework/` | Keep as prior deliverable/reference. Do not treat as source of truth for final report. |
 | `作业/作业2/PHLCSYK-401007-A班-HW2-要求说明.docx` | Homework requirement | topic `support/homework/hw2/` | Keep as requirement reference. |
 | `作业/作业2/PHLCSYK-401007-A班-G9-HW2.docx` | Submitted homework | topic `support/homework/hw2/` or topic `report/appendix/homework/` | Keep as prior deliverable/reference. Promote only final figures/text intentionally. |
+| `作业/作业3/PHLCSYK-401007-A班-HW3-要求说明.docx` | Homework requirement | topic `support/homework/hw3/` | Keep as requirement reference for project-format introduction, method, and results drafting. |
+| `作业/作业3/PHLCSYK-401007-A班-G9-HW3.docx` | Submitted homework | topic `support/homework/hw3/` or topic `report/appendix/homework/` | Keep as prior project-format draft. Promote only intentionally revised prose/figures into report sources. |
+| `作业/作业4/PHLCSYK-401007-A班-HW4-要求说明.docx` | Homework requirement | topic `support/homework/hw4/` | Keep as current full-draft requirement. Extract the complete-project-draft checkpoint into workflow docs. |
+| `作业/作业4/PHLCSYK-401007-A班-G9-HW4.docx` | Submitted homework | topic `support/homework/hw4/` or topic `report/appendix/homework/` | Keep as current submitted Word draft. Treat as a hand-maintained deliverable, not generated report source. |
 | `.DS_Store` files | macOS metadata | None | Ignore. Do not copy into workbench. |
 
 ## Suggested Topic-Local Layout
@@ -54,6 +58,8 @@ topics/jit-defect-prediction/support/lecture-notes/
 topics/jit-defect-prediction/support/examples/
 topics/jit-defect-prediction/support/homework/hw1/
 topics/jit-defect-prediction/support/homework/hw2/
+topics/jit-defect-prediction/support/homework/hw3/
+topics/jit-defect-prediction/support/homework/hw4/
 ```
 
 Keep report-source Markdown in:
@@ -74,6 +80,10 @@ topics/jit-defect-prediction/results/
 ## Rule Of Thumb
 
 - Course PDFs, PPTX, DOCX examples, and homework statements are support material.
+- HW4 is the current complete-project Word draft checkpoint: title, author
+  information, introduction, method, results and discussion, conclusion, and
+  references; about 1500 Chinese characters; due `2026-06-13 12:00` Beijing
+  time.
 - Only edited, final report prose belongs in `report/sections/`.
 - Only runnable scripts belong in `experiments/code/`.
 - Only generated and accepted tables, metrics, and figures belong in `results/`.

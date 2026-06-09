@@ -15,6 +15,7 @@ Source of truth for scripts: [`project-registry.json`](./project-registry.json).
 | MathorCup-D | `projects/research/mathorcup_D`, `projects/products/MathorCup_D_repo` | `projects/products/MathorCup_D_repo`; `projects/research/mathorcup_D` | `ops/projects/mathorcup-d` | submission repo indexed; research workspace not targeted |
 | BigData-Spark-Research-Workbench | `projects/research/bigdata-spark-research-workbench` | `projects/research/bigdata-spark-research-workbench` | `ops/projects/bigdata-spark-research-workbench` | indexed |
 | CUMCM-2026-Workbench | `projects/research/cumcm-2026-workbench` | `projects/research/cumcm-2026-workbench` | `ops/projects/cumcm-2026-workbench` | indexed |
+| Tianchi Purchase Redemption | `projects/research/tianchi-purchase-redemption` | `projects/research/tianchi-purchase-redemption` | `ops/projects/tianchi-purchase-redemption` | not indexed |
 
 Legacy GitNexus reference: the old workspace root `-/` remains a legacy-only
 reference after the active code roots above are indexed.
