@@ -14,6 +14,8 @@ __pycache__/
 /projects/*
 
 /scratch/*
+/inbox/
+/handoffs/
 
 /ops/projects/*/mirrors/
 /ops/projects/*/evidence/

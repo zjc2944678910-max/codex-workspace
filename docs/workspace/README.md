@@ -10,6 +10,7 @@ Policy: `AGENTS.md`. Worker contract: `WORKER.md`.
 | `codex-long-task.mjs` | Unified long-task CLI: init, append, repair, recheck, close |
 | `harness-contract.md` | Cross-cutting workspace harness contract for routing, permissions, tasks, verification, memory, and workers |
 | `daily-workflow.md` | Entry point for `L0 tiny` fast path, ordinary short-task workflow, capability defaults, and long-task escalation |
+| `codex-register-project.mjs` | Register a durable project surface and regenerate the root `PROJECTS.md` index |
 | `token-budget.md` | Profile selection, agent budget, output limits, evidence pointers, decision reuse, and GitNexus-first rules |
 | `codex-long-task-runbook.md` | **Canonical** operational long-task workflow for multi-slice work, handoff state, and repair loops |
 | `codex-hooks.md` | Repo-local Codex hook guardrails, verification, and rollback |
@@ -22,11 +23,17 @@ Policy: `AGENTS.md`. Worker contract: `WORKER.md`.
 | `project-registry.json` | Machine-readable workspace project registry and hook routing metadata |
 | `project-surfaces.md` | Human-readable project surfaces and GitNexus status |
 | `scratch-retention.json` | Scratch retention manifest with per-path policy |
+| `../../PROJECTS.md` | Generated short project map for session startup |
+| `../../DAILY.md` | Short-lived session/day notes before promotion |
+| `../decisions/workspace-decisions.md` | Durable workspace-level decisions |
 
 ## Workflow Entry Points
 
 - Start with `daily-workflow.md` for ordinary work. Use its `L0 tiny` fast path
   for simple questions, small docs edits, typos, and lightweight checks.
+- Use `../../PROJECTS.md` as the short project map when choosing a route.
+- Use `../../DAILY.md` for short-lived notes; promote durable facts into
+  project ops READMEs or `../decisions/workspace-decisions.md`.
 - Use `harness-contract.md` when introducing a new agent, worker flow, hook, or
   runbook. It explains how the workspace harness layers fit together; keep
   `daily-workflow.md` as the day-to-day entry point.
@@ -36,6 +43,20 @@ Policy: `AGENTS.md`. Worker contract: `WORKER.md`.
   needs handoff state, or enters repeated repair loops.
 - Use `workspace-health.mjs` for policy, hygiene, or cleanup validation. It is
   not a required preflight for `L0 tiny` work.
+
+## Project Registration
+
+Register a new durable project surface:
+
+```bash
+node docs/workspace/codex-register-project.mjs --slug <slug> --name "<Name>" --kind product
+```
+
+Regenerate the root project index after registry-only edits:
+
+```bash
+node docs/workspace/codex-register-project.mjs --regen
+```
 
 ## Health Check
 

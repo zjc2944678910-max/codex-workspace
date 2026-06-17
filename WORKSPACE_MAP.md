@@ -21,7 +21,9 @@ If a task or note refers to `codex-workplace`, treat it as a spelling mismatch u
 - Old `AGENTS.md`
   - New `AGENTS.md`
 - Old `README.md`
-  - New `README.md`
+- New `README.md`
+- New `PROJECTS.md`
+  - Generated short project index from `docs/workspace/project-registry.json`
 - Old workspace-level `docs/reports/*`
   - New `docs/reports/*`
 - Old project-specific reports and runbooks
@@ -89,6 +91,11 @@ Long-lived project surfaces under `projects/*/*` must be registered via
 flagged by workspace hygiene checks.  See
 `docs/workspace/project-registry.json` for the machine-readable registry and
 `docs/workspace/project-surfaces.md` for the human-readable summary.
+
+Prefer `node docs/workspace/codex-register-project.mjs --slug <slug> --name
+"<Name>" --kind <kind>` for new durable project surfaces, then regenerate
+`PROJECTS.md` with `node docs/workspace/codex-register-project.mjs --regen`
+after registry-only edits.
 
 ## Scratch-First Rule
 

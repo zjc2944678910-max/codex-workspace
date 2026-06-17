@@ -19,13 +19,24 @@ Use this repository as the default Codex workspace index. The legacy local `-/` 
 - `ops/`: operator-facing mirrors, evidence, logs, rollback bundles
 - `projects/`: actual project trees grouped by role
 - `scratch/`: temporary outputs and disposable working material
+- `inbox/`: unprocessed local imports, ignored by git
+- `handoffs/`: cross-tool or cross-session summaries, ignored by git
 - `archive/`: retired documents, cleanup records, and snapshots
 - `state/`: local machine state and review/staging residue
+
+## Daily Entry Points
+
+- `PROJECTS.md`: generated short project index for routing at session start
+- `DAILY.md`: short-lived day/session notes before promotion into durable docs
+- `docs/decisions/workspace-decisions.md`: durable workspace-level decisions
 
 ## Workspace Tools
 
 - Long-task CLI:
   - `node docs/workspace/codex-long-task.mjs --help`
+- Project registration:
+  - `node docs/workspace/codex-register-project.mjs --help`
+  - `node docs/workspace/codex-register-project.mjs --regen`
 - Tool index:
   - `docs/workspace/README.md`
 - Long-task runbook:
@@ -49,10 +60,17 @@ Route Lock before delegating to child agents.
 Registered project records live in:
 
 - `ops/projects/<project>/README.md`
+- `PROJECTS.md` as the generated short human project index
 
-Use `ops/projects/PROJECT_TEMPLATE.md` when adding a new project. Registered
-projects are discovered from `ops/projects/*/README.md`; none is the workspace
-default.
+Prefer the registration helper for new durable project surfaces:
+
+```bash
+node docs/workspace/codex-register-project.mjs --slug <slug> --name "<Name>" --kind product
+```
+
+Use `ops/projects/PROJECT_TEMPLATE.md` only when the helper is unavailable or a
+project needs unusual hand-authored structure. Registered projects are
+discovered from `ops/projects/*/README.md`; none is the workspace default.
 
 ## Default Daily Root
 
@@ -71,6 +89,8 @@ default.
 - Project-specific state that is not source code goes in `state/project-data/<name>/`
 - Temporary project output goes in `scratch/projects/<name>/`
 - Shared temporary material that is not clearly project-owned goes in `scratch/shared/`
+- Imported raw material that has not been processed goes in `inbox/`
+- Cross-tool or cross-session handoff summaries go in `handoffs/`
 - Cleanup records, snapshots, and retired material go in `archive/`
 
 ## Registration Rule

@@ -32,10 +32,18 @@ Local-only subdirectories should stay ignored by the root repository:
 - `quarantine/`
 - `rollback/`
 
-Start new project records from `PROJECT_TEMPLATE.md`.
+Start new project records with the registration helper when possible:
+
+```bash
+node docs/workspace/codex-register-project.mjs --slug <slug> --name "<Name>" --kind product
+```
+
+Use `PROJECT_TEMPLATE.md` only when the helper is not available or a project
+needs unusual hand-authored structure.
 
 See `docs/workspace/project-registry.json` for the machine-readable registry,
-`docs/workspace/project-surfaces.md` for the human-readable summary, and
+`PROJECTS.md` for the generated short project index,
+`docs/workspace/project-surfaces.md` for the richer human-readable summary, and
 `docs/workspace/scratch-retention.json` for scratch path retention policy.
 
 Keep routing metadata in both places with distinct roles:
@@ -48,6 +56,12 @@ Keep routing metadata in both places with distinct roles:
 When adding or changing project routing facts, update both files in the same
 change. Do not add aliases, live host names, service names, project surfaces, or
 GitNexus status in only one place.
+
+After registry-only edits, regenerate the short root index:
+
+```bash
+node docs/workspace/codex-register-project.mjs --regen
+```
 
 Use the drift explainer before and after routing changes:
 

@@ -10,6 +10,8 @@ const TRACKABLE_EXACT_PATHS = new Set([
   "AGENTS.md",
   "WORKER.md",
   "CLAUDE.md",
+  "PROJECTS.md",
+  "DAILY.md",
   ".gitignore",
   ".codex/config.toml",
   ".codex/hooks.json",
@@ -203,7 +205,7 @@ function summarizePathForCheckpoint(relativePath) {
   const normalized = String(relativePath || "").trim().replace(/\\/g, "/");
   if (!normalized) return "";
   if (normalized === ".gitignore") return "hygiene";
-  if (normalized === "AGENTS.md" || normalized === "WORKER.md" || normalized === "CLAUDE.md" || normalized === "README.md" || normalized === "WORKSPACE_MAP.md") return "workspace";
+  if (normalized === "AGENTS.md" || normalized === "WORKER.md" || normalized === "CLAUDE.md" || normalized === "PROJECTS.md" || normalized === "DAILY.md" || normalized === "README.md" || normalized === "WORKSPACE_MAP.md") return "workspace";
   if (normalized.startsWith(".codex/")) return "codex-config";
   if (normalized.startsWith("docs/")) {
     if (normalized.startsWith("docs/workspace/")) return "workspace";

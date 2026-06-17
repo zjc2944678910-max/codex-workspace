@@ -53,7 +53,8 @@ Routing decides where work is allowed to happen.
 - Use `docs/workspace/project-registry.json` as the machine-readable source for
   routing metadata.
 - Use `ops/projects/<project>/README.md` as the human-facing route record.
-- Use `docs/workspace/project-surfaces.md` as the human-readable surface summary.
+- Use `PROJECTS.md` as the short human project index and
+  `docs/workspace/project-surfaces.md` as the richer surface summary.
 - For long tasks and worker handoffs, write and honor a Route Lock:
   `target_project`, `target_surface`, `project_root`, `route_evidence`, and
   `forbidden_surfaces`.

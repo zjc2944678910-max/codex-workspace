@@ -15,7 +15,7 @@ Track only workspace-level control files:
 
 - `AGENTS.md`, `WORKER.md`, `CLAUDE.md`
 - `.codex/config.toml`, `.codex/hooks.json`, `.codex/agents/`, `.codex/hooks/`
-- `README.md`, `WORKSPACE_MAP.md`
+- `README.md`, `WORKSPACE_MAP.md`, `PROJECTS.md`, `DAILY.md`
 - `docs/` for workspace-level docs
 - `ops/README.md`, `ops/projects/README.md`, `ops/projects/PROJECT_TEMPLATE.md`
 - `ops/projects/<project>/README.md`
@@ -27,7 +27,7 @@ Track only workspace-level control files:
 
 Do not track local code, state, evidence, logs, rollback data, or mirrors:
 
-- `projects/`, `scratch/`, `archive/`, `state/`
+- `projects/`, `scratch/`, `archive/`, `state/`, `inbox/`, `handoffs/`
 - `ops/projects/<project>/mirrors/`, `evidence/`, `logs/`, `quarantine/`, `rollback/`
 
 Placement defaults:
@@ -39,12 +39,16 @@ Placement defaults:
 - Durable project ops docs: `ops/projects/<name>/`
 - Project state: `state/project-data/<name>/`
 - Temporary outputs: `scratch/projects/<name>/` or `scratch/shared/`
+- Imported raw material: `inbox/`
+- Cross-tool handoff summaries: `handoffs/`
 
 Project routing comes before implementation workflow.
 
 - Registered projects live under `ops/projects/<project>/README.md`.
 - `docs/workspace/project-registry.json` is the machine-readable routing source
   for scripts and hooks.
+- `PROJECTS.md` is the generated short human project index. Regenerate it with
+  `node docs/workspace/codex-register-project.mjs --regen`.
 - No registered project is a default work target.
 - Keep root policy project-neutral. Put project-specific aliases and routing
   facts in the project registry and the matching ops README.
@@ -182,8 +186,9 @@ Pass a bounded brief with:
 - Store durable evidence, decisions, verification results, and long logs in run
   directories or project ops docs; keep the conversation to pointers and
   decisions.
-- Reuse confirmed decisions from `05-decisions.md` or the project ops README
-  before re-exploring. Recheck only when there is drift evidence.
+- Reuse confirmed decisions from `docs/decisions/workspace-decisions.md`,
+  long-task `05-decisions.md`, or the project ops README before re-exploring.
+  Recheck only when there is drift evidence.
 - For indexed projects, prefer GitNexus `query`, `context`, `impact`, or
   `api_impact` before broad `rg`/file-reading sweeps.
 

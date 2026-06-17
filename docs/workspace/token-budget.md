@@ -59,6 +59,8 @@ Only paste long excerpts when the exact text is the evidence under review.
 ## Decision Reuse
 
 - Long tasks store reusable facts in `05-decisions.md`.
+- Workspace-level durable decisions belong in
+  `docs/decisions/workspace-decisions.md`.
 - Project routing, common commands, and stable architecture facts belong in the
   matching `ops/projects/<project>/README.md`.
 - Reuse confirmed facts before re-exploring. Recheck only when a file changed,

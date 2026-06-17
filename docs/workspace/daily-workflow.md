@@ -62,6 +62,33 @@ Use this when the fast path does not apply.
    repair brief back to the worker unless a `why_no_worker` bypass applies.
 8. Close out with confirmed facts, verification, residual risks, and next steps.
 
+## Project Registration
+
+Use this when the user asks to create or onboard a durable project surface.
+
+1. Choose a slug, display name, kind, risk profile, and routing aliases.
+2. Run the helper:
+
+```bash
+node docs/workspace/codex-register-project.mjs --slug <slug> --name "<Name>" --kind product
+```
+
+3. Review `PROJECTS.md`, `docs/workspace/project-registry.json`, and
+   `ops/projects/<slug>/README.md`.
+4. Run focused tests plus `workspace-health` for policy or routing changes.
+
+Use `--ops-only` for services that have durable ops docs in this workspace but
+no local code root.
+
+## Daily Notes
+
+- Put short-lived session notes in `DAILY.md`.
+- Promote durable workspace decisions into
+  `docs/decisions/workspace-decisions.md`.
+- Promote durable project facts into `ops/projects/<slug>/README.md`.
+- Keep raw imports in ignored `inbox/` and cross-tool summaries in ignored
+  `handoffs/`.
+
 ## Capability Defaults
 
 Use these as default checks before choosing tools. They support the workflow;
@@ -104,8 +131,9 @@ surface.
   test failures to the first failing block plus the final summary.
 - Prefer file pointers over pasted context: path, line number, conclusion,
   evidence summary, and next action.
-- Reuse `05-decisions.md`, project ops READMEs, and GitNexus results before
-  re-exploring; recheck only when there is drift evidence.
+- Reuse `docs/decisions/workspace-decisions.md`, long-task `05-decisions.md`,
+  project ops READMEs, and GitNexus results before re-exploring; recheck only
+  when there is drift evidence.
 - Prefer long-task run files for durable state before the chat context becomes
   large.
 
@@ -134,6 +162,9 @@ Use a Route Lock before handoffs. Keep long logs in the run directory.
 - Auto hygiene is whitelist-gated by `repo-hygiene.mjs`.
 - Keep project routing metadata in `docs/workspace/project-registry.json`; keep
   `ops/projects/<project>/README.md` as the human-facing route record.
+- Regenerate `PROJECTS.md` with
+  `node docs/workspace/codex-register-project.mjs --regen` after registry-only
+  edits.
 - `repo-hygiene.mjs` reports `project_route_metadata_mismatches` when registry
   route facts drift from the matching ops README.
 - Use `workspace-health` to evaluate large scratch paths and workflow drift
