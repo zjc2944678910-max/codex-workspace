@@ -7581,3 +7581,62 @@ Validation:
   - Telegram still logged recoverable network warnings for `deleteWebhook` / `setMyCommands`; this is separate from the Feishu repair and was not changed
   - both gateways still log existing security warnings for dangerous workspace tool flags
   - local Feishu plugin patch must be rechecked on future plugin/package upgrades
+
+## 2026-06-16: Edge Watchdog Maintenance Switch, Traffic-Card IP Block, CF Fronting
+
+Synced from claude-workspace ops notes (claude-side openclaw README). The work
+below is on the VPS edge (`107.175.140.175`) and the local macOS SSH layer, not on
+the NAS gateway itself.
+
+### Edge alert watchdog false-alarm + maintenance switch
+
+- Script: VPS `/usr/local/bin/oc_alert.sh`, triggered by `/etc/cron.d/oc_alert`
+  (`* * * * *`, every minute). It probes the local entry + public entry (+ sing-box
+  UDP); on failure it re-sends to Telegram chat `8421829242` (benben) every
+  `REMINDER_SEC=1800` (30 min); if sing-box is down it auto-starts it (self-heal).
+- Symptom: after the user deliberately stopped the NAS gateway, the watchdog
+  treated it as a fault and spammed "OpenClaw edge alert: local entry failed
+  (connection refused); public entry failed (upstream 502)" every 30 min. Source
+  was the VPS, NOT the NAS (all NAS openclaw systemd timers disabled/inactive, cron
+  empty, n8n/uptime-kuma unrelated).
+- Fix: added an edge maintenance switch `EDGE_MAINT_FILE`
+  (default `/etc/openclaw/.disable-edge-alert`) to `oc_alert.sh`. When the flag
+  exists, only the edge alert is silenced; sing-box self-heal is kept. `touch` the
+  flag before planned downtime.
+  - Current state: flag created, edge alert silenced; cron still runs every minute
+    (dry-run shows `edge_maint_suppressed=1`).
+  - Restore alerts: `rm /etc/openclaw/.disable-edge-alert` (or bring the NAS gateway
+    back up, after which edge recovers and auto-stops the alert).
+  - Backups: `/usr/local/bin/oc_alert.sh.bak-edgemaint-*`, `/etc/cron.d/oc_alert.bak-*`.
+
+### Traffic-card per-destination-IP TCP RST against the VPS
+
+- Symptom: one mobile data SIM (Zhengzhou Mobile, egress `223.104.19.112`) could not
+  reach the VPS SSH or proxy nodes; other SIMs worked. Normal browsing fine, only
+  `107.175.140.175` unreachable.
+- Root cause: not fail2ban (IP not banned, had logged in that day), not a GFW-wide
+  block (other SIMs connect). The carrier does per-destination-IP TCP RST: the VPS IP
+  is flagged as a proxy IP, so bare TCP to it is RST mid-connection. Evidence:
+  `ping 0% loss` + `nc github:22` works + all connections to this VPS fail +
+  sshd logs full of `Connection reset [preauth]`.
+- Management channel (landed, local macOS): direct connect is blocked, route via the
+  NAS instead.
+  - `~/.ssh/config`: `vps-via-nas` (`ProxyCommand ssh home-nas-wg nc %h %p`, login),
+    `vps-tunnel` (same + `LocalForward 18080->8080`, `13000->3000`, the gateway).
+  - LaunchAgent `~/Library/LaunchAgents/com.zjc.vps-tunnel.plist` (KeepAlive, persistent tunnel).
+  - Key: `home-nas-wg` (WireGuard utun11, UDP) does not touch the blocked IP; NAS sshd
+    has `AllowTcpForwarding no`, so use `nc` relay rather than `-J` / `-W`.
+
+### Gateway via Cloudflare (Phase 1 landed; Phase 2 rolled back)
+
+- Phase 1 (landed, the real fix): `nodezjc12348888.xyz` NS moved to Cloudflare.
+  `api.` subdomain (orange) + CF Origin Rule rewriting origin port -> 8443 (VPS 443
+  is xray Reality, nginx listens on 8443/20002). `api.->new-api:3000`,
+  `sub.->sub2api:8080`. Clients hit `https://api.nodezjc12348888.xyz/v1`, no longer
+  depending on the tunnel. SSL mode Full (wildcard `*.nodezjc12348888.xyz`, acme.sh ECC).
+- Phase 2 (proxy nodes via CF - abandoned and rolled back): Reality/Hysteria2 cannot
+  pass through CF; would need VLESS+WS+TLS. The added xray `cf-ws-in` inbound + `cdn.`
+  vhost were all rolled back (user gave up).
+  - Lesson: `node.` subdomain + `127.0.0.1:18789` is the OpenClaw NAS gateway public
+    entry, not for proxy nodes; do not reuse it. A redone WS proxy must use a separate
+    port (e.g. 18790) + separate subdomain (e.g. `cdn.`); do not touch `node.` / 18789.

@@ -12,6 +12,7 @@ Source of truth for scripts: [`project-registry.json`](./project-registry.json).
 | OpenClaw | `projects/products/openclaw`, `projects/migrations/openclaw-mac-migration` | `projects/products/openclaw/nas-openclaw-v22`; `projects/migrations/openclaw-mac-migration` | `ops/projects/openclaw` | mainline indexed; migration not targeted |
 | NAS Platform | `projects/infrastructure/nas-platform` | `projects/infrastructure/nas-platform` | `ops/projects/nas-platform` | indexed |
 | Telegram Dual Relay | `projects/infrastructure/telegram-dual-relay` | `projects/infrastructure/telegram-dual-relay` | `ops/projects/telegram-dual-relay` | indexed |
+| Sub2API | ops-only live service | live source on VPS at `/opt/sub2api-src-fix`; no local tracked code root | `ops/projects/sub2api` | not indexed |
 | MathorCup-D | `projects/research/mathorcup_D`, `projects/products/MathorCup_D_repo` | `projects/products/MathorCup_D_repo`; `projects/research/mathorcup_D` | `ops/projects/mathorcup-d` | submission repo indexed; research workspace not targeted |
 | BigData-Spark-Research-Workbench | `projects/research/bigdata-spark-research-workbench` | `projects/research/bigdata-spark-research-workbench` | `ops/projects/bigdata-spark-research-workbench` | indexed |
 | CUMCM-2026-Workbench | `projects/research/cumcm-2026-workbench` | `projects/research/cumcm-2026-workbench` | `ops/projects/cumcm-2026-workbench` | indexed |
@@ -19,6 +20,23 @@ Source of truth for scripts: [`project-registry.json`](./project-registry.json).
 
 Legacy GitNexus reference: the old workspace root `-/` remains a legacy-only
 reference after the active code roots above are indexed.
+
+## Sibling Workspace (claude-workspace)
+
+Root: `/Users/zhangjincheng/Documents/GitHub/claude-workspace`
+(registry: `registry/project-registry.json`).
+
+These projects are primarily maintained in claude-workspace; their code roots do
+not exist in this repo (cross-reference for awareness only, not local routing
+targets):
+
+| Project | Slug | Kind |
+| --- | --- | --- |
+| 酒店管理系统 (大数据实践 Group6 项目十) | `hotel-mgmt` | product |
+| 宠物诊所管理系统 (大数据实践 Group6 项目三) | `pet-clinic` | product |
+
+Shared projects `openclaw` and `sub2api` are registered in both workspaces; their
+ops docs and routing facts are kept in sync manually.
 
 ## Scratch Paths
 

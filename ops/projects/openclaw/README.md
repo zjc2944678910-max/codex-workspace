@@ -5,17 +5,17 @@ This directory is the operator-facing surface for OpenClaw.
 ## Routing Evidence
 
 - Project name: `OpenClaw`
-- Aliases: `open claw`, `oc-nas`, `openclaw-mac-migration`
-- Registry routing keywords: `openclaw`, `open claw`, `benben`, `adminai`, `openclaw-mac-migration`
+- Aliases: `open claw`, `oc-nas`, `openclaw-mac-migration`, `笨笨`, `benben`, `adminAI`, `openclaw`
+- Registry routing keywords: `openclaw`, `open claw`, `benben`, `adminai`, `openclaw-mac-migration`, `笨笨`, `adminAI`, `oc_alert`, `ocedge`, `edge 告警`, `网关`, `edge`
 - Main code: `projects/products/openclaw/nas-openclaw-v22`
 - Migration reference: `projects/migrations/openclaw-mac-migration`
 - State/data: `state/project-data/openclaw`
 - Ops surface: `ops/projects/openclaw`
 - Reports: `ops/projects/openclaw/reports`
 - Runbooks: `ops/projects/openclaw/runbooks`
-- Live host aliases: `oc-nas`
-- Service names: `openclaw-gateway`, `openclaw-benben`
-- Registry risk profile: `live_product`
+- Live host aliases: `oc-nas`, `home-nas`, `home-vps-root`
+- Service names: `openclaw-gateway`, `openclaw-benben`, `openclaw-benben.service`, `oc_alert.sh`, `openclaw-socks-bridge.service`
+- Registry risk profile: `live_infra`
 
 Route into this project only when the user explicitly names one of these
 entries, provides a matching path, or asks for a file that belongs to this

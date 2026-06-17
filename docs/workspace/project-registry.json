@@ -1,13 +1,13 @@
 {
   "$schema": "workspace-project-registry/v1",
   "description": "Machine-readable workspace project registry. Each registered project has an ops README under ops/projects/<slug>/README.md, one or more long-lived surfaces under projects/*/*, and zero or more concrete code roots used for day-to-day work and GitNexus targeting.",
-  "updated": "2026-06-08",
+  "updated": "2026-06-17",
   "projects": [
     {
       "slug": "openclaw",
       "name": "OpenClaw",
-      "kind": "product",
-      "risk_profile": "live_product",
+      "kind": "infrastructure",
+      "risk_profile": "live_infra",
       "surfaces": [
         "projects/products/openclaw",
         "projects/migrations/openclaw-mac-migration"
@@ -27,10 +27,10 @@
       "ops_surface": "ops/projects/openclaw",
       "state_data": "state/project-data/openclaw",
       "scratch": "scratch/projects/openclaw",
-      "aliases": ["open claw", "oc-nas", "openclaw-mac-migration"],
-      "routing_keywords": ["openclaw", "open claw", "benben", "adminai", "openclaw-mac-migration"],
-      "live_host_aliases": ["oc-nas"],
-      "service_names": ["openclaw-gateway", "openclaw-benben"],
+      "aliases": ["open claw", "oc-nas", "openclaw-mac-migration", "笨笨", "benben", "adminAI", "openclaw"],
+      "routing_keywords": ["openclaw", "open claw", "benben", "adminai", "openclaw-mac-migration", "笨笨", "adminAI", "oc_alert", "ocedge", "edge 告警", "网关", "edge"],
+      "live_host_aliases": ["oc-nas", "home-nas", "home-vps-root"],
+      "service_names": ["openclaw-gateway", "openclaw-benben", "openclaw-benben.service", "oc_alert.sh", "openclaw-socks-bridge.service"],
       "gitnexus_indexed": true
     },
     {
@@ -78,6 +78,36 @@
       "live_host_aliases": ["oc-nas"],
       "service_names": ["telegram-dual-relay"],
       "gitnexus_indexed": true
+    },
+    {
+      "slug": "sub2api",
+      "name": "Sub2API",
+      "kind": "infrastructure",
+      "risk_profile": "live_infra",
+      "surfaces": [],
+      "code_roots": [],
+      "ops_surface": "ops/projects/sub2api",
+      "state_data": null,
+      "scratch": null,
+      "aliases": ["sub2api", "Sub2API", "sub2api vps", "sub2api gateway", "codex_gemini", "codex_antigravity", "中转站", "sub2"],
+      "routing_keywords": [
+        "sub2api",
+        "Sub2API",
+        "Sub2API VPS",
+        "AI API gateway",
+        "codex_gemini",
+        "codex_antigravity",
+        "gemini-default",
+        "antigravity-default-1",
+        "中转站",
+        "gemini中转",
+        "账号池",
+        "sub.nodezjc12348888.xyz",
+        "new-api"
+      ],
+      "live_host_aliases": ["sub2api-vps", "107.175.140.175", "home-vps-root", "vps-tunnel", "home-nas-wg"],
+      "service_names": ["sub2api", "sub2api-postgres", "sub2api-redis", "codex_gemini", "codex_antigravity", "new-api"],
+      "gitnexus_indexed": false
     },
     {
       "slug": "mathorcup-d",
@@ -193,6 +223,13 @@
       "gitnexus_indexed": false
     }
   ],
+  "sibling_workspace": {
+    "name": "claude-workspace",
+    "root": "/Users/zhangjincheng/Documents/GitHub/claude-workspace",
+    "registry": "registry/project-registry.json",
+    "note": "Projects below are primarily maintained in the sibling workspace; their code roots do not exist in this repo. Cross-reference for awareness only, not local routing targets. Shared projects openclaw and sub2api are registered in both workspaces.",
+    "projects": ["hotel-mgmt", "pet-clinic"]
+  },
   "known_scratch_projects": [
     "mathorcup-upload",
     "mimo-100t-evidence",
