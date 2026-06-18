@@ -20,6 +20,7 @@ Machine source of truth: `docs/workspace/project-registry.json`.
 | --- | --- | --- | --- | --- |
 | **BigData-Spark-Research-Workbench** (`bigdata-spark-research-workbench`) | research | research_local | `projects/research/bigdata-spark-research-workbench` | `ops/projects/bigdata-spark-research-workbench` |
 | **CUMCM-2026-Workbench** (`cumcm-2026-workbench`) | research | research_local | `projects/research/cumcm-2026-workbench` | `ops/projects/cumcm-2026-workbench` |
+| **Love Letter Site** (`love-letter-site`) | product | local | `projects/products/love-letter-site` | `ops/projects/love-letter-site` |
 | **MathorCup-D** (`mathorcup-d`) | research | research_local | `projects/products/MathorCup_D_repo`<br>`projects/research/mathorcup_D` | `ops/projects/mathorcup-d` |
 | **NAS Platform** (`nas-platform`) | infrastructure | live_infra | `projects/infrastructure/nas-platform` | `ops/projects/nas-platform` |
 | **OpenClaw** (`openclaw`) | infrastructure | live_infra | `projects/products/openclaw/nas-openclaw-v22`<br>`projects/migrations/openclaw-mac-migration` | `ops/projects/openclaw` |
