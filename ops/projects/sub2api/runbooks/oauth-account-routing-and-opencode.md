@@ -67,6 +67,74 @@ Known useful account groups:
 
 Use short PostgreSQL queries and avoid selecting `credentials`.
 
+### Fast Path For Newly Imported Gemini / Antigravity Accounts
+
+Use this repeatable path when the user says they just added more Gemini or
+Antigravity OAuth accounts and wants to know whether the relay can use them.
+
+1. Confirm service baseline:
+
+   ```bash
+   docker ps --filter name=^/sub2api$ --format "{{.Image}} {{.Status}}"
+   docker exec sub2api-postgres pg_isready -U sub2api -d sub2api
+   docker exec sub2api printenv ANTIGRAVITY_USER_AGENT_VERSION
+   ```
+
+2. Confirm key routing:
+
+   ```bash
+   docker exec sub2api-postgres psql -U sub2api -d sub2api -Atc "
+   select k.id,k.name,k.status,
+          coalesce(k.group_id::text,''),
+          coalesce(g.name,''),
+          coalesce(g.platform,'')
+   from api_keys k
+   left join groups g on g.id = k.group_id
+   where k.deleted_at is null
+     and k.name in ('codex_gemini','codex_antigravity')
+   order by k.id;"
+   ```
+
+3. Find the latest imported Gemini / Antigravity accounts:
+
+   ```bash
+   docker exec sub2api-postgres psql -U sub2api -d sub2api -Atc "
+   select id,name,platform,type,status,schedulable,
+          coalesce(error_message,''),
+          coalesce(last_used_at::text,''),
+          coalesce(created_at::text,''),
+          coalesce(updated_at::text,'')
+   from accounts
+   where deleted_at is null
+     and platform in ('gemini','antigravity')
+   order by created_at desc, id desc
+   limit 20;"
+   ```
+
+4. Check memberships for the new account ids:
+
+   ```bash
+   NEW_IDS='61,62,63,64,65,66' # replace with the new ids
+   docker exec sub2api-postgres psql -U sub2api -d sub2api -Atc "
+   select a.id,a.name,a.platform,a.status,a.schedulable,
+          coalesce(string_agg(g.id::text || ':' || g.name, ',' order by g.id), '<none>') as groups
+   from accounts a
+   left join account_groups ag on ag.account_id=a.id
+   left join groups g on g.id=ag.group_id
+   where a.id in (${NEW_IDS})
+   group by a.id,a.name,a.platform,a.status,a.schedulable
+   order by a.id;"
+   ```
+
+Expected membership:
+
+- Gemini accounts used by `codex_gemini`: `4:gemini-default`.
+- Antigravity accounts used by `codex_antigravity`: `5:antigravity-default-1`.
+
+If Gemini accounts are active but not in group 4, or Antigravity accounts are
+active but not in group 5, treat the membership insert as L3 repair execution.
+Do not write rows until the user explicitly says `进入修复阶段`.
+
 Find relevant accounts:
 
 ```bash
@@ -147,12 +215,25 @@ docker logs --since 30m sub2api 2>&1 \
 
 Only run after the user says `进入修复阶段`.
 
+For future imports, replace `ACCOUNT_IDS`, `GROUP_ID`, and the evidence
+directory suffix. Current common targets:
+
+- Gemini to `gemini-default`: `GROUP_ID=4`.
+- Antigravity to `antigravity-default-1`: `GROUP_ID=5`.
+
 Create evidence directory:
 
 ```bash
-REPAIR_DIR="/root/codex-repair-sub2api-new-accounts-$(date +%Y%m%dT%H%M%S%z)"
+REPAIR_DIR="/root/codex-repair-sub2api-bind-accounts-$(date +%Y%m%dT%H%M%S%z)"
 mkdir -p "$REPAIR_DIR"
-printf '%s' "$REPAIR_DIR" > /root/codex-repair-last-sub2api-new-accounts
+printf '%s' "$REPAIR_DIR" > /root/codex-repair-last-sub2api-bind-accounts
+```
+
+Set the scoped ids and target group:
+
+```bash
+ACCOUNT_IDS="62,63,65"
+GROUP_ID="5"
 ```
 
 Save before state:
@@ -161,45 +242,85 @@ Save before state:
 docker exec sub2api-postgres psql -U sub2api -d sub2api -Atc "
 select id,name,platform,status,schedulable,coalesce(error_message,'')
 from accounts
-where id in (57,58,59,60)
+where id in (${ACCOUNT_IDS})
 order by id;" > "$REPAIR_DIR/accounts-before.txt"
 
 docker exec sub2api-postgres psql -U sub2api -d sub2api -Atc "
-select a.id,a.name,a.platform,
-       coalesce(g.id::text,''),
-       coalesce(g.name,''),
-       coalesce(ag.priority::text,'')
+select a.id,a.name,a.platform,a.status,a.schedulable,
+       coalesce(string_agg(g.id::text || ':' || g.name, ',' order by g.id), '<none>') as groups
 from accounts a
 left join account_groups ag on ag.account_id = a.id
 left join groups g on g.id = ag.group_id
-where a.id in (57,58,59,60)
-order by a.id,g.id;" > "$REPAIR_DIR/memberships-before.txt"
+where a.id in (${ACCOUNT_IDS})
+group by a.id,a.name,a.platform,a.status,a.schedulable
+order by a.id;" > "$REPAIR_DIR/memberships-before.txt"
 ```
 
-Add Antigravity accounts to the group used by `codex_antigravity`:
+Save rollback SQL before writing:
 
-```sql
-insert into account_groups (account_id, group_id, priority, created_at)
-values (58,5,1,now()), (60,5,1,now())
-on conflict (account_id, group_id) do update
-set priority = excluded.priority;
+```bash
+printf 'delete from account_groups where account_id in (%s) and group_id = %s;\n' \
+  "$ACCOUNT_IDS" "$GROUP_ID" > "$REPAIR_DIR/rollback.sql"
 ```
 
-Equivalent one-liner:
+Bind the accounts, with group/platform preflight:
 
 ```bash
 docker exec sub2api-postgres psql -U sub2api -d sub2api -v ON_ERROR_STOP=1 -c "
-insert into account_groups (account_id, group_id, priority, created_at)
-values (58,5,1,now()), (60,5,1,now())
-on conflict (account_id, group_id) do update set priority=excluded.priority;"
+do \$\$
+declare
+  affected integer;
+  expected integer;
+  target_platform text;
+begin
+  select platform into target_platform from groups where id = ${GROUP_ID};
+  if target_platform is null then
+    raise exception 'target group % not found', ${GROUP_ID};
+  end if;
+
+  select count(*) into expected
+  from accounts
+  where id in (${ACCOUNT_IDS})
+    and platform = target_platform
+    and deleted_at is null;
+
+  insert into account_groups (account_id, group_id, priority, created_at)
+  select a.id, ${GROUP_ID}, 1, now()
+  from accounts a
+  where a.id in (${ACCOUNT_IDS})
+    and a.platform = target_platform
+    and a.deleted_at is null
+  on conflict (account_id, group_id) do update
+    set priority = excluded.priority;
+
+  get diagnostics affected = row_count;
+  if expected <> affected then
+    raise exception 'expected % affected bindings, got %', expected, affected;
+  end if;
+end
+\$\$;"
 ```
 
 No service restart is required for this membership repair.
 
-Rollback:
+Save after state:
+
+```bash
+docker exec sub2api-postgres psql -U sub2api -d sub2api -Atc "
+select a.id,a.name,a.platform,a.status,a.schedulable,
+       coalesce(string_agg(g.id::text || ':' || g.name, ',' order by g.id), '<none>') as groups
+from accounts a
+left join account_groups ag on ag.account_id = a.id
+left join groups g on g.id = ag.group_id
+where a.id in (${ACCOUNT_IDS})
+group by a.id,a.name,a.platform,a.status,a.schedulable
+order by a.id;" > "$REPAIR_DIR/memberships-after.txt"
+```
+
+Rollback example:
 
 ```sql
-delete from account_groups where (account_id, group_id) in ((58,5),(60,5));
+delete from account_groups where account_id in (62,63,65) and group_id = 5;
 ```
 
 Remove only a validation-blocked account from scheduling:
@@ -260,7 +381,28 @@ curl -sS -m 60 -w '\nHTTP_STATUS:%{http_code}\n' \
   -H "Authorization: Bearer ${API_KEY}" \
   -H 'Content-Type: application/json' \
   http://127.0.0.1:8080/v1/chat/completions \
-  -d '{"model":"gemini-3.1-pro-preview","messages":[{"role":"user","content":"Say hi in one short sentence."}],"max_tokens":24,"stream":false}'
+  -d '{"model":"gemini-2.5-flash","messages":[{"role":"user","content":"Say hi in one short sentence."}],"max_tokens":24,"stream":false}'
+```
+
+To prove which new accounts were actually used by the API route, inspect
+`usage_logs` after the smoke:
+
+```bash
+NEW_IDS='61,62,63,64,65,66' # replace with the new ids
+docker exec sub2api-postgres psql -U sub2api -d sub2api -Atc "
+select ul.id,coalesce(ul.api_key_id::text,''),coalesce(k.name,''),
+       coalesce(ul.group_id::text,''),coalesce(g.name,''),
+       coalesce(ul.account_id::text,''),a.name,a.platform,
+       ul.model,ul.input_tokens,ul.output_tokens,
+       ul.inbound_endpoint,ul.upstream_endpoint,
+       coalesce(ul.created_at::text,'')
+from usage_logs ul
+left join api_keys k on k.id=ul.api_key_id
+left join groups g on g.id=ul.group_id
+left join accounts a on a.id=ul.account_id
+where ul.account_id in (${NEW_IDS})
+order by ul.created_at desc
+limit 40;"
 ```
 
 ## OpenCode Provider Notes
@@ -277,7 +419,8 @@ OpenCode itself is running on the VPS.
 Recommended model names tested during the repair:
 
 - Antigravity: `claude-opus-4-6-thinking`
-- Gemini: `gemini-3.1-pro-preview`
+- Gemini: `gemini-2.5-flash` for low-risk smoke; avoid repeated preview-model
+  tests unless the user specifically needs preview quota validation.
 
 For custom providers, keep the provider API key scoped to the intended group:
 
