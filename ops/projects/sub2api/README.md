@@ -54,6 +54,23 @@ ProxyCommand path is the stable route for this VPS.
   reachable at `https://sub.nodezjc12348888.xyz` (standard 443). See
   `DEPLOYMENT_LEDGER.md` → `2026-06-17` for the CF fronting + Gemini quota root cause.
 
+## Entry And Topology
+
+Promoted from claude-workspace (the request-path detail was unique to that copy).
+
+- **Local access** = `http://127.0.0.1:18080`: forwarded by the `vps-tunnel` SSH
+  tunnel to VPS docker `sub2api:8080`. Tunnel process: `ssh -NT ... vps-tunnel`
+  (on the mac side).
+- **Public access** = `https://sub.nodezjc12348888.xyz` (standard 443, no port).
+- **Request path**: browser 443 → Cloudflare (orange cloud) → CF Origin Rule
+  rewrites the origin port to `8443` → VPS nginx `sub.nodezjc12348888.xyz`
+  (listen 8443/20002) → `proxy_pass 127.0.0.1:8080` → sub2api.
+- VPS origin port `443` is occupied by **xray REALITY** (serverNames only accept
+  cloudflare/microsoft, no nginx fallback), so hitting origin 443 directly does
+  not reach sub2api; you must go through CF→8443 or nginx 8443/20002 directly.
+- Same domain, other hosts: `api.nodezjc12348888.xyz` → `new-api:3000`;
+  `ai.` → `:29133` (with authentik SSO).
+
 ## Risk Notes
 
 Treat live checks as L2 read-only. Any database writes, compose edits, image
