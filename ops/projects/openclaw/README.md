@@ -48,10 +48,12 @@ surface.
 
 ## 运维记录 / Operational Notes (promoted from claude-workspace, 2026-06-22)
 
-Promoted from claude-workspace, which held the richest copy of the
-operational narrative below (edge watchdog root cause, traffic-card IP
-block, and the 2026-06-19..06-21 edge-node rollouts). codex-workspace is
-now the canonical owner per Plan A; do not duplicate this back into claude.
+Promoted from claude-workspace (canonical owner per Plan A; do not duplicate
+back into claude). Scope = the OpenClaw gateway/bot itself: summary, gateway
+entry, the edge watchdog root cause, and the traffic-card connectivity incident
+below. The proxy / 翻墙 node rollouts (CF-WS / Webshare / hy2 / XHTTP / NAS DDNS /
+VPS IP change) were relocated to `ops/projects/proxy-nodes/` — see
+「关联:代理节点」at the end.
 
 ## Summary
 
@@ -109,90 +111,9 @@ NAS 跑 OpenClaw 网关（`openclaw-benben.service`，端口 18792，对应 Tele
 - `home-vps-root`（root@racknerd）；`home-vps` 是 nas-tunnel 隧道账户（nologin，别用它跑命令）。
 - NAS docker 数据真实路径在 `/volume1/docker/data/<app>`（非 `stacks/`）；docker 需 `sudo`（cc 不在 docker 组）。
 
-## CF-WS 兜底节点上线 (2026-06-19)
+## 关联:代理节点 (proxy-nodes)
 
-移动按目的 IP 封 `107.175.140.175` → REALITY 直连节点(443/24443)在移动/部分 WiFi 不可用。
-已把 WS 兜底节点接到 Cloudflare 橙云,给一个不依赖被封 IP / 不依赖漂移家宽的稳定入口。
-
-拓扑(VLESS+WS+TLS over CF):
-```
-客户端 → CF橙云 node.nodezjc12348888.xyz:8443
-  → CF边缘(8443)回源源站8443
-  → nginx vhost openclaw-gateway(server_name node., listen 8443/20002, node.证书)
-  → proxy_pass 127.0.0.1:23083
-  → xray-wifi-fallback.service(VLESS+WS, path /assets-…)
-```
-关键事实:
-- 节点是独立 `xray.service`(`/usr/local/etc/xray/config.json`,REALITY 443/24443),**非 x-ui 托管**;WS 节点是独立 `xray-wifi-fallback.service`。
-- REALITY 与 CF 橙云互斥(CF 终止 TLS),所以套 CF 只能走 WS/TCP 系,不能用现有 REALITY 节点,也不能 Hysteria2(UDP,CF 免费不代理)。
-- 本次改动:nginx `openclaw-gateway` 修死端口 `18789→23083` + node. 块加 `listen 8443`;CF DNS `node.` 翻橙云(proxied=true)。备份 `openclaw-gateway.bak-cfnode-20260619T215700`。
-- CF 凭据:acme conf `CF_Token`(DNS:Edit,可翻橙云,**改不了 Origin Rule**,API 验证 `Authentication error`)。
-- Origin Rule(2026-06-19 经 CF 面板手动加,浏览器自动化):`node-port-8443` 匹配 `http.host eq "node.nodezjc12348888.xyz"` → 改回源端口 8443,独立于 api./sub. 的 `api-port-8443` 规则。**客户端用 443**(经 CF 验证 101);8443 亦可。移动几乎不封 443,故首选 443。
-- 客户端 ALPN 必须含 `http/1.1`:WS 走 HTTP/1.1 Upgrade,h2 会被 CF 边缘 400。
-- 验证(2026-06-19):源站 8443 WS=101;CF 边缘 `--http1.1` WS=101(Server: cloudflare);边缘证书已覆盖 node.(无 403 edge-restricted)。
-- **移动实测(2026-06-22,更新 06-19 的「移动实链路未测」)**:用户客户端实跑,报告此节点移动数据 + 全流量可用。客户端配置:`类型 VLESS` / `地址 node.nodezjc12348888.xyz` / `端口 8443` / `传输 websocket` / `TLS 开` / `流控 none` / `UDP 转发 开` / `多路复用 关` / `备注 VLESS-WS-Mobile-8443`(UUID 为凭据,不入档)。延迟/吞吐量化数据待补。
-- 回滚:CF 把 node. 点回灰云(proxied=false);nginx 恢复 `.bak-cfnode-*` + reload。REALITY 节点全程未动。
-
-### Webshare 住宅出口节点 (2026-06-19)
-
-在同一 `node.` 子域 + 443 链路上，用**第二个 WS path** 再加一个节点，出口走 Webshare Static Residential 代理（美国住宅 IP）。
-
-- 同服务 `xray-wifi-fallback.service`（`/etc/xray-wifi-fallback.json`）内新增：
-  - inbound `webshare-vless-ws` `127.0.0.1:23085`，path `/assets-3a7f1c9e2d5b8406`（直连节点是 `/assets-baab…`→23083）。
-  - 两个 http outbound `webshare1`/`webshare2`（Webshare 两个住宅 IP，账密认证；**凭据不入库**，在 Webshare 面板 Static Residential → Proxy List）。xray `http` 出站每个只能一个 server，多 IP 须拆多 outbound + balancer。
-  - routing：`balancers:[{tag:webshare-bal,selector:["webshare"]}]`，rule `inboundTag=[webshare-vless-ws] → balancerTag=webshare-bal`；其余 inbound 默认走 `direct`(freedom)。
-- nginx `openclaw-gateway`：node./apex 块各加 `location /assets-3a7f1c9e2d5b8406 → 127.0.0.1:23085`。备份 `openclaw-gateway.bak-webshare-*`。
-- CF 无新增（复用 node. 橙云 + `node-port-8443` Origin Rule）。客户端 = node. 443 配置，仅 **path 改 `/assets-3a7f1c9e2d5b8406`**。
-- 验证(2026-06-19)：Webshare 两出口 `curl -x` 通(9.142.211.156 / 45.56.183.242)；源站+CF 443 新路径 WS=101。**全链路出口 IP 待真实客户端确认**(应显示美国住宅 IP)。
-- **带宽 250GB/月**：仅供需住宅 IP 的特定用途，勿当通用 VPN 跑视频。
-- 回滚:`xray-wifi-fallback.json` 恢复 `.bak-webshare-*` + 重启服务;nginx 恢复 `openclaw-gateway.bak-webshare-*` + reload。直连节点/REALITY 不受影响。
-- 注:xray 26.x 提示 WS 传输弃用、迁 XHTTP，仅警告，暂不影响。
-
-### sing-box Hysteria2 节点 + 9444 Webshare 故障转移 (2026-06-19)
-
-本机另有独立 **`sing-box.service`**（`/etc/sing-box/config.json`，sing-box 1.13.2），与 xray 并行：
-- hy2 `:8443/udp`（`hy2-in`）直连出口；hy2 `:9444/udp`（`hy2-webshare-test-in`）出口走 Webshare。
-- 客户端 6 个节点 = 本 VPS xray（REALITY 443、CF-node 23083、CF-Webshare 23085）+ sing-box hy2（8443、9444）+ 家 NAS 中转（18443，入口在 NAS 非 VPS）。
-- 节点数不影响速度：每连接只走一个，空闲入站零开销；带宽只由实际并发共享。
-- 9444 升级（2026-06-19）：原单 socks 出站 `webshare-socks-out`(#2 45.56.183.242) → 加 `webshare-socks-1`(#1 9.142.211.156) + `urltest` 组 `webshare-auto`(url generate_204, interval 10m)，9444 路由改指 `webshare-auto`。**urltest=自动选快/故障转移，非严格 50/50 分摊**（sing-box 无 xray 式 balancer）。两 Webshare IP 共用同一 250GB/月池。
-- 备份 `config.json.bak-balancer-*`；回滚=恢复该备份 + 重启 sing-box。check 通过、服务 active、9444/8443 监听正常。
-
-### CF 节点 XHTTP 变体 (2026-06-20)
-
-起因：CF-node-WS / CF-Webshare-US 偶发短超时。排查确认服务器侧健康（服务 NRestarts=0、nginx 无 upstream 错、CF→源站 101 秒回、load 低）→ 根因是 **CF 免费 anycast 到中国线路抖动**（client→CF 那段，非服务器）。
-缓解两手：① 客户端开 Shadowrocket「Cloudflare 优选 IP」（客户端侧，只改节点地址为优选 IP，SNI/Host 仍 node.）；② 服务器侧加 **XHTTP 变体**（XHTTP 比 WS 在丢包/抖动下更稳，多连接可续传）。
-
-- `xray-wifi-fallback.service` 再加两入站（不动 WS，两套并存对比）：
-  - `xhttp-direct-in` `127.0.0.1:23087` path `/xhttp-d-8f2a1c5e` → 出口 direct(VPS)。
-  - `xhttp-webshare-in` `127.0.0.1:23089` path `/xhttp-w-3b9e44a1` → 加入 webshare-bal 路由（出口 Webshare 住宅）。
-  - streamSettings：`network:"xhttp"`, `security:"none"`, `xhttpSettings:{host:node., path, mode:"auto"}`。
-- nginx `openclaw-gateway` node./apex 块各加两 `location /xhttp-*`，关键 `proxy_buffering off` + `proxy_request_buffering off`（XHTTP 流式必需）。备份 `openclaw-gateway.bak-xhttp-*`、xray 配置备份 `xray-wifi-fallback.json.bak-xhttp-*`。
-- CF 复用 node. 橙云 + Origin Rule（XHTTP 就是普通 HTTP，CF 透明代理；且 XHTTP 走 h2 不受 WS-over-h2 的 400 影响）。
-- 验证（2026-06-20）：xray test OK；服务 active；23087/23089 监听；直连带正确 Host=node. 返 400（= xhttp 入站已接到+host 校验，合成 curl 造不出真会话故 400；错 host 返 404），经 nginx 同为 400 → **路由正确**。**真实出口/连通待 Shadowrocket XHTTP 客户端确认**。
-- 客户端：VLESS / node.:443 / type=xhttp / mode=auto / host=sni=node. / path 二选一。Shadowrocket 新版支持 xhttp。
-- 回滚：两份 `.bak-xhttp-*` 恢复 + 重启 xray-wifi-fallback / reload nginx。WS 与其它节点不受影响。
-
-### NAS 家宽 DDNS (2026-06-20)
-
-起因：nas-relay-18443 节点入口在家宽，家宽 IP 漂移导致客户端老改地址。给家宽一个固定域名 `nas.nodezjc12348888.xyz`（灰云/DNS-only，nas-relay 直连家宽 18443，不走 CF 代理）。
-
-- NAS `zjcNAS`（Linux 6.12，用户 `cc`，passwordless sudo，docker 但其 daemon 代理 `127.0.0.1:18988` 当前挂→拉不了镜像，故用纯脚本）。家宽公网 IP `61.163.130.135`（真公网，非 CGNAT）。
-- CF 专用 token：面板新建 **Edit zone DNS**（仅 `nodezjc12348888.xyz`，DNS:Edit），与 acme 的分开，可独立吊销。存 NAS `~/.cf-ddns.env`(chmod 600)，**token 不入库**。
-- 脚本 `/home/cc/cf-ddns.sh`：取公网 IP（ipify/ifconfig）→ python3 解析 CF API → upsert `nas.` A 记录（proxied=false, ttl 120），日志 `~/cf-ddns.log`。
-- 调度：用户级 crontab 被限（`/var/spool/cron` 权限拒）→ 改 `/etc/cron.d/cf-ddns`（带用户字段 `cc`，`*/3`）。cron daemon active。
-- 验证（2026-06-20）：token verify active；首跑 CREATED `nas.→61.163.130.135`；NAS `*:18443` 监听；外部 `nc nas.:18443` succeeded（公网+端口转发+解析全通）。
-- 客户端：`nas-relay` 节点「地址」改 `nas.nodezjc12348888.xyz`（其余不变），IP 漂移自动跟。
-- **DDNS 只解决 IP 漂移，治不了家宽链路本身抖/断**（整场 WG/反向隧道反复掉线即此）。nas-relay 在移动是否更稳取决于家宽链路质量，未保证。
-- 回滚：`sudo rm /etc/cron.d/cf-ddns`；删 `~/cf-ddns.sh ~/.cf-ddns.env ~/cf-ddns.log`；CF 删 `nas.` 记录；面板吊销该 token。
-
-### VPS 换 IP：107.175.140.175 → 107.175.180.163 (2026-06-21)
-
-诊断（itdog 实测旧 IP `:443`）：移动**能握手**（最快 193ms）但平均 653ms、最差 2298ms、23/136 超时；电信 175ms。**不是 GFW 精准封 IP，是移动↔ColoCrossing 段路由劣化（丢包+高延迟）**——移动连 SSH 都握手失败（banner exchange 超时）。换同段 IP 本预期无用，但用户 $3 换 IP 后**移动直连恢复**：REALITY-443=1204ms、**hy2 9444=171ms / 8443=130ms**（hy2 在移动最优）。
-
-换 IP 后迁移（同一 VM/磁盘，仅换公网 IP，VPS 侧配置不变）：
-- **直连节点（REALITY/hy2）**：服务端 bind 0.0.0.0 不变，客户端「地址」改新 IP 即可。
-- **CF DNS**（node./sub./api. 等 A 记录）：用户已自行改到新 IP（橙云保留）；本会话 bulk 复核旧 IP 上 0 条记录。
-- **nas-relay**：`codex-nas-vps-fallback-relay.service`（NAS 上 python TCP 中转，`/usr/local/bin/codex-nas-vps-fallback-relay.py`）`Environment=TARGET_HOST` 旧→新 IP + daemon-reload + restart。备份 `…service.bak-ipchg-*`。NAS 经 WG `home-nas-wg`(10.77.0.1) 可达（反向隧道经旧 IP 已断）。
-- 验证（2026-06-21）：新 VPS xray/wifi-fb/sing-box/nginx 全 active；CF node WS 443=101；sub2api 面板=200；经 relay→新 VPS:8443 TLS OK+404（同直连）。
-- **当前 VPS IP = `107.175.180.163`**（本文件其余处历史引用旧 `107.175.140.175` 未逐一改，以本条为准）。
-- 残留：若再换 IP，需再改 nas-relay `TARGET_HOST`；NAS↔VPS 反向隧道/WG endpoint 若硬编码旧 IP 需同步更新（本会话未全面排查 NAS 侧）。
+以下代理/翻墙基础设施已迁出 openclaw,见 `ops/projects/proxy-nodes/README.md`
+的「节点上线记录」:CF-WS 兜底节点、Webshare 住宅出口、sing-box Hysteria2 9444、
+CF XHTTP 变体、NAS 家宽 DDNS、VPS 换 IP(107.175.140.175→107.175.180.163)。
+它们与 openclaw 的耦合点 = 共用 VPS、`node.` 子域、`openclaw-gateway` nginx vhost。
