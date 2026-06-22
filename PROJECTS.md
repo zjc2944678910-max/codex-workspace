@@ -54,4 +54,4 @@ node docs/workspace/codex-register-project.mjs --regen
 - Registry: `registry/project-registry.json`
 - Primarily maintained there: `hotel-mgmt`, `pet-clinic`
 
-Projects below are primarily maintained in the sibling workspace; their code roots do not exist in this repo. Cross-reference for awareness only, not local routing targets. Shared projects openclaw and sub2api are registered in both workspaces.
+Projects below are routed/maintained by the sibling workspace (claude) for their ops/registry, but as of 2026-06-22 ALL project CODE physically lives in THIS codex repo under projects/ (single-copy model). hotel-mgmt/pet-clinic code is here at projects/products/{hotel-mgmt,pet-clinic} (own git repos = backup); claude only holds symlinks. So 'maintained by claude' = ownership/routing, not code location. Shared projects openclaw and sub2api are registered in both workspaces.
