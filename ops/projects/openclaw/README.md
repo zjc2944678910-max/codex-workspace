@@ -50,10 +50,9 @@ surface.
 
 Promoted from claude-workspace (canonical owner per Plan A; do not duplicate
 back into claude). Scope = the OpenClaw gateway/bot itself: summary, gateway
-entry, the edge watchdog root cause, and the traffic-card connectivity incident
-below. The proxy / 翻墙 node rollouts (CF-WS / Webshare / hy2 / XHTTP / NAS DDNS /
-VPS IP change) were relocated to `ops/projects/proxy-nodes/` — see
-「关联:代理节点」at the end.
+entry, and the edge watchdog. Cross-cutting infra was split to sibling ops
+projects (see 关联 at the end): proxy nodes → `proxy-nodes`; the VPS box / IP /
+connectivity → `vps-racknerd`; Cloudflare / DNS / DDNS → `cloudflare-edge`.
 
 ## Summary
 
@@ -81,39 +80,18 @@ NAS 跑 OpenClaw 网关（`openclaw-benben.service`，端口 18792，对应 Tele
   - 恢复告警：`rm /etc/openclaw/.disable-edge-alert`（或重新拉起 NAS 网关后 edge 恢复正常即自动停）。
   - 备份：`/usr/local/bin/oc_alert.sh.bak-edgemaint-*`、`/etc/cron.d/oc_alert.bak-*`。
 
-## 流量卡封 VPS IP 排障 + CF 前置（2026-06-16）
-
-- **现象**：某张移动流量卡（郑州移动，出口 `223.104.19.112`）连不上 VPS 的 SSH 和翻墙节点；
-  其他卡正常。普通上网正常，只是连不上 `107.175.140.175`。
-- **根因**：不是 fail2ban 封（该 IP 不在 ban 列表、当天还登录成功过），不是 GFW 全网封
-  （别卡能连）。是**这张流量卡的运营商按目的 IP 做 TCP RST**：VPS IP 被标记成代理 IP →
-  对它的裸 TCP 连接被中途 RST。判据：`ping 0% 丢包` + `nc github:22 通` + 连本 VPS 全失败
-  + sshd 日志大量 `Connection reset [preauth]`。
-- **管理通道（已落地，本机 macOS）**：直连被封，改走 NAS 中转。
-  - `~/.ssh/config`：`vps-via-nas`（`ProxyCommand ssh home-nas-wg nc %h %p`，登录）、
-    `vps-tunnel`（同上 + `LocalForward 18080→8080`、`13000→3000`，中转站）。
-  - LaunchAgent `~/Library/LaunchAgents/com.zjc.vps-tunnel.plist`（KeepAlive 常驻隧道）。
-  - 关键：`home-nas-wg`(WireGuard utun11, UDP) 不碰被封 IP；NAS sshd `AllowTcpForwarding no`，
-    所以用 `nc` 接力而非 `-J`/`-W`。
-- **中转站走 CF（Phase 1，已落地，治本）**：域名 `nodezjc12348888.xyz` NS 已搬 Cloudflare。
-  - `api.` 子域（橙云）+ **CF Origin Rule 回源端口→8443**（因 VPS 443 是 xray Reality，
-    nginx 在 8443/20002）。`api.→new-api:3000`，`sub.→sub2api:8080`。
-  - 客户端连 `https://api.nodezjc12348888.xyz/v1`，不再依赖隧道。SSL 模式 Full（泛域名证书
-    `*.nodezjc12348888.xyz`，acme.sh ECC）。
-- **翻墙节点走 CF（Phase 2，已放弃并回滚）**：Reality/Hysteria2 无法过 CF；需改 VLESS+WS+TLS。
-  曾加 xray `cf-ws-in` inbound + `cdn.` vhost，**已全部回滚**（用户放弃）。
-  - ⚠️ 教训：`node.` 子域 + `127.0.0.1:18789` 是 **OpenClaw NAS 网关公网入口**，不是翻墙节点用，
-    勿复用。翻墙 WS 若重做要用独立端口（如 18790）+ 独立子域（如 `cdn.`），别碰 node./18789。
-
 ## 主机/账号速查
 
 - `home-nas`（cc@zjcNAS，sudo，ProxyJump home-vps）/ `oc-nas`（benben，公钥被拒）/ `home-nas-admin`（cc:33333）。
 - `home-vps-root`（root@racknerd）；`home-vps` 是 nas-tunnel 隧道账户（nologin，别用它跑命令）。
 - NAS docker 数据真实路径在 `/volume1/docker/data/<app>`（非 `stacks/`）；docker 需 `sudo`（cc 不在 docker 组）。
 
-## 关联:代理节点 (proxy-nodes)
+## 关联 / Cross-refs
 
-以下代理/翻墙基础设施已迁出 openclaw,见 `ops/projects/proxy-nodes/README.md`
-的「节点上线记录」:CF-WS 兜底节点、Webshare 住宅出口、sing-box Hysteria2 9444、
-CF XHTTP 变体、NAS 家宽 DDNS、VPS 换 IP(107.175.140.175→107.175.180.163)。
-它们与 openclaw 的耦合点 = 共用 VPS、`node.` 子域、`openclaw-gateway` nginx vhost。
+跨切基础设施已拆到各层项目(openclaw 只留网关/bot/看门狗):
+
+- **代理/翻墙节点**(CF-WS/Webshare/hy2/XHTTP/REALITY):`ops/projects/proxy-nodes/`。
+- **VPS 这台机**(IP/换 IP/流量卡封连通/SSH 接入):`ops/projects/vps-racknerd/`。
+- **CF/DNS**(node. 橙云、Origin Rule、边缘证书、NAS DDNS):`ops/projects/cloudflare-edge/`。
+
+耦合点 = 共用 VPS、`node.` 子域、`openclaw-gateway` nginx vhost。

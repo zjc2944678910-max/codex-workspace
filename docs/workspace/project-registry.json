@@ -34,6 +34,52 @@
       "gitnexus_indexed": true
     },
     {
+      "slug": "cloudflare-edge",
+      "name": "Cloudflare Edge / DNS",
+      "kind": "infrastructure",
+      "risk_profile": "live_infra",
+      "surfaces": [],
+      "code_roots": [],
+      "ops_surface": "ops/projects/cloudflare-edge",
+      "state_data": "state/project-data/cloudflare-edge",
+      "scratch": "scratch/projects/cloudflare-edge",
+      "aliases": [
+        "cloudflare-edge",
+        "cloudflare",
+        "cf-edge",
+        "CF",
+        "橙云"
+      ],
+      "routing_keywords": [
+        "cloudflare",
+        "CF",
+        "nodezjc12348888.xyz",
+        "Origin Rule",
+        "橙云",
+        "edge cert",
+        "Universal SSL",
+        "DDNS",
+        "CF_Token",
+        "acme",
+        "proxied",
+        "cloudflare-edge",
+        "Cloudflare Edge / DNS",
+        "cf-edge"
+      ],
+      "live_host_aliases": [
+        "nodezjc12348888.xyz",
+        "api.nodezjc12348888.xyz",
+        "sub.nodezjc12348888.xyz",
+        "node.nodezjc12348888.xyz",
+        "nas.nodezjc12348888.xyz"
+      ],
+      "service_names": [
+        "cloudflare",
+        "acme.sh"
+      ],
+      "gitnexus_indexed": false
+    },
+    {
       "slug": "cumcm-2026-workbench",
       "name": "CUMCM-2026-Workbench",
       "kind": "research",
@@ -373,6 +419,53 @@
         "tianchi-231573",
         "purchase-redemption",
         "资金流入流出预测"
+      ],
+      "gitnexus_indexed": false
+    },
+    {
+      "slug": "vps-racknerd",
+      "name": "VPS Racknerd Box",
+      "kind": "infrastructure",
+      "risk_profile": "live_infra",
+      "surfaces": [],
+      "code_roots": [],
+      "ops_surface": "ops/projects/vps-racknerd",
+      "state_data": "state/project-data/vps-racknerd",
+      "scratch": "scratch/projects/vps-racknerd",
+      "aliases": [
+        "vps-racknerd",
+        "racknerd",
+        "home-vps-root",
+        "那台VPS",
+        "服务器VPS"
+      ],
+      "routing_keywords": [
+        "vps",
+        "racknerd",
+        "107.175.180.163",
+        "流量卡封",
+        "目的IP RST",
+        "vps-tunnel",
+        "vps-via-nas",
+        "换IP",
+        "ColoCrossing",
+        "nginx host",
+        "vps-racknerd",
+        "VPS Racknerd Box",
+        "home-vps-root",
+        "那台VPS",
+        "服务器VPS"
+      ],
+      "live_host_aliases": [
+        "home-vps-root",
+        "107.175.180.163",
+        "vps-tunnel",
+        "vps-via-nas"
+      ],
+      "service_names": [
+        "nginx",
+        "sshd",
+        "openclaw-gateway"
       ],
       "gitnexus_indexed": false
     }

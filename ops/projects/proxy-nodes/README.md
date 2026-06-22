@@ -188,27 +188,9 @@ were originally filed under openclaw. Canonical home is here.
 - 客户端：VLESS / node.:443 / type=xhttp / mode=auto / host=sni=node. / path 二选一。Shadowrocket 新版支持 xhttp。
 - 回滚：两份 `.bak-xhttp-*` 恢复 + 重启 xray-wifi-fallback / reload nginx。WS 与其它节点不受影响。
 
-### NAS 家宽 DDNS (2026-06-20)
 
-起因：nas-relay-18443 节点入口在家宽，家宽 IP 漂移导致客户端老改地址。给家宽一个固定域名 `nas.nodezjc12348888.xyz`（灰云/DNS-only，nas-relay 直连家宽 18443，不走 CF 代理）。
+## 关联 / Cross-refs
 
-- NAS `zjcNAS`（Linux 6.12，用户 `cc`，passwordless sudo，docker 但其 daemon 代理 `127.0.0.1:18988` 当前挂→拉不了镜像，故用纯脚本）。家宽公网 IP `61.163.130.135`（真公网，非 CGNAT）。
-- CF 专用 token：面板新建 **Edit zone DNS**（仅 `nodezjc12348888.xyz`，DNS:Edit），与 acme 的分开，可独立吊销。存 NAS `~/.cf-ddns.env`(chmod 600)，**token 不入库**。
-- 脚本 `/home/cc/cf-ddns.sh`：取公网 IP（ipify/ifconfig）→ python3 解析 CF API → upsert `nas.` A 记录（proxied=false, ttl 120），日志 `~/cf-ddns.log`。
-- 调度：用户级 crontab 被限（`/var/spool/cron` 权限拒）→ 改 `/etc/cron.d/cf-ddns`（带用户字段 `cc`，`*/3`）。cron daemon active。
-- 验证（2026-06-20）：token verify active；首跑 CREATED `nas.→61.163.130.135`；NAS `*:18443` 监听；外部 `nc nas.:18443` succeeded（公网+端口转发+解析全通）。
-- 客户端：`nas-relay` 节点「地址」改 `nas.nodezjc12348888.xyz`（其余不变），IP 漂移自动跟。
-- **DDNS 只解决 IP 漂移，治不了家宽链路本身抖/断**（整场 WG/反向隧道反复掉线即此）。nas-relay 在移动是否更稳取决于家宽链路质量，未保证。
-- 回滚：`sudo rm /etc/cron.d/cf-ddns`；删 `~/cf-ddns.sh ~/.cf-ddns.env ~/cf-ddns.log`；CF 删 `nas.` 记录；面板吊销该 token。
-
-### VPS 换 IP：107.175.140.175 → 107.175.180.163 (2026-06-21)
-
-诊断（itdog 实测旧 IP `:443`）：移动**能握手**（最快 193ms）但平均 653ms、最差 2298ms、23/136 超时；电信 175ms。**不是 GFW 精准封 IP，是移动↔ColoCrossing 段路由劣化（丢包+高延迟）**——移动连 SSH 都握手失败（banner exchange 超时）。换同段 IP 本预期无用，但用户 $3 换 IP 后**移动直连恢复**：REALITY-443=1204ms、**hy2 9444=171ms / 8443=130ms**（hy2 在移动最优）。
-
-换 IP 后迁移（同一 VM/磁盘，仅换公网 IP，VPS 侧配置不变）：
-- **直连节点（REALITY/hy2）**：服务端 bind 0.0.0.0 不变，客户端「地址」改新 IP 即可。
-- **CF DNS**（node./sub./api. 等 A 记录）：用户已自行改到新 IP（橙云保留）；本会话 bulk 复核旧 IP 上 0 条记录。
-- **nas-relay**：`codex-nas-vps-fallback-relay.service`（NAS 上 python TCP 中转，`/usr/local/bin/codex-nas-vps-fallback-relay.py`）`Environment=TARGET_HOST` 旧→新 IP + daemon-reload + restart。备份 `…service.bak-ipchg-*`。NAS 经 WG `home-nas-wg`(10.77.0.1) 可达（反向隧道经旧 IP 已断）。
-- 验证（2026-06-21）：新 VPS xray/wifi-fb/sing-box/nginx 全 active；CF node WS 443=101；sub2api 面板=200；经 relay→新 VPS:8443 TLS OK+404（同直连）。
-- **当前 VPS IP = `107.175.180.163`**（本文件其余处历史引用旧 `107.175.140.175` 未逐一改，以本条为准）。
-- 残留：若再换 IP，需再改 nas-relay `TARGET_HOST`；NAS↔VPS 反向隧道/WG endpoint 若硬编码旧 IP 需同步更新（本会话未全面排查 NAS 侧）。
+- VPS 这台机(IP/换 IP/连通/SSH 接入):`ops/projects/vps-racknerd/README.md`。
+- CF/DNS(node. 橙云、Origin Rule、边缘证书、NAS DDNS):`ops/projects/cloudflare-edge/README.md`。
+- 网关/bot:`ops/projects/openclaw/README.md`。

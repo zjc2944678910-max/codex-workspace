@@ -19,6 +19,7 @@ Machine source of truth: `docs/workspace/project-registry.json`.
 | Project | Kind | Risk | Code Root(s) | Ops Surface |
 | --- | --- | --- | --- | --- |
 | **BigData-Spark-Research-Workbench** (`bigdata-spark-research-workbench`) | research | research_local | `projects/research/bigdata-spark-research-workbench` | `ops/projects/bigdata-spark-research-workbench` |
+| **Cloudflare Edge / DNS** (`cloudflare-edge`) | infrastructure | live_infra | `ops-only` | `ops/projects/cloudflare-edge` |
 | **CUMCM-2026-Workbench** (`cumcm-2026-workbench`) | research | research_local | `projects/research/cumcm-2026-workbench` | `ops/projects/cumcm-2026-workbench` |
 | **Love Letter Site** (`love-letter-site`) | product | local | `projects/products/love-letter-site` | `ops/projects/love-letter-site` |
 | **MathorCup-D** (`mathorcup-d`) | research | research_local | `projects/products/MathorCup_D_repo`<br>`projects/research/mathorcup_D` | `ops/projects/mathorcup-d` |
@@ -28,6 +29,7 @@ Machine source of truth: `docs/workspace/project-registry.json`.
 | **Sub2API** (`sub2api`) | infrastructure | live_infra | `ops-only` | `ops/projects/sub2api` |
 | **Telegram Dual Relay** (`telegram-dual-relay`) | infrastructure | live_infra | `projects/infrastructure/telegram-dual-relay` | `ops/projects/telegram-dual-relay` |
 | **Tianchi Purchase Redemption** (`tianchi-purchase-redemption`) | research | research_local | `projects/research/tianchi-purchase-redemption` | `ops/projects/tianchi-purchase-redemption` |
+| **VPS Racknerd Box** (`vps-racknerd`) | infrastructure | live_infra | `ops-only` | `ops/projects/vps-racknerd` |
 
 ## Routing
 

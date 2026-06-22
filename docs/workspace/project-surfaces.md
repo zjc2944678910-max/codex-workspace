@@ -14,6 +14,9 @@ Source of truth for scripts: [`project-registry.json`](./project-registry.json).
 | NAS Platform | `projects/infrastructure/nas-platform` | `projects/infrastructure/nas-platform` | `ops/projects/nas-platform` | unknown; local path is not a standalone git repo |
 | Telegram Dual Relay | `projects/infrastructure/telegram-dual-relay` | `projects/infrastructure/telegram-dual-relay` | `ops/projects/telegram-dual-relay` | indexed |
 | Sub2API | ops-only live service | live source on VPS at `/opt/sub2api-src-fix`; no local tracked code root | `ops/projects/sub2api` | not indexed |
+| Proxy Nodes VPS | ops-only live service | live xray/sing-box on VPS; no local tracked code root | `ops/projects/proxy-nodes` | not indexed |
+| VPS Racknerd Box | ops-only (infra layer) | the racknerd VPS box itself; no code | `ops/projects/vps-racknerd` | not indexed |
+| Cloudflare Edge / DNS | ops-only (infra layer) | CF account + `nodezjc12348888.xyz` zone; no code | `ops/projects/cloudflare-edge` | not indexed |
 | MathorCup-D | `projects/research/mathorcup_D`, `projects/products/MathorCup_D_repo` | `projects/products/MathorCup_D_repo`; `projects/research/mathorcup_D` | `ops/projects/mathorcup-d` | submission repo indexed; research workspace not targeted |
 | BigData-Spark-Research-Workbench | `projects/research/bigdata-spark-research-workbench` | `projects/research/bigdata-spark-research-workbench` | `ops/projects/bigdata-spark-research-workbench` | indexed |
 | CUMCM-2026-Workbench | `projects/research/cumcm-2026-workbench` | `projects/research/cumcm-2026-workbench` | `ops/projects/cumcm-2026-workbench` | indexed |
@@ -36,8 +39,10 @@ targets):
 | 酒店管理系统 (大数据实践 Group6 项目十) | `hotel-mgmt` | product |
 | 宠物诊所管理系统 (大数据实践 Group6 项目三) | `pet-clinic` | product |
 
-Shared projects `openclaw` and `sub2api` are registered in both workspaces; their
-ops docs and routing facts are kept in sync manually.
+Shared projects `openclaw` and `sub2api` are registered in both workspaces, but
+per Plan A (2026-06-22) **codex-workspace is the canonical owner** of their ops
+docs; claude-workspace holds thin pointer READMEs only. The infra-layer projects
+`proxy-nodes`, `vps-racknerd`, and `cloudflare-edge` are codex-only.
 
 ## Scratch Paths
 
