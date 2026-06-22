@@ -55,7 +55,7 @@ now the canonical owner per Plan A; do not duplicate this back into claude.
 
 ## Summary
 
-OpenClaw 是跨 NAS（家用 zjcNAS）+ VPS（racknerd 107.175.140.175）的自建网关/机器人基础设施。
+OpenClaw 是跨 NAS（家用 zjcNAS）+ VPS（racknerd 107.175.180.163）的自建网关/机器人基础设施。
 NAS 跑 OpenClaw 网关（`openclaw-benben.service`，端口 18792，对应 Telegram 笨笨 bot；
 还有 adminAI 实例）。VPS 是公网边缘（nginx 反代 + 反向 SSH 隧道把 NAS 网关暴露到公网）。
 
