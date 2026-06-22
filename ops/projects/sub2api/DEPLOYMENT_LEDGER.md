@@ -35,35 +35,6 @@ Promoted from DAILY (2026-06-15 L3 repair); not previously in this ledger.
   `gemini-3.1-pro-high` for custom mappings; no account uses a custom mapping so
   it does not trigger.
 
-## 2026-06-18: New Antigravity Account Group Binding
-
-Live host: `107.175.140.175`
-
-### Changes
-
-- Bound newly imported Antigravity accounts `62/9999`, `63/8888`, and
-  `65/7777` to `antigravity-default-1` (group id `5`).
-- No service restart, image rollout, compose edit, or credential change.
-- Updated `runbooks/oauth-account-routing-and-opencode.md` with a reusable
-  fast path for future Gemini / Antigravity account imports.
-
-### Evidence On VPS
-
-- `/root/codex-repair-sub2api-bind-antigravity-20260618T110802+0800`
-
-### Verification
-
-- Before: accounts `62`, `63`, and `65` showed no explicit group membership.
-- After: all three showed `5:antigravity-default-1`.
-- Post-repair `codex_antigravity` `/v1/chat/completions` smoke returned HTTP
-  200 for `claude-sonnet-4-6`.
-
-### Rollback
-
-```sql
-delete from account_groups where (account_id, group_id) in ((62,5),(63,5),(65,5));
-```
-
 ## 2026-06-16: OpenCode Chat Completions And Account Routing Repair
 
 Live host: `107.175.140.175`
@@ -184,3 +155,32 @@ beyond the Cloudflare panel work described below.
   (strong password, CF Access, or IP allowlist); do not leave it bare.
 - `new-api` (`api.` subdomain) is also public and shares the account pool; watch
   whether its traffic also hits Gemini.
+
+## 2026-06-18: New Antigravity Account Group Binding
+
+Live host: `107.175.140.175`
+
+### Changes
+
+- Bound newly imported Antigravity accounts `62/9999`, `63/8888`, and
+  `65/7777` to `antigravity-default-1` (group id `5`).
+- No service restart, image rollout, compose edit, or credential change.
+- Updated `runbooks/oauth-account-routing-and-opencode.md` with a reusable
+  fast path for future Gemini / Antigravity account imports.
+
+### Evidence On VPS
+
+- `/root/codex-repair-sub2api-bind-antigravity-20260618T110802+0800`
+
+### Verification
+
+- Before: accounts `62`, `63`, and `65` showed no explicit group membership.
+- After: all three showed `5:antigravity-default-1`.
+- Post-repair `codex_antigravity` `/v1/chat/completions` smoke returned HTTP
+  200 for `claude-sonnet-4-6`.
+
+### Rollback
+
+```sql
+delete from account_groups where (account_id, group_id) in ((62,5),(63,5),(65,5));
+```
