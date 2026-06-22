@@ -24,7 +24,7 @@ credential JSON into tracked docs or chat.
 Preferred SSH command:
 
 ```bash
-ssh -o ProxyCommand="ssh home-nas-wg nc %h %p" root@107.175.140.175
+ssh -o ProxyCommand="ssh home-nas-wg nc %h %p" root@107.175.180.163
 ```
 
 Quick service check:
@@ -410,7 +410,7 @@ limit 40;"
 OpenCode should use the public Sub2API base URL ending in `/v1`, for example:
 
 ```text
-http://107.175.140.175:8080/v1
+http://107.175.180.163:8080/v1
 ```
 
 Do not use `localhost` or `127.0.0.1` as the OpenCode provider base URL unless

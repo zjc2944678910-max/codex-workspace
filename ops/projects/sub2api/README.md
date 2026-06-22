@@ -14,7 +14,7 @@ running on the VPS.
 - Scratch: none registered
 - Reports: `ops/projects/sub2api/reports`
 - Runbooks: `ops/projects/sub2api/runbooks`
-- Live host aliases: `sub2api-vps`, `107.175.140.175`, `home-vps-root`, `vps-tunnel`, `home-nas-wg`
+- Live host aliases: `sub2api-vps`, `107.175.180.163`, `home-vps-root`, `vps-tunnel`, `home-nas-wg`
 - Service names: `sub2api`, `sub2api-postgres`, `sub2api-redis`, `codex_gemini`, `codex_antigravity`, `new-api`
 - Registry risk profile: `live_infra`
 
@@ -34,7 +34,7 @@ belongs to this surface.
 Preferred SSH path:
 
 ```bash
-ssh -o ProxyCommand="ssh home-nas-wg nc %h %p" root@107.175.140.175
+ssh -o ProxyCommand="ssh home-nas-wg nc %h %p" root@107.175.180.163
 ```
 
 Fallback direct SSH may work from some networks, but the WireGuard NAS

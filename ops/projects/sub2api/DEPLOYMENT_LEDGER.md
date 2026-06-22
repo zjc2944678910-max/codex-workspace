@@ -1,5 +1,40 @@
 # Sub2API Deployment Ledger
 
+## 2026-06-15: Antigravity Default Model Mapping Fix
+
+Live host: `107.175.140.175` (pre-IP-change; current `107.175.180.163`)
+
+Promoted from DAILY (2026-06-15 L3 repair); not previously in this ledger.
+
+### Changes
+
+- Corrected Antigravity default models: removed unavailable models, added the
+  missing 3.5 Flash, fixed display-name ↔ upstream-id mismatch. Truth source:
+  upstream `cloudcode-pa.googleapis.com/v1internal:fetchAvailableModels`
+  (available set = 8: 2 Claude + 5 Gemini + GPT-OSS).
+  - `3.5 Flash (High)`=`gemini-3-flash-agent`, `(Medium)`=`gemini-3.5-flash-low`,
+    `(Low)`=`gemini-3.5-flash-extra-low`; `3.1 Pro (High)`=`gemini-pro-agent`
+    (`gemini-3.1-pro-high` deprecated upstream); Sonnet/Opus 4.6 are Thinking versions.
+- Code (3 files): `internal/pkg/antigravity/claude_types.go` (model list),
+  `internal/domain/constants.go` (`DefaultAntigravityModelMapping`),
+  `frontend/src/composables/useModelWhitelist.ts` (`antigravityModels` + presets).
+- DB: cleared stale `model_mapping` for accounts 46/49/52 → all 5 antigravity
+  accounts use the new default.
+- Deploy: image `sub2api:antigravity-fix-20260615`, compose tag bump,
+  `docker compose up -d sub2api`.
+
+### Rollback
+
+- Source `*.bak-20260615-213859`, compose `*.bak-20260615-215240`, mapping backup
+  `/opt/sub2api-src-fix/.antigravity-mapping-backup-20260615-213859.json`;
+  one-shot revert to old image `sub2api:codex-model-list-20260615`.
+
+### Residual
+
+- `ensureAntigravityDefaultPassthroughs` (account.go) injects deprecated
+  `gemini-3.1-pro-high` for custom mappings; no account uses a custom mapping so
+  it does not trigger.
+
 ## 2026-06-18: New Antigravity Account Group Binding
 
 Live host: `107.175.140.175`
