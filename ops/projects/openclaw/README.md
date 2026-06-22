@@ -129,7 +129,8 @@ NAS 跑 OpenClaw 网关（`openclaw-benben.service`，端口 18792，对应 Tele
 - CF 凭据:acme conf `CF_Token`(DNS:Edit,可翻橙云,**改不了 Origin Rule**,API 验证 `Authentication error`)。
 - Origin Rule(2026-06-19 经 CF 面板手动加,浏览器自动化):`node-port-8443` 匹配 `http.host eq "node.nodezjc12348888.xyz"` → 改回源端口 8443,独立于 api./sub. 的 `api-port-8443` 规则。**客户端用 443**(经 CF 验证 101);8443 亦可。移动几乎不封 443,故首选 443。
 - 客户端 ALPN 必须含 `http/1.1`:WS 走 HTTP/1.1 Upgrade,h2 会被 CF 边缘 400。
-- 验证(2026-06-19):源站 8443 WS=101;CF 边缘 `--http1.1` WS=101(Server: cloudflare);边缘证书已覆盖 node.(无 403 edge-restricted)。**移动实链路未测**(本地非移动路径);CF 免费移动线路可能慢,6-16 cfws 曾回退疑似速度问题。
+- 验证(2026-06-19):源站 8443 WS=101;CF 边缘 `--http1.1` WS=101(Server: cloudflare);边缘证书已覆盖 node.(无 403 edge-restricted)。
+- **移动实测(2026-06-22,更新 06-19 的「移动实链路未测」)**:用户客户端实跑,报告此节点移动数据 + 全流量可用。客户端配置:`类型 VLESS` / `地址 node.nodezjc12348888.xyz` / `端口 8443` / `传输 websocket` / `TLS 开` / `流控 none` / `UDP 转发 开` / `多路复用 关` / `备注 VLESS-WS-Mobile-8443`(UUID 为凭据,不入档)。延迟/吞吐量化数据待补。
 - 回滚:CF 把 node. 点回灰云(proxied=false);nginx 恢复 `.bak-cfnode-*` + reload。REALITY 节点全程未动。
 
 ### Webshare 住宅出口节点 (2026-06-19)
