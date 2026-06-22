@@ -81,6 +81,12 @@ discovered from `ops/projects/*/README.md`; none is the workspace default.
 
 ## Placement Rules
 
+> Since 2026-06-22, codex-workspace is the single physical home for ALL project
+> code (each project = its own git repo + GitHub remote = backup).
+> claude-workspace reaches it via local git-ignored symlinks. The register tool
+> auto-creates the claude symlink (`docs/workspace/symlink-projects-to-claude.sh`,
+> idempotent + dangling-link repair). See `docs/decisions/workspace-decisions.md`.
+
 - New product codebases go in `projects/products/<name>/`
 - New infrastructure or deployment projects go in `projects/infrastructure/<name>/`
 - New research, benchmark, or competition work goes in `projects/research/<name>/`
