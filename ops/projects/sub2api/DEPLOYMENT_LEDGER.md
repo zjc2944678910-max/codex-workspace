@@ -1,5 +1,56 @@
 # Sub2API Deployment Ledger
 
+## 2026-06-22: Antigravity Responses API Output Repair
+
+Live host: `107.175.180.163`
+
+### Changes
+
+- Built and deployed `sub2api:antigravity-responses-20260622T172737`.
+- Updated `/opt/sub2api/docker-compose.yml` to use that image and restarted only
+  the `sub2api` container with `docker compose up -d --no-deps sub2api`.
+- Added an Antigravity-specific `/v1/responses` forwarding path so Responses
+  API requests use the Antigravity Claude-to-Gemini bridge instead of the
+  generic Anthropic upstream path.
+- Kept `/v1/chat/completions` behavior unchanged; no PostgreSQL, Redis,
+  account, key, OAuth, or group-membership changes were made.
+
+### Evidence On VPS
+
+- `/root/codex-repair-sub2api-responses-20260622T170050+0800`
+
+### Verification
+
+- Compile-only check passed for `backend/internal/service` and
+  `backend/internal/handler`.
+- New image build completed successfully.
+- Container reported `healthy`; `/health` returned `{"status":"ok"}`.
+- `codex_antigravity` `/v1/responses` returned HTTP 200 with output text for
+  `gemini-3.5-flash-low` and `claude-sonnet-4-6`.
+- `codex_antigravity` `/v1/responses` streaming returned HTTP 200 and emitted
+  `response.output_text.delta`.
+- `codex_antigravity` `/v1/chat/completions` returned HTTP 200 with output text
+  after the change.
+- Recent `ops_error_logs` for Antigravity were empty after the deployment
+  verification window.
+
+### Rollback
+
+```bash
+cd /opt/sub2api
+# Restore the compose backup from:
+# /root/codex-repair-sub2api-responses-20260622T170050+0800/docker-compose.before.yml
+# or set image back to:
+#   sub2api:antigravity-chatcc-20260616T144111
+docker compose up -d --no-deps sub2api
+```
+
+Source file backups are under:
+
+```text
+/root/codex-repair-sub2api-responses-20260622T170050+0800/files-before/
+```
+
 ## 2026-06-15: Antigravity Default Model Mapping Fix
 
 Live host: `107.175.140.175` (pre-IP-change; current `107.175.180.163`)
