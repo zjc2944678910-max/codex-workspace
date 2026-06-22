@@ -109,9 +109,9 @@ Codex acceptance.
 
 For frontend or local web UI work, verify with Browser or Playwright when a
 target is available. Use Chrome only when the task needs the user's real
-logged-in profile, cookies, extensions, or an existing remote tab. Use Computer
-Use only for desktop-app workflows without a reliable CLI, API, or browser
-surface.
+logged-in profile, cookies, extensions, or an existing remote tab. Use
+`Computer Use` only for desktop-app workflows without a reliable CLI, API, or
+browser surface.
 
 ## Token Budget
 

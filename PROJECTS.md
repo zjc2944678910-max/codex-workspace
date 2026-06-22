@@ -24,6 +24,7 @@ Machine source of truth: `docs/workspace/project-registry.json`.
 | **MathorCup-D** (`mathorcup-d`) | research | research_local | `projects/products/MathorCup_D_repo`<br>`projects/research/mathorcup_D` | `ops/projects/mathorcup-d` |
 | **NAS Platform** (`nas-platform`) | infrastructure | live_infra | `projects/infrastructure/nas-platform` | `ops/projects/nas-platform` |
 | **OpenClaw** (`openclaw`) | infrastructure | live_infra | `projects/products/openclaw/nas-openclaw-v22`<br>`projects/migrations/openclaw-mac-migration` | `ops/projects/openclaw` |
+| **Proxy Nodes VPS** (`proxy-nodes`) | infrastructure | live_infra | `ops-only` | `ops/projects/proxy-nodes` |
 | **Sub2API** (`sub2api`) | infrastructure | live_infra | `ops-only` | `ops/projects/sub2api` |
 | **Telegram Dual Relay** (`telegram-dual-relay`) | infrastructure | live_infra | `projects/infrastructure/telegram-dual-relay` | `ops/projects/telegram-dual-relay` |
 | **Tianchi Purchase Redemption** (`tianchi-purchase-redemption`) | research | research_local | `projects/research/tianchi-purchase-redemption` | `ops/projects/tianchi-purchase-redemption` |

@@ -5,7 +5,7 @@ This directory is the operator-facing surface for OpenClaw.
 ## Routing Evidence
 
 - Project name: `OpenClaw`
-- Aliases: `open claw`, `oc-nas`, `openclaw-mac-migration`, `笨笨`, `benben`, `adminAI`, `openclaw`
+- Aliases: `open claw`, `openclaw-mac-migration`, `笨笨`, `benben`, `adminAI`, `openclaw`
 - Registry routing keywords: `openclaw`, `open claw`, `benben`, `adminai`, `openclaw-mac-migration`, `笨笨`, `adminAI`, `oc_alert`, `ocedge`, `edge 告警`, `网关`, `edge`
 - Main code: `projects/products/openclaw/nas-openclaw-v22`
 - Migration reference: `projects/migrations/openclaw-mac-migration`

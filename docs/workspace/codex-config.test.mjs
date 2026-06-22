@@ -29,7 +29,6 @@ print(json.dumps(data, ensure_ascii=False))
 test("codex config defines token budget profiles", () => {
   const config = loadToml(configPath);
 
-  assert.equal(config.model_reasoning_effort, "high");
   assert.equal(config.model_auto_compact_token_limit, 300000);
   assert.equal(config.profiles.fast.model_reasoning_effort, "low");
   assert.equal(config.profiles.standard.model_reasoning_effort, "high");

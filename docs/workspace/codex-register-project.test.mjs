@@ -8,6 +8,7 @@ import test from "node:test";
 import { buildProject, parseArgs, renderProjectsMd, splitValues } from "./codex-register-project.mjs";
 
 const scriptPath = path.resolve(import.meta.dirname, "codex-register-project.mjs");
+const repoRoot = path.resolve(import.meta.dirname, "..", "..");
 
 async function createFixture() {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "codex-register-project-"));
@@ -46,6 +47,27 @@ function runScript(repoRoot, args = []) {
 test("register-project parses comma-separated values", () => {
   assert.deepEqual(splitValues(["alpha,beta", " beta ", "gamma"]), ["alpha", "beta", "gamma"]);
   assert.equal(parseArgs(["--slug", "demo", "--name", "Demo", "--kind", "product"]).slug, "demo");
+});
+
+test("workspace project aliases are globally unique", async () => {
+  const registry = JSON.parse(await fs.readFile(path.join(repoRoot, "docs", "workspace", "project-registry.json"), "utf8"));
+  const owners = new Map();
+  const duplicates = [];
+
+  for (const project of registry.projects || []) {
+    for (const alias of project.aliases || []) {
+      if (typeof alias !== "string" || !alias.trim()) continue;
+      const key = alias.trim().toLowerCase();
+      const previous = owners.get(key);
+      if (previous && previous !== project.slug) {
+        duplicates.push({ alias, first: previous, second: project.slug });
+      } else {
+        owners.set(key, project.slug);
+      }
+    }
+  }
+
+  assert.deepEqual(duplicates, []);
 });
 
 test("register-project builds default surfaces and live risk", async () => {

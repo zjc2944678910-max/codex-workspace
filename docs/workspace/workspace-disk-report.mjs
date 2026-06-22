@@ -290,6 +290,57 @@ function findRetentionGaps(entries, retentionManifest, thresholdBytes) {
     }));
 }
 
+function dateOnlyMs(value) {
+  if (value instanceof Date && Number.isFinite(value.getTime())) {
+    return Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), value.getUTCDate());
+  }
+  const match = String(value || "").trim().match(/^(\d{4})-(\d{2})-(\d{2})$/u);
+  if (!match) return Number.NaN;
+  return Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+}
+
+function findRetentionOverdue(entries, retentionManifest, options = {}) {
+  if (!retentionManifest || !Array.isArray(retentionManifest.entries)) return [];
+  const entriesByPath = new Map(entries.map((entry) => [entry.path, entry]));
+  const nowMs = dateOnlyMs(options.now || new Date());
+  if (!Number.isFinite(nowMs)) return [];
+  const defaultRetentionDays = Number(retentionManifest.default_retention_days);
+
+  return retentionManifest.entries
+    .map((manifestEntry) => {
+      const entryPath = String(manifestEntry.path || "").replace(/\\/g, "/");
+      const diskEntry = entriesByPath.get(entryPath);
+      if (!entryPath.startsWith("scratch/") || !diskEntry) return null;
+
+      const retentionDays = Number.isFinite(Number(manifestEntry.retention_days))
+        ? Number(manifestEntry.retention_days)
+        : defaultRetentionDays;
+      const lastActiveMs = dateOnlyMs(manifestEntry.last_active);
+      if (!Number.isFinite(retentionDays) || retentionDays < 0 || !Number.isFinite(lastActiveMs)) return null;
+
+      const ageDays = Math.floor((nowMs - lastActiveMs) / (24 * 60 * 60 * 1000));
+      if (ageDays <= retentionDays) return null;
+      return {
+        path: entryPath,
+        bytes: diskEntry.bytes,
+        pretty: diskEntry.pretty,
+        age_days: ageDays,
+        retention_days: retentionDays,
+        last_active: manifestEntry.last_active,
+        active: manifestEntry.active === true,
+        disposition: manifestEntry.disposition || "",
+        reason: "scratch retention entry exceeded retention_days since last_active",
+      };
+    })
+    .filter(Boolean)
+    .sort((left, right) => {
+      const leftOverdue = left.age_days - left.retention_days;
+      const rightOverdue = right.age_days - right.retention_days;
+      if (rightOverdue !== leftOverdue) return rightOverdue - leftOverdue;
+      return left.path.localeCompare(right.path);
+    });
+}
+
 async function buildWorkspaceDiskReport(options = {}) {
   const repoRoot = path.resolve(options.repo || process.cwd());
   await ensureWorkspaceRoot(repoRoot);
@@ -319,6 +370,7 @@ async function buildWorkspaceDiskReport(options = {}) {
     ? options.retentionGapThreshold
     : DEFAULT_RETENTION_GAP_BYTES;
   const retentionGaps = findRetentionGaps(entries, retentionManifest, retentionThreshold);
+  const retentionOverdue = findRetentionOverdue(entries, retentionManifest, { now: options.now });
   return {
     repo_root: repoRoot,
     limit,
@@ -339,6 +391,7 @@ async function buildWorkspaceDiskReport(options = {}) {
       ask: entries.filter((entry) => entry.bucket === "ask").slice(0, limit),
     },
     retention_gaps: retentionGaps,
+    retention_overdue: retentionOverdue,
     retention_gap_threshold_bytes: retentionThreshold,
     retention_manifest_loaded: retentionManifest !== null,
   };
@@ -377,6 +430,14 @@ function renderReport(report) {
       lines.push(`- ${gap.pretty}\t${gap.path}\t${gap.reason}`);
     }
   }
+  lines.push("retention_overdue:");
+  if (!report.retention_overdue || report.retention_overdue.length === 0) {
+    lines.push("- (none)");
+  } else {
+    for (const overdue of report.retention_overdue) {
+      lines.push(`- ${overdue.pretty}\t${overdue.path}\tage ${overdue.age_days}d > ${overdue.retention_days}d; ${overdue.disposition || "review"}`);
+    }
+  }
   return `${lines.join("\n")}\n`;
 }
 
@@ -405,6 +466,7 @@ export {
   collectObviousGarbage,
   collectInventoryPaths,
   findRetentionGaps,
+  findRetentionOverdue,
   formatBytes,
   loadScratchRetention,
   renderReport,

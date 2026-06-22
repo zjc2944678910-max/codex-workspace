@@ -1,10 +1,13 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 
 const repoRoot = path.resolve(import.meta.dirname, "..", "..");
 const hookScript = path.join(repoRoot, ".codex", "hooks", "workspace_guard.py");
+const hooksConfigPath = path.join(repoRoot, ".codex", "hooks.json");
 
 function runHook(event, payload = {}) {
   const result = spawnSync("python3", [hookScript, event], {
@@ -21,11 +24,47 @@ function runHook(event, payload = {}) {
   return stdout ? JSON.parse(stdout) : {};
 }
 
+function hookCommand(eventName) {
+  const config = JSON.parse(readFileSync(hooksConfigPath, "utf8"));
+  const hooks = config.hooks?.[eventName]?.[0]?.hooks;
+  return hooks?.[0]?.command;
+}
+
 test("session hook injects workspace routing context", () => {
   const output = runHook("session-start", { source: "startup" });
   assert.equal(output.hookSpecificOutput.hookEventName, "SessionStart");
   assert.match(output.hookSpecificOutput.additionalContext, /workspace index/u);
   assert.match(output.hookSpecificOutput.additionalContext, /L3 state changes/u);
+});
+
+test("configured hook command resolves workspace script from nested git cwd", () => {
+  const tempRoot = mkdtempSync(path.join(tmpdir(), "codex-workspace-hook-"));
+  try {
+    const gitInit = spawnSync("git", ["init", "-q"], {
+      cwd: tempRoot,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    if (gitInit.status !== 0) {
+      throw new Error((gitInit.stderr || gitInit.stdout || "git exited " + gitInit.status).trim());
+    }
+
+    const command = hookCommand("SessionStart");
+    assert.equal(typeof command, "string");
+    const result = spawnSync("sh", ["-lc", command], {
+      cwd: tempRoot,
+      env: { ...process.env, PYTHONDONTWRITEBYTECODE: "1" },
+      input: JSON.stringify({ source: "startup" }),
+      encoding: "utf8",
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+
+    assert.equal(result.status, 0, result.stderr || result.stdout);
+    const output = JSON.parse(result.stdout.trim());
+    assert.equal(output.hookSpecificOutput.hookEventName, "SessionStart");
+  } finally {
+    rmSync(tempRoot, { recursive: true, force: true });
+  }
 });
 
 test("prompt hook emits route and risk hints for OpenClaw live work", () => {

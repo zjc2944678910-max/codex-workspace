@@ -1,7 +1,7 @@
 {
   "$schema": "workspace-project-registry/v1",
   "description": "Machine-readable workspace project registry. Each registered project has an ops README under ops/projects/<slug>/README.md, one or more long-lived surfaces under projects/*/*, and zero or more concrete code roots used for day-to-day work and GitNexus targeting.",
-  "updated": "2026-06-18",
+  "updated": "2026-06-22",
   "projects": [
     {
       "slug": "bigdata-spark-research-workbench",
@@ -141,7 +141,7 @@
         {
           "path": "projects/infrastructure/nas-platform",
           "role": "infrastructure-config-root",
-          "gitnexus_status": "indexed"
+          "gitnexus_status": "unknown"
         }
       ],
       "ops_surface": "ops/projects/nas-platform",
@@ -157,7 +157,7 @@
       "service_names": [
         "nas-platform"
       ],
-      "gitnexus_indexed": true
+      "gitnexus_indexed": false
     },
     {
       "slug": "openclaw",
@@ -185,7 +185,6 @@
       "scratch": "scratch/projects/openclaw",
       "aliases": [
         "open claw",
-        "oc-nas",
         "openclaw-mac-migration",
         "笨笨",
         "benben",
@@ -219,6 +218,50 @@
         "openclaw-socks-bridge.service"
       ],
       "gitnexus_indexed": true
+    },
+    {
+      "slug": "proxy-nodes",
+      "name": "Proxy Nodes VPS",
+      "kind": "infrastructure",
+      "risk_profile": "live_infra",
+      "surfaces": [],
+      "code_roots": [],
+      "ops_surface": "ops/projects/proxy-nodes",
+      "state_data": "state/project-data/proxy-nodes",
+      "scratch": "scratch/projects/proxy-nodes",
+      "aliases": [
+        "proxy-nodes",
+        "代理节点",
+        "自建节点",
+        "Shadowrocket订阅"
+      ],
+      "routing_keywords": [
+        "proxy-nodes",
+        "节点订阅",
+        "Shadowrocket",
+        "VLESS",
+        "Hysteria2",
+        "node.nodezjc12348888.xyz",
+        "nodezjc12348888.xyz",
+        "107.175.180.163",
+        "Proxy Nodes VPS",
+        "代理节点",
+        "自建节点",
+        "Shadowrocket订阅"
+      ],
+      "live_host_aliases": [
+        "107.175.180.163",
+        "node.nodezjc12348888.xyz",
+        "nodezjc12348888.xyz"
+      ],
+      "service_names": [
+        "xray",
+        "sing-box",
+        "nginx",
+        "x-ui",
+        "xray-wifi-fallback"
+      ],
+      "gitnexus_indexed": false
     },
     {
       "slug": "sub2api",

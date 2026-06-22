@@ -140,6 +140,7 @@ function overallStatus(hygiene = {}, disk = {}, codexWorkflow = {}) {
     || count(hygiene.nonexistent_project_references) > 0
     || count(hygiene.project_route_metadata_mismatches) > 0
     || count(disk.retention_gaps) > 0
+    || count(disk.retention_overdue) > 0
     || disk.retention_manifest_loaded === false
     || count(codexWorkflow.issues) > 0;
   return structuralIssues ? "attention" : "ok";
@@ -175,6 +176,7 @@ function renderHealthSummary(result = {}) {
     `project_route_metadata_mismatches: ${count(hygiene.project_route_metadata_mismatches)}`,
     `retention_manifest_loaded: ${disk.retention_manifest_loaded ? "yes" : "no"}`,
     `retention_gaps: ${count(disk.retention_gaps)}`,
+    `retention_overdue: ${count(disk.retention_overdue)}`,
     `codex_notify_wrapper: ${codexWorkflow.notify_wrapper_only ? "ok" : "attention"}`,
     `bark_enabled: ${codexWorkflow.bark_enabled ? "yes" : "no"}`,
     `telegram_enabled: ${codexWorkflow.telegram_enabled ? "yes" : "no"}`,
@@ -197,6 +199,12 @@ function renderHealthSummary(result = {}) {
     lines.push("", "retention_gap_paths:");
     for (const gap of disk.retention_gaps) {
       lines.push(`- ${gap.pretty}\t${gap.path}`);
+    }
+  }
+  if (count(disk.retention_overdue) > 0) {
+    lines.push("", "retention_overdue_paths:");
+    for (const overdue of disk.retention_overdue) {
+      lines.push(`- ${overdue.pretty}\t${overdue.path}\tage ${overdue.age_days}d > ${overdue.retention_days}d`);
     }
   }
   return `${lines.join("\n")}\n`;

@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/workspace_guard.py\" session-start",
+            "command": "cd \"/Users/zhangjincheng/Documents/GitHub/codex-workspace\" && /usr/bin/python3 .codex/hooks/workspace_guard.py session-start",
             "timeout": 10,
             "statusMessage": "Loading workspace guardrails"
           }
@@ -18,7 +18,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/workspace_guard.py\" user-prompt-submit",
+            "command": "cd \"/Users/zhangjincheng/Documents/GitHub/codex-workspace\" && /usr/bin/python3 .codex/hooks/workspace_guard.py user-prompt-submit",
             "timeout": 10,
             "statusMessage": "Checking workspace route"
           }
@@ -31,7 +31,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/workspace_guard.py\" pre-tool-use",
+            "command": "cd \"/Users/zhangjincheng/Documents/GitHub/codex-workspace\" && /usr/bin/python3 .codex/hooks/workspace_guard.py pre-tool-use",
             "timeout": 10,
             "statusMessage": "Checking command policy"
           }
@@ -44,7 +44,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/workspace_guard.py\" permission-request",
+            "command": "cd \"/Users/zhangjincheng/Documents/GitHub/codex-workspace\" && /usr/bin/python3 .codex/hooks/workspace_guard.py permission-request",
             "timeout": 10,
             "statusMessage": "Checking approval policy"
           }
@@ -57,7 +57,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/workspace_guard.py\" post-tool-use",
+            "command": "cd \"/Users/zhangjincheng/Documents/GitHub/codex-workspace\" && /usr/bin/python3 .codex/hooks/workspace_guard.py post-tool-use",
             "timeout": 30,
             "statusMessage": "Checking workspace hygiene"
           }
@@ -69,7 +69,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/workspace_guard.py\" stop",
+            "command": "cd \"/Users/zhangjincheng/Documents/GitHub/codex-workspace\" && /usr/bin/python3 .codex/hooks/workspace_guard.py stop",
             "timeout": 10,
             "statusMessage": "Checking closeout"
           }

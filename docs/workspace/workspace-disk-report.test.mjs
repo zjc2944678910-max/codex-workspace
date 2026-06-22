@@ -9,6 +9,7 @@ import {
   classifyCleanupBucket,
   collectObviousGarbage,
   findRetentionGaps,
+  findRetentionOverdue,
   formatBytes,
   loadScratchRetention,
   renderReport,
@@ -143,6 +144,27 @@ test("findRetentionGaps respects overridden threshold in tests", () => {
   assert.equal(gaps2.length, 0);
 });
 
+test("findRetentionOverdue flags existing scratch paths past retention window", () => {
+  const entries = [
+    { path: "scratch/projects/misc", bytes: 1024, pretty: "1.0K", bucket: "ask" },
+    { path: "scratch/projects/fresh", bytes: 2048, pretty: "2.0K", bucket: "ask" },
+  ];
+  const manifest = {
+    default_retention_days: 30,
+    entries: [
+      { path: "scratch/projects/misc", retention_days: 14, last_active: "2026-03-01", disposition: "prune" },
+      { path: "scratch/projects/fresh", retention_days: 30, last_active: "2026-06-10", disposition: "retain" },
+      { path: "scratch/projects/archived", retention_days: 14, last_active: "2026-03-01", disposition: "archive" },
+    ],
+  };
+
+  const overdue = findRetentionOverdue(entries, manifest, { now: "2026-06-22" });
+  assert.deepEqual(overdue.map((entry) => entry.path), ["scratch/projects/misc"]);
+  assert.equal(overdue[0].age_days, 113);
+  assert.equal(overdue[0].retention_days, 14);
+  assert.equal(overdue[0].disposition, "prune");
+});
+
 test("workspace disk report includes retention gaps in JSON output", async () => {
   const repoRoot = await createFixture();
   // Make scratch/shared/run large enough by adding more files
@@ -159,6 +181,7 @@ test("workspace disk report includes retention gaps in JSON output", async () =>
     retentionGapThreshold: 0,
   });
   assert.ok("retention_gaps" in report);
+  assert.ok("retention_overdue" in report);
   assert.ok("retention_gap_threshold_bytes" in report);
   assert.ok("retention_manifest_loaded" in report);
   assert.equal(report.retention_manifest_loaded, true);
