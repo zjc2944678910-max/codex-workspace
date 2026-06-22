@@ -52,3 +52,14 @@ slice decisions belong in that run's `05-decisions.md`.
   - **Ledger note**: `openclaw/DEPLOYMENT_LEDGER.md` (7642 lines) was audited
     and is genuinely openclaw application history (models/bot/channels); it is
     NOT split. The one 2026-06-16 mixed entry keeps a cross-ref to the layer docs.
+
+- **Decision (openclaw code symlink, 2026-06-22)**: claude-workspace exposes the
+  openclaw code by symlinking `claude-workspace/projects/infrastructure/openclaw`
+  → `codex-workspace/projects/products/openclaw` (relative link). One physical
+  copy lives HERE (codex); claude only has the link. The link is **local +
+  git-ignored + Syncthing-ignored** (not committed anywhere).
+  - **Maintenance contract**: if you rename or move `projects/products/openclaw`
+    in this repo, re-point the claude link so it does not dangle:
+    `ln -sfn <new-relative-target> ~/Documents/GitHub/claude-workspace/projects/infrastructure/openclaw`
+  - Other shared projects (sub2api/proxy-nodes/vps-racknerd/cloudflare-edge) are
+    ops-only (no code), so no symlink applies.
