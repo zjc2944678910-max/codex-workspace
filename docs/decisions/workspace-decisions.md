@@ -63,3 +63,20 @@ slice decisions belong in that run's `05-decisions.md`.
     `ln -sfn <new-relative-target> ~/Documents/GitHub/claude-workspace/projects/infrastructure/openclaw`
   - Other shared projects (sub2api/proxy-nodes/vps-racknerd/cloudflare-edge) are
     ops-only (no code), so no symlink applies.
+
+- **Decision (project code consolidation, 2026-06-22)**: ALL project code lives
+  ONCE in `codex-workspace/projects/`. Each project is its own git repo with its
+  own GitHub remote (that remote is the backup — codex-workspace git ignores
+  `projects/*`, and neither workspace is Syncthing-managed). claude-workspace gets
+  **local, git-ignored relative symlinks** mirroring each codex project.
+  - **Tool**: `docs/workspace/symlink-projects-to-claude.sh` (idempotent). Run it
+    to (re)create all claude symlinks, and as the **repair tool** for dangling
+    links after a project is renamed/moved here.
+  - **New project default**: create/register the code in codex, then run the
+    script to link it into claude. (openclaw maps to claude `infrastructure/openclaw`
+    via the override in the script.)
+  - **Migrated 2026-06-22**: `hotel-mgmt` + `pet-clinic` moved from claude (they
+    had NO backup) into codex as new private repos
+    `github.com/zjc2944678910-max/{hotel-mgmt,pet-clinic}`, then symlinked back.
+  - **gitnexus**: indexes moved with the dirs; the claude registry path resolves
+    via symlink. Re-index at the codex path only if gitnexus misbehaves.
