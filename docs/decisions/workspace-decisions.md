@@ -34,3 +34,21 @@ slice decisions belong in that run's `05-decisions.md`.
 - **How to apply**: edit openclaw/sub2api ops **here** (codex). Keep registry
   routing tokens mirrored into each README (repo-hygiene.mjs still enforces).
 - **Affects**: all future openclaw/sub2api ops edits; sibling cross-ref intact.
+
+- **Decision (infra-layer vs app taxonomy, 2026-06-22)**: separate the
+  shared **infrastructure layer** from the **applications** that ride on it,
+  so cross-cutting facts get a single home instead of piling into one app doc.
+  - **Layer** (ops-only): `vps-racknerd` (the racknerd box: IP/换IP/连通/SSH/
+    nginx host), `cloudflare-edge` (CF account + `nodezjc12348888.xyz` zone:
+    橙云/Origin Rule/edge cert/token/DDNS), `nas-platform` (the NAS box).
+  - **App**: `openclaw` (gateway/笨笨 bot/edge watchdog), `proxy-nodes`
+    (xray/sing-box nodes), `sub2api` (AI relay), `telegram-dual-relay`.
+  - **Routing**: a fact about the box → vps-racknerd; CF/DNS → cloudflare-edge;
+    a node → proxy-nodes; the bot/gateway → openclaw; the relay → sub2api.
+    Cross-cutting incidents get a primary layer home + cross-refs from apps.
+  - **Why**: openclaw had become a catch-all (proxy nodes, VPS IP, CF, DDNS all
+    filed under it because they share the VPS + node. subdomain + openclaw-gateway
+    nginx vhost). Layer/app split keeps each doc single-responsibility.
+  - **Ledger note**: `openclaw/DEPLOYMENT_LEDGER.md` (7642 lines) was audited
+    and is genuinely openclaw application history (models/bot/channels); it is
+    NOT split. The one 2026-06-16 mixed entry keeps a cross-ref to the layer docs.

@@ -7588,6 +7588,11 @@ Synced from claude-workspace ops notes (claude-side openclaw README). The work
 below is on the VPS edge (`107.175.140.175`) and the local macOS SSH layer, not on
 the NAS gateway itself.
 
+> Cross-ref (2026-06-22): only the edge-watchdog subsection is openclaw's. The
+> traffic-card / VPS-IP-RST facts now have their canonical home in
+> `ops/projects/vps-racknerd/`, and the CF fronting in `ops/projects/cloudflare-edge/`.
+> This dated entry is kept intact as the historical record at the openclaw edge.
+
 ### Edge alert watchdog false-alarm + maintenance switch
 
 - Script: VPS `/usr/local/bin/oc_alert.sh`, triggered by `/etc/cron.d/oc_alert`
