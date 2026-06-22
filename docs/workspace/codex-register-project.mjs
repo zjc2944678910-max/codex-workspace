@@ -3,6 +3,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
+import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const KIND_BUCKETS = {
@@ -40,6 +41,7 @@ function parseArgs(argv = []) {
     codeRole: "main",
     dryRun: false,
     regen: false,
+    symlink: true,
     help: false,
   };
   for (let index = 0; index < argv.length; index += 1) {
@@ -120,6 +122,10 @@ function parseArgs(argv = []) {
       options.regen = true;
       continue;
     }
+    if (arg === "--no-symlink") {
+      options.symlink = false;
+      continue;
+    }
     throw new Error(`Unknown argument: ${arg}`);
   }
   return options;
@@ -142,6 +148,7 @@ function usage() {
     "  --service <value>           Repeatable or comma-separated.",
     "  --gitnexus-status <value>   unknown|indexed|not_indexed|not_targeted.",
     "  --dry-run                   Print the project record without writing files.",
+    "  --no-symlink                Skip auto-creating the claude-workspace symlink.",
     "",
   ].join("\n");
 }
@@ -515,6 +522,21 @@ async function registerProject(repoRoot, options = {}) {
   return { ok: true, action: "register", project, paths };
 }
 
+function symlinkProjectToClaude(repoRoot, slug) {
+  const script = path.join(repoRoot, "docs/workspace/symlink-projects-to-claude.sh");
+  try {
+    const run = spawnSync("bash", [script], { encoding: "utf8" });
+    if (run.status === 0) {
+      process.stdout.write(`Claude symlink: linked ${slug} into claude-workspace (symlink-projects-to-claude.sh).\n`);
+    } else {
+      process.stdout.write(`Claude symlink: skipped (script exit ${run.status}); run docs/workspace/symlink-projects-to-claude.sh manually.\n`);
+    }
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    process.stdout.write(`Claude symlink: skipped (${msg}); run docs/workspace/symlink-projects-to-claude.sh manually.\n`);
+  }
+}
+
 async function main() {
   const options = parseArgs(process.argv.slice(2));
   if (options.help) {
@@ -534,6 +556,16 @@ async function main() {
   }
   process.stdout.write(`Registered project: ${result.project.name} (${result.project.slug})\n`);
   process.stdout.write(`Ops docs: ${path.join(repoRoot, result.project.ops_surface)}\n`);
+  // Auto-link the new project into claude-workspace. Only for the real codex repo
+  // (skip when --repo overrides, e.g. tests) and only when a code root was created
+  // (ops-only projects have no code dir to link).
+  if (
+    options.symlink &&
+    repoRoot === defaultRepoRoot() &&
+    (result.paths?.code_roots?.length || 0) > 0
+  ) {
+    symlinkProjectToClaude(repoRoot, result.project.slug);
+  }
 }
 
 const entryPath = process.argv[1] ? path.resolve(process.argv[1]) : "";
