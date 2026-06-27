@@ -21,10 +21,12 @@ Machine source of truth: `docs/workspace/project-registry.json`.
 | **BigData-Spark-Research-Workbench** (`bigdata-spark-research-workbench`) | research | research_local | `projects/research/bigdata-spark-research-workbench` | `ops/projects/bigdata-spark-research-workbench` |
 | **Cloudflare Edge / DNS** (`cloudflare-edge`) | infrastructure | live_infra | `ops-only` | `ops/projects/cloudflare-edge` |
 | **CUMCM-2026-Workbench** (`cumcm-2026-workbench`) | research | research_local | `projects/research/cumcm-2026-workbench` | `ops/projects/cumcm-2026-workbench` |
+| **Hotel Management System** (`hotel-mgmt`) | product | local | `projects/products/hotel-mgmt` | `ops/projects/hotel-mgmt` |
 | **Love Letter Site** (`love-letter-site`) | product | local | `projects/products/love-letter-site` | `ops/projects/love-letter-site` |
 | **MathorCup-D** (`mathorcup-d`) | research | research_local | `projects/products/MathorCup_D_repo`<br>`projects/research/mathorcup_D` | `ops/projects/mathorcup-d` |
 | **NAS Platform** (`nas-platform`) | infrastructure | live_infra | `projects/infrastructure/nas-platform` | `ops/projects/nas-platform` |
 | **OpenClaw** (`openclaw`) | infrastructure | live_infra | `projects/products/openclaw/nas-openclaw-v22`<br>`projects/migrations/openclaw-mac-migration` | `ops/projects/openclaw` |
+| **Pet Clinic Management System** (`pet-clinic`) | product | local | `projects/products/pet-clinic` | `ops/projects/pet-clinic` |
 | **Proxy Nodes VPS** (`proxy-nodes`) | infrastructure | live_infra | `ops-only` | `ops/projects/proxy-nodes` |
 | **Sub2API** (`sub2api`) | infrastructure | live_infra | `ops-only` | `ops/projects/sub2api` |
 | **Telegram Dual Relay** (`telegram-dual-relay`) | infrastructure | live_infra | `projects/infrastructure/telegram-dual-relay` | `ops/projects/telegram-dual-relay` |

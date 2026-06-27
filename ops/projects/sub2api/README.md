@@ -71,6 +71,37 @@ Promoted from claude-workspace (the request-path detail was unique to that copy)
 - Same domain, other hosts: `api.nodezjc12348888.xyz` → `new-api:3000`;
   `ai.` → `:29133` (with authentik SSO).
 
+## Codex Main-Model Client Config (2026-06-23, local — no VPS change)
+
+Making Sub2API antigravity models (`claude-sonnet-4-6-thinking`,
+`gemini-3.1-pro-high`, etc.) usable as the **Codex main model** (full agent
+tool loop, not just chat) needed two **local** Codex-client fixes. The gateway
+`/v1/responses` adapter itself is fine — it correctly maps single-turn
+`function_call`, full-input multi-turn `function_call_output → tool_result`, and
+streams the right Responses SSE events (verified by direct probes).
+
+1. **Profiles v2 migration.** codex `0.142.0-alpha.6` rejects a legacy
+   `[profiles.sub2api]` table in `config.toml` when `--profile sub2api` is used
+   (`--profile ... cannot be used while ... contains legacy ... profile`). Moved
+   the profile body to `~/.codex/sub2api.config.toml` (top-level keys, layered on
+   base config) and removed the legacy table from `config.toml`.
+   `[model_providers.sub2api]` stays in base config.
+2. **Disable the built-in web_search tool for this profile.** Web search is ON
+   by default; Codex injects a server-side `web_search` tool. The
+   Antigravity/Gemini upstream rejects any request that mixes a server-side
+   built-in tool with function tools (`Please enable
+   tool_config.include_server_side_tool_invocations to use Built-in tools with
+   Function calling`), and Codex always sends `shell`/`apply_patch` as function
+   tools, so **every** agent turn 400s. Fix: `web_search = "disabled"` (top-level
+   in `~/.codex/sub2api.config.toml`). Note: `tools.web_search=false` and
+   `--disable web_search` do **not** work — the override must be the top-level
+   `web_search` = `"live"|"indexed"|"cached"|"disabled"` key.
+
+Verified via `codex exec --profile sub2api`: Claude + Gemini both complete the
+loop, make tool calls, and create+edit files (`config.json` 1→2). The
+`sub2api_mcp.py` advisor path is separate and already defaulted to
+`max_tokens=4096`.
+
 ## Risk Notes
 
 Treat live checks as L2 read-only. Any database writes, compose edits, image
