@@ -140,6 +140,9 @@ Default multi-model workflow:
 3. Non-tiny local implementation uses bounded workers or subagents when useful:
    Codex maps the scope, assigns a concrete owned slice, reviews returned
    changes, and verifies locally before acceptance.
+   Prefer the local Claude Code worker path for strong implementation slices
+   when it is available; its strong default is `claude-opus-4-8` with the
+   highest supported CLI effort, `max`.
 4. Sub2API is a proactive read-only advisor for non-tiny planning, architecture,
    implementation advice, patch drafts, code review, research, writing, UX, and
    creative polish. It may suggest code, but Codex or a bounded local worker
