@@ -177,6 +177,43 @@ Pass a bounded brief with:
   followups plus evidence pointers only; no long source excerpts, full diffs, or
   large logs
 
+## Sub2API External Model Pool
+
+The user's Sub2API gateway is a trusted external model pool for advisory
+reasoning, drafting, review, and model comparison. Because its MCP tools may be
+deferred, Codex must explicitly discover them before relying on this policy.
+
+Run `tool_search` for `sub2api_model_pool` or `sub2api` early when any of these
+are true:
+
+- The user mentions Sub2API, `sub2api`, `中转站`, model pool, external models,
+  big models, Gemini, Claude, Opus, Sonnet, Antigravity, or asks why Codex is
+  or is not using them.
+- The task is non-tiny and involves architecture, root cause, code review,
+  implementation advice, test design, complex planning, research, writing,
+  frontend/creative polish, or high-value second opinion.
+- Codex is about to make a user-facing artifact where an independent planning,
+  review, or polish pass would materially improve quality.
+
+If the tools are available, use `sub2api_delegate_task` or `sub2api_chat` as a
+bounded read-only advisor. Prefer the configured defaults: Gemini for writing,
+research, summaries, and creative planning; Claude Opus Thinking for
+architecture, implementation advice, code review, deep review, and subtle
+regression hunts. Codex still owns local evidence gathering, shell commands,
+file edits, verification, safety judgment, and final synthesis.
+
+Keep the small-task fast path: do not call Sub2API for obvious local facts,
+simple command output, tiny typo fixes, or one-file known-scope edits unless the
+user explicitly asks to use the model pool. Never send credentials, tokens,
+cookies, raw private configs, or large unbounded logs to Sub2API. For
+live/NAS/VPS/OpenClaw/Sub2API operations, keep L2 read-only and L3 repair gates:
+external models may review bounded non-secret evidence, but they do not approve
+or execute config writes, restarts, deploys, database writes, or production file
+changes.
+
+If discovery fails or the model pool is unavailable, continue locally when safe
+and mention the skipped Sub2API step in the final response for non-tiny tasks.
+
 ## Token Budget
 
 - Prefer file pointers over pasted context: path, line number, conclusion,
