@@ -11,6 +11,16 @@ context, tooling, and delegation a task deserves.
 | `standard` | Default local development and focused workflow work | high reasoning, normal compact |
 | `audit` | L2, architecture, complex root cause, production audits, hard regressions | xhigh reasoning, broader context |
 
+Codex CLI profile v2 loads these from `$CODEX_HOME/<profile>.config.toml`
+for example `$CODEX_HOME/fast.config.toml`, not from inline `[profiles.*]`
+blocks in this repo's `.codex/config.toml`. The tracked workspace config keeps
+the broad default context window (`1000000`) and auto-compact limit (`900000`);
+the profile files lower the budget for day-to-day use:
+
+- `fast`: low reasoning, compact at `180000`
+- `standard`: high reasoning, compact at `300000`
+- `audit`: xhigh reasoning, compact at `450000`
+
 CLI examples:
 
 ```bash

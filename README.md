@@ -16,7 +16,7 @@ Use this repository as the default Codex workspace index. The legacy local `-/` 
 ## Main Areas
 
 - `docs/`: long-lived workspace-level documentation
-- `ops/`: operator-facing mirrors, evidence, logs, rollback bundles
+- `ops/`: operator-facing durable docs, manifests, reports, and runbooks
 - `projects/`: actual project trees grouped by role
 - `scratch/`: temporary outputs and disposable working material
 - `inbox/`: unprocessed local imports, ignored by git
@@ -98,6 +98,9 @@ discovered from `ops/projects/*/README.md`; none is the workspace default.
 - Imported raw material that has not been processed goes in `inbox/`
 - Cross-tool or cross-session handoff summaries go in `handoffs/`
 - Cleanup records, snapshots, and retired material go in `archive/`
+- Local mirrors, evidence, logs, quarantine, and rollback bundles stay under
+  ignored `ops/projects/<name>/...` subdirectories unless a runbook explicitly
+  promotes a durable summary.
 
 ## Registration Rule
 

@@ -21,7 +21,7 @@ If a task or note refers to `codex-workplace`, treat it as a spelling mismatch u
 - Old `AGENTS.md`
   - New `AGENTS.md`
 - Old `README.md`
-- New `README.md`
+  - New `README.md`
 - New `PROJECTS.md`
   - Generated short project index from `docs/workspace/project-registry.json`
 - Old workspace-level `docs/reports/*`
