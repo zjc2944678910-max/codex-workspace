@@ -67,6 +67,25 @@ function parseNotifyArray(configText = "") {
   }
 }
 
+function sameStringArray(left = null, right = null) {
+  return Array.isArray(left)
+    && Array.isArray(right)
+    && left.length === right.length
+    && left.every((value, index) => value === right[index]);
+}
+
+function parsePreviousNotifyArray(notify = null) {
+  if (!Array.isArray(notify)) return null;
+  const previousIndex = notify.indexOf("--previous-notify");
+  if (previousIndex < 0 || previousIndex + 1 >= notify.length) return null;
+  try {
+    const parsed = JSON.parse(String(notify[previousIndex + 1] || ""));
+    return Array.isArray(parsed) ? parsed.map((value) => String(value)) : null;
+  } catch {
+    return null;
+  }
+}
+
 async function readAutomationState(homeDir, id) {
   const automationPath = path.join(homeDir, ".codex", "automations", id, "automation.toml");
   const text = await readTextIfExists(automationPath);
@@ -87,13 +106,16 @@ async function buildCodexWorkflowSummary(options = {}) {
   ];
   const configText = await readTextIfExists(path.join(homeDir, ".codex", "config.toml"));
   const notify = parseNotifyArray(configText);
-  const notifyWrapperOnly = JSON.stringify(notify) === JSON.stringify(expectedNotify);
+  const notifyWrapperOnly = sameStringArray(notify, expectedNotify);
   const notifyViaDesktopClient = Array.isArray(notify)
     ? notify.some((entry) => entry.includes("SkyComputerUseClient"))
     : false;
   const notifyHasPreviousNotify = Array.isArray(notify)
     ? notify.includes("--previous-notify")
     : false;
+  const previousNotify = parsePreviousNotifyArray(notify);
+  const notifyPreviousWrapper = sameStringArray(previousNotify, expectedNotify);
+  const notifyRoutesToWrapper = notifyWrapperOnly || notifyPreviousWrapper;
 
   const notifyConfigText = await readTextIfExists(path.join(homeDir, ".codex", "notify-config.json"));
   let notifyConfig = {};
@@ -110,9 +132,9 @@ async function buildCodexWorkflowSummary(options = {}) {
   const workspaceHealthNotifyEnabled = notifyConfig.workspace_health?.enabled === true;
 
   const issues = [];
-  if (!notifyWrapperOnly) issues.push("notify_not_wrapper_only");
-  if (notifyViaDesktopClient) issues.push("notify_via_desktop_client");
-  if (notifyHasPreviousNotify) issues.push("notify_has_previous_notify");
+  if (!notifyRoutesToWrapper) issues.push("notify_not_wrapper_only");
+  if (notifyViaDesktopClient && !notifyPreviousWrapper) issues.push("notify_via_desktop_client");
+  if (notifyHasPreviousNotify && !notifyPreviousWrapper) issues.push("notify_has_previous_notify");
   if (!barkEnabled) issues.push("bark_disabled");
   if (telegramEnabled) issues.push("telegram_enabled");
   if (!workspaceHealthNotifyEnabled) issues.push("workspace_health_notify_disabled");
@@ -123,6 +145,8 @@ async function buildCodexWorkflowSummary(options = {}) {
 
   return {
     notify_wrapper_only: notifyWrapperOnly,
+    notify_previous_wrapper: notifyPreviousWrapper,
+    notify_routes_to_wrapper: notifyRoutesToWrapper,
     notify_via_desktop_client: notifyViaDesktopClient,
     notify_has_previous_notify: notifyHasPreviousNotify,
     bark_enabled: barkEnabled,
@@ -165,6 +189,7 @@ function renderHealthSummary(result = {}) {
   const hygiene = result.hygiene || {};
   const disk = result.disk || {};
   const codexWorkflow = result.codex_workflow || {};
+  const notifyOk = codexWorkflow.notify_routes_to_wrapper ?? codexWorkflow.notify_wrapper_only;
   const status = result.status || overallStatus(hygiene, disk, codexWorkflow);
   const garbage = disk.cleanup_buckets?.delete?.[0] || null;
   const lines = [
@@ -177,7 +202,7 @@ function renderHealthSummary(result = {}) {
     `retention_manifest_loaded: ${disk.retention_manifest_loaded ? "yes" : "no"}`,
     `retention_gaps: ${count(disk.retention_gaps)}`,
     `retention_overdue: ${count(disk.retention_overdue)}`,
-    `codex_notify_wrapper: ${codexWorkflow.notify_wrapper_only ? "ok" : "attention"}`,
+    `codex_notify_wrapper: ${notifyOk ? "ok" : "attention"}`,
     `bark_enabled: ${codexWorkflow.bark_enabled ? "yes" : "no"}`,
     `telegram_enabled: ${codexWorkflow.telegram_enabled ? "yes" : "no"}`,
     `workspace_health_notify: ${codexWorkflow.workspace_health_notify_enabled ? "yes" : "no"}`,

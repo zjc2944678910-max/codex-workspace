@@ -150,6 +150,8 @@ test("codex workflow summary flags notify drift without exposing secrets", async
   const summary = await buildCodexWorkflowSummary({ homeDir });
   const serialized = JSON.stringify(summary);
   assert.equal(summary.notify_wrapper_only, false);
+  assert.equal(summary.notify_previous_wrapper, false);
+  assert.equal(summary.notify_routes_to_wrapper, false);
   assert.equal(summary.notify_via_desktop_client, true);
   assert.equal(summary.notify_has_previous_notify, true);
   assert.deepEqual(summary.issues, [
@@ -157,6 +159,48 @@ test("codex workflow summary flags notify drift without exposing secrets", async
     "notify_via_desktop_client",
     "notify_has_previous_notify",
   ]);
+  assert.doesNotMatch(serialized, /secret-device-key|secret-bot-token|secret-chat-id/u);
+});
+
+test("codex workflow accepts desktop notify wrapper when previous notify routes to workspace wrapper", async () => {
+  const homeDir = await fs.mkdtemp(path.join(os.tmpdir(), "codex-workflow-desktop-"));
+  const codexDir = path.join(homeDir, ".codex");
+  const wrapper = `${homeDir}/.codex/tools/codex-turn-ended-notify.sh`;
+  await fs.mkdir(path.join(codexDir, "automations", "workspace-health-daily"), { recursive: true });
+  await fs.mkdir(path.join(codexDir, "automations", "mobile-codex-bridge-heartbeat"), { recursive: true });
+  await fs.writeFile(
+    path.join(codexDir, "config.toml"),
+    `notify = ["/tmp/SkyComputerUseClient", "turn-ended", "--previous-notify", ${JSON.stringify(JSON.stringify([wrapper, "turn-ended"]))}]\n`,
+    "utf8",
+  );
+  await fs.writeFile(
+    path.join(codexDir, "notify-config.json"),
+    JSON.stringify({
+      bark: { enabled: true, device_key: "secret-device-key" },
+      telegram: { enabled: false, bot_token: "secret-bot-token", chat_id: "secret-chat-id" },
+      workspace_health: { enabled: true },
+    }),
+    "utf8",
+  );
+  await fs.writeFile(
+    path.join(codexDir, "automations", "workspace-health-daily", "automation.toml"),
+    'kind = "cron"\nstatus = "ACTIVE"\nname = "Workspace health daily"\n',
+    "utf8",
+  );
+  await fs.writeFile(
+    path.join(codexDir, "automations", "mobile-codex-bridge-heartbeat", "automation.toml"),
+    'kind = "heartbeat"\nstatus = "PAUSED"\nname = "Mobile Codex Bridge heartbeat"\n',
+    "utf8",
+  );
+
+  const summary = await buildCodexWorkflowSummary({ homeDir });
+  const serialized = JSON.stringify(summary);
+  assert.equal(summary.notify_wrapper_only, false);
+  assert.equal(summary.notify_previous_wrapper, true);
+  assert.equal(summary.notify_routes_to_wrapper, true);
+  assert.equal(summary.notify_via_desktop_client, true);
+  assert.equal(summary.notify_has_previous_notify, true);
+  assert.deepEqual(summary.issues, []);
   assert.doesNotMatch(serialized, /secret-device-key|secret-bot-token|secret-chat-id/u);
 });
 
@@ -192,6 +236,8 @@ test("codex workflow accepts intentionally paused daily health automation", asyn
 
   const summary = await buildCodexWorkflowSummary({ homeDir });
   assert.equal(summary.notify_wrapper_only, true);
+  assert.equal(summary.notify_previous_wrapper, false);
+  assert.equal(summary.notify_routes_to_wrapper, true);
   assert.equal(summary.bark_enabled, true);
   assert.equal(summary.telegram_enabled, false);
   assert.equal(summary.workspace_health_daily, "PAUSED");
