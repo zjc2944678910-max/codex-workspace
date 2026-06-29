@@ -148,6 +148,24 @@ Agent budget:
   L1 and L2 read-only audit workflows where independent passes materially reduce
   risk.
 
+Claude review is a proactive read-only review partner, not an implementation
+worker. Codex may call `claude_review_delegate` without asking when an
+independent second opinion would materially reduce risk: subtle evidence
+interpretation, architecture or root-cause judgment, live/NAS/VPS/OpenClaw
+read-only audit conclusions, shared-contract changes, security-sensitive
+surfaces, user-facing behavior, hard-to-roll-back changes, or important
+pre-merge reviews. Keep reviews bounded by explicit `source_of_truth`, scope,
+constraints, and forbidden actions. Codex still gathers local/live evidence,
+verifies any returned claims, owns final acceptance, and writes the user-facing
+synthesis.
+
+Do not use Claude review for routine explanations, tiny local facts, normal
+implementation, bug fixes, test-writing loops, low-value convenience
+cross-checks, or the initial evidence-gathering pass of a live/NAS/VPS/OpenClaw
+investigation. For L2/L3 surfaces, Claude review remains read-only only; it does
+not authorize config writes, restarts, deploys, database writes, deletes, or
+production file changes.
+
 Never delegate these to a model worker:
 
 - project routing from workspace residue
