@@ -131,6 +131,27 @@ Default short-task path:
 Codex route/judge -> choose the lightest safe path -> implement or delegate -> focused verification -> Codex accepts
 ```
 
+Default multi-model workflow:
+
+1. Tiny L0 tasks stay in Codex: simple answers, command output, obvious local
+   facts, one-file small edits, and small known-scope fixes.
+2. Small known-scope L0/L1 implementation may stay in Codex when the files,
+   tests, and acceptance criteria are explicit and no risky surface is involved.
+3. Non-tiny local implementation uses bounded workers or subagents when useful:
+   Codex maps the scope, assigns a concrete owned slice, reviews returned
+   changes, and verifies locally before acceptance.
+4. Sub2API is a proactive read-only advisor for non-tiny planning, architecture,
+   implementation advice, patch drafts, code review, research, writing, UX, and
+   creative polish. It may suggest code, but Codex or a bounded local worker
+   applies changes.
+5. Claude review is a proactive read-only second-opinion reviewer for subtle
+   evidence, architecture or root-cause judgment, L2 read-only audit conclusions,
+   shared contracts, security-sensitive surfaces, user-facing behavior,
+   hard-to-roll-back changes, and important pre-merge reviews.
+6. Codex owns the final synthesis every time: reconcile model disagreements,
+   verify claims against local or live evidence, run focused tests when useful,
+   and report residual risk.
+
 Keep the work in Codex when the task is `L0 tiny`, small known-scope L0/L1, the
 main value is diagnosis or judgment, or the request is L2/L3, live, deploy,
 auth, secrets, or config heavy. Use mapper/review/worker/verifier only when an
