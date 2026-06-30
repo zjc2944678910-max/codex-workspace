@@ -159,6 +159,7 @@ were originally filed under openclaw. Canonical home is here.
   - routing：`balancers:[{tag:webshare-bal,selector:["webshare"]}]`，rule `inboundTag=[webshare-vless-ws] → balancerTag=webshare-bal`；其余 inbound 默认走 `direct`(freedom)。
 - nginx `openclaw-gateway`：node./apex 块各加 `location /assets-3a7f1c9e2d5b8406 → 127.0.0.1:23085`。备份 `openclaw-gateway.bak-webshare-*`。
 - CF 无新增（复用 node. 橙云 + `node-port-8443` Origin Rule）。客户端 = node. 443 配置，仅 **path 改 `/assets-3a7f1c9e2d5b8406`**。
+- 订阅别名(2026-06-30)：移动订阅新增 `VLESS-WS-Mobile-Webshare-8443`，复用 Webshare WS path `/assets-3a7f1c9e2d5b8406`；`VLESS-WS-Mobile-8443` 直连旧节点保留不变。
 - 验证(2026-06-19)：Webshare 两出口 `curl -x` 通(9.142.211.156 / 45.56.183.242)；源站+CF 443 新路径 WS=101。**全链路出口 IP 待真实客户端确认**(应显示美国住宅 IP)。
 - **带宽 250GB/月**：仅供需住宅 IP 的特定用途，勿当通用 VPN 跑视频。
 - 回滚:`xray-wifi-fallback.json` 恢复 `.bak-webshare-*` + 重启服务;nginx 恢复 `openclaw-gateway.bak-webshare-*` + reload。直连节点/REALITY 不受影响。
