@@ -34,6 +34,14 @@ test("overallStatus flags structural issues before cleanup notes", () => {
     ...disk,
     retention_overdue: [{ path: "scratch/projects/misc" }],
   }), "attention");
+  assert.equal(overallStatus(hygiene, {
+    ...disk,
+    state_retention_gaps: [{ path: "state/project-data/unknown" }],
+  }), "attention");
+  assert.equal(overallStatus(hygiene, {
+    ...disk,
+    state_retention_manifest_loaded: false,
+  }), "attention");
   assert.equal(overallStatus(hygiene, disk, { issues: ["notify_not_wrapper_only"] }), "attention");
 });
 
@@ -53,10 +61,13 @@ test("renderHealthSummary gives a compact structure report", () => {
       ],
       retention_gaps: [],
       retention_overdue: [],
+      state_retention_gaps: [],
+      state_retention_overdue: [],
       cleanup_buckets: {
         delete: [{ pretty: "17M", count: 113, path: "(obvious garbage files)" }],
       },
       retention_manifest_loaded: true,
+      state_retention_manifest_loaded: true,
     },
     codex_workflow: {
       notify_wrapper_only: true,
@@ -74,6 +85,9 @@ test("renderHealthSummary gives a compact structure report", () => {
   assert.match(summary, /project_route_metadata_mismatches: 0/u);
   assert.match(summary, /retention_gaps: 0/u);
   assert.match(summary, /retention_overdue: 0/u);
+  assert.match(summary, /state_retention_manifest_loaded: yes/u);
+  assert.match(summary, /state_retention_gaps: 0/u);
+  assert.match(summary, /state_retention_overdue: 0/u);
   assert.match(summary, /codex_notify_wrapper: ok/u);
   assert.match(summary, /workspace_health_daily: PAUSED/u);
   assert.match(summary, /mobile_bridge_heartbeat: PAUSED/u);
@@ -96,10 +110,13 @@ test("renderHealthSummary reports overdue retention paths", () => {
       retention_overdue: [
         { pretty: "97K", path: "scratch/projects/misc", age_days: 113, retention_days: 14 },
       ],
+      state_retention_gaps: [],
+      state_retention_overdue: [],
       cleanup_buckets: {
         delete: [],
       },
       retention_manifest_loaded: true,
+      state_retention_manifest_loaded: true,
     },
     codex_workflow: {
       notify_wrapper_only: true,
@@ -115,6 +132,46 @@ test("renderHealthSummary reports overdue retention paths", () => {
   assert.match(summary, /status: attention/u);
   assert.match(summary, /retention_overdue: 1/u);
   assert.match(summary, /scratch\/projects\/misc\tage 113d > 14d/u);
+});
+
+test("renderHealthSummary reports state retention gaps", () => {
+  const summary = renderHealthSummary({
+    hygiene: {
+      repo_root: "/workspace",
+      git_clean: true,
+      unregistered_project_surfaces: [],
+      nonexistent_project_references: [],
+      project_route_metadata_mismatches: [],
+    },
+    disk: {
+      largest_paths: [],
+      retention_gaps: [],
+      retention_overdue: [],
+      state_retention_gaps: [
+        { pretty: "300M", path: "state/project-data/unregistered" },
+      ],
+      state_retention_overdue: [],
+      cleanup_buckets: {
+        delete: [],
+      },
+      retention_manifest_loaded: true,
+      state_retention_manifest_loaded: true,
+    },
+    codex_workflow: {
+      notify_wrapper_only: true,
+      bark_enabled: true,
+      telegram_enabled: false,
+      workspace_health_notify_enabled: true,
+      workspace_health_daily: "PAUSED",
+      mobile_bridge_heartbeat: "PAUSED",
+      issues: [],
+    },
+  });
+
+  assert.match(summary, /status: attention/u);
+  assert.match(summary, /state_retention_gaps: 1/u);
+  assert.match(summary, /state_retention_gap_paths:/u);
+  assert.match(summary, /state\/project-data\/unregistered/u);
 });
 
 test("codex workflow summary flags notify drift without exposing secrets", async () => {

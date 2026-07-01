@@ -166,6 +166,9 @@ function overallStatus(hygiene = {}, disk = {}, codexWorkflow = {}) {
     || count(disk.retention_gaps) > 0
     || count(disk.retention_overdue) > 0
     || disk.retention_manifest_loaded === false
+    || count(disk.state_retention_gaps) > 0
+    || count(disk.state_retention_overdue) > 0
+    || disk.state_retention_manifest_loaded === false
     || count(codexWorkflow.issues) > 0;
   return structuralIssues ? "attention" : "ok";
 }
@@ -202,6 +205,9 @@ function renderHealthSummary(result = {}) {
     `retention_manifest_loaded: ${disk.retention_manifest_loaded ? "yes" : "no"}`,
     `retention_gaps: ${count(disk.retention_gaps)}`,
     `retention_overdue: ${count(disk.retention_overdue)}`,
+    `state_retention_manifest_loaded: ${disk.state_retention_manifest_loaded === true ? "yes" : disk.state_retention_manifest_loaded === false ? "no" : "n/a"}`,
+    `state_retention_gaps: ${count(disk.state_retention_gaps)}`,
+    `state_retention_overdue: ${count(disk.state_retention_overdue)}`,
     `codex_notify_wrapper: ${notifyOk ? "ok" : "attention"}`,
     `bark_enabled: ${codexWorkflow.bark_enabled ? "yes" : "no"}`,
     `telegram_enabled: ${codexWorkflow.telegram_enabled ? "yes" : "no"}`,
@@ -229,6 +235,18 @@ function renderHealthSummary(result = {}) {
   if (count(disk.retention_overdue) > 0) {
     lines.push("", "retention_overdue_paths:");
     for (const overdue of disk.retention_overdue) {
+      lines.push(`- ${overdue.pretty}\t${overdue.path}\tage ${overdue.age_days}d > ${overdue.retention_days}d`);
+    }
+  }
+  if (count(disk.state_retention_gaps) > 0) {
+    lines.push("", "state_retention_gap_paths:");
+    for (const gap of disk.state_retention_gaps) {
+      lines.push(`- ${gap.pretty}\t${gap.path}`);
+    }
+  }
+  if (count(disk.state_retention_overdue) > 0) {
+    lines.push("", "state_retention_overdue_paths:");
+    for (const overdue of disk.state_retention_overdue) {
       lines.push(`- ${overdue.pretty}\t${overdue.path}\tage ${overdue.age_days}d > ${overdue.retention_days}d`);
     }
   }

@@ -147,6 +147,40 @@ test("pre-tool hook treats git status with flags as inspection", () => {
   assert.deepEqual(output, {});
 });
 
+test("hook trackable-path policy accepts generated workspace entrypoints", () => {
+  const python = `
+import importlib.util
+import json
+import pathlib
+
+script = pathlib.Path(${JSON.stringify(hookScript)})
+spec = importlib.util.spec_from_file_location("workspace_guard", script)
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+
+print(json.dumps({
+    "PROJECTS.md": module.is_trackable_path("PROJECTS.md"),
+    "DAILY.md": module.is_trackable_path("DAILY.md"),
+    "AGENTS.md": module.is_trackable_path("AGENTS.md"),
+}))
+`;
+
+  const result = spawnSync("python3", ["-c", python], {
+    cwd: repoRoot,
+    env: { ...process.env, PYTHONDONTWRITEBYTECODE: "1" },
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  if (result.status !== 0) {
+    throw new Error((result.stderr || result.stdout || `python exited ${result.status}`).trim());
+  }
+
+  const trackable = JSON.parse(result.stdout);
+  assert.equal(trackable["PROJECTS.md"], true);
+  assert.equal(trackable["DAILY.md"], true);
+  assert.equal(trackable["AGENTS.md"], true);
+});
+
 test("permission hook denies L3 approval requests without repair gate", () => {
   const output = runHook("permission-request", {
     tool_input: {

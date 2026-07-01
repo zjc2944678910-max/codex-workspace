@@ -198,6 +198,31 @@ test("repo hygiene prefers registered surfaces over nested code roots", async ()
   assert.deepEqual(unregistered, []);
 });
 
+test("repo hygiene accepts code_roots path fallback when surfaces are omitted", async () => {
+  const repoRoot = await createFixture();
+  await fs.mkdir(path.join(repoRoot, "projects", "products", "sample-product"), { recursive: true });
+  await fs.writeFile(path.join(repoRoot, "projects", "products", "sample-product", "src.txt"), "code\n", "utf8");
+
+  const surfaces = await listProjectSurfaces(repoRoot);
+  const registry = {
+    projects: [
+      {
+        slug: "sample-product",
+        code_roots: [
+          {
+            path: "projects/products/sample-product",
+            role: "main",
+            gitnexus_status: "indexed",
+          },
+        ],
+      },
+    ],
+  };
+
+  const unregistered = findUnregisteredSurfaces(surfaces, registry);
+  assert.deepEqual(unregistered, []);
+});
+
 test("repo hygiene detects nonexistent project references in docs", async () => {
   const repoRoot = await createFixture();
   // Write a doc that references a nonexistent project path

@@ -37,6 +37,8 @@ TRACKABLE_EXACT_PATHS = {
     "AGENTS.md",
     "WORKER.md",
     "CLAUDE.md",
+    "PROJECTS.md",
+    "DAILY.md",
     ".gitignore",
     ".codex/config.toml",
     ".codex/hooks.json",

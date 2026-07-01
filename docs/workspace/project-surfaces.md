@@ -60,6 +60,19 @@ docs; claude-workspace holds thin pointer READMEs only. The infra-layer projects
 
 Source of truth for scripts: [`scratch-retention.json`](./scratch-retention.json).
 
+## State Paths
+
+| State Path | Owning Project | Status | Retention (days) |
+| --- | --- | --- | --- |
+| `state/project-data/bigdata-spark-research-workbench` | bigdata-spark-research-workbench | retain active research sidecar data | 180 |
+| `state/project-data/launchagent-repair` | workspace | review after repair window | 60 |
+| `state/project-data/telegram-dual-relay` | telegram-dual-relay | retain active relay state | 90 |
+| `state/project-data/telegram-claude-relay` | workspace | review legacy relay migration state | 90 |
+| `state/review` | workspace | review candidate bundles | 90 |
+| `state/staging` | workspace | review temporary staging monthly | 30 |
+
+Source of truth for scripts: [`state-retention.json`](./state-retention.json).
+
 ## Registration Rule
 
 Long-lived project surfaces under `projects/*/*` must be registered via

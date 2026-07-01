@@ -12,6 +12,7 @@ import {
   findRetentionOverdue,
   formatBytes,
   loadScratchRetention,
+  loadStateRetention,
   renderReport,
 } from "./workspace-disk-report.mjs";
 
@@ -94,6 +95,31 @@ test("workspace disk report returns null when no retention manifest exists", asy
   assert.equal(loaded, null);
 });
 
+test("workspace disk report loads state retention manifest from fixture", async () => {
+  const repoRoot = await createFixture();
+  const manifest = {
+    entries: [{ path: "state/project-data/sample-product", retention_days: 90 }],
+  };
+  await fs.writeFile(
+    path.join(repoRoot, "docs", "workspace", "state-retention.json"),
+    JSON.stringify(manifest),
+    "utf8",
+  );
+  const loaded = await loadStateRetention(repoRoot);
+  assert.equal(loaded.entries[0].path, "state/project-data/sample-product");
+});
+
+test("workspace disk report returns null for malformed state retention manifest", async () => {
+  const repoRoot = await createFixture();
+  await fs.writeFile(
+    path.join(repoRoot, "docs", "workspace", "state-retention.json"),
+    "{not json",
+    "utf8",
+  );
+  const loaded = await loadStateRetention(repoRoot);
+  assert.equal(loaded, null);
+});
+
 test("findRetentionGaps flags large scratch paths without retention entries", () => {
   const entries = [
     { path: "scratch/projects/openclaw", bytes: 200 * 1024 * 1024, pretty: "200M", bucket: "ask" },
@@ -144,6 +170,21 @@ test("findRetentionGaps respects overridden threshold in tests", () => {
   assert.equal(gaps2.length, 0);
 });
 
+test("findRetentionGaps can check state paths with separate container rules", () => {
+  const entries = [
+    { path: "state/project-data", bytes: 900 * 1024 * 1024, pretty: "900M", bucket: "ask" },
+    { path: "state/project-data/big-data", bytes: 300 * 1024 * 1024, pretty: "300M", bucket: "ask" },
+  ];
+  const manifest = {
+    entries: [{ path: "state/project-data", retention_days: 90 }],
+  };
+  const gaps = findRetentionGaps(entries, manifest, 100 * 1024 * 1024, {
+    prefix: "state/",
+    reason: "state path >= threshold with no retention entry",
+  });
+  assert.deepEqual(gaps.map((gap) => gap.path), ["state/project-data/big-data"]);
+});
+
 test("findRetentionOverdue flags existing scratch paths past retention window", () => {
   const entries = [
     { path: "scratch/projects/misc", bytes: 1024, pretty: "1.0K", bucket: "ask" },
@@ -165,6 +206,27 @@ test("findRetentionOverdue flags existing scratch paths past retention window", 
   assert.equal(overdue[0].disposition, "prune");
 });
 
+test("findRetentionOverdue can check state paths independently", () => {
+  const entries = [
+    { path: "state/project-data/old-export", bytes: 1024, pretty: "1.0K", bucket: "ask" },
+  ];
+  const manifest = {
+    default_retention_days: 90,
+    entries: [
+      { path: "state/project-data/old-export", retention_days: 30, last_active: "2026-03-01", disposition: "archive" },
+    ],
+  };
+
+  const overdue = findRetentionOverdue(entries, manifest, {
+    now: "2026-07-01",
+    prefix: "state/",
+    reason: "state retention entry exceeded retention_days since last_active",
+  });
+  assert.deepEqual(overdue.map((entry) => entry.path), ["state/project-data/old-export"]);
+  assert.equal(overdue[0].age_days, 122);
+  assert.equal(overdue[0].retention_days, 30);
+});
+
 test("workspace disk report includes retention gaps in JSON output", async () => {
   const repoRoot = await createFixture();
   // Make scratch/shared/run large enough by adding more files
@@ -184,7 +246,13 @@ test("workspace disk report includes retention gaps in JSON output", async () =>
   assert.ok("retention_overdue" in report);
   assert.ok("retention_gap_threshold_bytes" in report);
   assert.ok("retention_manifest_loaded" in report);
+  assert.ok("state_retention_gaps" in report);
+  assert.ok("state_retention_overdue" in report);
+  assert.ok("state_retention_gap_threshold_bytes" in report);
+  assert.ok("state_retention_manifest_loaded" in report);
   assert.equal(report.retention_manifest_loaded, true);
+  assert.equal(report.state_retention_manifest_loaded, false);
   assert.ok(report.retention_gaps.length > 0);
   assert.match(renderReport(report), /retention_gaps:/u);
+  assert.match(renderReport(report), /state_retention_gaps:/u);
 });

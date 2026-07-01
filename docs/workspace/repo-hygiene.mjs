@@ -328,7 +328,7 @@ function findUnregisteredSurfaces(projectSurfaces, registry) {
     for (const entry of candidates) {
       const root = typeof entry === "string"
         ? entry
-        : (typeof entry?.surface === "string" ? entry.surface : "");
+        : (typeof entry?.surface === "string" ? entry.surface : entry?.path);
       const normalized = String(root || "").replace(/\\/g, "/");
       if (/^projects\/[^/]+\/[^/]+$/u.test(normalized)) {
         registered.add(normalized);

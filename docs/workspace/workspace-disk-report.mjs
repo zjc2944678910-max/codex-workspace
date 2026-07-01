@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 
 const DEFAULT_LIMIT = 25;
 const DEFAULT_RETENTION_GAP_BYTES = 100 * 1024 * 1024; // 100MB
+const DEFAULT_STATE_RETENTION_GAP_BYTES = 100 * 1024 * 1024; // 100MB
 
 function parseArgs(argv = []) {
   const options = {
@@ -14,6 +15,7 @@ function parseArgs(argv = []) {
     json: false,
     limit: DEFAULT_LIMIT,
     retentionGapThreshold: DEFAULT_RETENTION_GAP_BYTES,
+    stateRetentionGapThreshold: DEFAULT_STATE_RETENTION_GAP_BYTES,
   };
   for (let index = 0; index < argv.length; index += 1) {
     const arg = String(argv[index] || "").trim();
@@ -35,6 +37,12 @@ function parseArgs(argv = []) {
     if (arg === "--retention-gap-threshold") {
       const parsed = Number.parseInt(String(argv[index + 1] || ""), 10);
       if (Number.isFinite(parsed) && parsed >= 0) options.retentionGapThreshold = parsed;
+      index += 1;
+      continue;
+    }
+    if (arg === "--state-retention-gap-threshold") {
+      const parsed = Number.parseInt(String(argv[index + 1] || ""), 10);
+      if (Number.isFinite(parsed) && parsed >= 0) options.stateRetentionGapThreshold = parsed;
       index += 1;
     }
   }
@@ -101,6 +109,9 @@ async function collectInventoryPaths(repoRoot) {
     "scratch/projects",
     "scratch/shared",
     "state",
+    "state/project-data",
+    "state/review",
+    "state/staging",
   ];
   for (const opsProjectDir of await listChildDirs(repoRoot, "ops/projects")) {
     parentDirs.push(opsProjectDir);
@@ -256,8 +267,8 @@ function formatBytes(bytes) {
   return `${value}B`;
 }
 
-async function loadScratchRetention(repoRoot) {
-  const manifestPath = path.join(repoRoot, "docs", "workspace", "scratch-retention.json");
+async function loadRetentionManifest(repoRoot, fileName) {
+  const manifestPath = path.join(repoRoot, "docs", "workspace", fileName);
   try {
     const raw = await fs.readFile(manifestPath, "utf8");
     return JSON.parse(raw);
@@ -266,19 +277,35 @@ async function loadScratchRetention(repoRoot) {
   }
 }
 
-function findRetentionGaps(entries, retentionManifest, thresholdBytes) {
+async function loadScratchRetention(repoRoot) {
+  return loadRetentionManifest(repoRoot, "scratch-retention.json");
+}
+
+async function loadStateRetention(repoRoot) {
+  return loadRetentionManifest(repoRoot, "state-retention.json");
+}
+
+function defaultRetentionContainerPaths(prefix = "scratch/") {
+  if (prefix === "state/") return ["state", "state/project-data", "state/review", "state/staging"];
+  return ["scratch/projects", "scratch/shared"];
+}
+
+function findRetentionGaps(entries, retentionManifest, thresholdBytes, options = {}) {
   if (!retentionManifest || !retentionManifest.entries) return [];
+  const prefix = options.prefix || "scratch/";
+  const containerPaths = new Set(options.containerPaths || defaultRetentionContainerPaths(prefix));
+  const reason = options.reason || "scratch path >= threshold with no retention entry";
   const covered = new Set(
     retentionManifest.entries.map((e) => String(e.path || "").replace(/\\/g, "/")),
   );
   const coversPath = (coveredPath, entryPath) => {
     if (entryPath === coveredPath) return true;
-    if (coveredPath === "scratch/projects" || coveredPath === "scratch/shared") return false;
+    if (containerPaths.has(coveredPath)) return false;
     return entryPath.startsWith(`${coveredPath}/`);
   };
   return entries
     .filter((entry) => {
-      if (!entry.path.startsWith("scratch/")) return false;
+      if (!entry.path.startsWith(prefix)) return false;
       if (entry.bytes < thresholdBytes) return false;
       return ![...covered].some((c) => coversPath(c, entry.path));
     })
@@ -286,7 +313,7 @@ function findRetentionGaps(entries, retentionManifest, thresholdBytes) {
       path: entry.path,
       bytes: entry.bytes,
       pretty: entry.pretty,
-      reason: "scratch path >= threshold with no retention entry",
+      reason,
     }));
 }
 
@@ -301,6 +328,8 @@ function dateOnlyMs(value) {
 
 function findRetentionOverdue(entries, retentionManifest, options = {}) {
   if (!retentionManifest || !Array.isArray(retentionManifest.entries)) return [];
+  const prefix = options.prefix || "scratch/";
+  const reason = options.reason || "scratch retention entry exceeded retention_days since last_active";
   const entriesByPath = new Map(entries.map((entry) => [entry.path, entry]));
   const nowMs = dateOnlyMs(options.now || new Date());
   if (!Number.isFinite(nowMs)) return [];
@@ -310,7 +339,7 @@ function findRetentionOverdue(entries, retentionManifest, options = {}) {
     .map((manifestEntry) => {
       const entryPath = String(manifestEntry.path || "").replace(/\\/g, "/");
       const diskEntry = entriesByPath.get(entryPath);
-      if (!entryPath.startsWith("scratch/") || !diskEntry) return null;
+      if (!entryPath.startsWith(prefix) || !diskEntry) return null;
 
       const retentionDays = Number.isFinite(Number(manifestEntry.retention_days))
         ? Number(manifestEntry.retention_days)
@@ -329,7 +358,7 @@ function findRetentionOverdue(entries, retentionManifest, options = {}) {
         last_active: manifestEntry.last_active,
         active: manifestEntry.active === true,
         disposition: manifestEntry.disposition || "",
-        reason: "scratch retention entry exceeded retention_days since last_active",
+        reason,
       };
     })
     .filter(Boolean)
@@ -366,11 +395,25 @@ async function buildWorkspaceDiskReport(options = {}) {
   const limit = Number.isFinite(options.limit) && options.limit > 0 ? options.limit : DEFAULT_LIMIT;
   const obviousGarbage = await collectObviousGarbage(repoRoot);
   const retentionManifest = await loadScratchRetention(repoRoot);
+  const stateRetentionManifest = await loadStateRetention(repoRoot);
   const retentionThreshold = Number.isFinite(options.retentionGapThreshold)
     ? options.retentionGapThreshold
     : DEFAULT_RETENTION_GAP_BYTES;
+  const stateRetentionThreshold = Number.isFinite(options.stateRetentionGapThreshold)
+    ? options.stateRetentionGapThreshold
+    : DEFAULT_STATE_RETENTION_GAP_BYTES;
   const retentionGaps = findRetentionGaps(entries, retentionManifest, retentionThreshold);
   const retentionOverdue = findRetentionOverdue(entries, retentionManifest, { now: options.now });
+  const stateRetentionGaps = findRetentionGaps(entries, stateRetentionManifest, stateRetentionThreshold, {
+    prefix: "state/",
+    containerPaths: ["state", "state/project-data", "state/review", "state/staging"],
+    reason: "state path >= threshold with no retention entry",
+  });
+  const stateRetentionOverdue = findRetentionOverdue(entries, stateRetentionManifest, {
+    now: options.now,
+    prefix: "state/",
+    reason: "state retention entry exceeded retention_days since last_active",
+  });
   return {
     repo_root: repoRoot,
     limit,
@@ -394,6 +437,10 @@ async function buildWorkspaceDiskReport(options = {}) {
     retention_overdue: retentionOverdue,
     retention_gap_threshold_bytes: retentionThreshold,
     retention_manifest_loaded: retentionManifest !== null,
+    state_retention_gaps: stateRetentionGaps,
+    state_retention_overdue: stateRetentionOverdue,
+    state_retention_gap_threshold_bytes: stateRetentionThreshold,
+    state_retention_manifest_loaded: stateRetentionManifest !== null,
   };
 }
 
@@ -438,6 +485,24 @@ function renderReport(report) {
       lines.push(`- ${overdue.pretty}\t${overdue.path}\tage ${overdue.age_days}d > ${overdue.retention_days}d; ${overdue.disposition || "review"}`);
     }
   }
+  lines.push("", `state_retention_manifest_loaded: ${report.state_retention_manifest_loaded ? "yes" : "no"}`);
+  lines.push(`state_retention_gap_threshold: ${formatBytes(report.state_retention_gap_threshold_bytes)}`);
+  lines.push("state_retention_gaps:");
+  if (!report.state_retention_gaps || report.state_retention_gaps.length === 0) {
+    lines.push("- (none)");
+  } else {
+    for (const gap of report.state_retention_gaps) {
+      lines.push(`- ${gap.pretty}\t${gap.path}\t${gap.reason}`);
+    }
+  }
+  lines.push("state_retention_overdue:");
+  if (!report.state_retention_overdue || report.state_retention_overdue.length === 0) {
+    lines.push("- (none)");
+  } else {
+    for (const overdue of report.state_retention_overdue) {
+      lines.push(`- ${overdue.pretty}\t${overdue.path}\tage ${overdue.age_days}d > ${overdue.retention_days}d; ${overdue.disposition || "review"}`);
+    }
+  }
   return `${lines.join("\n")}\n`;
 }
 
@@ -469,5 +534,6 @@ export {
   findRetentionOverdue,
   formatBytes,
   loadScratchRetention,
+  loadStateRetention,
   renderReport,
 };

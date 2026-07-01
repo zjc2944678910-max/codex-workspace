@@ -1,0 +1,96 @@
+{
+  "$schema": "workspace-state-retention/v1",
+  "description": "State retention manifest. Each entry declares a state path, owner, purpose, retention intent, and disposition. The disk report flags state paths >=100MB without an entry.",
+  "updated": "2026-07-01",
+  "default_retention_days": 90,
+  "entries": [
+    {
+      "path": "state",
+      "owner": "workspace",
+      "project": null,
+      "purpose": "Parent container for machine-local Codex state",
+      "active": true,
+      "retention_days": 180,
+      "retention_intent": "retain container; child paths carry the concrete retention decisions",
+      "disposition": "retain",
+      "last_active": "2026-07-01"
+    },
+    {
+      "path": "state/project-data",
+      "owner": "workspace",
+      "project": null,
+      "purpose": "Parent container for project-specific state that is not source code",
+      "active": true,
+      "retention_days": 180,
+      "retention_intent": "retain container; child paths carry the concrete retention decisions",
+      "disposition": "retain",
+      "last_active": "2026-07-01"
+    },
+    {
+      "path": "state/project-data/bigdata-spark-research-workbench",
+      "owner": "bigdata-spark-research-workbench",
+      "project": "bigdata-spark-research-workbench",
+      "purpose": "Large local research sidecar data and JIT defect prediction state",
+      "active": true,
+      "retention_days": 180,
+      "retention_intent": "retain while BigData/Spark research work remains active; review size before archiving or pruning",
+      "disposition": "retain",
+      "last_active": "2026-07-01"
+    },
+    {
+      "path": "state/project-data/launchagent-repair",
+      "owner": "workspace",
+      "project": null,
+      "purpose": "LaunchAgent repair state and local repair evidence",
+      "active": true,
+      "retention_days": 60,
+      "retention_intent": "review after the launchagent repair window closes; archive only if follow-up evidence is needed",
+      "disposition": "review",
+      "last_active": "2026-06-29"
+    },
+    {
+      "path": "state/project-data/telegram-dual-relay",
+      "owner": "telegram-dual-relay",
+      "project": "telegram-dual-relay",
+      "purpose": "Local relay sessions and logs that support the registered infrastructure project",
+      "active": true,
+      "retention_days": 90,
+      "retention_intent": "retain while relay work remains active; rotate logs in the project surface when they grow",
+      "disposition": "retain",
+      "last_active": "2026-07-01"
+    },
+    {
+      "path": "state/project-data/telegram-claude-relay",
+      "owner": "workspace",
+      "project": null,
+      "purpose": "Legacy local relay sessions retained as migration/reference state",
+      "active": false,
+      "retention_days": 90,
+      "retention_intent": "archive or prune after confirming the dual-relay surface has the needed continuity data",
+      "disposition": "review",
+      "last_active": "2026-07-01"
+    },
+    {
+      "path": "state/review",
+      "owner": "workspace",
+      "project": null,
+      "purpose": "Local review staging and candidate inventories",
+      "active": true,
+      "retention_days": 90,
+      "retention_intent": "retain while current review workflows are active; archive stale candidate bundles",
+      "disposition": "review",
+      "last_active": "2026-07-01"
+    },
+    {
+      "path": "state/staging",
+      "owner": "workspace",
+      "project": null,
+      "purpose": "Temporary local staging for controlled workspace operations",
+      "active": true,
+      "retention_days": 30,
+      "retention_intent": "review monthly; promote durable evidence to ops docs or archive stale staging bundles",
+      "disposition": "review",
+      "last_active": "2026-07-01"
+    }
+  ]
+}

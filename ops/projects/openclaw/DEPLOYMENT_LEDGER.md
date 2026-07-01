@@ -7327,7 +7327,7 @@ Validation:
     - `openclaw-benben.service` started Feishu websocket
     - no matching Feishu websocket or dispatch log lines observed for `openclaw-gateway.service` in the same window
 - manifest:
-  - `ops/projects/openclaw/manifests/openclaw-benben-vnext-group-memory-visibility-20260428.json`
+  - `ops/projects/openclaw/manifests/archive/2026-04-benben-shadow-vnext/openclaw-benben-vnext-group-memory-visibility-20260428.json`
 
 2026-04-30 OpenClaw live observability and resource-guard first-pass repair:
 
@@ -7386,7 +7386,7 @@ Validation:
   - OpenClaw package update
   - changing `tools.exec.applyPatch.workspaceOnly`
 - manifest:
-  - `ops/projects/openclaw/manifests/openclaw-live-observability-resource-guards-20260430.json`
+  - `ops/projects/openclaw/manifests/archive/2026-04-benben-shadow-vnext/openclaw-live-observability-resource-guards-20260430.json`
 
 2026-05-02 OpenClaw old gateway retirement and Memory V4 convergence:
 

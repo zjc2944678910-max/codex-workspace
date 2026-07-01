@@ -23,6 +23,7 @@ Policy: `AGENTS.md`. Worker contract: `WORKER.md`.
 | `project-registry.json` | Machine-readable workspace project registry and hook routing metadata |
 | `project-surfaces.md` | Human-readable project surfaces and GitNexus status |
 | `scratch-retention.json` | Scratch retention manifest with per-path policy |
+| `state-retention.json` | State retention manifest with per-path policy for ignored machine-local state |
 | `../../PROJECTS.md` | Generated short project map for session startup |
 | `../../DAILY.md` | Short-lived session/day notes before promotion |
 | `../decisions/workspace-decisions.md` | Durable workspace-level decisions |
@@ -71,8 +72,9 @@ heartbeat. The current policy allows the daily workspace health automation to be
 attention-worthy. It reports only booleans and status strings, never
 notification secrets. Large scratch paths reported here are candidates for later
 review, not automatic deletion targets. Scratch retention decisions come from
-`scratch-retention.json`; a healthy report should load that manifest and show
-`retention_gaps: 0`.
+`scratch-retention.json`; state retention decisions come from
+`state-retention.json`. A healthy report should load both manifests and show
+`retention_gaps: 0` plus `state_retention_gaps: 0`.
 
 Explain project route metadata drift:
 
@@ -100,6 +102,14 @@ stay configured for future mobile-continuation work, but `telegram.enabled`
 should remain `false` unless that channel is deliberately reactivated. The
 wrapper can include a compact workspace-health warning in the phone notification
 when health status becomes `attention`.
+
+## State Retention
+
+Machine-local state lives under ignored `state/` paths. Use
+`state-retention.json` to record owner, purpose, activity, retention window, and
+disposition for large or operationally important state directories. The health
+check flags state paths above the threshold when they have no manifest entry,
+and flags manifest entries whose `last_active` exceeds `retention_days`.
 
 ## Playwright
 
