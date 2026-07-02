@@ -1,5 +1,60 @@
 # Sub2API Deployment Ledger
 
+## 2026-07-02: OpenCat Antigravity OpenAI-Compatibility Repair
+
+Live host: `107.175.180.163`
+
+### Changes
+
+- Built and deployed `sub2api:opencat-compat-20260702T150705`.
+- Updated `/opt/sub2api/docker-compose.yml` to use that image and restarted only
+  the `sub2api` container with `docker compose up -d --no-deps sub2api`.
+- Normalized Antigravity `/v1/models` responses to include OpenAI-compatible
+  model fields required by strict clients: `object`, `created`, and `owned_by`.
+- Adjusted Responses SSE serialization so zero-valued `sequence_number`,
+  `output_index`, `content_index`, and `summary_index` are emitted on the event
+  types where OpenAI-compatible clients may treat them as required.
+- Kept API keys, account groups, OAuth accounts, PostgreSQL, Redis, Cloudflare,
+  and `/v1/chat/completions` routing unchanged.
+
+### Evidence On VPS
+
+- `/root/codex-repair-sub2api-opencat-compat-20260702T142935+0800`
+
+### Verification
+
+- `go test ./internal/pkg/apicompat` passed in `golang:1.26.2-alpine`.
+- New image build completed successfully.
+- Container reported `healthy`; `/health` returned `{"status":"ok"}`.
+- `codex_antigravity` MCP smoke returned HTTP 200 for `gpt-oss-120b-medium`,
+  `gemini-3.1-pro-high`, and `claude-opus-4-6-thinking`.
+- Antigravity `/v1/models` returned HTTP 200 with no missing `id`, `object`,
+  `created`, or `owned_by` fields across the returned model list.
+- Antigravity `/v1/responses` streaming with an OpenCat user agent emitted
+  `response.created` with `sequence_number: 0`, `response.output_item.added`
+  with `output_index: 0`, and `response.output_text.delta` with
+  `output_index: 0` and `content_index: 0`.
+- Antigravity `/v1/chat/completions` remained HTTP 200 for
+  `gpt-oss-120b-medium`, `gemini-3.1-pro-high`, and
+  `claude-opus-4-6-thinking`.
+
+### Rollback
+
+```bash
+cd /opt/sub2api
+# Restore:
+# /root/codex-repair-sub2api-opencat-compat-20260702T142935+0800/docker-compose.before.yml
+# or set the sub2api service image back to:
+#   sub2api:antigravity-toolcfg3-20260623T004508
+docker compose up -d --no-deps sub2api
+```
+
+Source file backups are under:
+
+```text
+/root/codex-repair-sub2api-opencat-compat-20260702T142935+0800/files-before/
+```
+
 ## 2026-06-22: Antigravity Responses API Output Repair
 
 Live host: `107.175.180.163`
