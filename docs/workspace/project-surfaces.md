@@ -10,8 +10,10 @@ Source of truth for scripts: [`project-registry.json`](./project-registry.json).
 | Project | Registered Surface(s) | Working Code Root(s) | Ops Surface | GitNexus |
 | --- | --- | --- | --- | --- |
 | OpenClaw | `projects/products/openclaw`, `projects/migrations/openclaw-mac-migration` | `projects/products/openclaw/nas-openclaw-v22`; `projects/migrations/openclaw-mac-migration` | `ops/projects/openclaw` | mainline indexed; migration not targeted |
+| Hotel Management System | `projects/products/hotel-mgmt` | `projects/products/hotel-mgmt` | `ops/projects/hotel-mgmt` | indexed |
 | Love Letter Site | `projects/products/love-letter-site` | `projects/products/love-letter-site` | `ops/projects/love-letter-site` | not indexed |
 | NAS Platform | `projects/infrastructure/nas-platform` | `projects/infrastructure/nas-platform` | `ops/projects/nas-platform` | unknown; local path is not a standalone git repo |
+| Pet Clinic Management System | `projects/products/pet-clinic` | `projects/products/pet-clinic` | `ops/projects/pet-clinic` | indexed |
 | Telegram Dual Relay | `projects/infrastructure/telegram-dual-relay` | `projects/infrastructure/telegram-dual-relay` | `ops/projects/telegram-dual-relay` | indexed |
 | Sub2API | ops-only live service | live source on VPS at `/opt/sub2api-src-fix`; no local tracked code root | `ops/projects/sub2api` | not indexed |
 | Proxy Nodes VPS | ops-only live service | live xray/sing-box on VPS; no local tracked code root | `ops/projects/proxy-nodes` | not indexed |
@@ -30,9 +32,10 @@ reference after the active code roots above are indexed.
 Root: `/Users/zhangjincheng/Documents/GitHub/claude-workspace`
 (registry: `registry/project-registry.json`).
 
-These projects are primarily maintained in claude-workspace; their code roots do
-not exist in this repo (cross-reference for awareness only, not local routing
-targets):
+These projects are also registered in claude-workspace for routing awareness,
+but their code roots physically live in this repo under `projects/` and are
+exposed to claude-workspace through local git-ignored symlinks per the
+2026-06-22 project code consolidation decision:
 
 | Project | Slug | Kind |
 | --- | --- | --- |
