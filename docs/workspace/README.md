@@ -67,14 +67,17 @@ node docs/workspace/workspace-health.mjs --repo "$PWD" --limit 12
 
 This also checks Codex workflow drift such as notification wrapper wiring,
 Bark/Telegram policy, the daily health automation, and the paused mobile bridge
-heartbeat. The current policy allows the daily workspace health automation to be
-`ACTIVE` or intentionally `PAUSED`; missing or unknown automation state remains
+heartbeat. It separately scans nested git repositories under `projects/` so a
+clean workspace-index repo cannot hide dirty project worktrees. The current
+policy allows the daily workspace health automation to be `ACTIVE` or
+intentionally `PAUSED`; missing or unknown automation state remains
 attention-worthy. It reports only booleans and status strings, never
 notification secrets. Large scratch paths reported here are candidates for later
 review, not automatic deletion targets. Scratch retention decisions come from
 `scratch-retention.json`; state retention decisions come from
 `state-retention.json`. A healthy report should load both manifests and show
-`retention_gaps: 0` plus `state_retention_gaps: 0`.
+`retention_gaps: 0` plus `state_retention_gaps: 0`, with
+`nested_git_dirty: 0`.
 
 Explain project route metadata drift:
 

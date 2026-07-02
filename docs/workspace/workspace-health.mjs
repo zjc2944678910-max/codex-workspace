@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -10,6 +11,20 @@ import { buildRepoHygieneSummary } from "./repo-hygiene.mjs";
 import { buildWorkspaceDiskReport } from "./workspace-disk-report.mjs";
 
 const DEFAULT_LIMIT = 8;
+const NESTED_GIT_SCAN_ROOTS = ["projects"];
+const NESTED_GIT_SKIP_DIRS = new Set([
+  ".git",
+  ".hg",
+  ".svn",
+  "node_modules",
+  ".venv",
+  "venv",
+  "__pycache__",
+  "target",
+  "dist",
+  "build",
+  ".next",
+]);
 
 function parseArgs(argv = []) {
   const options = {
@@ -39,6 +54,97 @@ function parseArgs(argv = []) {
 
 function count(value) {
   return Array.isArray(value) ? value.length : 0;
+}
+
+async function listNestedGitRoots(repo, options = {}) {
+  const scanRoots = Array.isArray(options.scanRoots) && options.scanRoots.length > 0
+    ? options.scanRoots
+    : NESTED_GIT_SCAN_ROOTS;
+  const roots = [];
+
+  async function walk(absDir, relDir) {
+    let entries = [];
+    try {
+      entries = await fs.readdir(absDir, { withFileTypes: true });
+    } catch (error) {
+      if (error && ["ENOENT", "ENOTDIR", "EACCES"].includes(error.code)) return;
+      throw error;
+    }
+
+    if (entries.some((entry) => entry.name === ".git" && (entry.isDirectory() || entry.isFile()))) {
+      roots.push(relDir);
+    }
+
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue;
+      if (NESTED_GIT_SKIP_DIRS.has(entry.name)) continue;
+      const childRel = relDir ? path.posix.join(relDir, entry.name) : entry.name;
+      await walk(path.join(absDir, entry.name), childRel);
+    }
+  }
+
+  for (const scanRoot of scanRoots) {
+    const normalized = String(scanRoot || "").replace(/\\/gu, "/").replace(/^\/+/u, "").replace(/\/+$/u, "");
+    if (!normalized) continue;
+    await walk(path.join(repo, normalized), normalized);
+  }
+
+  return roots.sort((left, right) => left.localeCompare(right));
+}
+
+function parseGitStatusLines(text = "") {
+  return String(text || "")
+    .split(/\r?\n/u)
+    .map((line) => line.trimEnd())
+    .filter(Boolean);
+}
+
+function summarizeGitStatusLines(lines = []) {
+  let tracked = 0;
+  let untracked = 0;
+  for (const line of lines) {
+    if (line.startsWith("?? ")) {
+      untracked += 1;
+    } else {
+      tracked += 1;
+    }
+  }
+  return {
+    dirty_count: lines.length,
+    tracked_count: tracked,
+    untracked_count: untracked,
+  };
+}
+
+function nestedGitStatus(repo, relativePath) {
+  const absolutePath = path.join(repo, relativePath);
+  const result = spawnSync("git", ["-C", absolutePath, "status", "--porcelain=v1", "--untracked-files=all"], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  if (result.status !== 0) {
+    return {
+      path: relativePath,
+      error: (result.stderr || result.stdout || "git status failed").trim(),
+    };
+  }
+  const lines = parseGitStatusLines(result.stdout);
+  return {
+    path: relativePath,
+    ...summarizeGitStatusLines(lines),
+  };
+}
+
+async function buildNestedGitSummary(options = {}) {
+  const repo = path.resolve(options.repo || process.cwd());
+  const roots = await listNestedGitRoots(repo, options);
+  const summaries = roots.map((relativePath) => nestedGitStatus(repo, relativePath));
+  return {
+    repo_count: roots.length,
+    clean_repos: summaries.filter((entry) => !entry.error && entry.dirty_count === 0).map((entry) => entry.path),
+    dirty_repos: summaries.filter((entry) => !entry.error && entry.dirty_count > 0),
+    errors: summaries.filter((entry) => entry.error),
+  };
 }
 
 async function readTextIfExists(filePath) {
@@ -158,7 +264,7 @@ async function buildCodexWorkflowSummary(options = {}) {
   };
 }
 
-function overallStatus(hygiene = {}, disk = {}, codexWorkflow = {}) {
+function overallStatus(hygiene = {}, disk = {}, codexWorkflow = {}, nestedGit = {}) {
   const structuralIssues = hygiene.git_clean !== true
     || count(hygiene.unregistered_project_surfaces) > 0
     || count(hygiene.nonexistent_project_references) > 0
@@ -169,7 +275,9 @@ function overallStatus(hygiene = {}, disk = {}, codexWorkflow = {}) {
     || count(disk.state_retention_gaps) > 0
     || count(disk.state_retention_overdue) > 0
     || disk.state_retention_manifest_loaded === false
-    || count(codexWorkflow.issues) > 0;
+    || count(codexWorkflow.issues) > 0
+    || count(nestedGit.dirty_repos) > 0
+    || count(nestedGit.errors) > 0;
   return structuralIssues ? "attention" : "ok";
 }
 
@@ -179,12 +287,14 @@ async function buildWorkspaceHealth(options = {}) {
   const hygiene = await buildRepoHygieneSummary({ repo });
   const disk = await buildWorkspaceDiskReport({ repo, limit });
   const codexWorkflow = await buildCodexWorkflowSummary(options);
+  const nestedGit = await buildNestedGitSummary({ repo });
   return {
     repo_root: repo,
-    status: overallStatus(hygiene, disk, codexWorkflow),
+    status: overallStatus(hygiene, disk, codexWorkflow, nestedGit),
     hygiene,
     disk,
     codex_workflow: codexWorkflow,
+    nested_git: nestedGit,
   };
 }
 
@@ -192,8 +302,9 @@ function renderHealthSummary(result = {}) {
   const hygiene = result.hygiene || {};
   const disk = result.disk || {};
   const codexWorkflow = result.codex_workflow || {};
+  const nestedGit = result.nested_git || {};
   const notifyOk = codexWorkflow.notify_routes_to_wrapper ?? codexWorkflow.notify_wrapper_only;
-  const status = result.status || overallStatus(hygiene, disk, codexWorkflow);
+  const status = result.status || overallStatus(hygiene, disk, codexWorkflow, nestedGit);
   const garbage = disk.cleanup_buckets?.delete?.[0] || null;
   const lines = [
     `repo_root: ${hygiene.repo_root || result.repo_root || ""}`,
@@ -215,6 +326,9 @@ function renderHealthSummary(result = {}) {
     `workspace_health_daily: ${codexWorkflow.workspace_health_daily || "unknown"}`,
     `mobile_bridge_heartbeat: ${codexWorkflow.mobile_bridge_heartbeat || "unknown"}`,
     `codex_workflow_issues: ${count(codexWorkflow.issues)}`,
+    `nested_git_repos: ${nestedGit.repo_count || 0}`,
+    `nested_git_dirty: ${count(nestedGit.dirty_repos)}`,
+    `nested_git_errors: ${count(nestedGit.errors)}`,
   ];
   if (garbage) {
     const fileCount = garbage.count ? `, ${garbage.count} files` : "";
@@ -250,6 +364,18 @@ function renderHealthSummary(result = {}) {
       lines.push(`- ${overdue.pretty}\t${overdue.path}\tage ${overdue.age_days}d > ${overdue.retention_days}d`);
     }
   }
+  if (count(nestedGit.dirty_repos) > 0) {
+    lines.push("", "nested_git_dirty_repos:");
+    for (const entry of nestedGit.dirty_repos) {
+      lines.push(`- ${entry.path}\t${entry.dirty_count} changes (${entry.tracked_count} tracked, ${entry.untracked_count} untracked)`);
+    }
+  }
+  if (count(nestedGit.errors) > 0) {
+    lines.push("", "nested_git_error_repos:");
+    for (const entry of nestedGit.errors) {
+      lines.push(`- ${entry.path}\t${entry.error}`);
+    }
+  }
   return `${lines.join("\n")}\n`;
 }
 
@@ -273,6 +399,7 @@ if (entryPath === modulePath) {
 }
 
 export {
+  buildNestedGitSummary,
   buildCodexWorkflowSummary,
   buildWorkspaceHealth,
   overallStatus,

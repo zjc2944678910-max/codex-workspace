@@ -1,10 +1,26 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
-import { buildCodexWorkflowSummary, overallStatus, renderHealthSummary } from "./workspace-health.mjs";
+import {
+  buildCodexWorkflowSummary,
+  buildNestedGitSummary,
+  overallStatus,
+  renderHealthSummary,
+} from "./workspace-health.mjs";
+
+function runGit(args = [], cwd = process.cwd()) {
+  const result = spawnSync("git", args, {
+    cwd,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  return result;
+}
 
 test("overallStatus flags structural issues before cleanup notes", () => {
   const hygiene = {
@@ -43,6 +59,30 @@ test("overallStatus flags structural issues before cleanup notes", () => {
     state_retention_manifest_loaded: false,
   }), "attention");
   assert.equal(overallStatus(hygiene, disk, { issues: ["notify_not_wrapper_only"] }), "attention");
+  assert.equal(overallStatus(hygiene, disk, {}, { dirty_repos: [{ path: "projects/sample" }] }), "attention");
+});
+
+test("buildNestedGitSummary reports dirty project repositories", async () => {
+  const repo = await fs.mkdtemp(path.join(os.tmpdir(), "workspace-nested-git-"));
+  const cleanRepo = path.join(repo, "projects", "clean-app");
+  const dirtyRepo = path.join(repo, "projects", "dirty-app");
+  const plainDir = path.join(repo, "projects", "plain-dir");
+
+  await fs.mkdir(cleanRepo, { recursive: true });
+  await fs.mkdir(dirtyRepo, { recursive: true });
+  await fs.mkdir(plainDir, { recursive: true });
+  runGit(["init", "-q"], cleanRepo);
+  runGit(["init", "-q"], dirtyRepo);
+  await fs.writeFile(path.join(dirtyRepo, "note.txt"), "local scratch\n", "utf8");
+
+  const summary = await buildNestedGitSummary({ repo });
+  assert.equal(summary.repo_count, 2);
+  assert.deepEqual(summary.clean_repos, ["projects/clean-app"]);
+  assert.equal(summary.dirty_repos.length, 1);
+  assert.equal(summary.dirty_repos[0].path, "projects/dirty-app");
+  assert.equal(summary.dirty_repos[0].dirty_count, 1);
+  assert.equal(summary.dirty_repos[0].untracked_count, 1);
+  assert.deepEqual(summary.errors, []);
 });
 
 test("renderHealthSummary gives a compact structure report", () => {
@@ -78,9 +118,16 @@ test("renderHealthSummary gives a compact structure report", () => {
       mobile_bridge_heartbeat: "PAUSED",
       issues: [],
     },
+    nested_git: {
+      repo_count: 2,
+      dirty_repos: [
+        { path: "projects/products/pet-clinic", dirty_count: 18, tracked_count: 14, untracked_count: 4 },
+      ],
+      errors: [],
+    },
   });
 
-  assert.match(summary, /status: ok/u);
+  assert.match(summary, /status: attention/u);
   assert.match(summary, /git_clean: yes/u);
   assert.match(summary, /project_route_metadata_mismatches: 0/u);
   assert.match(summary, /retention_gaps: 0/u);
@@ -91,6 +138,10 @@ test("renderHealthSummary gives a compact structure report", () => {
   assert.match(summary, /codex_notify_wrapper: ok/u);
   assert.match(summary, /workspace_health_daily: PAUSED/u);
   assert.match(summary, /mobile_bridge_heartbeat: PAUSED/u);
+  assert.match(summary, /nested_git_repos: 2/u);
+  assert.match(summary, /nested_git_dirty: 1/u);
+  assert.match(summary, /nested_git_dirty_repos:/u);
+  assert.match(summary, /projects\/products\/pet-clinic\t18 changes \(14 tracked, 4 untracked\)/u);
   assert.match(summary, /largest_paths:/u);
   assert.match(summary, /obvious_garbage: 17M, 113 files/u);
 });
