@@ -7,9 +7,9 @@ opinions while keeping secrets, live mutations, and unbounded logs out of scope.
 Use with:
 
 - Sub2API for planning, research, writing, code-review advice, UX/copy polish,
-  and fallback Claude-style reviews.
+  and fallback strong-model reviews.
 - Claude review for bounded repo-only, provided-evidence, or live read-only
-  audits when the local CLI is available.
+  audits only when the local account and CLI are confirmed available.
 
 ## Rules
 
@@ -141,6 +141,10 @@ requested_output:
 
 ## Fallback Note
 
-If local Claude review is unavailable, send the same packet through Sub2API with
-`model_preference: claude-opus-thinking` and record `fallback: sub2api` in the
-task notes.
+Current local constraint: Claude is unavailable because the account is banned.
+Do not invoke Claude review or local Claude Code workers until the user confirms
+the account is usable again.
+
+When Claude is unavailable, send the same packet through Sub2API with
+`model_preference: gemini-pro | auto`, record `fallback: sub2api_gemini`, and
+keep the same read-only, bounded-evidence, and no-secrets rules.
