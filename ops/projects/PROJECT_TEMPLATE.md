@@ -25,6 +25,26 @@ Mirror the machine-readable fields for this project in
 `docs/workspace/project-registry.json`. Keep this README human-facing and keep
 the registry entry script-friendly.
 
+## Ops Quality Baseline
+
+- Current status: Registered `<kind>` surface for `<project-slug>`. State only
+  confirmed facts here; do not treat this README as proof of current live
+  health without fresh evidence.
+- Risk gate: Use L0/L1 for local docs/code/research. If the registry risk
+  profile is `live_infra` or `live_product`, use L2 read-only first and require
+  `进入修复阶段` before any state-changing repair.
+- Common commands:
+  - `node docs/workspace/find-project.mjs <project-slug>`
+  - `node docs/workspace/workspace-health.mjs --repo "$PWD" --limit 12`
+  - Project-specific commands belong in `## Key Commands` or project runbooks
+    once confirmed.
+- Next useful work: Keep routing facts synced with the registry; add confirmed
+  project commands/runbooks; promote durable facts out of scratch/session notes.
+- Model review guidance: Use
+  [`model-review-packets.md`](../../docs/workspace/model-review-packets.md) for
+  Sub2API or Claude review packets. Never send secrets, private configs,
+  cookies, tokens, or unbounded logs.
+
 ## Stable Docs
 
 - `README.md`

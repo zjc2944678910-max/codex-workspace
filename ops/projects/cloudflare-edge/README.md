@@ -28,6 +28,17 @@ Regenerate the short human index with:
 node docs/workspace/codex-register-project.mjs --regen
 ```
 
+## Ops Quality Baseline
+
+- Current status: Registered live infrastructure surface for `cloudflare-edge`. Treat this README as routing and durable context, not proof of current live health; collect fresh L2 evidence before judging runtime state.
+- Risk gate: L2 read-only for live status, logs, SSH evidence, config inspection, and root-cause analysis. L3 state-changing repair requires the explicit phrase `进入修复阶段`.
+- Common commands:
+  - `node docs/workspace/find-project.mjs cloudflare-edge`
+  - `node docs/workspace/workspace-health.mjs --repo "$PWD" --limit 12`
+  - Project-specific commands belong in `## Key Commands` or project runbooks once confirmed.
+- Next useful work: Keep routing facts synced with the registry; promote durable findings into this README, runbooks, reports, or ledgers after read-only audits; write an explicit L3 plan only after the repair gate opens.
+- Model review guidance: Use Claude review or Sub2API only with bounded, redacted, read-only evidence. Do not send credentials, private configs, cookies, tokens, or unbounded logs. Use [model-review-packets.md](../../../docs/workspace/model-review-packets.md) for packet shape.
+
 ## Stable Docs
 
 - `README.md`
