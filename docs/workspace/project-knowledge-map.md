@@ -76,7 +76,8 @@ or rerouted.
 ## Model Review Playbook
 
 Use strong models when the answer quality is worth an independent pass. Keep
-the evidence bounded and non-secret.
+the evidence bounded and non-secret. For copy-ready evidence packet shapes, see
+[`model-review-packets.md`](./model-review-packets.md).
 
 | Situation | First Choice | Why | Required Boundary |
 | --- | --- | --- | --- |

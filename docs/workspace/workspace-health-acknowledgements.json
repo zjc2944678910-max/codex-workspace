@@ -1,0 +1,19 @@
+{
+  "$schema": "workspace-health-acknowledgements/v1",
+  "description": "Known local workspace-health reminders that should remain visible without turning the whole workspace status to attention. Expected counts make these acknowledgements fail closed if the dirty state changes.",
+  "updated": "2026-07-02",
+  "nested_git": [
+    {
+      "path": "projects/products/pet-clinic",
+      "status": "acknowledged",
+      "reason": "User confirmed the Pet Clinic assignment is submitted; this local dirty state is not a current workspace cleanup target.",
+      "last_reviewed": "2026-07-02",
+      "review_after": "2026-08-02",
+      "expected": {
+        "dirty_count": 19,
+        "tracked_count": 14,
+        "untracked_count": 5
+      }
+    }
+  ]
+}

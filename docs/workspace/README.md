@@ -11,7 +11,9 @@ Policy: `AGENTS.md`. Worker contract: `WORKER.md`.
 | `harness-contract.md` | Cross-cutting workspace harness contract for routing, permissions, tasks, verification, memory, and workers |
 | `daily-workflow.md` | Entry point for `L0 tiny` fast path, ordinary short-task workflow, capability defaults, and long-task escalation |
 | `project-knowledge-map.md` | Searchable map of project docs, route tokens, decisions, runbooks, and model-review playbooks |
+| `model-review-packets.md` | Reusable evidence packet templates for Sub2API advisors and Claude review |
 | `codex-register-project.mjs` | Register a durable project surface and regenerate the root `PROJECTS.md` index |
+| `find-project.mjs` | Search the project registry by slug, alias, service, host, or route token |
 | `token-budget.md` | Profile selection, agent budget, output limits, evidence pointers, decision reuse, and GitNexus-first rules |
 | `codex-long-task-runbook.md` | **Canonical** operational long-task workflow for multi-slice work, handoff state, and repair loops |
 | `codex-hooks.md` | Repo-local Codex hook guardrails, verification, and rollback |
@@ -23,6 +25,7 @@ Policy: `AGENTS.md`. Worker contract: `WORKER.md`.
 | `playwright-scratch.sh` | Run Playwright CLI from `scratch/shared/playwright-cli/<label>/` instead of the repo root |
 | `project-registry.json` | Machine-readable workspace project registry and hook routing metadata |
 | `project-surfaces.md` | Human-readable project surfaces and GitNexus status |
+| `workspace-health-acknowledgements.json` | Known nested git dirty reminders that stay visible without forcing attention |
 | `scratch-retention.json` | Scratch retention manifest with per-path policy |
 | `state-retention.json` | State retention manifest with per-path policy for ignored machine-local state |
 | `../../PROJECTS.md` | Generated short project map for session startup |
@@ -73,12 +76,24 @@ clean workspace-index repo cannot hide dirty project worktrees. The current
 policy allows the daily workspace health automation to be `ACTIVE` or
 intentionally `PAUSED`; missing or unknown automation state remains
 attention-worthy. It reports only booleans and status strings, never
-notification secrets. Large scratch paths reported here are candidates for later
+notification secrets. Known nested dirty states can be recorded in
+`workspace-health-acknowledgements.json`; run with `--strict` to ignore those
+acknowledgements. Large scratch paths reported here are candidates for later
 review, not automatic deletion targets. Scratch retention decisions come from
 `scratch-retention.json`; state retention decisions come from
 `state-retention.json`. A healthy report should load both manifests and show
-`retention_gaps: 0` plus `state_retention_gaps: 0`, with
+`retention_gaps: 0` plus `state_retention_gaps: 0`, with unacknowledged
 `nested_git_dirty: 0`.
+
+## Project Search
+
+```bash
+node docs/workspace/find-project.mjs 笨笨
+node docs/workspace/find-project.mjs codex_antigravity --json
+```
+
+Searches the registry by slug, alias, route keyword, service, host, and code or
+ops path, then prints risk gate, ops README, code roots, runbooks, and reports.
 
 Explain project route metadata drift:
 

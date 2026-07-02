@@ -11,6 +11,7 @@ import { buildRepoHygieneSummary } from "./repo-hygiene.mjs";
 import { buildWorkspaceDiskReport } from "./workspace-disk-report.mjs";
 
 const DEFAULT_LIMIT = 8;
+const DEFAULT_ACKNOWLEDGEMENTS_PATH = "docs/workspace/workspace-health-acknowledgements.json";
 const NESTED_GIT_SCAN_ROOTS = ["projects"];
 const NESTED_GIT_SKIP_DIRS = new Set([
   ".git",
@@ -31,6 +32,7 @@ function parseArgs(argv = []) {
     repo: "",
     json: false,
     limit: DEFAULT_LIMIT,
+    strictAcknowledgements: false,
   };
   for (let index = 0; index < argv.length; index += 1) {
     const arg = String(argv[index] || "").trim();
@@ -41,6 +43,10 @@ function parseArgs(argv = []) {
     }
     if (arg === "--json") {
       options.json = true;
+      continue;
+    }
+    if (arg === "--strict") {
+      options.strictAcknowledgements = true;
       continue;
     }
     if (arg === "--limit") {
@@ -116,6 +122,62 @@ function summarizeGitStatusLines(lines = []) {
   };
 }
 
+async function loadHealthAcknowledgements(repo, options = {}) {
+  if (options.strictAcknowledgements === true) return { nested_git: [] };
+  const acknowledgementPath = options.acknowledgementPath || DEFAULT_ACKNOWLEDGEMENTS_PATH;
+  const absolutePath = path.isAbsolute(acknowledgementPath)
+    ? acknowledgementPath
+    : path.join(repo, acknowledgementPath);
+  let text = "";
+  try {
+    text = await fs.readFile(absolutePath, "utf8");
+  } catch (error) {
+    if (error && error.code === "ENOENT") return { nested_git: [] };
+    throw error;
+  }
+  try {
+    const parsed = JSON.parse(text);
+    return {
+      nested_git: Array.isArray(parsed.nested_git) ? parsed.nested_git : [],
+    };
+  } catch (error) {
+    throw new Error(`failed to parse workspace health acknowledgements: ${absolutePath}: ${error.message}`);
+  }
+}
+
+function countMatchesExpectation(entry = {}, expected = {}) {
+  for (const key of ["dirty_count", "tracked_count", "untracked_count"]) {
+    if (Number.isFinite(expected[key]) && entry[key] !== expected[key]) return false;
+  }
+  return true;
+}
+
+function acknowledgedEntry(entry = {}, acknowledgement = {}, status = "acknowledged") {
+  return {
+    ...entry,
+    acknowledgement_status: status,
+    acknowledgement_reason: acknowledgement.reason || "",
+    last_reviewed: acknowledgement.last_reviewed || "",
+    review_after: acknowledgement.review_after || "",
+  };
+}
+
+function classifyNestedGitDirty(entry = {}, acknowledgements = []) {
+  const acknowledgement = acknowledgements.find((candidate) => candidate?.path === entry.path);
+  if (!acknowledgement) return { bucket: "dirty", entry };
+  if (acknowledgement.status === "acknowledged" && countMatchesExpectation(entry, acknowledgement.expected || {})) {
+    return { bucket: "acknowledged", entry: acknowledgedEntry(entry, acknowledgement) };
+  }
+  return {
+    bucket: "review",
+    entry: acknowledgedEntry(
+      entry,
+      acknowledgement,
+      acknowledgement.status === "acknowledged" ? "expectation_mismatch" : acknowledgement.status || "needs_review",
+    ),
+  };
+}
+
 function nestedGitStatus(repo, relativePath) {
   const absolutePath = path.join(repo, relativePath);
   const result = spawnSync("git", ["-C", absolutePath, "status", "--porcelain=v1", "--untracked-files=all"], {
@@ -138,11 +200,27 @@ function nestedGitStatus(repo, relativePath) {
 async function buildNestedGitSummary(options = {}) {
   const repo = path.resolve(options.repo || process.cwd());
   const roots = await listNestedGitRoots(repo, options);
+  const acknowledgements = await loadHealthAcknowledgements(repo, options);
   const summaries = roots.map((relativePath) => nestedGitStatus(repo, relativePath));
+  const dirtyBuckets = {
+    dirty_repos: [],
+    acknowledged_dirty_repos: [],
+    review_dirty_repos: [],
+  };
+  for (const entry of summaries.filter((candidate) => !candidate.error && candidate.dirty_count > 0)) {
+    const classified = classifyNestedGitDirty(entry, acknowledgements.nested_git);
+    if (classified.bucket === "acknowledged") {
+      dirtyBuckets.acknowledged_dirty_repos.push(classified.entry);
+    } else if (classified.bucket === "review") {
+      dirtyBuckets.review_dirty_repos.push(classified.entry);
+    } else {
+      dirtyBuckets.dirty_repos.push(classified.entry);
+    }
+  }
   return {
     repo_count: roots.length,
     clean_repos: summaries.filter((entry) => !entry.error && entry.dirty_count === 0).map((entry) => entry.path),
-    dirty_repos: summaries.filter((entry) => !entry.error && entry.dirty_count > 0),
+    ...dirtyBuckets,
     errors: summaries.filter((entry) => entry.error),
   };
 }
@@ -277,6 +355,7 @@ function overallStatus(hygiene = {}, disk = {}, codexWorkflow = {}, nestedGit = 
     || disk.state_retention_manifest_loaded === false
     || count(codexWorkflow.issues) > 0
     || count(nestedGit.dirty_repos) > 0
+    || count(nestedGit.review_dirty_repos) > 0
     || count(nestedGit.errors) > 0;
   return structuralIssues ? "attention" : "ok";
 }
@@ -287,7 +366,11 @@ async function buildWorkspaceHealth(options = {}) {
   const hygiene = await buildRepoHygieneSummary({ repo });
   const disk = await buildWorkspaceDiskReport({ repo, limit });
   const codexWorkflow = await buildCodexWorkflowSummary(options);
-  const nestedGit = await buildNestedGitSummary({ repo });
+  const nestedGit = await buildNestedGitSummary({
+    repo,
+    strictAcknowledgements: options.strictAcknowledgements,
+    acknowledgementPath: options.acknowledgementPath,
+  });
   return {
     repo_root: repo,
     status: overallStatus(hygiene, disk, codexWorkflow, nestedGit),
@@ -328,6 +411,8 @@ function renderHealthSummary(result = {}) {
     `codex_workflow_issues: ${count(codexWorkflow.issues)}`,
     `nested_git_repos: ${nestedGit.repo_count || 0}`,
     `nested_git_dirty: ${count(nestedGit.dirty_repos)}`,
+    `nested_git_acknowledged: ${count(nestedGit.acknowledged_dirty_repos)}`,
+    `nested_git_needs_review: ${count(nestedGit.review_dirty_repos)}`,
     `nested_git_errors: ${count(nestedGit.errors)}`,
   ];
   if (garbage) {
@@ -368,6 +453,20 @@ function renderHealthSummary(result = {}) {
     lines.push("", "nested_git_dirty_repos:");
     for (const entry of nestedGit.dirty_repos) {
       lines.push(`- ${entry.path}\t${entry.dirty_count} changes (${entry.tracked_count} tracked, ${entry.untracked_count} untracked)`);
+    }
+  }
+  if (count(nestedGit.review_dirty_repos) > 0) {
+    lines.push("", "nested_git_needs_review_repos:");
+    for (const entry of nestedGit.review_dirty_repos) {
+      const reason = entry.acknowledgement_reason ? `\t${entry.acknowledgement_reason}` : "";
+      lines.push(`- ${entry.path}\t${entry.dirty_count} changes (${entry.tracked_count} tracked, ${entry.untracked_count} untracked)\t${entry.acknowledgement_status}${reason}`);
+    }
+  }
+  if (count(nestedGit.acknowledged_dirty_repos) > 0) {
+    lines.push("", "nested_git_acknowledged_repos:");
+    for (const entry of nestedGit.acknowledged_dirty_repos) {
+      const reason = entry.acknowledgement_reason ? `\t${entry.acknowledgement_reason}` : "";
+      lines.push(`- ${entry.path}\t${entry.dirty_count} changes (${entry.tracked_count} tracked, ${entry.untracked_count} untracked)${reason}`);
     }
   }
   if (count(nestedGit.errors) > 0) {

@@ -60,6 +60,8 @@ test("overallStatus flags structural issues before cleanup notes", () => {
   }), "attention");
   assert.equal(overallStatus(hygiene, disk, { issues: ["notify_not_wrapper_only"] }), "attention");
   assert.equal(overallStatus(hygiene, disk, {}, { dirty_repos: [{ path: "projects/sample" }] }), "attention");
+  assert.equal(overallStatus(hygiene, disk, {}, { review_dirty_repos: [{ path: "projects/sample" }] }), "attention");
+  assert.equal(overallStatus(hygiene, disk, {}, { acknowledged_dirty_repos: [{ path: "projects/sample" }] }), "ok");
 });
 
 test("buildNestedGitSummary reports dirty project repositories", async () => {
@@ -83,6 +85,83 @@ test("buildNestedGitSummary reports dirty project repositories", async () => {
   assert.equal(summary.dirty_repos[0].dirty_count, 1);
   assert.equal(summary.dirty_repos[0].untracked_count, 1);
   assert.deepEqual(summary.errors, []);
+});
+
+test("buildNestedGitSummary separates acknowledged and strict dirty repositories", async () => {
+  const repo = await fs.mkdtemp(path.join(os.tmpdir(), "workspace-acknowledged-git-"));
+  const dirtyRepo = path.join(repo, "projects", "dirty-app");
+  const acknowledgementPath = path.join(repo, "acknowledgements.json");
+
+  await fs.mkdir(dirtyRepo, { recursive: true });
+  runGit(["init", "-q"], dirtyRepo);
+  await fs.writeFile(path.join(dirtyRepo, "note.txt"), "submitted local work\n", "utf8");
+  await fs.writeFile(
+    acknowledgementPath,
+    JSON.stringify({
+      nested_git: [
+        {
+          path: "projects/dirty-app",
+          status: "acknowledged",
+          reason: "known submitted work",
+          expected: {
+            dirty_count: 1,
+            tracked_count: 0,
+            untracked_count: 1,
+          },
+        },
+      ],
+    }),
+    "utf8",
+  );
+
+  const acknowledged = await buildNestedGitSummary({ repo, acknowledgementPath });
+  assert.equal(acknowledged.dirty_repos.length, 0);
+  assert.equal(acknowledged.review_dirty_repos.length, 0);
+  assert.equal(acknowledged.acknowledged_dirty_repos.length, 1);
+  assert.equal(acknowledged.acknowledged_dirty_repos[0].acknowledgement_reason, "known submitted work");
+
+  const strict = await buildNestedGitSummary({
+    repo,
+    acknowledgementPath,
+    strictAcknowledgements: true,
+  });
+  assert.equal(strict.dirty_repos.length, 1);
+  assert.equal(strict.acknowledged_dirty_repos.length, 0);
+});
+
+test("buildNestedGitSummary sends changed acknowledged dirty state to review", async () => {
+  const repo = await fs.mkdtemp(path.join(os.tmpdir(), "workspace-review-git-"));
+  const dirtyRepo = path.join(repo, "projects", "dirty-app");
+  const acknowledgementPath = path.join(repo, "acknowledgements.json");
+
+  await fs.mkdir(dirtyRepo, { recursive: true });
+  runGit(["init", "-q"], dirtyRepo);
+  await fs.writeFile(path.join(dirtyRepo, "first.txt"), "one\n", "utf8");
+  await fs.writeFile(path.join(dirtyRepo, "second.txt"), "two\n", "utf8");
+  await fs.writeFile(
+    acknowledgementPath,
+    JSON.stringify({
+      nested_git: [
+        {
+          path: "projects/dirty-app",
+          status: "acknowledged",
+          reason: "previously one file",
+          expected: {
+            dirty_count: 1,
+            tracked_count: 0,
+            untracked_count: 1,
+          },
+        },
+      ],
+    }),
+    "utf8",
+  );
+
+  const summary = await buildNestedGitSummary({ repo, acknowledgementPath });
+  assert.equal(summary.dirty_repos.length, 0);
+  assert.equal(summary.acknowledged_dirty_repos.length, 0);
+  assert.equal(summary.review_dirty_repos.length, 1);
+  assert.equal(summary.review_dirty_repos[0].acknowledgement_status, "expectation_mismatch");
 });
 
 test("renderHealthSummary gives a compact structure report", () => {
@@ -140,6 +219,8 @@ test("renderHealthSummary gives a compact structure report", () => {
   assert.match(summary, /mobile_bridge_heartbeat: PAUSED/u);
   assert.match(summary, /nested_git_repos: 2/u);
   assert.match(summary, /nested_git_dirty: 1/u);
+  assert.match(summary, /nested_git_acknowledged: 0/u);
+  assert.match(summary, /nested_git_needs_review: 0/u);
   assert.match(summary, /nested_git_dirty_repos:/u);
   assert.match(summary, /projects\/products\/pet-clinic\t18 changes \(14 tracked, 4 untracked\)/u);
   assert.match(summary, /largest_paths:/u);
