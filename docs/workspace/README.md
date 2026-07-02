@@ -10,6 +10,7 @@ Policy: `AGENTS.md`. Worker contract: `WORKER.md`.
 | `codex-long-task.mjs` | Unified long-task CLI: init, append, repair, recheck, close |
 | `harness-contract.md` | Cross-cutting workspace harness contract for routing, permissions, tasks, verification, memory, and workers |
 | `daily-workflow.md` | Entry point for `L0 tiny` fast path, ordinary short-task workflow, capability defaults, and long-task escalation |
+| `project-knowledge-map.md` | Searchable map of project docs, route tokens, decisions, runbooks, and model-review playbooks |
 | `codex-register-project.mjs` | Register a durable project surface and regenerate the root `PROJECTS.md` index |
 | `token-budget.md` | Profile selection, agent budget, output limits, evidence pointers, decision reuse, and GitNexus-first rules |
 | `codex-long-task-runbook.md` | **Canonical** operational long-task workflow for multi-slice work, handoff state, and repair loops |
