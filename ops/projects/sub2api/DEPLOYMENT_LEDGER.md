@@ -1,5 +1,64 @@
 # Sub2API Deployment Ledger
 
+## 2026-07-02: OpenCat Antigravity Responses Thought/Done Repair
+
+Live host: `107.175.180.163`
+
+### Changes
+
+- Built and deployed final image
+  `sub2api:opencat-responses-clean-20260702T155005`.
+- Updated `/opt/sub2api/docker-compose.yml` to use that image and restarted only
+  the `sub2api` container with `docker compose up -d --no-deps sub2api`.
+- Filtered Antigravity Gemini `thought: true` parts out of user-visible
+  `/v1/responses` output so OpenCat no longer sees upstream reasoning text as
+  assistant content.
+- Added accumulated text to `response.output_text.done.text`, matching strict
+  OpenAI Responses clients that parse the terminal text event after rendering
+  deltas.
+- Kept API keys, account groups, OAuth accounts, PostgreSQL, Redis, Cloudflare,
+  and `/v1/chat/completions` routing unchanged.
+- Supersedes the intermediate image
+  `sub2api:opencat-thought-filter-20260702T152830`.
+
+### Evidence On VPS
+
+- `/root/codex-repair-sub2api-opencat-thought-filter-20260702T152226+0800`
+
+### Verification
+
+- `go test ./internal/pkg/apicompat` passed in `golang:1.26.2-alpine`.
+- Final image build completed successfully.
+- Container reported `healthy`; `/health` returned `{"status":"ok"}`.
+- OpenCat-shaped `/v1/responses` streaming request for `claude-sonnet-4-6`
+  returned HTTP 200 with text `OK`, `response.output_text.done.text: "OK"`,
+  no detected `User says` / `The user said` / `Chinese` reasoning leak, and
+  no missing strict stream fields.
+- Antigravity `/v1/models` returned HTTP 200 with no missing `id`, `object`,
+  `created`, or `owned_by` fields across 11 returned models.
+- `codex_antigravity` MCP smoke returned HTTP 200 for `gpt-oss-120b-medium`,
+  `gemini-3.1-pro-high`, and `claude-opus-4-6-thinking`.
+- Final log scan showed the verification requests as HTTP 200 and no
+  `panic`, `fatal`, `forward_failed`, or `server_error` entries.
+
+### Rollback
+
+```bash
+cd /opt/sub2api
+# Immediate pre-final rollback:
+# /root/codex-repair-sub2api-opencat-thought-filter-20260702T152226+0800/docker-compose.before-final.yml
+#
+# Full rollback to the previous same-day OpenCat compatibility image:
+#   sub2api:opencat-compat-20260702T150705
+docker compose up -d --no-deps sub2api
+```
+
+Source file backups are under:
+
+```text
+/root/codex-repair-sub2api-opencat-thought-filter-20260702T152226+0800/files-before/
+```
+
 ## 2026-07-02: OpenCat Antigravity OpenAI-Compatibility Repair
 
 Live host: `107.175.180.163`
