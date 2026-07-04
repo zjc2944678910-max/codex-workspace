@@ -433,6 +433,36 @@ test("codex workflow accepts intentionally paused daily health automation", asyn
   assert.deepEqual(summary.issues, []);
 });
 
+test("codex workflow treats removed mobile bridge heartbeat as optional", async () => {
+  const homeDir = await fs.mkdtemp(path.join(os.tmpdir(), "codex-workflow-no-mobile-"));
+  const codexDir = path.join(homeDir, ".codex");
+  await fs.mkdir(path.join(codexDir, "automations", "workspace-health-daily"), { recursive: true });
+  await fs.writeFile(
+    path.join(codexDir, "config.toml"),
+    `notify = ["${homeDir}/.codex/tools/codex-turn-ended-notify.sh", "turn-ended"]\n`,
+    "utf8",
+  );
+  await fs.writeFile(
+    path.join(codexDir, "notify-config.json"),
+    JSON.stringify({
+      bark: { enabled: true },
+      telegram: { enabled: false },
+      workspace_health: { enabled: true },
+    }),
+    "utf8",
+  );
+  await fs.writeFile(
+    path.join(codexDir, "automations", "workspace-health-daily", "automation.toml"),
+    'kind = "cron"\nstatus = "ACTIVE"\nname = "Workspace health daily"\n',
+    "utf8",
+  );
+
+  const summary = await buildCodexWorkflowSummary({ homeDir });
+  assert.equal(summary.workspace_health_daily, "ACTIVE");
+  assert.equal(summary.mobile_bridge_heartbeat, "missing");
+  assert.deepEqual(summary.issues, []);
+});
+
 test("codex workflow still flags missing daily health automation", async () => {
   const homeDir = await fs.mkdtemp(path.join(os.tmpdir(), "codex-workflow-missing-"));
   const codexDir = path.join(homeDir, ".codex");

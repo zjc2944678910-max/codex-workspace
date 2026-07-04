@@ -325,7 +325,9 @@ async function buildCodexWorkflowSummary(options = {}) {
   if (!["ACTIVE", "PAUSED"].includes(workspaceHealthDaily.status)) {
     issues.push("workspace_health_daily_not_active");
   }
-  if (mobileBridgeHeartbeat.status !== "PAUSED") issues.push("mobile_bridge_heartbeat_not_paused");
+  if (mobileBridgeHeartbeat.exists && mobileBridgeHeartbeat.status !== "PAUSED") {
+    issues.push("mobile_bridge_heartbeat_not_paused");
+  }
 
   return {
     notify_wrapper_only: notifyWrapperOnly,
