@@ -1,7 +1,7 @@
 {
   "$schema": "workspace-project-registry/v1",
   "description": "Machine-readable workspace project registry. Each registered project has an ops README under ops/projects/<slug>/README.md, one or more long-lived surfaces under projects/*/*, and zero or more concrete code roots used for day-to-day work and GitNexus targeting.",
-  "updated": "2026-06-26",
+  "updated": "2026-07-04",
   "projects": [
     {
       "slug": "bigdata-spark-research-workbench",
@@ -295,6 +295,52 @@
         "openclaw-socks-bridge.service"
       ],
       "gitnexus_indexed": true
+    },
+    {
+      "slug": "personal-ai-companion",
+      "name": "Personal AI Companion",
+      "kind": "product",
+      "risk_profile": "local",
+      "surfaces": [
+        "projects/products/personal-ai-companion"
+      ],
+      "code_roots": [
+        {
+          "path": "projects/products/personal-ai-companion",
+          "role": "main",
+          "gitnexus_status": "not_indexed"
+        }
+      ],
+      "ops_surface": "ops/projects/personal-ai-companion",
+      "state_data": "state/project-data/personal-ai-companion",
+      "scratch": "scratch/projects/personal-ai-companion",
+      "aliases": [
+        "stackchan-ai",
+        "stackchan-companion",
+        "personal-ai-companion",
+        "ai-companion",
+        "长期记忆助手",
+        "桌面AI伴侣"
+      ],
+      "routing_keywords": [
+        "StackChan",
+        "memory-service",
+        "长期记忆",
+        "个人AI伴侣",
+        "女友风格",
+        "HealthKit",
+        "AlarmKit",
+        "personal-ai-companion",
+        "Personal AI Companion",
+        "stackchan-ai",
+        "stackchan-companion",
+        "ai-companion",
+        "长期记忆助手",
+        "桌面AI伴侣"
+      ],
+      "live_host_aliases": [],
+      "service_names": [],
+      "gitnexus_indexed": false
     },
     {
       "slug": "pet-clinic",
