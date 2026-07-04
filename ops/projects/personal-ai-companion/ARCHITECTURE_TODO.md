@@ -2,15 +2,21 @@
 
 ## Near Term
 
-- Decide implementation stack for the local relay: FastAPI/Python or Node.
-- Define the first `InteractionEnvelope` schema.
-- Create initial DB migration for entities, devices, sessions, messages,
-  session deltas, candidate atoms, memory atoms, review items, consent records,
-  and usage logs.
-- Build `/v1/chat` with model router stubs.
-- Build `/v1/memory/ingest` and `/v1/memory/recall`.
-- Add tests for identity binding, privacy scopes, StackChan speaker delivery,
-  and memory deletion.
+- Completed 2026-07-04: initial FastAPI/Python + SQLite local skeleton under
+  `projects/products/personal-ai-companion`.
+- Completed 2026-07-04: first `InteractionEnvelope`, `IdentityKernel`,
+  `PrivacyKernel`, `MemoryStore`, `MemoryService`, and mock `ModelRouter`.
+- Completed 2026-07-04: local endpoints for `/v1/chat`, `/v1/admin/usage`,
+  `/v1/memory/ingest`, `/v1/memory/recall`, `/v1/memory/search`,
+  `/v1/memory/{id}/explain`, promote, reject, and delete.
+- Completed 2026-07-04: unit tests for identity binding, privacy scopes,
+  StackChan speaker delivery, owner-confirmed memory promotion/deletion, and
+  mock model routing.
+- Next: decide whether to keep SQLite for the next iteration or introduce a
+  migration layer before adding embeddings.
+- Next: add candidate review queue objects and consent records as first-class
+  tables, not only policy gates.
+- Next: add a tiny local dev server smoke test once dependencies are installed.
 
 ## Later
 
