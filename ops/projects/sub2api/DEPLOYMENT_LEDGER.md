@@ -1,5 +1,61 @@
 # Sub2API Deployment Ledger
 
+## 2026-07-03: Responses Tool Continuation Repair
+
+Live host: `107.175.180.163`
+
+### Changes
+
+- Built and deployed `sub2api:responses-toolchain-ws-output-20260703T232310`.
+- Updated `/opt/sub2api/docker-compose.yml` to use that image and restarted only
+  the `sub2api` container with `docker compose up -d --no-deps sub2api`.
+- Routed HTTP `/v1/responses` tool-chain requests for OpenAI OAuth accounts
+  through WSv2 when the request contains tools/tool choice or
+  `previous_response_id` plus `function_call_output`.
+- Preserved upstream `call_id` values on `previous_response_id` continuation
+  requests so returned tool outputs match the original upstream tool call.
+- Reconstructed non-stream HTTP responses from WS `response.output_item.done`
+  events when the terminal `response.completed.response.output` was empty.
+- Kept API keys, account groups, OAuth accounts, PostgreSQL, Redis, Cloudflare,
+  and ordinary `/v1/chat/completions` routing unchanged.
+- Supersedes failed intermediate images:
+  `sub2api:responses-tool-continuation-20260703T195033`,
+  `sub2api:responses-tool-continuation-20260703T201204`, and
+  `sub2api:responses-toolchain-route-20260703T214630`.
+
+### Evidence On VPS
+
+- `/root/codex-repair-sub2api-responses-tool-continuation-20260703T193334+0800`
+
+### Verification
+
+- Focused Go tests passed for WSv2 output reconstruction, HTTP tool-chain WSv2
+  routing, HTTP tool-output WSv2 routing, and `previous_response_id` call-id
+  preservation.
+- Final Docker image build completed successfully.
+- Container reported `healthy`; disk remained below the emergency threshold
+  after earlier cleanup (`/` at 64% used during final verification).
+- Antigravity `/v1/chat/completions` smoke returned HTTP 200 for
+  `claude-sonnet-4-6` and `gpt-oss-120b-medium`.
+- Two-step Antigravity `/v1/responses` probe for `gpt-5.5` returned HTTP 200
+  for both the initial forced function call and the follow-up
+  `previous_response_id` + `function_call_output` request.
+- Service logs for the probe showed `conn_reused=true` on the WS continuation.
+- Last 10-minute log scan after deployment found zero matches for
+  `No tool output found`, `Unsupported parameter`, `previous response not found`,
+  and `missing_final_response`.
+
+### Rollback
+
+```bash
+cd /opt/sub2api
+# Restore:
+# /root/codex-repair-sub2api-responses-tool-continuation-20260703T193334+0800/docker-compose.before-ws-output-final-20260703T234325+0800.yml
+# or set the sub2api service image back to:
+#   sub2api:responses-tool-continuation-20260703T211356
+docker compose up -d --no-deps sub2api
+```
+
 ## 2026-07-02: OpenCat Antigravity Responses Thought/Done Repair
 
 Live host: `107.175.180.163`
