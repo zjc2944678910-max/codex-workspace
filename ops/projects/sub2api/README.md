@@ -110,8 +110,11 @@ streams the right Responses SSE events (verified by direct probes).
 
 Verified via `codex exec --profile sub2api`: Claude + Gemini both complete the
 loop, make tool calls, and create+edit files (`config.json` 1→2). The
-`sub2api_mcp.py` advisor path is separate and already defaulted to
-`max_tokens=4096`.
+`sub2api_mcp.py` advisor path is separate from the main-model profile. As of
+2026-07-04, local MCP advisor defaults should route every task type to
+`claude-opus-4-6-thinking`; Gemini should be used only by explicit override or
+after a fresh smoke test because recent Gemini/Antigravity Gemini advisor smokes
+failed with upstream account/location errors.
 
 ## Risk Notes
 

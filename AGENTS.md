@@ -238,11 +238,12 @@ are true:
   review, or polish pass would materially improve quality.
 
 If the tools are available, use `sub2api_delegate_task` or `sub2api_chat` as a
-bounded read-only advisor. Prefer the configured defaults: Gemini for writing,
-research, summaries, and creative planning; Claude Opus Thinking for
-architecture, implementation advice, code review, deep review, and subtle
-regression hunts. Codex still owns local evidence gathering, shell commands,
-file edits, verification, safety judgment, and final synthesis.
+bounded read-only advisor. Prefer the configured defaults, which currently route
+all task types to `claude-opus-4-6-thinking` because the Gemini/Antigravity
+Gemini lanes have recently failed smoke tests with upstream account/location
+errors. Use Gemini only by explicit model override or after a fresh smoke test
+confirms that route is healthy again. Codex still owns local evidence gathering,
+shell commands, file edits, verification, safety judgment, and final synthesis.
 
 Keep the small-task fast path: do not call Sub2API for obvious local facts,
 simple command output, tiny typo fixes, or one-file known-scope edits unless the

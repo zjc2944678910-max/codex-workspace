@@ -147,6 +147,62 @@ test("pre-tool hook treats git status with flags as inspection", () => {
   assert.deepEqual(output, {});
 });
 
+test("pre-tool hook allows git clean dry-run but denies forced clean", () => {
+  const dryRunOutput = runHook("pre-tool-use", {
+    tool_input: {
+      command: "git clean -nfd",
+    },
+  });
+  assert.deepEqual(dryRunOutput, {});
+
+  const destructiveOutput = runHook("pre-tool-use", {
+    tool_input: {
+      command: "git clean -fd",
+    },
+  });
+  assert.equal(destructiveOutput.hookSpecificOutput.hookEventName, "PreToolUse");
+  assert.equal(destructiveOutput.hookSpecificOutput.permissionDecision, "deny");
+  assert.match(destructiveOutput.hookSpecificOutput.permissionDecisionReason, /git clean -f/u);
+});
+
+test("pre-tool hook allows read-only remote service status with live notice", () => {
+  const output = runHook("pre-tool-use", {
+    tool_input: {
+      command: "ssh oc-nas 'systemctl status openclaw-gateway --no-pager'",
+    },
+  });
+  assert.match(output.systemMessage, /L2 read-only/u);
+  assert.equal(output.hookSpecificOutput, undefined);
+});
+
+test("pre-tool hook denies remote live reboot commands", () => {
+  for (const command of [
+    "ssh oc-nas 'sudo reboot'",
+    "ssh oc-nas 'sudo shutdown -r now'",
+  ]) {
+    const output = runHook("pre-tool-use", {
+      tool_input: { command },
+    });
+    assert.equal(output.hookSpecificOutput.hookEventName, "PreToolUse");
+    assert.equal(output.hookSpecificOutput.permissionDecision, "deny");
+    assert.match(output.hookSpecificOutput.permissionDecisionReason, /进入修复阶段/u);
+  }
+});
+
+test("pre-tool hook denies local service mutation commands", () => {
+  for (const command of [
+    "brew services restart postgresql",
+    "launchctl kickstart -k gui/501/com.example.agent",
+  ]) {
+    const output = runHook("pre-tool-use", {
+      tool_input: { command },
+    });
+    assert.equal(output.hookSpecificOutput.hookEventName, "PreToolUse");
+    assert.equal(output.hookSpecificOutput.permissionDecision, "deny");
+    assert.match(output.hookSpecificOutput.permissionDecisionReason, /L3 repair execution/u);
+  }
+});
+
 test("hook trackable-path policy accepts generated workspace entrypoints", () => {
   const python = `
 import importlib.util
@@ -190,6 +246,50 @@ test("permission hook denies L3 approval requests without repair gate", () => {
   assert.equal(output.hookSpecificOutput.hookEventName, "PermissionRequest");
   assert.equal(output.hookSpecificOutput.decision.behavior, "deny");
   assert.match(output.hookSpecificOutput.decision.message, /进入修复阶段/u);
+});
+
+test("repair authorization state prunes expired entries", () => {
+  const tempRoot = mkdtempSync(path.join(tmpdir(), "codex-workspace-hook-state-"));
+  try {
+    const statePath = path.join(tempRoot, "state.json");
+    const python = `
+import importlib.util
+import json
+import pathlib
+import time
+
+script = pathlib.Path(${JSON.stringify(hookScript)})
+spec = importlib.util.spec_from_file_location("workspace_guard", script)
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+
+module.STATE_PATH = pathlib.Path(${JSON.stringify(statePath)})
+now = int(time.time())
+module.write_state({
+    "expired-session": {"authorized_at": now - 3600, "expires_at": now - 1},
+    "active-session": {"authorized_at": now, "expires_at": now + 600},
+})
+
+active = module.repair_auth_active({"session_id": "active-session"})
+print(json.dumps({"active": active, "state": module.read_state()}))
+`;
+
+    const result = spawnSync("python3", ["-c", python], {
+      cwd: repoRoot,
+      env: { ...process.env, PYTHONDONTWRITEBYTECODE: "1" },
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    if (result.status !== 0) {
+      throw new Error((result.stderr || result.stdout || `python exited ${result.status}`).trim());
+    }
+
+    const output = JSON.parse(result.stdout);
+    assert.equal(output.active, true);
+    assert.deepEqual(Object.keys(output.state), ["active-session"]);
+  } finally {
+    rmSync(tempRoot, { recursive: true, force: true });
+  }
 });
 
 test("stop hook reminds high-risk answers to include structured closeout", () => {

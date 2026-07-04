@@ -141,10 +141,9 @@ requested_output:
 
 ## Fallback Note
 
-Current local constraint: Claude is unavailable because the account is banned.
-Do not invoke Claude review or local Claude Code workers until the user confirms
-the account is usable again.
-
-When Claude is unavailable, send the same packet through Sub2API with
-`model_preference: gemini-pro | auto`, record `fallback: sub2api_gemini`, and
-keep the same read-only, bounded-evidence, and no-secrets rules.
+Choose the fallback from fresh availability evidence, not old account state. If
+Claude review or local Claude Code workers are unavailable, send the same packet
+through Sub2API with `model_preference: claude-opus-thinking | auto`, record the
+actual fallback route used, and keep the same read-only, bounded-evidence, and
+no-secrets rules. Use Gemini fallback only after a fresh smoke test confirms the
+Gemini route is healthy.

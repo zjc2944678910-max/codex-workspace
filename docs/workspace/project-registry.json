@@ -218,7 +218,7 @@
         {
           "path": "projects/infrastructure/nas-platform",
           "role": "infrastructure-config-root",
-          "gitnexus_status": "unknown"
+          "gitnexus_status": "indexed"
         }
       ],
       "ops_surface": "ops/projects/nas-platform",
@@ -234,7 +234,7 @@
       "service_names": [
         "nas-platform"
       ],
-      "gitnexus_indexed": false
+      "gitnexus_indexed": true
     },
     {
       "slug": "openclaw",

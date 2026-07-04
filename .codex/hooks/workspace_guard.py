@@ -80,6 +80,8 @@ HARD_BLOCK_PATTERNS = [
 L3_BLOCK_PATTERNS = [
     (re.compile(r"\bsystemctl\s+(?:restart|stop|start|reload|enable|disable|edit|daemon-reload)\b", re.I), "systemd service mutation is L3 repair execution."),
     (re.compile(r"\bservice\s+\S+\s+(?:restart|stop|start|reload)\b", re.I), "service mutation is L3 repair execution."),
+    (re.compile(r"\bbrew\s+services\s+(?:restart|stop|start|run|cleanup)\b", re.I), "brew service mutation is L3 repair execution."),
+    (re.compile(r"\blaunchctl\s+(?:kickstart|bootout|bootstrap|enable|disable|load|unload|remove|submit|kill)\b", re.I), "launchctl service mutation is L3 repair execution."),
     (re.compile(r"\bdocker\s+(?:compose\s+)?(?:down|rm|rmi|prune|restart|stop|kill)\b", re.I), "Docker runtime mutation is L3 repair execution."),
     (re.compile(r"\bdocker\s+system\s+prune\b|\bdocker\s+volume\s+rm\b", re.I), "Docker destructive cleanup is L3 repair execution."),
     (re.compile(r"\bkubectl\s+(?:apply|delete|rollout|scale|patch|cordon|drain)\b", re.I), "Kubernetes mutation is L3 repair execution."),
@@ -87,7 +89,21 @@ L3_BLOCK_PATTERNS = [
     (re.compile(r"\bterraform\s+(?:apply|destroy|import|taint)\b", re.I), "Terraform state mutation is L3 repair execution."),
     (re.compile(r"\bwrangler\s+deploy\b|\bvercel\b.+--prod\b|\bnetlify\s+deploy\b.+--prod\b", re.I | re.S), "Production deploy command is L3 repair execution."),
     (re.compile(r"\b(?:scp|rsync)\b.+\boc-nas\b|\boc-nas\b.+\b(?:scp|rsync)\b", re.I | re.S), "Copying files to or from oc-nas is L3 unless explicitly scoped as read-only evidence collection."),
-    (re.compile(r"\bssh\b.+\boc-nas\b.+(?:systemctl|docker|kubectl|helm|terraform|sed\s+-i|tee\s+/etc|>\s*/etc|rm\s+-|mv\s+/etc|cp\s+.+/etc)", re.I | re.S), "Remote live-host mutation through oc-nas is L3 repair execution."),
+    (
+        re.compile(
+            r"\bssh\b.+\boc-nas\b.+(?:"
+            r"\b(?:sudo\s+)?(?:reboot|shutdown|halt|poweroff)\b|"
+            r"\bsystemctl\s+(?:restart|stop|start|reload|enable|disable|edit|daemon-reload)\b|"
+            r"\bdocker\s+(?:compose\s+)?(?:down|rm|rmi|prune|restart|stop|kill)\b|"
+            r"\bkubectl\s+(?:apply|delete|rollout|scale|patch|cordon|drain)\b|"
+            r"\bhelm\s+(?:upgrade|install|rollback|uninstall)\b|"
+            r"\bterraform\s+(?:apply|destroy|import|taint)\b|"
+            r"sed\s+-i|tee\s+/etc|>\s*/etc|rm\s+-|mv\s+/etc|cp\s+.+/etc"
+            r")",
+            re.I | re.S,
+        ),
+        "Remote live-host mutation through oc-nas is L3 repair execution.",
+    ),
 ]
 
 RISK_PROFILE_MESSAGES = {
@@ -182,6 +198,15 @@ def read_state() -> dict[str, Any]:
 def write_state(state: dict[str, Any]) -> None:
     STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
     STATE_PATH.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def prune_expired_repair_auth(state: dict[str, Any], now: int | None = None) -> dict[str, Any]:
+    current_time = int(time.time()) if now is None else now
+    return {
+        key: value
+        for key, value in state.items()
+        if isinstance(value, dict) and int(value.get("expires_at") or 0) > current_time
+    }
 
 
 def load_project_registry() -> list[dict[str, Any]]:
@@ -287,8 +312,8 @@ def shared_live_aliases() -> set[str]:
 
 
 def record_repair_auth(payload: dict[str, Any]) -> None:
-    state = read_state()
     now = int(time.time())
+    state = prune_expired_repair_auth(read_state(), now)
     state[session_key(payload)] = {
         "authorized_at": now,
         "expires_at": now + REPAIR_AUTH_TTL_SECONDS,
@@ -297,7 +322,11 @@ def record_repair_auth(payload: dict[str, Any]) -> None:
 
 
 def repair_auth_active(payload: dict[str, Any]) -> bool:
-    entry = read_state().get(session_key(payload))
+    state = read_state()
+    pruned_state = prune_expired_repair_auth(state)
+    if pruned_state != state:
+        write_state(pruned_state)
+    entry = pruned_state.get(session_key(payload))
     if not isinstance(entry, dict):
         return False
     return int(entry.get("expires_at") or 0) > int(time.time())
@@ -424,7 +453,7 @@ def is_shell_wrapper(tokens: list[str]) -> bool:
     return False
 
 
-def git_subcommand(tokens: list[str]) -> str:
+def git_subcommand_index(tokens: list[str]) -> int:
     index = 1
     while index < len(tokens):
         token = tokens[index]
@@ -437,8 +466,35 @@ def git_subcommand(tokens: list[str]) -> str:
         if token.startswith("-"):
             index += 1
             continue
-        return token.lower()
+        return index
+    return -1
+
+
+def git_subcommand(tokens: list[str]) -> str:
+    index = git_subcommand_index(tokens)
+    if index >= 0:
+        return tokens[index].lower()
     return ""
+
+
+def is_git_clean_dry_run(command: str) -> bool:
+    tokens = tokenize_command(command)
+    if not tokens:
+        return False
+    if is_shell_wrapper(tokens):
+        return False
+    if any(token in PIPE_OPERATORS for token in tokens):
+        return False
+    if Path(tokens[0]).name.lower() != "git":
+        return False
+    subcommand_index = git_subcommand_index(tokens)
+    if subcommand_index < 0 or tokens[subcommand_index].lower() != "clean":
+        return False
+    args = tokens[subcommand_index + 1 :]
+    return any(
+        arg == "--dry-run" or arg == "-n" or (arg.startswith("-") and not arg.startswith("--") and "n" in arg[1:])
+        for arg in args
+    )
 
 
 def is_inspection_command(command: str) -> bool:
@@ -469,6 +525,8 @@ def classify_command(command: str) -> tuple[str, str]:
     inspection_command = is_inspection_command(command)
 
     for pattern, reason in HARD_BLOCK_PATTERNS:
+        if is_git_clean_dry_run(command) and "git\\s+clean" in pattern.pattern:
+            continue
         if inspection_command and "curl" not in pattern.pattern and "wget" not in pattern.pattern:
             continue
         if pattern.search(command):
