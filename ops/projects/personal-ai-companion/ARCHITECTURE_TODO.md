@@ -25,6 +25,9 @@
 - Completed 2026-07-05: OpenAI-compatible cloud relay adapter added for
   Gemini/Claude routes, configured only by environment variables and no
   committed provider secrets.
+- Completed 2026-07-05: verified Sub2API `/v1/models`; default companion cloud
+  route changed to `claude-sonnet-4-6` because Claude/Opus relay smokes passed
+  while Gemini 3.5 Flash variants returned upstream location errors.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
