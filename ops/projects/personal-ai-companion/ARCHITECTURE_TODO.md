@@ -47,9 +47,10 @@
 - Completed 2026-07-05: built the first local girlfriend-style profile/skill
   bundle from `full_merged_namefixed_20260705223515` under
   `style_profile/`. The profile uses 17,321 usable partner style samples,
-  writes `girlfriend_style_profile.json`, `girlfriend_runtime_prompt.txt`,
-  `girlfriend_style_skill.md`, and `style_eval_baseline.json`, and can be
-  enabled at runtime with `STYLE_PROFILE_PATH` plus `scope=style_chat`,
+  now includes 24 local interaction exemplars from ShareGPT preview, writes
+  `girlfriend_style_profile.json`, `girlfriend_runtime_prompt.txt`,
+  `girlfriend_style_skill.md`, and `style_eval_baseline.json`, and can be enabled
+  at runtime with `STYLE_PROFILE_PATH` plus `scope=style_chat`,
   `girlfriend_style`, or `partner_style`.
 - Completed 2026-07-05: added the first runtime style consistency loop. Style
   chat now generates a draft, scores it locally against the profile, and when
@@ -61,6 +62,11 @@
   affection, care, mild conflict, practical help, and phone-access boundary
   scenarios, with `style_eval_suite.json`, `style_eval_outputs_template.json`,
   and report generation via `scripts/build_style_eval_suite.py`.
+- Completed 2026-07-05: added `scripts/run_style_eval_candidates.py` for direct
+  mock/Ollama/cloud candidate generation and scoring. Updated interaction
+  profile full eval with `claude-opus-4-6-thinking`: 8/8 synthetic scenarios
+  passed, average style score 0.835. A follow-up boundary-specific prompt rule
+  improved the phone-access boundary smoke from 0.705 to 0.828.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
