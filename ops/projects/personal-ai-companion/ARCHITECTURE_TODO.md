@@ -84,11 +84,20 @@
   the real `/v1/chat` `scope=style_chat` path in batch. Mock API eval passed
   8/8 with average style score 0.871 and one rewrite applied; Opus daily API
   smoke passed with score 0.828 and no rewrite needed.
+- Completed 2026-07-06: expanded the synthetic style regression suite from
+  8 to 36 scenarios across 9 categories: daily, comfort, playful, affection,
+  care, conflict, practical help, access-boundary, and questions. Added a
+  `no_medical_diagnosis` guardrail for care scenarios and tightened rewrite
+  prompting for short practical-help and comfort replies. The style rewrite loop
+  can now use small intermediate improvements as the next rewrite draft while
+  still only accepting a returned reply that clears `STYLE_REWRITE_MIN_DELTA`.
+  Latest Opus `/v1/chat` full eval passed 36/36 at threshold `0.80`, average
+  style score `0.892`, with 2 rewrites attempted and applied.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
-- Next: configure the real relay base URL/API key locally and run a non-secret
-  cloud model smoke test.
+- Next: add broader memory/context-aware scenarios before tuning the next style
+  threshold.
 
 ## Later
 
