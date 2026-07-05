@@ -56,6 +56,11 @@
   below `STYLE_REWRITE_THRESHOLD` asks the same model for one style-only rewrite.
   The rewrite is accepted only when it improves the local score by at least
   `STYLE_REWRITE_MIN_DELTA`; otherwise the original draft is kept.
+- Completed 2026-07-05: added a synthetic offline style evaluation suite under
+  `style_profile/eval_suite/`. It covers daily chat, comfort, playful teasing,
+  affection, care, mild conflict, practical help, and phone-access boundary
+  scenarios, with `style_eval_suite.json`, `style_eval_outputs_template.json`,
+  and report generation via `scripts/build_style_eval_suite.py`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
