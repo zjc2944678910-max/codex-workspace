@@ -17,6 +17,11 @@
   `/v1/chat`, consent grant, review queue, memory promote, and memory recall.
 - Completed 2026-07-05: `review_items` and `consent_records` are first-class
   SQLite tables with service/API coverage.
+- Completed 2026-07-05: local Mac Ollama adapter wired for private local-first
+  chat, defaulting to `huihui_ai/qwen3.5-abliterated:9b`; `qwen2.5vl:7b`
+  reserved as the visual model.
+- Completed 2026-07-05: architecture decision set to Mac for local model
+  inference and NAS for memory/search/backup/always-on storage.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
@@ -28,7 +33,7 @@
 - Add STT/TTS and StackChan device registration.
 - Add Memory Admin UI/API.
 - Add iOS app permission flows for HealthKit/EventKit/AlarmKit/App Intents.
-- Add NAS local model adapter.
+- Add NAS memory/vector persistence plan.
 - Add chat-log import and consented style profile pipeline.
 
 ## Decisions To Revisit
@@ -36,5 +41,5 @@
 - Database choice: Postgres + pgvector vs SQLite for the first local MVP.
 - Embedding model and vector dimensions.
 - Whether StackChan should stream audio directly or upload utterance chunks.
-- Whether NAS local model should handle embeddings, summarization, or both.
+- Whether NAS should handle embeddings, summarization, or only storage/search.
 - How explicit consent should be captured for style-profile training/import.
