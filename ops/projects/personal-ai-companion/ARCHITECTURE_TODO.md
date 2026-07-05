@@ -34,9 +34,11 @@
   `PRIVATE_CLOUD_ALLOWED=1`.
 - Completed 2026-07-05: merged QQ/WeChat chat log imported locally from the
   combined source only; role-fixed output generated under ignored project data
-  at `projects/products/personal-ai-companion/data/processed/full_merged_rolefixed_20260705220255`
-  with 28,242 messages, 10,600 style samples, 2,162 memory candidates, and 500
-  capped ShareGPT preview sessions. No external model calls.
+  at `projects/products/personal-ai-companion/data/processed/full_merged_namefixed_20260705223515`
+  with 28,242 messages, 17,340 style samples, 2,162 memory candidates, and 500
+  capped ShareGPT preview sessions. No external model calls. Explicit source
+  speaker mapping is `[QQ] 小老婆` + `[微信] a小煊咪` as partner and `[QQ] 我`
+  as owner.
 - Completed 2026-07-05: chat-log import now treats QQ file-capacity/SVIP
   notices as system messages for role inference and derivative outputs.
   `speaker:c67b5227a2` is confirmed as a service/system sender, not owner:
