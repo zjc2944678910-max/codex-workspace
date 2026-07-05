@@ -54,9 +54,15 @@
   `girlfriend_style`, or `partner_style`.
 - Completed 2026-07-05: added the first runtime style consistency loop. Style
   chat now generates a draft, scores it locally against the profile, and when
-  below `STYLE_REWRITE_THRESHOLD` asks the same model for one style-only rewrite.
-  The rewrite is accepted only when it improves the local score by at least
-  `STYLE_REWRITE_MIN_DELTA`; otherwise the original draft is kept.
+  below `STYLE_REWRITE_THRESHOLD` asks the same model for up to
+  `STYLE_REWRITE_MAX_ATTEMPTS` style-only rewrites. A candidate is accepted only
+  when it improves the local score by at least `STYLE_REWRITE_MIN_DELTA`;
+  otherwise the current best draft is kept.
+- Completed 2026-07-06: runtime style prompts now dynamically select a small
+  set of local `user -> partner` interaction exemplars by current user message
+  intent/overlap, and the same relevant examples are used for both the initial
+  generation prompt and the style rewrite prompt. Exemplar text remains local
+  prompt context only and is not returned in the API response.
 - Completed 2026-07-05: added a synthetic offline style evaluation suite under
   `style_profile/eval_suite/`. It covers daily chat, comfort, playful teasing,
   affection, care, mild conflict, practical help, and phone-access boundary
