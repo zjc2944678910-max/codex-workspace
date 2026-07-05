@@ -32,6 +32,10 @@
   companion now routes `health_private`, `style_training`, and
   `memory_maintenance` to `claude-opus-4-6-thinking` when
   `PRIVATE_CLOUD_ALLOWED=1`.
+- Completed 2026-07-05: merged QQ/WeChat chat log imported locally from the
+  combined source only; role-fixed output generated under ignored project data
+  with 28,242 messages, 10,600 style samples, 2,162 memory candidates, and 694
+  ShareGPT preview sessions. No external model calls.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
