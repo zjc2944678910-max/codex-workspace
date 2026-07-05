@@ -51,6 +51,11 @@
   `girlfriend_style_skill.md`, and `style_eval_baseline.json`, and can be
   enabled at runtime with `STYLE_PROFILE_PATH` plus `scope=style_chat`,
   `girlfriend_style`, or `partner_style`.
+- Completed 2026-07-05: added the first runtime style consistency loop. Style
+  chat now generates a draft, scores it locally against the profile, and when
+  below `STYLE_REWRITE_THRESHOLD` asks the same model for one style-only rewrite.
+  The rewrite is accepted only when it improves the local score by at least
+  `STYLE_REWRITE_MIN_DELTA`; otherwise the original draft is kept.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
