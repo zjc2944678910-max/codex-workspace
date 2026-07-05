@@ -22,11 +22,14 @@
   reserved as the visual model.
 - Completed 2026-07-05: architecture decision set to Mac for local model
   inference and NAS for memory/search/backup/always-on storage.
+- Completed 2026-07-05: OpenAI-compatible cloud relay adapter added for
+  Gemini/Claude routes, configured only by environment variables and no
+  committed provider secrets.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
-- Next: add true model adapter boundaries for Gemini/Claude without putting
-  provider secrets in the repo.
+- Next: configure the real relay base URL/API key locally and run a non-secret
+  cloud model smoke test.
 
 ## Later
 
