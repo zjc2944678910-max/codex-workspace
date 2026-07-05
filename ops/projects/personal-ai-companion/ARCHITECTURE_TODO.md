@@ -26,8 +26,12 @@
   Gemini/Claude routes, configured only by environment variables and no
   committed provider secrets.
 - Completed 2026-07-05: verified Sub2API `/v1/models`; default companion cloud
-  route changed to `claude-sonnet-4-6` because Claude/Opus relay smokes passed
-  while Gemini 3.5 Flash variants returned upstream location errors.
+  route changed to `claude-opus-4-6-thinking` because Claude/Opus relay smokes
+  passed while Gemini 3.5 Flash variants returned upstream location errors.
+- Completed 2026-07-05: owner authorized private cloud processing; local
+  companion now routes `health_private`, `style_training`, and
+  `memory_maintenance` to `claude-opus-4-6-thinking` when
+  `PRIVATE_CLOUD_ALLOWED=1`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
