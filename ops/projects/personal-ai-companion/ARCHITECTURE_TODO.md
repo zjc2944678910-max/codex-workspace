@@ -67,6 +67,10 @@
   profile full eval with `claude-opus-4-6-thinking`: 8/8 synthetic scenarios
   passed, average style score 0.835. A follow-up boundary-specific prompt rule
   improved the phone-access boundary smoke from 0.705 to 0.828.
+- Completed 2026-07-06: added `scripts/run_style_chat_api_eval.py` to exercise
+  the real `/v1/chat` `scope=style_chat` path in batch. Mock API eval passed
+  8/8 with average style score 0.871 and one rewrite applied; Opus daily API
+  smoke passed with score 0.828 and no rewrite needed.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
