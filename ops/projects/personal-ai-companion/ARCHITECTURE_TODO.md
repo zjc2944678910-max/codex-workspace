@@ -12,11 +12,16 @@
 - Completed 2026-07-04: unit tests for identity binding, privacy scopes,
   StackChan speaker delivery, owner-confirmed memory promotion/deletion, and
   mock model routing.
+- Completed 2026-07-05: isolated `.venv` with FastAPI/uvicorn/httpx/pytest.
+- Completed 2026-07-05: real local API smoke on `127.0.0.1:8767` for
+  `/v1/chat`, consent grant, review queue, memory promote, and memory recall.
+- Completed 2026-07-05: `review_items` and `consent_records` are first-class
+  SQLite tables with service/API coverage.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
-- Next: add candidate review queue objects and consent records as first-class
-  tables, not only policy gates.
-- Next: add a tiny local dev server smoke test once dependencies are installed.
+- Next: add explicit DB migration/versioning before the schema grows further.
+- Next: add true model adapter boundaries for Gemini/Claude without putting
+  provider secrets in the repo.
 
 ## Later
 
