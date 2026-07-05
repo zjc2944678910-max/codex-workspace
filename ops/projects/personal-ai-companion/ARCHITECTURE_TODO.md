@@ -63,6 +63,13 @@
   intent/overlap, and the same relevant examples are used for both the initial
   generation prompt and the style rewrite prompt. Exemplar text remains local
   prompt context only and is not returned in the API response.
+- Completed 2026-07-06: expanded the local interaction exemplar bank from
+  24 examples across 6 categories to 72 examples across 9 categories, adding
+  conflict repair, practical help, and access-boundary response shapes. The
+  default rewrite threshold is now `0.80` so borderline but technically passing
+  style replies get one more chance to become shorter and more profile-like.
+  Latest Opus `/v1/chat` full eval passed 8/8 with average style score `0.879`;
+  boundary and practical-help scenarios both reached `0.887`.
 - Completed 2026-07-05: added a synthetic offline style evaluation suite under
   `style_profile/eval_suite/`. It covers daily chat, comfort, playful teasing,
   affection, care, mild conflict, practical help, and phone-access boundary
