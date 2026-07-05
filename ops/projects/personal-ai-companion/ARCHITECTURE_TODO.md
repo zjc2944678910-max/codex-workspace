@@ -44,6 +44,13 @@
   `speaker:c67b5227a2` is confirmed as a service/system sender, not owner:
   8 total messages, 0 role-eligible messages, and no style/memory/ShareGPT
   derivative hits.
+- Completed 2026-07-05: built the first local girlfriend-style profile/skill
+  bundle from `full_merged_namefixed_20260705223515` under
+  `style_profile/`. The profile uses 17,321 usable partner style samples,
+  writes `girlfriend_style_profile.json`, `girlfriend_runtime_prompt.txt`,
+  `girlfriend_style_skill.md`, and `style_eval_baseline.json`, and can be
+  enabled at runtime with `STYLE_PROFILE_PATH` plus `scope=style_chat`,
+  `girlfriend_style`, or `partner_style`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
