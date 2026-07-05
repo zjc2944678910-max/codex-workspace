@@ -34,8 +34,14 @@
   `PRIVATE_CLOUD_ALLOWED=1`.
 - Completed 2026-07-05: merged QQ/WeChat chat log imported locally from the
   combined source only; role-fixed output generated under ignored project data
-  with 28,242 messages, 10,600 style samples, 2,162 memory candidates, and 694
-  ShareGPT preview sessions. No external model calls.
+  at `projects/products/personal-ai-companion/data/processed/full_merged_rolefixed_20260705220255`
+  with 28,242 messages, 10,600 style samples, 2,162 memory candidates, and 500
+  capped ShareGPT preview sessions. No external model calls.
+- Completed 2026-07-05: chat-log import now treats QQ file-capacity/SVIP
+  notices as system messages for role inference and derivative outputs.
+  `speaker:c67b5227a2` is confirmed as a service/system sender, not owner:
+  8 total messages, 0 role-eligible messages, and no style/memory/ShareGPT
+  derivative hits.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
