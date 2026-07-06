@@ -140,6 +140,16 @@
   model calls. Verification: focused style/API tests passed 69/69, full suite
   passed 101/101, mock `/v1/chat` style eval passed 45/45, and Opus 8-scenario
   anti-pattern smoke passed 8/8 with average style score `0.880`.
+- Completed 2026-07-06: added dynamic one-turn style exemplar selection. Runtime
+  prompts now map the current user message intent to relevant local style
+  exemplar categories instead of always injecting the same global short snippets:
+  comfort/care/conflict use comfort plus short reactions, playful uses playful
+  plus questions, affection uses affection plus short reactions, and
+  help/boundary/question use question plus short reactions. Regenerated the
+  local profile/skill bundle and synthetic eval suite with zero external model
+  calls. Verification: focused style/API tests passed 72/72, full suite passed
+  104/104, mock `/v1/chat` style eval passed 45/45, and Opus 8-scenario dynamic
+  style-exemplar smoke passed 8/8 with average style score `0.877`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
