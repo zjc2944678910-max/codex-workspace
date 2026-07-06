@@ -120,11 +120,20 @@
   synthetic `setup_turns`; the suite now has 45 scenarios, including 3 multi-turn
   continuity checks. Current Opus `/v1/chat` full eval passed 45/45 at threshold
   `0.80`, average style score `0.888`, with 4 rewrites attempted and applied.
+- Completed 2026-07-06: added local retention and pruning for transient
+  same-session conversation context. `/v1/chat` now uses server time to prune
+  `conversation_messages` before prompt construction, defaults to a 24-hour
+  window via `CONVERSATION_CONTEXT_RETENTION_HOURS`, supports per-request
+  `conversation_context_retention_hours`, and treats `0` as fully disabling
+  recent-context prompting. Pruning is limited to transient conversation rows and
+  does not delete promoted `memory_atoms`. Verification: focused retention/API
+  tests passed 64/64, full suite passed 98/98, mock `/v1/chat` style eval passed
+  45/45, and Opus continuity smoke passed 3/3 with average style score `0.897`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
-- Next: add retention/encryption decisions for stored conversation context
-  before widening always-on use.
+- Next: add at-rest encryption/key-management decisions for stored conversation
+  context before widening always-on use.
 
 ## Later
 
