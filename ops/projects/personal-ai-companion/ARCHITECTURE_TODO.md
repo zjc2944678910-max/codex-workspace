@@ -194,6 +194,21 @@
   style/router/eval tests passed 69/69, full suite passed 121/121, mock
   `/v1/chat` style eval passed 45/45 with average style score `0.849`, and Opus
   6-scenario context-texture smoke passed 6/6 with average style score `0.896`.
+- Completed 2026-07-06: added lexical texture profiling for opener and vocative
+  patterns. The girlfriend-style profile now records abstract opener category
+  distribution, leading/any-vocative rates, vocative category distribution, and
+  generic greeting rate without newly mining raw low-frequency private phrases.
+  Current local profile shows direct starts at `0.7343`, generic greeting starts
+  at `0.0003`, leading vocatives at `0.0185`, and any-vocative turns at `0.0332`;
+  runtime prompts now use this as soft guidance to avoid assistant-like
+  `你好/您好` openings and avoid forcing pet names into every reply. Added a
+  narrow `generic_greeting` anti-pattern while preserving natural phrases such as
+  `你好可爱`. Regenerated the local profile/skill bundle and synthetic eval suite
+  with zero external model calls. Verification: focused style/router/eval tests
+  passed 71/71, full suite passed 123/123, mock `/v1/chat` style eval passed
+  45/45 with average style score `0.849`, and Opus 6-scenario lexical-texture
+  smoke passed 6/6 with average style score `0.896`; none of the 6 Opus smoke
+  replies started with a vocative or generic greeting.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
