@@ -240,6 +240,26 @@
   passed 45/45 with average style score `0.849`, and Opus 6-scenario
   terminal-texture smoke passed 6/6 with average style score `0.900`; neither API
   smoke had terminal penalties on the accepted replies.
+- Completed 2026-07-06: added affect-marker texture profiling and context-aware
+  scoring for explicit emotional markers. The profile now records abstract
+  category rates for laughter, affection, comfort, care, playful teasing, and
+  vocatives, plus marker-density rates, without mining new private phrases.
+  Current local profile shows any-marker rate `0.2704`, density `none=0.7296`,
+  `one=0.229`, `two=0.0364`, `three_plus=0.005`, and category rates
+  `laugh=0.0615`, `affection=0.0359`, `comfort=0.0494`, `care=0.0817`,
+  `playful=0.0583`, `vocative=0.0332`. Runtime prompts now tell the model not to
+  add affection, comfort, laughter, teasing, or address terms by default; local
+  style scoring reports capped `affect_marker_texture_score`,
+  `affect_marker_texture_penalty`, and diagnostics for context-incompatible or
+  over-dense markers. Also tightened self-deprecating mishap intent detection
+  such as `把盐当糖` into the playful path, and added a practical-help penalty for
+  uninvited laughter/teasing. Regenerated the local profile/skill bundle and
+  synthetic eval suite with zero external model calls. Verification: focused
+  style/eval/API/import tests passed 73/73, full suite passed 132/132 with one
+  upstream TestClient deprecation warning, mock `/v1/chat` style eval passed
+  45/45 with average style score `0.848` and 2 small affect-marker density
+  penalties, and Opus 6-scenario affect-marker smoke passed 6/6 with average
+  style score `0.896` and no affect/terminal/context penalties.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
