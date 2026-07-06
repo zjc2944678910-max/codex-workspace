@@ -209,6 +209,19 @@
   45/45 with average style score `0.849`, and Opus 6-scenario lexical-texture
   smoke passed 6/6 with average style score `0.896`; none of the 6 Opus smoke
   replies started with a vocative or generic greeting.
+- Completed 2026-07-06: raised the ShareGPT preview import cap from 500 to 1000
+  sessions and added `sharegpt_preview_limit` to the import report. The current
+  local import now keeps 665 preview rows. Audited the extra boundary candidates
+  and tightened boundary exemplar extraction to require an actual reply-side
+  boundary refusal, which removed noisy false positives such as reassurance
+  replies to access requests. Current interaction exemplar counts are 64 total:
+  affection/care/comfort/conflict/daily/help/playful/question each have 8, and
+  boundary has 0 verified local examples. Boundary therefore stays as
+  prompt-level safety/short-refusal guidance, not mined texture scoring. Profile
+  regeneration made zero external model calls. Verification: focused import/style
+  tests passed 45/45, full suite passed 124/124, mock `/v1/chat` style eval
+  passed 45/45 with average style score `0.849`, and Opus 6-scenario strict
+  boundary smoke passed 6/6 with average style score `0.896`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
