@@ -93,6 +93,16 @@
   still only accepting a returned reply that clears `STYLE_REWRITE_MIN_DELTA`.
   Latest Opus `/v1/chat` full eval passed 36/36 at threshold `0.80`, average
   style score `0.892`, with 2 rewrites attempted and applied.
+- Completed 2026-07-06: added explicit response-shape guidance for all
+  9 interaction categories, so daily, comfort, care, playful, affection,
+  question, conflict, help, and boundary prompts now each carry category-specific
+  tone/length/safety hints in addition to selected local exemplars. The offline
+  candidate evaluator now mirrors the runtime multi-attempt rewrite loop and
+  records whether a rewrite candidate became only the next working draft or the
+  final accepted reply. Regenerated the local profile/skill bundle and eval
+  suite with zero external model calls. Current Opus `/v1/chat` full eval passed
+  36/36 at threshold `0.80`, average style score `0.880`, with 2 rewrites
+  attempted and applied.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
