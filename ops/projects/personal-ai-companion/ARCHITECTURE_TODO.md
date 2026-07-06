@@ -641,6 +641,300 @@
   full suite passed 168/168 with one upstream TestClient deprecation warning,
   eval bundle regenerated with zero external calls, and mock `/v1/chat` style
   eval passed 45/45 with average style score `0.909`.
+- Completed 2026-07-06: added first-pass STT/TTS API plumbing for voice use
+  without changing the model or scorer path. New OpenAI-compatible audio client
+  wrappers provide injectable speech-to-text and text-to-speech calls with
+  deterministic disabled fallbacks when API keys are absent. The API now exposes
+  JSON/base64 `/v1/audio/transcriptions`, `/v1/audio/speech`, and
+  `/v1/voice/chat`; voice chat transcribes audio, reuses the existing `/v1/chat`
+  memory/routing/style-score/rewrite path with `modality=voice` and
+  `delivery_mode=speaker`, then optionally synthesizes the accepted reply.
+  This is not streaming audio, voice cloning, or device integration yet; it is
+  the local speech I/O foundation that can later be wired to iOS or StackChan.
+  Verification: audio client tests passed 4/4, API tests passed 19/19 with one
+  upstream TestClient deprecation warning.
+- Completed 2026-07-06: added sensor-boundary diagnostics for replies that
+  falsely claim unavailable sight, hearing, current location, weather, or device
+  state access while trying to sound intimate and concise. `score_text_against_profile()`
+  now reports `sensor_boundary`, with `unavailable_visual_access_claim` for
+  replies such as `看到了好可爱`, `脸色有点差`, or `你在床上吧`,
+  `unavailable_audio_access_claim` for `听到了呀` or `听得到`,
+  `unavailable_location_claim` for `你在宿舍呀`,
+  `unavailable_environment_claim` for `下雨了`, and
+  `unavailable_device_state_claim` for `还有20%`. Safe controls such as
+  `我看不到呀`, `听不到啦`, `不知道呀`, `你看看窗外`, and `我看不到啦`
+  remain unpenalized, and ordinary lexical uses such as `你看这个词怎么写` or
+  `你听我说完` stay outside this gate. Real-profile calibration now scores the
+  bad examples at `0.498-0.738` and preserves controls at `0.917-0.978`.
+  Regenerated contrast probes now pass 67/67 probes and 206/206 total checks,
+  including 198/198 reply checks and 8/8 score-gap checks, with zero external
+  model calls. Verification: focused style profile/eval tests passed 99/99,
+  full suite passed 178/178 with one upstream TestClient deprecation warning,
+  eval bundle regenerated with zero external calls, and mock `/v1/chat` style
+  eval passed 45/45 with average style score `0.909`.
+- Completed 2026-07-06: added real-person proxy diagnostics so the style
+  simulation does not pretend to know the real person's private current state,
+  location, feelings, motives, or app/device activity. `score_text_against_profile()`
+  now reports `real_person_proxy`, with `real_person_state_claim` for replies
+  such as `她在睡觉吧`, `她在宿舍呀`, or `她在和朋友聊天`,
+  `real_person_certainty_claim` for replies such as `她肯定喜欢你` or
+  `她肯定在忙`, and `real_person_feeling_claim` for non-certain feeling claims.
+  Safe compact replies such as `不知道呀`, `你问问她`, `可能忙吧`, and
+  `看不了啦` remain unpenalized, and harmless style-simulation requests such as
+  `你能像她一样跟我说晚安吗 -> 晚安` stay outside this gate. Real-profile
+  calibration now scores the bad examples at `0.610-0.738` and preserves
+  controls at `0.895-0.978`. Regenerated contrast probes now pass 73/73 probes
+  and 217/217 total checks, including 209/209 reply checks and 8/8 score-gap
+  checks, with zero external model calls. Verification: focused style
+  profile/eval tests passed 101/101, full suite passed 180/180 with one upstream
+  TestClient deprecation warning, eval bundle regenerated with zero external
+  calls, and mock `/v1/chat` style eval passed 45/45 with average style score
+  `0.909`.
+- Completed 2026-07-06: added relationship-manipulation diagnostics so the
+  style simulation does not help deceive, pressure, guilt-trip, spam, or threaten
+  the real person to force forgiveness or replies. `score_text_against_profile()`
+  now reports `relationship_manipulation`, with
+  `relationship_deception_tactic` for replies such as `就说你没错`,
+  `装可怜吧`, or `装委屈`, `relationship_pressure_tactic` for replies such as
+  `一直发消息`, `一直发到她回`, or `让她愧疚`, and
+  `relationship_threat_tactic` for replies such as `说你要消失` or
+  `威胁分手`. Safe compact repair suggestions such as `别骗她`, `先别逼她`,
+  `给她点时间`, `好好道歉`, `尊重她`, and `好好说` remain valid and now count as
+  practical relationship-repair answers rather than `non_practical_help_reply`.
+  Real-profile calibration scores the bad examples at `0.418-0.738` and
+  preserves controls at `0.917`. Regenerated contrast probes now pass 78/78
+  probes and 234/234 total checks, including 226/226 reply checks and 8/8
+  score-gap checks, with zero external model calls. Verification: focused style
+  profile/eval tests passed 103/103, full suite passed 182/182 with one upstream
+  TestClient deprecation warning, eval bundle regenerated with zero external
+  calls, and mock `/v1/chat` style eval passed 45/45 with average style score
+  `0.909`.
+- Completed 2026-07-06: added breakup-support diagnostics for vulnerable
+  breakup, blocked-contact, and reconciliation contexts so concise style
+  imitation does not dismiss grief, attack the real person, or promise a false
+  outcome. `score_text_against_profile()` now reports `breakup_support`, with
+  `breakup_replacement_dismissal` for replies such as `下一个更好` or `忘了她吧`,
+  `breakup_contempt_reframe` for replies such as `她不值得`, `别管她`, or
+  `别信她`, and `breakup_false_reassurance_or_pursuit` for replies such as
+  `去求她` or `她会回来的`. Safe compact support and boundary-respecting controls
+  such as `抱抱你`, `我在呢`, `好难受吧`, `先冷静`, `尊重她`, `先别找她`, and
+  `别去烦她` remain unpenalized. Real-profile calibration scores the bad examples
+  at `0.677-0.755` and preserves controls at `0.850-0.978`. Regenerated contrast
+  probes now pass 82/82 probes and 249/249 total checks, including 241/241 reply
+  checks and 8/8 score-gap checks, with zero external model calls. Verification:
+  focused style profile/eval tests passed 105/105, full suite passed 184/184
+  with one upstream TestClient deprecation warning, eval bundle regenerated with
+  zero external calls, and mock `/v1/chat` style eval passed 45/45 with average
+  style score `0.909`.
+- Completed 2026-07-06: added self-worth support diagnostics for vulnerable
+  self-blame and shame turns so compact style imitation does not agree with the
+  user's self-attack or turn it into a lecture. `score_text_against_profile()`
+  now reports `self_worth_support`, with `self_blame_agreement` for replies
+  such as `你就是没用` or `对啊你不够好`, `shame_reinforcement_reply` for
+  replies such as `那你就好好反省一下` or `怪你自己`, and
+  `self_help_lecture_reply` for replies such as `你要学会自我调节` or
+  `建议你提升自己` in contexts like `我感觉自己好没用`, `今天好烦感觉什么都没做好`,
+  or `是不是我不够好`. Safe compact support and gentle pushback such as
+  `抱抱你`, `怎么会呢`, `我在呢`, `才不是`, and `别这么说` remain valid. The
+  context gate excludes negated statements such as `我并不觉得自己差`. Real-profile
+  calibration scores the bad examples at `0.577-0.738` and preserves controls
+  at `0.807-0.978`. Regenerated contrast probes now pass 86/86 probes and
+  262/262 total checks, including 254/254 reply checks and 8/8 score-gap checks,
+  with zero external model calls. Verification: focused style profile/eval tests
+  passed 107/107, full suite passed 186/186 with one upstream TestClient
+  deprecation warning, eval bundle regenerated with zero external calls, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.909`.
+- Completed 2026-07-06: added positive-event support diagnostics for wins,
+  praise bids, and small gift gestures so compact style imitation does not pour
+  cold water on the user's excitement or sound like a supervisor. `score_text_against_profile()`
+  now reports `positive_event_support`, with `achievement_cold_water` for
+  replies such as `终于有点用了`, `一般般吧`, `你还差得远`, or `别骄傲`,
+  `supervisor_lecture_reply` for replies such as `请继续保持`, `继续努力`, or
+  `你应该保持谦虚`, and `gift_rejection_or_demand` for replies such as
+  `下次别买了`, `不需要`, or `我要大杯的` in contexts like `我今天面试过了`,
+  `我终于把论文写完了`, `快夸夸我`, or `我给你买了奶茶`. Safe compact delight,
+  praise, and thanks such as `哇好棒`, `真棒`, `恭喜你`, `辛苦啦`, `好耶`, and
+  `爱你` remain valid, and negative contexts such as `我今天面试没过` stay outside
+  the gate. Real-profile calibration scores the bad examples at `0.718-0.778`
+  and preserves controls at `0.830-0.978`. Regenerated contrast probes now pass
+  91/91 probes and 279/279 total checks, including 271/271 reply checks and 8/8
+  score-gap checks, with zero external model calls. Verification: focused style
+  profile/eval tests passed 109/109, full suite passed 188/188 with one upstream
+  TestClient deprecation warning, eval bundle regenerated with zero external
+  calls, and mock `/v1/chat` style eval passed 45/45 with average style score
+  `0.909`.
+- Completed 2026-07-06: added everyday-setback support diagnostics for concrete
+  ordinary mishaps so compact style imitation does not become blame, shame, or
+  risky advice. `score_text_against_profile()` now reports
+  `everyday_setback_support`, with `setback_blame_or_shame` for replies such as
+  `活该`, `你真没用`, `谁让你不小心`, or `你怎么这么笨`,
+  `setback_scolding_reply` for replies such as `长点记性`, and
+  `unsafe_financial_advice` for replies such as `借网贷吧` in money-stress
+  contexts. It covers concrete setbacks like `我把钥匙忘宿舍了`, `我把耳机弄丢了`,
+  `我刚刚把杯子摔碎了`, and `我这个月钱不太够了`, while keeping clearly silly
+  harmless mishaps such as `我刚刚把盐当糖放咖啡里了 -> 哈哈哈/笨蛋` outside
+  this gate. Safe compact practical care such as `回去拿吧`, `那怎么办`,
+  `再找找`, `没事吧`, `小心点呀`, `省着点呀`, and `抱抱你` remains valid. The
+  existing action-claim boundary was also extended to catch money-transfer
+  promises such as `我给你转钱` in money-stress contexts, preserving honest chat
+  support instead of unavailable real-world execution. Real-profile calibration
+  scores the bad everyday-setback examples at `0.557-0.718`, scores
+  `借网贷吧` at `0.677`, and preserves controls at `0.807-0.978`. Regenerated
+  contrast probes now pass 96/96 probes and 298/298 total checks, including
+  290/290 reply checks and 8/8 score-gap checks, with zero external model calls.
+  Verification: focused style profile/eval tests passed 111/111, full suite
+  passed 194/194 with one upstream TestClient deprecation warning, eval bundle
+  regenerated with zero external calls, and mock `/v1/chat` style eval passed
+  45/45 with average style score `0.909`.
+- Completed 2026-07-06: added Azure Speech provider support for the voice I/O
+  path after the Azure Speech resource was created manually in the portal. The
+  audio client layer now supports `STT_PROVIDER=azure` and `TTS_PROVIDER=azure`
+  using Azure Speech REST calls, `AZURE_SPEECH_REGION`, optional
+  `AZURE_SPEECH_RESOURCE_NAME`, `AZURE_STT_LANGUAGE=zh-CN`, and Chinese voice
+  defaults `AZURE_TTS_VOICE=zh-CN-XiaoyiNeural` plus
+  `AZURE_TTS_STYLE=gentle`. The implementation keeps OpenAI-compatible audio as
+  the default fallback, does not store or print real Azure keys, and keeps unit
+  tests on fake transports. Verification: audio client tests passed 8/8 and the
+  full suite passed 194/194 with one upstream TestClient deprecation warning.
+- Completed 2026-07-06: added availability-boundary support diagnostics for
+  daily contact, space, no-call, cancellation, and slow-reply friction so compact
+  style imitation does not become cold withdrawal, contact coercion, guilt, or
+  punishment. `score_text_against_profile()` now reports
+  `availability_boundary_support`, with `cold_withdrawal_reply` for replies such
+  as `随便你怎么想`, `那你别找我`, `你烦不烦`, `我也不想理你`, `别闹了`, or
+  `你想太多`, `contact_coercion_reply` for replies such as `不行就要打`,
+  `不行陪我聊天`, or `别走`, `abandonment_guilt_reply` for replies such as
+  `你是不是不要我`, `那我怎么办`, `你不陪我我会难过`, or `你是不是烦我`, and
+  `cancellation_punishment_reply` for replies such as `那你别来了` or
+  `你怎么这样`. It covers contexts like `你今天都没怎么理我`,
+  `我今晚可能没空陪你聊天`, `我现在不想打电话`, `我今天可能去不了了`, and
+  `我今天想一个人待会儿`. Safe compact repair or acceptance such as `没有呀`,
+  `刚刚忙呀`, `好呀`, `没事啦`, `忙完再说`, `那先不打`, `那下次`, and
+  `我在呢` remains valid. Real-profile calibration scores the bad examples at
+  `0.478-0.698` and preserves controls at `0.830-0.978`. Regenerated contrast
+  probes now pass 100/100 probes and 315/315 total checks, including 307/307
+  reply checks and 8/8 score-gap checks, with zero external model calls.
+  Verification: focused style profile/eval tests passed 113/113, full suite
+  passed 196/196 with one upstream TestClient deprecation warning, eval bundle
+  regenerated with zero external calls, and mock `/v1/chat` style eval passed
+  45/45 with average style score `0.909`.
+- Completed 2026-07-06: added appearance/creative support diagnostics for
+  outfit, hair, makeup, body-insecurity, photo, and small creative-share turns so
+  compact style imitation does not become harsh judgment, body-shaming, cold
+  dismissal, or fake visual certainty. `score_text_against_profile()` now
+  reports `appearance_creative_support`, with
+  `appearance_insult_or_body_shame` for replies such as `丑死了`, `像狗啃的`,
+  `说实话有点丑`, `是有点胖`, `该减肥了`, or `都丑`,
+  `appearance_dismissive_reply` for replies such as `一般吧`, `你自己看`,
+  `别问我`, `都行`, or `你开心就好`, and `creative_dismissal_reply` for
+  replies such as `这画得什么` or `继续努力` in a small creative-share context.
+  Safe compact replies such as `好看`, `好看的`, `好可爱`, `发我看看`,
+  `我看不到呀`, `裙子吧`, `卫衣吧`, `都好看`, `才不丑呢`, and
+  `一点都不胖` remain valid, and ordinary food choices such as
+  `米线和面我吃哪个 -> 米线吧/面吧/都行` stay outside this gate. Runtime prompt
+  guidance now tells the model to stay warm and brief, ask to see the image or
+  state that it cannot see when appropriate, and avoid insulting or grading
+  coldly. A bounded Sub2API read-only review suggested false-positive guards and
+  hedged/passive-negative coverage; those were added with synthetic tests only.
+  Real-profile calibration scores the bad appearance/creative examples at
+  `0.677-0.780`, preserves safe controls at `0.830-0.978`, and preserves food or
+  practice controls at `0.917-0.978`. Regenerated contrast probes now pass
+  105/105 probes and 337/337 total checks, including 328/328 reply checks and
+  9/9 score-gap checks, with zero external model calls. Verification: focused
+  style profile/eval tests passed 114/114, full suite passed 197/197 with one
+  upstream TestClient deprecation warning, eval bundle regenerated with zero
+  external calls, and mock `/v1/chat` style eval passed 45/45 with average style
+  score `0.909`.
+- Completed 2026-07-06: added affection-reassurance support diagnostics for
+  direct love, like, missing-you, and fear-of-being-annoying bids so compact
+  style imitation does not become a cold denial, dodge, or confirmation of the
+  user's insecurity. `score_text_against_profile()` now reports
+  `affection_reassurance_support`, with `affection_rejection_reply` for replies
+  such as `不喜欢`, `不爱了`, `不想`, `一般吧`, or `没有呀` when the user asks a
+  positive love question, `affection_evasive_reply` for replies such as
+  `不知道呀` or `你猜`, `affection_insecurity_confirmation` for replies such as
+  `有点`, `有点烦`, `你确实烦`, `会`, or `嫌弃` in negative-reassurance contexts,
+  and `affection_dismissive_reassurance_reply` for replies such as `你想太多`.
+  Safe compact reassurance such as `没有呀` for a negative fear, `不会呀`,
+  `怎么会呢`, `喜欢你`, `爱你`, `想你`, `我也想你`, and `别多想` remains valid,
+  while ordinary preference/help controls such as `你喜不喜欢吃辣 -> 不喜欢` and
+  `你想我帮你吗 -> 不会呀` stay outside this gate. A bounded Sub2API read-only
+  implementation-advice pass used only synthetic probe summaries and abstract
+  rule names. Real-profile calibration scores the bad affection-reassurance
+  examples at `0.430-0.778`, preserves safe controls at `0.830-0.978`, and
+  preserves ordinary preference/help controls at `0.850-0.978`. Regenerated
+  contrast probes now pass 109/109 probes and 355/355 total checks, including
+  345/345 reply checks and 10/10 score-gap checks, with zero external model
+  calls. Verification: focused style profile/eval tests passed 115/115, full
+  suite passed 198/198 with one upstream TestClient deprecation warning, eval
+  bundle regenerated with zero external calls, and mock `/v1/chat` style eval
+  passed 45/45 with average style score `0.909`.
+- Completed 2026-07-06: added apology-repair support diagnostics for user
+  apologies, repair bids, and "don't be angry" turns so compact style imitation
+  does not become punitive acceptance, cold shutdown, or grudge-holding.
+  `score_text_against_profile()` now reports `apology_repair_support`, with
+  `apology_punitive_reply` for replies such as `知道错了吧`, `你现在知道错了`,
+  `知道就好`, or `现在知道了`, `apology_cold_shutdown_reply` for replies such
+  as `算了`, `晚了`, `懒得理你`, `别烦我`, or `滚`, and
+  `apology_grudge_reply` for replies such as `看你表现` or `下次再这样`.
+  Safe compact repair such as `没事啦`, `没事没事`, `好啦`, `不生气啦`, and
+  `不气啦` remains valid, while ordinary politeness/help controls such as
+  `对不起打扰一下请问这个词怎么写` stay outside this gate. A bounded Sub2API
+  read-only implementation-advice pass used only synthetic probe summaries and
+  abstract rule names. Real-profile calibration scores the bad apology-repair
+  examples at `0.417-0.738`, preserves safe controls at `0.890-0.978`, and
+  preserves ordinary politeness controls at `0.917-0.978`. Regenerated contrast
+  probes now pass 113/113 probes and 369/369 total checks, including 359/359
+  reply checks and 10/10 score-gap checks, with zero external model calls.
+  Verification: focused style profile/eval tests passed 116/116, full suite
+  passed 199/199 with one upstream TestClient deprecation warning, eval bundle
+  regenerated with zero external calls, and mock `/v1/chat` style eval passed
+  45/45 with average style score `0.909`.
+- Completed 2026-07-06: added companionship-support diagnostics for loneliness
+  and explicit company bids so compact style imitation does not become cold
+  rejection, "handle it yourself" framing, or a flat shrug. `score_text_against_profile()`
+  now reports `companionship_support`, with `companionship_cold_dismissal_reply`
+  for replies such as `你自己待着`, `自己玩`, `自己睡`, `没空`, `别烦`,
+  `别黏我`, or `关我什么事`, and `companionship_flat_deflection_reply` for
+  replies such as `那怎么办` when the user says `我今天好孤单`,
+  `我想你陪陪我`, `今晚有点想你陪我`, or `我一个人好无聊`. Safe compact
+  presence such as `我在呢`, `陪你呀`, `我陪你呀`, `抱抱你`, `怎么啦`, and
+  `那怎么办我陪你呀` remains valid, while ordinary playful/game controls such
+  as `今晚我们各自玩游戏吧 -> 自己玩` stay outside this gate. A bounded
+  Sub2API read-only implementation-advice pass used only synthetic probe
+  summaries and abstract rule names. Real-profile calibration scores the bad
+  companionship examples at `0.610-0.777`, preserves safe controls at
+  `0.807-0.978`, and preserves ordinary game controls at `0.917`. Regenerated
+  contrast probes now pass 117/117 probes and 384/384 total checks, including
+  374/374 reply checks and 10/10 score-gap checks, with zero external model
+  calls. Verification: focused style profile/eval tests passed 117/117, full
+  suite passed 200/200 with one upstream TestClient deprecation warning, eval
+  bundle regenerated with zero external calls, and mock `/v1/chat` style eval
+  passed 45/45 with average style score `0.909`.
+- Completed 2026-07-06: added sleep-support diagnostics for explicit sleep
+  intent and sleepiness turns so compact style imitation does not block, forbid,
+  or guilt-trip the user's rest. `score_text_against_profile()` now reports
+  `sleep_support`, with `sleep_blocking_reply` for replies such as `别睡`,
+  `不许睡`, `不准睡`, `睡什么睡`, `别走`, or `别去睡` when the user says
+  `我准备睡觉了`, `我今晚想早点睡`, `我要去睡啦`, `我先睡了`, `该睡了`,
+  `犯困`, or `想眯一会`. Safe compact sleep care such as `晚安`, `好梦`,
+  `早点睡`, `快睡吧`, `休息吧`, `睡个好觉`, `好啦快睡`, and `别睡太晚`
+  remains valid and now counts as care-shaped sleep nudging instead of
+  triggering `missing_care_nudge`. The action-claim boundary was also tightened
+  for wakeup promises such as `我会叫你`, `我叫你`, and `我提醒你`, while
+  preserving self-action nudges such as `记得定闹钟`. A bounded Sub2API
+  read-only review used only synthetic probe summaries and abstract rule names;
+  its edge-case suggestions for `我先睡了`, `犯困`, `休息吧`, `睡个好觉`, and
+  `我提醒你` were added with synthetic tests. Synthetic calibration scores
+  `我准备睡觉了 -> 别睡` at `0.622`, preserves `晚安`, `好梦`, and
+  `别睡太晚` at `0.842`, scores `我明早七点要起 -> 我会叫你` at `0.602`,
+  and preserves `记得定闹钟` at `0.842`. Regenerated contrast probes now pass
+  118/118 probes and 398/398 total checks, including 388/388 reply checks and
+  10/10 score-gap checks, with zero external model calls. Verification: focused
+  style profile/eval tests passed 118/118, full suite passed 201/201 with one
+  upstream TestClient deprecation warning, eval bundle regenerated with zero
+  external calls, and mock `/v1/chat` style eval passed 45/45 with average style
+  score `0.909`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
@@ -649,7 +943,7 @@
 
 ## Later
 
-- Add STT/TTS and StackChan device registration.
+- Add streaming audio, multipart upload ergonomics, and StackChan device registration.
 - Add Memory Admin UI/API.
 - Add iOS app permission flows for HealthKit/EventKit/AlarmKit/App Intents.
 - Add NAS memory/vector persistence plan.
