@@ -49,6 +49,62 @@ Live host: `107.175.180.163`
 - Authenticated `https://codex-sub.nodezjc12348888.xyz/v1/models` returned
   9 models; the first listed model was `claude-fable-5`.
 
+### K12 Codex Auth Import
+
+- Imported 160 local Codex auth JSON files from
+  `/Users/zhangjincheng/Downloads/k12_反代_json格式_160个_满额度/` into the
+  Codex-dedicated instance only.
+- Target group was `openai-default`; `codex_main` was already bound to that
+  group.
+- The source files contained access tokens and ID tokens, but no
+  `refresh_token`; imported accounts therefore have account/token expiry set
+  and `auto_pause_on_expired=true`.
+- Added import marker `k12_160_full_quota_20260706` to the imported accounts
+  for rollback and audit filtering.
+
+Evidence on VPS:
+
+```text
+/root/codex-repair-sub2api-codex-import-k12-20260706T174416+0800
+```
+
+Verification:
+
+- Before import: 16 active/non-deleted accounts.
+- Import API result: total 160, created 160, updated 0, skipped 0, failed 0.
+- Import result account IDs: 18 through 177.
+- Imported account group check immediately after import: all 160 bound to
+  `openai-default`.
+- Current reconciliation after subsequent dashboard cleanup: 172 non-deleted
+  accounts total, 159 non-deleted accounts with the import marker, 13
+  non-deleted non-batch accounts, and 5 soft-deleted accounts.
+- Subsequent public dashboard `DELETE /api/v1/admin/accounts/...` requests
+  soft-deleted old accounts 13 through 16 and imported account 28. Account 28
+  had returned upstream `token_invalidated`; leaving it soft-deleted keeps it
+  out of scheduling.
+- Imported account expiry range:
+  `2026-07-16 13:32:43+08` to `2026-07-16 14:51:35+08`.
+- Authenticated `/v1/models` with the `codex_main` key returned 16 models,
+  including `gpt-5.4`.
+- Authenticated `/v1/chat/completions` smoke for `gpt-5.4` returned HTTP 200
+  and text `ok`.
+- Direct single-account tests for imported accounts 18 and 19 reached upstream
+  and returned `usage_limit_reached` for plan type `k12`, confirming the
+  credentials were parsed and routed but those tested accounts were full until
+  reset.
+
+Rollback options:
+
+```bash
+/root/codex-repair-sub2api-codex-import-k12-20260706T174416+0800/rollback/rollback-k12-imported-accounts.sh
+```
+
+Full pre-import database dump:
+
+```text
+/root/codex-repair-sub2api-codex-import-k12-20260706T174416+0800/backup/sub2api-codex-before-k12-import.dump
+```
+
 ### Rollback
 
 ```bash
