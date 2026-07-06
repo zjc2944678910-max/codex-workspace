@@ -222,6 +222,24 @@
   tests passed 45/45, full suite passed 124/124, mock `/v1/chat` style eval
   passed 45/45 with average style score `0.849`, and Opus 6-scenario strict
   boundary smoke passed 6/6 with average style score `0.896`.
+- Completed 2026-07-06: added terminal-texture profiling and scoring for
+  message-ending surfaces. The profile now records abstract terminal categories
+  and rates for bare endings, full stops, trailing emotes, questions,
+  exclamations, ellipses, tilde, repeated punctuation, and comma endings; no new
+  private phrase mining is added. Current local profile shows bare endings at
+  `0.9122`, full stops at `0.052`, trailing emote category at `0.0176`, question
+  endings at `0.0102`, exclamation endings at `0.0057`, repeated punctuation at
+  `0.0002`, and trailing emote rate at `0.0282`. Runtime prompts now carry this
+  terminal guidance, and local style scoring reports capped
+  `terminal_texture_score`, `terminal_texture_penalty`, and diagnostics for
+  assistant-polished punctuation drift such as extra `。`, `！`, repeated
+  punctuation, or default emoji endings. Regenerated the local profile/skill
+  bundle and synthetic eval suite with zero external model calls. Verification:
+  focused style/eval/API/import tests passed 68/68, full suite passed 127/127
+  with one upstream TestClient deprecation warning, mock `/v1/chat` style eval
+  passed 45/45 with average style score `0.849`, and Opus 6-scenario
+  terminal-texture smoke passed 6/6 with average style score `0.900`; neither API
+  smoke had terminal penalties on the accepted replies.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
