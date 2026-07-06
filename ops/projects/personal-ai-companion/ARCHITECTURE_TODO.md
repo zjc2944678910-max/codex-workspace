@@ -177,6 +177,23 @@
   `/v1/chat` style eval passed 45/45 with average style score `0.850`, and
   Opus 6-scenario rhythm/exemplar smoke passed 6/6 with average style score
   `0.882`.
+- Completed 2026-07-06: added interaction response texture statistics and
+  context-aware texture scoring. The profile now records per-category local
+  response texture for categories with at least 3 interaction examples, including
+  average/p75 reply length, single-beat rate, common reply moves, and common
+  particles. Runtime prompts use those texture stats as behavior guidance, and
+  `score_text_against_profile(..., user_text=...)` now reports conservative
+  `context_texture_score`, `context_texture_penalty`, and diagnostics for the
+  current user-message intent. The scoring path only penalizes directly detected
+  intent categories and skips categories with insufficient local samples; in the
+  current profile boundary has only 2 examples, so boundary texture remains prompt
+  hint only instead of a hard scoring rule. Regenerated the local profile/skill
+  bundle and synthetic eval suite with zero external model calls. Current
+  interaction exemplar counts are 66 total: affection/care/comfort/conflict/
+  daily/help/playful/question each have 8, boundary has 2. Verification: focused
+  style/router/eval tests passed 69/69, full suite passed 121/121, mock
+  `/v1/chat` style eval passed 45/45 with average style score `0.849`, and Opus
+  6-scenario context-texture smoke passed 6/6 with average style score `0.896`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
