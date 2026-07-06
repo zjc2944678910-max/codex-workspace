@@ -150,6 +150,18 @@
   calls. Verification: focused style/API tests passed 72/72, full suite passed
   104/104, mock `/v1/chat` style eval passed 45/45, and Opus 8-scenario dynamic
   style-exemplar smoke passed 8/8 with average style score `0.877`.
+- Completed 2026-07-06: tightened intent disambiguation for style and
+  interaction exemplar selection. Standalone `是不是` no longer marks a turn as
+  conflict; playful cues such as `偷笑` / `你...笑我` route to playful exemplars,
+  affection questions stay affection-shaped, true insecurity terms such as
+  `不想理` / `不在乎` remain conflict-shaped, and `难过` now routes to comfort.
+  Interaction exemplar selection now fills only from compatible categories
+  instead of arbitrary text-overlap categories, reducing off-topic prompt
+  leakage. Regenerated the local profile/skill bundle and synthetic eval suite
+  with zero external model calls. Verification: focused style/API tests passed
+  74/74, full suite passed 106/106, mock `/v1/chat` style eval passed 45/45, and
+  Opus 6-scenario intent-disambiguation smoke passed 6/6 with average style
+  score `0.907`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
