@@ -260,6 +260,153 @@
   45/45 with average style score `0.848` and 2 small affect-marker density
   penalties, and Opus 6-scenario affect-marker smoke passed 6/6 with average
   style score `0.896` and no affect/terminal/context penalties.
+- Completed 2026-07-06: recalibrated base `marker_score` from the legacy
+  top-laughter-marker present/absent heuristic to the affect-marker density
+  profile when `affect_marker_texture` is available. The previous base score
+  inverted the observed style signal because the current local profile has
+  `none=0.7296` marker density while laughter appears at only `0.0615`; ordinary
+  no-marker replies can now score `1.0` for neutral daily/help/boundary/question
+  contexts, emotional no-marker replies are capped at `0.85`, invited
+  affection/comfort/care/playful/vocative markers get a minimum floor of
+  `0.55`, and boundary contexts cap marker-heavy replies at `0.4`. Legacy
+  profiles without `affect_marker_texture` keep the old top-laughter fallback.
+  Verification: focused style/eval/API/import tests passed 77/77, full suite
+  passed 136/136 with one upstream TestClient deprecation warning, regenerated
+  the local profile/skill/eval suite with zero external model calls, mock
+  `/v1/chat` style eval passed 45/45 with average style score `0.904` and
+  affect/terminal/context penalty counts `2/0/3`, Opus 6-scenario marker-score
+  smoke passed 6/6 with average style score `0.946` and no
+  affect/terminal/context penalties, and the formal negative baseline stayed at
+  final score `0.0`.
+- Completed 2026-07-06: added context-aware acknowledgment-only diagnostics for
+  short but non-responsive replies. The local scorer now tags tiny replies such
+  as `嗯`, `好`, and `哦` as `ack_only`, does not let them count as
+  `practical_answer` in help/question contexts, and adds a capped
+  `ack_only_in_substantive_context` penalty for help, question, comfort,
+  conflict, care, and affection turns while preserving daily short-chat replies.
+  This gives the rewrite prompt a concrete reason when a reply is short but
+  fails to answer or emotionally engage. Initial real-profile probe:
+  `米饭要煮多久啊 -> 嗯/好` now scores `0.473` with context penalty `0.22` and
+  `二十分钟吧` stays `0.978` with no context penalty; `今天下班啦 -> 好呀` keeps
+  zero context penalty. Verification: focused style/eval/API/import tests passed
+  78/78, full suite passed 137/137 with one upstream TestClient deprecation
+  warning, regenerated the local profile/skill/eval suite with zero external
+  model calls, mock `/v1/chat` style eval passed 45/45 with average style score
+  `0.904`, one rewrite attempted/applied, context penalty count `3`, and the
+  regenerated positive exemplar baseline stayed `0.858` with formal negative
+  score `0.0`.
+- Completed 2026-07-06: tightened practical-help response texture so
+  `practical_answer` means a content-bearing time, quantity, action, or
+  preparation cue rather than any short reply. This fixes cases where practical
+  help prompts such as `米饭要煮多久啊` previously accepted `哈哈哈`,
+  `不知道呀`, `你猜`, or `抱抱你` as short profile-like answers. The real-profile
+  probe now scores `哈哈哈` at `0.672`, `不知道呀` at `0.758`, `你猜` at
+  `0.698`, and `抱抱你` at `0.568`, while keeping `二十分钟吧` at `0.978`;
+  `十分钟后出门先做什么 -> 先换衣服吧/带伞吧` also stays at `0.978`.
+  Verification: focused style/eval/API/import tests passed 79/79, full suite
+  passed 138/138 with one upstream TestClient deprecation warning, regenerated
+  the local profile/skill/eval suite with zero external model calls, mock
+  `/v1/chat` style eval passed 45/45 with average style score `0.904`, one
+  rewrite attempted/applied, context penalty count `3`, no
+  `non_practical_help_reply` penalties in normal mock scenarios, and the
+  regenerated positive exemplar baseline stayed `0.858` with formal negative
+  score `0.0`.
+- Completed 2026-07-06: added emotional/relationship evasive-reply diagnostics.
+  The local scorer now tags implicit ask-back replies such as `怎么了呀` as
+  `ask_back` even without a question mark, and separately tags short evasive
+  replies such as `不知道呀` or `你猜`. In affection, comfort, conflict, and care
+  contexts, evasive short replies get a capped
+  `evasive_reply_in_emotional_context` penalty, while ordinary question contexts
+  can still keep `不知道呀` when it is a plausible direct answer. Real-profile
+  probe: `我好想你 -> 不知道呀/你猜` now scores `0.755/0.695`, while
+  `我也想你/抱抱你` stays `0.85`; `今天好烦 -> 怎么了呀` stays `0.955`; and
+  `你是不是不想理我 -> 不知道呀/你猜` now scores `0.778/0.718`.
+  Verification: focused style/eval/API/import tests passed 80/80, full suite
+  passed 139/139 with one upstream TestClient deprecation warning, regenerated
+  the local profile/skill/eval suite with zero external model calls, mock
+  `/v1/chat` style eval passed 45/45 with average style score `0.904`, one
+  rewrite attempted/applied, context penalty count `3`, no
+  `evasive_reply_in_emotional_context` penalties in normal mock scenarios, and
+  the regenerated positive exemplar baseline stayed `0.858` with formal
+  negative score `0.0`.
+- Completed 2026-07-06: tightened care-context texture for sensitive self-care
+  turns. `CARE_REPLY_RE` now recognizes compact care nudges such as `喝点热水`,
+  and the affect-marker penalty for laughter/teasing in comfort, care, or
+  conflict contexts is stronger. Real-profile probe: `我胃好疼/我好困啊/我还没吃饭
+  -> 哈哈哈` now scores `0.792` and triggers rewrite, while `喝点热水`,
+  `疼不疼`, `快睡觉`, `睡吧`, `去吃饭`, and `吃点东西吧` stay between `0.85` and
+  `0.932`; playful mishap `我刚刚把盐当糖放咖啡里了 -> 哈哈哈` stays valid at
+  `0.932`. Verification: focused style/eval/API/import tests passed 81/81, full
+  suite passed 140/140 with one upstream TestClient deprecation warning,
+  regenerated the local profile/skill/eval suite with zero external model calls,
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.904`, one
+  rewrite attempted/applied, context penalty count `3`, no
+  `laugh_or_teasing_in_sensitive_context` penalties in normal mock scenarios,
+  and the regenerated positive exemplar baseline stayed `0.858` with formal
+  negative score `0.0`.
+- Completed 2026-07-06: added a durable contrastive style probe suite and fixed
+  the real-profile practical-help regression it exposed. Explicit practical
+  prompts such as `米饭要煮多久啊`, `泡面加鸡蛋要煮几分钟啊`, and
+  `十分钟后出门先做什么` now require a concrete `practical_answer` from the
+  current message semantics even when imported local help examples have sparse
+  practical-answer history. Real-profile probe now keeps `二十分钟吧` and
+  `先换衣服吧` at `0.978`, while `米饭要煮多久啊 -> 哈哈哈/不知道呀/你猜/抱抱你`
+  scores `0.692/0.778/0.718/0.548` with `non_practical_help_reply` present.
+  Added `DEFAULT_STYLE_CONTRAST_PROBES` and `run_style_contrast_probes()`;
+  `write_style_eval_bundle()` now writes
+  `style_profile/eval_suite/style_contrast_probe_report.json`. The regenerated
+  real-profile contrast report passed 10/10 probes and 36/36 reply checks
+  (`pass_rate=1.0`) with zero external model calls. Mock help replies in both
+  offline candidate and `/v1/chat` API eval scripts were updated to return
+  compact practical answers so normal synthetic help scenarios remain valid.
+  Verification: focused style profile/eval tests passed 72/72, full suite passed
+  142/142 with one upstream TestClient deprecation warning, eval suite build
+  regenerated the contrast report with zero external calls, and mock `/v1/chat`
+  style eval passed 45/45 with average style score `0.909` and help category
+  passed 5/5 at average `0.978`.
+- Completed 2026-07-06: added fine-grained interaction shape signatures for
+  runtime exemplar selection. New profile builds store an abstract
+  `shape_signature` on interaction exemplars when the current turn matches a
+  category-compatible shape such as `help_time`, `help_sequence`,
+  `help_reminder`, `care_sleep`, `care_food`, `care_pain`,
+  `affection_miss`, `conflict_reassurance`, or `playful_mishap`; older profiles
+  remain compatible because the selector can compute signatures from exemplar
+  user text when the field is missing. The relevance score now adds a bounded
+  same-category shape bonus so duration help, quick-plan help, and reminder help
+  prefer closer local interaction mappings instead of whichever help example was
+  extracted first. Help exemplar extraction was tightened so broad ordinary
+  `为什么/什么` questions no longer get misclassified as practical help unless
+  the current prompt or reply has a practical-answer shape. Runtime prompts also
+  add a synthetic fine-grained shape hint for sparse cases, for example compact
+  time answers, first-step-only quick plans, one-reminder choices, or basic
+  care nudges. Care scoring now requires a `care_nudge` for explicit sleep,
+  food, or pain self-care prompts even when imported care examples have sparse
+  care-nudge history. Regenerated real profile has 64 interaction exemplars and
+  the eval suite generation prompts include the new fine-grained shape hints for
+  practical help, umbrella/reminder help, and quick-plan help. Verification:
+  focused style profile/router/eval tests passed 95/95, focused style
+  profile/eval tests passed 78/78 after care calibration, full suite passed
+  148/148 with one upstream TestClient deprecation warning, regenerated
+  profile/skill/eval suite with zero external model calls, contrast probes
+  passed 10/10 probes and 36/36 reply checks, and mock `/v1/chat` style eval
+  passed 45/45 with average style score `0.909`.
+- Completed 2026-07-06: added terminal/marker drift contrast checks for the
+  style scorer. The terminal texture penalty is now slightly stronger when the
+  local profile is clearly bare-ending dominant and trailing-emote sparse, and
+  repeated punctuation remains more costly than a single full stop in that
+  setting. `run_style_contrast_probes()` now supports `score_gaps`, so texture
+  variants can be required to score meaningfully below their matching bare reply
+  without forcing every punctuation or emoji variant below the rewrite
+  threshold. Regenerated real-profile contrast report passed 14/14 probes and
+  42/42 checks, including 38/38 reply checks and 4/4 score-gap checks. Real
+  abstract-profile gap probes: `哈哈哈` scored `0.112` above `哈哈哈。`,
+  `二十分钟吧` scored `0.091` above `二十分钟吧。` and `0.101` above
+  `二十分钟吧😊`, `抱抱你` scored `0.060` above `抱抱你宝贝[拥抱]`, and
+  question-mark control `去哪儿？` stayed valid at `0.897`. Verification:
+  focused style profile/eval tests passed 80/80, full suite passed 150/150 with
+  one upstream TestClient deprecation warning, eval suite bundle regenerated
+  with zero external model calls, and mock `/v1/chat` style eval passed 45/45
+  with average style score `0.909`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.

@@ -1,5 +1,60 @@
 # Sub2API Deployment Ledger
 
+## 2026-07-06: Codex-Dedicated Fresh Sub2API Instance
+
+Live host: `107.175.180.163`
+
+### Changes
+
+- Created an isolated Codex-dedicated instance under `/opt/sub2api-codex`.
+- Created a fresh source checkout from `https://github.com/Wei-Shaw/sub2api`
+  under `/opt/sub2api-codex-src` at commit
+  `759332aa926394d07587cea81901cbd318b328d6`.
+- Built and deployed `sub2api:codex-fresh-20260706T132016` only for the
+  `sub2api-codex` application container.
+- Kept the existing shared instance under `/opt/sub2api` on
+  `sub2api:responses-toolchain-ws-output-20260703T232310`.
+- Created separate containers/data paths for the Codex instance:
+  `sub2api-codex`, `sub2api-codex-postgres`, `sub2api-codex-redis`, and
+  `/opt/sub2api-codex/{data,postgres_data,redis_data}`.
+- Added an nginx origin server block for
+  `codex-sub.nodezjc12348888.xyz` forwarding to `127.0.0.1:8081`.
+- Created Cloudflare DNS `A` record
+  `codex-sub.nodezjc12348888.xyz -> 107.175.180.163`, proxied.
+- Created Cloudflare Origin Rule `codex-sub-port-8443` matching
+  `https://codex-sub.nodezjc12348888.xyz/*` and overriding the destination
+  port to `8443`.
+- Created a new local Codex profile at `~/.codex/codex-sub2api.config.toml`
+  and a root-only/new-instance API key secret outside tracked docs.
+
+### Evidence On VPS
+
+- `/root/codex-repair-sub2api-codex-20260706T125058+0800`
+
+### Verification
+
+- `sub2api-codex` reported `healthy` on
+  `sub2api:codex-fresh-20260706T132016`.
+- Existing `sub2api` remained `healthy` on
+  `sub2api:responses-toolchain-ws-output-20260703T232310`.
+- `http://127.0.0.1:8081/health` returned `{"status":"ok"}`.
+- Local nginx SNI/origin check for
+  `https://codex-sub.nodezjc12348888.xyz:8443/health` returned
+  `{"status":"ok"}` from the VPS itself.
+- Admin login on the new instance succeeded for the new admin user.
+- The new `codex_main` API key returned `/v1/models` from the new instance.
+- Public DNS for `codex-sub.nodezjc12348888.xyz` resolved through Cloudflare
+  proxy IPs.
+- `https://codex-sub.nodezjc12348888.xyz/health` returned `{"status":"ok"}`.
+- Authenticated `https://codex-sub.nodezjc12348888.xyz/v1/models` returned
+  9 models; the first listed model was `claude-fable-5`.
+
+### Rollback
+
+```bash
+/root/codex-repair-sub2api-codex-20260706T125058+0800/rollback/rollback-sub2api-codex-to-pre-fresh-image.sh
+```
+
 ## 2026-07-03: Responses Tool Continuation Repair
 
 Live host: `107.175.180.163`
