@@ -103,10 +103,19 @@
   suite with zero external model calls. Current Opus `/v1/chat` full eval passed
   36/36 at threshold `0.80`, average style score `0.880`, with 2 rewrites
   attempted and applied.
+- Completed 2026-07-06: added memory-context style regression coverage. Natural
+  Chinese memory recall now tokenizes ASCII words plus CJK bigrams, so promoted
+  Chinese memories can be recalled from unspaced Chinese user questions. The
+  synthetic style suite now has 42 scenarios, including 6 approved-memory
+  context turns seeded through the local memory API and promoted before the chat
+  turn. Memory-context guardrails require the reply to naturally use a relevant
+  synthetic approved-memory detail without turning into a report. Current Opus
+  `/v1/chat` full eval passed 42/42 at threshold `0.80`, average style score
+  `0.881`, with 5 rewrites attempted and applied.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
-- Next: add broader memory/context-aware scenarios before tuning the next style
+- Next: add multi-turn continuity scenarios before tuning the next style
   threshold.
 
 ## Later
