@@ -162,6 +162,21 @@
   74/74, full suite passed 106/106, mock `/v1/chat` style eval passed 45/45, and
   Opus 6-scenario intent-disambiguation smoke passed 6/6 with average style
   score `0.907`.
+- Completed 2026-07-06: added rhythm-aware scoring and profile-length-aligned
+  style exemplar selection for the girlfriend-style profile. The local scorer
+  now reports `rhythm_score`, `rhythm_penalty`, and diagnostics for sentence
+  units, clause count, comma chains, newlines, list density, leading vocatives,
+  and short boundary replies. Multi-clause chatty explanations such as
+  `好呀，我陪你想想` now fall below the rewrite threshold, while compact
+  boundary/practical replies and natural vocative commas remain valid. The
+  exemplar bank now targets the profile's own p75 reply length instead of a
+  fixed 12-character target; regenerated examples average about 7 chars and the
+  positive exemplar baseline is `0.848`. Regenerated the local profile/skill
+  bundle and synthetic eval suite with zero external model calls. Verification:
+  focused style/API tests passed 80/80, full suite passed 112/112, mock
+  `/v1/chat` style eval passed 45/45 with average style score `0.850`, and
+  Opus 6-scenario rhythm/exemplar smoke passed 6/6 with average style score
+  `0.882`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
