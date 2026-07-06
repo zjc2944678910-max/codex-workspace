@@ -112,11 +112,19 @@
   synthetic approved-memory detail without turning into a report. Current Opus
   `/v1/chat` full eval passed 42/42 at threshold `0.80`, average style score
   `0.881`, with 5 rewrites attempted and applied.
+- Completed 2026-07-06: added multi-turn continuity support for style chat.
+  Successful assistant replies are now recorded as short same-session context
+  messages, scoped to the current actor, and follow-up style prompts receive a
+  bounded read-only recent-context block for emotional carryover only. The API
+  style eval now isolates each scenario with its own session key and supports
+  synthetic `setup_turns`; the suite now has 45 scenarios, including 3 multi-turn
+  continuity checks. Current Opus `/v1/chat` full eval passed 45/45 at threshold
+  `0.80`, average style score `0.888`, with 4 rewrites attempted and applied.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
-- Next: add multi-turn continuity scenarios before tuning the next style
-  threshold.
+- Next: add retention/encryption decisions for stored conversation context
+  before widening always-on use.
 
 ## Later
 
