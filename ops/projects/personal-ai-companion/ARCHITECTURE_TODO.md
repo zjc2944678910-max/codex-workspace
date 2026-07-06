@@ -129,6 +129,17 @@
   does not delete promoted `memory_atoms`. Verification: focused retention/API
   tests passed 64/64, full suite passed 98/98, mock `/v1/chat` style eval passed
   45/45, and Opus continuity smoke passed 3/3 with average style score `0.897`.
+- Completed 2026-07-06: added deterministic anti-pattern scoring for runtime
+  style consistency. `score_text_against_profile` now reports base score,
+  anti-pattern score, penalty, and matched categories for assistant identity
+  framing, formal scaffolding, markdown/list formatting, template helper
+  phrasing, formal directives, and fake access claims. Runtime style rewrites
+  now receive those diagnostics, so compact but AI-like replies such as
+  `我理解你` no longer pass only because they match the target length. Regenerated
+  the local profile/skill bundle and synthetic eval suite with zero external
+  model calls. Verification: focused style/API tests passed 69/69, full suite
+  passed 101/101, mock `/v1/chat` style eval passed 45/45, and Opus 8-scenario
+  anti-pattern smoke passed 8/8 with average style score `0.880`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
