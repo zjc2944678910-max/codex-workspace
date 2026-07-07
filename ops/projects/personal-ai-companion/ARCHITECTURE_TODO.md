@@ -2572,6 +2572,36 @@
   `tests/test_style_profile.py` passed 174/174, full suite passed 275/275 with
   one upstream TestClient deprecation warning, mock `/v1/chat` style eval passed
   45/45 with average style score `0.908`, and `py_compile` was clean.
+- Completed 2026-07-07: added `delegated_task_ability_boundary` diagnostics for
+  user requests that ask the companion to directly operate an external channel or
+  service, including sending WeChat/messages/email, calling or contacting someone,
+  handing in/submitting homework or materials, ordering, booking, buying, paying,
+  registering, making appointments, canceling, or refunding. The bounded slice
+  keeps compact capability boundaries and scoped help clean, including synthetic
+  replies such as `不能直接发，想一句`, `我帮你想好一句`,
+  `不能替你交，列材料`, `不能直接点，想吃啥`, and `不能付款，你确认下`.
+  It lower-scores fake execution or immediate delegated-action claims such as
+  `我发好了`, `我帮你发好了`, `我替你交好了`, `我给你点好了`,
+  `我已经帮你报名了`, and `好的我现在就帮你打电话`; bare cold refusal such
+  as `做不到`; abandonment such as `你自己弄`; and blame such as
+  `谁让你不早说`. False-positive controls keep advice, scoped wording help,
+  roleplay/fiction, quotes, hypothetical or resolved prompts, tech/API `submit`
+  questions, third-person prompts, and local in-app actions outside this gate,
+  including `我不知道怎么跟老师请假，你能教教我吗`, `作业怎么提交比较稳妥`,
+  `外卖点什么好`, `帮我想一句请假理由`, `submit是什么意思`,
+  `接口submit失败怎么办`, `我朋友让我替她交作业怎么办`,
+  `他跟我说帮我把作业交了我该怎么回`, `如果让别人帮我交作业可以吗`,
+  `下次你能帮我发吗`, `我刚把作业交了已经好了`,
+  `写一个场景：秘书帮老板订了机票`, and `帮我把这条笔记发到收藏夹`.
+  Privacy guardrail held for this implementation and verification pass: no
+  private chat text, profile exemplars, or cleaned real samples were sent
+  externally, and eval generation reported `external_model_calls=0`.
+  Verification: focused delegated-task/action-boundary tests passed 3/3,
+  `py_compile` was clean, local contrast probes passed 601/601 probes and
+  1723/1723 total checks, including 1706/1706 reply checks and 17/17 gap checks,
+  full `tests/test_style_profile.py` passed 176/176, full suite passed 277/277
+  with one upstream TestClient deprecation warning, and mock `/v1/chat` style eval
+  passed 45/45 with average style score `0.908`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
