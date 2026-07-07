@@ -3512,6 +3512,31 @@
   and 54/54 gap checks, eval generation reported `external_model_calls=0`, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-08: tightened the `availability_boundary_support` context
+  gate so pure reported, quoted, third-person, and resolved-past availability
+  turns no longer trigger current-user availability runtime guidance or
+  penalties. Controls such as `朋友说“先不打电话了”，回“好呀”会不会太冷`,
+  `她说今天去不了了，我回“那下次”可以吗`,
+  `我朋友今天去不了了，我该怎么安慰她`,
+  `昨天没回消息后来解释清楚了`, and
+  `刚才不想打电话现在缓过来了` now stay outside the gate. Mixed turns with a
+  current first-person boundary remain inside, including
+  `我都说“我现在不想打电话”了，你还一直打`,
+  `我都说了我今晚没空陪你聊天，她还一直催我回`, and
+  `刚才手机没电了现在好了，但我还是不想聊天`, so coercion or harmful safe-prefix
+  tails are still penalized. The slice adds context-gate helpers, synthetic
+  profile tests, contrast controls and mixed-boundary probes, eval-bundle
+  assertions, README notes, bounded synthetic-only Sub2API advice, and GPT-5.5
+  xhigh read-only candidate/false-positive/review scouts; no private samples or
+  deployment actions were used. Verification: `py_compile` was clean, focused
+  availability profile tests passed 3/3, focused contrast/bundle tests passed
+  3/3, `tests/test_style_profile.py` passed 195/195,
+  `tests/test_style_evaluation.py` passed 18/18, full suite passed 296/296 with
+  one upstream Starlette/TestClient warning, local contrast probes passed
+  784/784 probes and 2322/2322 total checks, including 2268/2268 reply checks
+  and 54/54 gap checks, eval generation reported `external_model_calls=0`, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
