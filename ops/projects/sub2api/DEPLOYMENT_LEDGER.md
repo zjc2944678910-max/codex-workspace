@@ -105,6 +105,52 @@ Full pre-import database dump:
 /root/codex-repair-sub2api-codex-import-k12-20260706T174416+0800/backup/sub2api-codex-before-k12-import.dump
 ```
 
+### K12 Account Prune
+
+- On 2026-07-07, pruned the Codex-dedicated instance account pool through the
+  admin account delete API.
+- Kept only account IDs `1` through `12`, plus `181` and `182`.
+- Soft-deleted 134 current non-deleted `k12-full-quota #...` OpenAI OAuth
+  accounts outside the keep set.
+- The API path was used instead of direct SQL so the application also removed
+  `account_groups` links, scheduled test plans, scheduler cache entries, and
+  wrote the scheduler outbox events.
+- The shared instance under `/opt/sub2api` was not touched.
+
+Evidence on VPS:
+
+```text
+/root/codex-repair-sub2api-codex-prune-accounts-20260707T095800+0800
+```
+
+Verification:
+
+- Pre-prune safety check found 14 keep accounts and 134 delete candidates.
+- All 134 delete candidates were `openai/oauth`, named `k12-full-quota #...`,
+  and bound to `openai-default`.
+- Admin delete API result: 134 successful deletes, 0 failed.
+- Current non-deleted account count: 14.
+- Current non-deleted accounts are exactly `1-12`, `181`, and `182`; all remain
+  `active`, schedulable, and bound to `openai-default`.
+- Remaining `account_groups` rows for the pruned account IDs: 0.
+- `http://127.0.0.1:8081/health` returned `{"status":"ok"}`.
+- Authenticated `/v1/models` with the `codex_main` key returned HTTP 200 and 16
+  models.
+- `sub2api-codex`, `sub2api-codex-postgres`, and `sub2api-codex-redis` remained
+  healthy.
+
+Rollback options:
+
+```bash
+/root/codex-repair-sub2api-codex-prune-accounts-20260707T095800+0800/rollback/restore-pruned-accounts-targeted.sh
+```
+
+Full pre-prune database dump:
+
+```text
+/root/codex-repair-sub2api-codex-prune-accounts-20260707T095800+0800/backup/sub2api-codex-before-prune.dump
+```
+
 ### Rollback
 
 ```bash
