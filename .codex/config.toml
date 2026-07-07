@@ -1,6 +1,6 @@
 #:schema https://developers.openai.com/codex/config-schema.json
 
-review_model = "gpt-5.4"
+review_model = "gpt-5.5"
 model_context_window = 1000000
 model_auto_compact_token_limit = 900000
 
