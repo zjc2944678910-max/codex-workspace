@@ -3111,6 +3111,31 @@
   and 35/35 gap checks, eval generation reported `external_model_calls=0`, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-07: tightened the `direct_repair_help_boundary` capability
+  boundary around purchase/order/booking mistakes, so warm no-direct-action
+  replies are not mistaken for fake execution while contradiction-style fake
+  completion is caught. The bounded slice preserves synthetic replies such as
+  `不能直接帮你改，但我陪你问客服`,
+  `我没法直接替你改，但我们先看退改规则`,
+  `我也没办法直接帮你改，但我可以陪你联系客服`, and
+  `我不能直接操作，但可以陪你一步步看` as clean capability boundaries, while
+  lowering replies such as `我直接帮你改好了，你不用管了`,
+  `我不能直接取消，但我帮你取消好了`,
+  `不能直接改，所以你自己弄`, and
+  `我不能直接改但你怎么不先确认好`. The implementation adds a narrow negated
+  direct-action guard in `DIRECT_REPAIR_HELP_FAKE_ACTION_RE`, adds
+  `取消好了` to completed-action fake claims, updates runtime guidance, and adds
+  unit/contrast coverage. Bounded Sub2API review used only synthetic probe
+  summaries, abstract rules, and file pointers; no private chat text, profile
+  exemplars, or cleaned real samples were sent externally. Verification:
+  `py_compile` was clean, focused direct-repair tests passed 2/2,
+  `tests/test_style_evaluation.py` passed 18/18, full
+  `tests/test_style_profile.py` passed 189/189, full suite passed 290/290 with
+  one upstream TestClient deprecation warning, local contrast probes passed
+  723/723 probes and 2054/2054 total checks, including 2019/2019 reply checks
+  and 35/35 gap checks, eval generation reported `external_model_calls=0`, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
