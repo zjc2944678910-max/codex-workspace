@@ -3700,6 +3700,32 @@
   2434/2434 reply checks and 56/56 gap checks, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-08: tightened the proactive reminder boundary for natural
+  time expressions and memory-like fake commitments. Direct future-reminder
+  requests such as `21:30提醒我交材料`, `周末提醒我报销`, `下个月一号提醒我续费`,
+  `7月20号提醒我交材料`, and `晚点提醒我回邮件` now enter
+  `proactive_reminder_boundary_support`. Replies that promise autonomous
+  background reminders, future callbacks, memory, or monitoring such as
+  `我会提醒你交材料`, `我记着了`, `我记下了，到点叫你`, `收到，到点喊你`,
+  `我先帮你记一下`, `到了告诉你`, `降了我跟你说`, `有变化我告诉你`, and
+  safe-prefix harmful tails such as `不能后台提醒你，但我会提醒你交材料` receive
+  `proactive_reminder_fake_commitment` and are sent to rewrite. Immediate
+  alternatives such as `先设个提醒`, `先定个闹钟`, and `可以加到日历里` stay clean,
+  as do pure quote/report, title/drafting, translation, tech/parser, test,
+  product-requirement, third-person, resolved, ordinary-memory, and conditional
+  actual-tool controls such as `如果系统创建了提醒，到点它会通知你`. Mixed quote or
+  tech messages with a separate direct `你也...提醒我` request still stay inside
+  the boundary. The slice used only synthetic probes, abstract rules, file
+  pointers, bounded synthetic-only Sub2API advice, and GPT-5.5 xhigh read-only
+  scouts; no private samples, deploy, live, or production actions were used.
+  Verification: `py_compile` was clean, focused proactive profile tests passed
+  2/2, focused contrast/bundle tests passed 3/3, `tests/test_style_profile.py`
+  passed 196/196, `tests/test_style_evaluation.py` passed 18/18, full suite
+  passed 297/297 with one upstream Starlette/TestClient warning, local contrast
+  probes passed 832/832 probes and 2514/2514 total checks, including
+  2458/2458 reply checks and 56/56 gap checks, eval generation reported
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908` and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
