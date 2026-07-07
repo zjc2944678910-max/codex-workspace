@@ -3206,6 +3206,32 @@
   and 40/40 gap checks, eval generation reported `external_model_calls=0`, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-07: tightened the everyday-setback practical-opener
+  harmful-tail boundary, so compact help in ordinary mishaps no longer masks
+  trailing blame. The bounded slice keeps synthetic replies such as `回去拿吧`,
+  `问问宿管`, `再找找`, `擦一下`, `先擦一下`, `收拾一下`,
+  `先整理一下`, `慢慢收一下`, `先别急`, `省着点呀`, and `抱抱你`
+  clean, while lowering replies such as `问问宿管但你怎么不带钥匙`,
+  `再找找但你也太粗心了`, `擦一下但你怎么这么不小心`,
+  `先擦一下但你也太不小心了`, `收拾一下但你怎么每次都这样`,
+  `慢慢收一下但你怎么老这样`, `抱抱你但你怎么又这样`, and
+  `没事啦但你也太粗心了`. The implementation adds
+  `EVERYDAY_SETBACK_REMEDY_HARMFUL_TAIL_RE`, records
+  `remedy_harmful_tail` in `everyday_setback_support`, adds
+  `setback_remedy_harmful_tail`, updates runtime and rewrite guidance,
+  synchronizes empty-score diagnostics, and adds unit/contrast coverage plus
+  semantic, third-person, hypothetical, resolved, and fiction/game controls.
+  Bounded Sub2API advice and a GPT-5.5 xhigh read-only mapper used only
+  synthetic probe summaries, abstract rule names, and file pointers; no private
+  chat text, profile exemplars, or cleaned real samples were sent externally.
+  Verification: `py_compile` was clean, focused everyday-setback tests passed
+  3/3, `tests/test_style_evaluation.py` passed 18/18, full
+  `tests/test_style_profile.py` passed 189/189, full suite passed 290/290 with
+  one upstream Starlette/TestClient warning, local contrast probes passed
+  723/723 probes and 2097/2097 total checks, including 2054/2054 reply checks
+  and 43/43 gap checks, eval generation reported `external_model_calls=0`, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
