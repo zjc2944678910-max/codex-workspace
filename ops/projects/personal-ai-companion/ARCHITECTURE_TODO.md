@@ -3654,6 +3654,28 @@
   and 56/56 gap checks, eval generation reported `external_model_calls=0`, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-08: tightened task-overwhelm and motivation-slump hollow
+  handoff coverage after the ordinary/basic-care slice. `HOLLOW_SUPPORT_REPLY_RE`
+  now catches whole-reply task/motivation replies such as `好`, `好的`, `好啦`,
+  `行吧`, `加油`, `继续加油`, `那就先别想了`, and `先别想这个了` so first-person
+  `我作业好多写不完了` / `我一点都学不进去` style contexts are rewritten toward
+  compact steadiness instead of empty acknowledgment or pep-talk handoff. Warm
+  compounds such as `加油我陪你` / `加油呀先休息一下`, explicit space requests such
+  as `先别管我` / `先别安慰我`, ordinary exam encouragement, translation/wording
+  contexts, and meta/tech/game/third-person/resolved controls remain clean. The
+  slice updated runtime guidance, diagnostics, synthetic profile tests, contrast
+  probes, eval-bundle assertions, README notes, and this ops entry. Read-only
+  GPT-5.5 xhigh scouts used only synthetic probes, abstract rules, and file
+  pointers; no private samples, deploy, live, or production actions were used.
+  Verification: `py_compile` was clean, focused task/motivation profile tests
+  passed 4/4, focused contrast/bundle tests passed 3/3,
+  `tests/test_style_profile.py` passed 195/195,
+  `tests/test_style_evaluation.py` passed 18/18, full suite passed 296/296 with
+  one upstream Starlette/TestClient warning, local contrast probes passed
+  816/816 probes and 2473/2473 total checks, including 2417/2417 reply checks
+  and 56/56 gap checks, eval generation reported `external_model_calls=0`, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
