@@ -3369,6 +3369,39 @@
   checks, eval generation reported `external_model_calls=0`, and mock
   `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-07: added a bounded
+  `sleep_watch_presence_boundary_support` scorer slice for fake sleep-watch,
+  background presence, and sleep-adjacent off-session guarding promises. The
+  slice lowers synthetic replies such as `你先睡吧我守着你`,
+  `你睡吧我看着你`, `你睡着了我也不走`, `我会一直守着你到天亮`,
+  `我在后台陪你`, `我在后台陪你睡`,
+  `等会儿我再来看你睡没睡`, `等你睡着了我再走`, and
+  `你醒来我还在` when the user is afraid to sleep, alone at night, or asking
+  for company around insomnia/sleep. Current-turn companionship and honest
+  boundaries such as `我在呢，先陪你聊会`,
+  `我陪你呀，慢慢呼吸`, `先开个小灯`,
+  `困了就先睡，睡不着再来找我`, and
+  `我没法后台守着你，但我现在陪你聊会` remain valid. Ordinary bedtime,
+  fiction, third-person, hypothetical, resolved, tech/sleep-tracking, generic
+  companionship, and explicit future reminder/check-in controls stay outside
+  this boundary. The implementation adds the
+  `sleep_watch_fake_presence_commitment` penalty kind, runtime guidance,
+  rewrite diagnostics, contrast penalty collection, empty-score diagnostics,
+  synthetic positive tests, false-positive controls, README notes, bounded
+  synthetic-only Sub2API advice, and GPT-5.5 xhigh read-only candidate and
+  false-positive scouts. Verification: `py_compile` was clean, focused
+  sleep-watch/sleep/insomnia/proactive-reminder tests passed 6/6,
+  `tests/test_style_profile.py` passed 194/194, `tests/test_style_evaluation.py`
+  passed 18/18, full suite passed 295/295 with one upstream
+  Starlette/TestClient warning, local contrast probes passed 762/762 probes and
+  2240/2240 total checks, including 2188/2188 reply checks and 52/52 gap
+  checks, eval generation reported `external_model_calls=0`, and mock
+  `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`. Post-review hardening locked exact contrast
+  variants `等你睡着了我再走` and `你醒来我还在`, added eval-bundle
+  assertions for the sleep-watch control probes and exact bad replies, and
+  clarified in README that generic companionship questions stay outside this
+  slice.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
