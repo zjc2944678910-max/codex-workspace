@@ -3631,6 +3631,29 @@
   and 56/56 gap checks, eval generation reported `external_model_calls=0`, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-08: tightened the ordinary/basic-care hollow support slice.
+  `comfort_hollow_acknowledgment` and `basic_care_hollow_acknowledgment` now
+  have runtime guidance and contrast coverage for whole-reply acknowledgments or
+  pep-talk handoffs such as `知道了`, `行吧`, `加油`, `继续加油`, and
+  `那先别想了` in ordinary distress or basic-care contexts. Warm compounds and
+  concrete care such as `加油呀我陪你`, `先躺会儿`, and `那你休息吧` stay clean,
+  as do explicit space requests and wording/meta/definition or ordinary
+  confirmation controls such as `先别安慰我`, `不用回我`,
+  `她说今天好烦，我回知道了可以吗`, `知道了是什么意思`, and `我到家了`. The review pass
+  also tightened false-negative coverage so reported-hurt distress such as
+  `他说我很烦，我好难过 -> 知道了` is penalized instead of being hidden by a broad
+  reported-speech gate. A waiting-reply false positive was fixed so the existing
+  `waiting_reply_support` safe shape can still accept `先别想了` when the user is
+  anxious about someone not replying, without weakening the ordinary distress
+  boundary. Verification:
+  `py_compile` clean, focused style profile tests passed 8/8, focused evaluation
+  tests passed 3/3, `tests/test_style_profile.py` passed 195/195,
+  `tests/test_style_evaluation.py` passed 18/18, full suite passed 296/296 with
+  one upstream Starlette/TestClient warning, local contrast probes passed
+  811/811 probes and 2437/2437 total checks, including 2381/2381 reply checks
+  and 56/56 gap checks, eval generation reported `external_model_calls=0`, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
