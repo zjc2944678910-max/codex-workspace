@@ -2697,6 +2697,37 @@
   full suite passed 281/281 with one upstream TestClient deprecation warning, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-07: added `small_lapse_self_blame_support` diagnostics for
+  first-person low-stakes repeat-lapse turns where the user turns ordinary
+  forgetfulness, small disorganization, spills, lost small items, check-in
+  lapses, or minor lateness into self-blame. The bounded slice covers synthetic
+  prompts such as `我又忘记带伞了我怎么老是这样`,
+  `我又忘带钥匙了我怎么这么笨`, `我刚又忘记打卡了好烦`,
+  `我怎么老是丢三落四`, `我又把水洒了我真服了自己`,
+  `我又弄丢耳机了我怎么这样`, and `我又迟到了我怎么这么没用`. It
+  lower-scores confirmation/blame such as `你就是粗心` and
+  `是啊你怎么老这样`; blame/shame such as `活该` and `谁让你不记得`;
+  scolding such as `下次长点记性` and `自己反省吧`; hopeless doom such
+  as `没救了`; mockery such as `笨死了`; and abandonment such as
+  `自己处理`. Compact support such as `没事啦`, `别这么说自己`,
+  `先处理眼前的`, `下次一起记一下`, `抱抱你`, `先别骂自己`, and
+  `慢慢来` remains clean. False-positive controls keep semantic/meta, tech/API,
+  business/customer, third-person, hypothetical, resolved, prevention/reminder,
+  serious medical/legal/financial/work, wrong-message, missed-message,
+  submission-mistake, wrong-purchase/booking, money-stress, morning-routine,
+  bare everyday-setback, abstract self-worth, and playful silly mishaps outside
+  this gate. Bounded Sub2API advisory and the Shield subagent review used only
+  synthetic probe summaries, abstract rules, and file pointers; no private chat
+  text, profile exemplars, or cleaned real samples were sent externally. Direct
+  synthetic checks now lower-score the original missed bad replies below `0.80`,
+  while `别这么说自己` stays unpenalized. Verification: `py_compile` was clean,
+  focused small-lapse tests passed 2/2, full `tests/test_style_profile.py`
+  passed 182/182, full suite passed 283/283 with one upstream TestClient
+  deprecation warning, local contrast probes passed 645/645 probes and
+  1831/1831 total checks, including 1807/1807 reply checks and 24/24 gap
+  checks, eval generation reported `external_model_calls=0`, and mock
+  `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
