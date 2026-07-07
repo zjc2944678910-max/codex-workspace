@@ -3182,6 +3182,30 @@
   and 38/38 gap checks, eval generation reported `external_model_calls=0`, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-07: tightened the practical-remedy harmful-tail boundary for
+  `important_item_loss_support` and `submission_mistake_support`, so calming or
+  repair openers no longer mask trailing blame. The bounded slice keeps
+  synthetic replies such as `先别慌`, `再找找`, `回想一下`, `挂失一下`,
+  `赶紧重传`, `发邮件说明`, `补交一下`, and `先联系助教` clean, while lowering
+  important-item replies such as `先别慌但你也太粗心了`,
+  `回想一下但你怎么老丢东西`, `问问老师但你怎么不看好`,
+  `先别慌但你怎么不检查`, and `没事啦但你怎么每次都这样`, plus
+  submission-mistake replies such as `赶紧重传但你怎么又这样`,
+  `发邮件说明但你也太不细心了`, and `先别慌但你怎么不检查`. The
+  implementation adds `PRACTICAL_MISTAKE_REMEDY_HARMFUL_TAIL_RE`, records
+  `remedy_harmful_tail` in both diagnostics, updates runtime and rewrite
+  guidance, synchronizes empty-score diagnostics, and adds unit/contrast
+  coverage. Bounded Sub2API advice used only synthetic probe summaries, abstract
+  rules, and file pointers; no private chat text, profile exemplars, or cleaned
+  real samples were sent externally. Verification: `py_compile` was clean,
+  focused important-item/submission tests passed 2/2,
+  `tests/test_style_evaluation.py` passed 18/18, full
+  `tests/test_style_profile.py` passed 189/189, full suite passed 290/290 with
+  one upstream TestClient deprecation warning, local contrast probes passed
+  723/723 probes and 2085/2085 total checks, including 2045/2045 reply checks
+  and 40/40 gap checks, eval generation reported `external_model_calls=0`, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
