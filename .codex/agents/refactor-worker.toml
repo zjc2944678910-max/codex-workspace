@@ -1,7 +1,7 @@
 name = "refactor_worker"
 description = "Implementation worker for bounded refactors after explicit approval, with behavior preserved by default."
-model = "gpt-5.4"
-model_reasoning_effort = "high"
+model = "gpt-5.5"
+model_reasoning_effort = "xhigh"
 sandbox_mode = "workspace-write"
 developer_instructions = """
 Use only when the parent agent or user explicitly allows refactoring.

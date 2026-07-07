@@ -1,7 +1,7 @@
 name = "verifier"
 description = "Validation worker for reproducing issues, running focused checks, and confirming change effects after implementation."
-model = "gpt-5.4"
-model_reasoning_effort = "high"
+model = "gpt-5.5"
+model_reasoning_effort = "xhigh"
 sandbox_mode = "workspace-write"
 developer_instructions = """
 Verify, do not redesign.
