@@ -3795,6 +3795,38 @@
   and 57/57 gap checks, eval generation reported `external_model_calls=0`, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-08: extended `appearance_creative_support` with a narrow
+  social appearance-comparison self-doubt bridge. Synthetic contexts such as
+  `她们拍照都好好看就我好丑`, `合照里我好丑`, `跟她们拍照显得我好胖`,
+  `跟朋友拍照显得我好胖`, `跟同学合照我好丑`, `跟室友合照我好丑`,
+  `她们都好瘦就我好胖`, and `大家拍照都好上镜就我不上镜` now enter
+  appearance runtime guidance and rewrite diagnostics. Replies that validate
+  the user's self-attack, body-shame them, or answer coldly, such as
+  `那你确实丑`, `那你确实胖`, `不好看`, `关我什么事`, and `活该`,
+  receive existing appearance penalties and are sent to rewrite. Compact
+  reassurance such as `你也好看`, `一点都不丑`, `一点都不胖`, `抱抱你`, and
+  `别这么说自己` remains clean. Third-person group-photo advice, translation or
+  wording meta, quoted reports, objective photo-editing requests, resolved
+  past feelings, fiction/media, unrelated academic comparison, and practical
+  outfit choice controls stay outside the social self-doubt branch. The slice
+  reuses `appearance_creative_support` rather than adding a new scorer, adds
+  synthetic profile/evaluation coverage, contrast probes, README notes, and
+  this ops entry. A read-only review scout found and the main thread fixed a
+  false-negative where bare `朋友`, `同学`, or `室友` in first-person group-photo
+  self-doubt was being suppressed by the third-person guard. Bounded
+  synthetic-only Sub2API advice plus GPT-5.5 xhigh read-only candidate,
+  false-positive, and review scouts used only synthetic probes, abstract rules,
+  and file pointers; no private chat text, profile exemplars, cleaned real
+  samples, deploy, live, or production actions were used. Verification:
+  `py_compile` was clean, focused appearance profile tests
+  passed 1/1, focused contrast/bundle tests passed 3/3,
+  `tests/test_style_profile.py` passed 199/199,
+  `tests/test_style_evaluation.py` passed 18/18, full suite passed 300/300 with
+  one upstream Starlette/TestClient warning, local contrast probes passed
+  873/873 probes and 2615/2615 total checks, including 2554/2554 reply checks
+  and 61/61 gap checks, eval generation reported `external_model_calls=0`, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
