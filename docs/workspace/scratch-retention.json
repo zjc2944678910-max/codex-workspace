@@ -114,10 +114,11 @@
       "owner": null,
       "project": null,
       "purpose": "Hatch pet experiment scratch and scaffolding outputs",
-      "active": true,
+      "active": false,
       "retention_days": 60,
-      "retention_intent": "keep through the current evaluation window; archive if there is no follow-up",
-      "disposition": "retain",
+      "retention_intent": "archived after the evaluation window closed with no follow-up",
+      "disposition": "archive",
+      "archive_destination": "archive/cleanup/2026-07-07-scratch-retention/scratch/shared/hatch-pet",
       "last_active": "2026-05-06"
     }
   ]
