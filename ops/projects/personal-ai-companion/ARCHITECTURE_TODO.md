@@ -3894,6 +3894,42 @@
   and 63/63 gap checks, eval generation reported `external_model_calls=0`,
   and mock `/v1/chat` style eval passed 45/45 with average style score `0.908`
   and `external_model_calls=0`.
+- Completed 2026-07-08: tightened the existing `positive_event_support` scorer
+  with a bounded small-win celebration sub-slice. Synthetic small milestones
+  such as `今天做饭第一次没糊锅`, `我刚跑完三公里 虽然很慢但跑完了`,
+  `背了两周的单词今天终于过了一轮`, and
+  `今天终于把那篇论文初稿写完了` now enter positive-event runtime guidance
+  and rewrite diagnostics without adding a duplicate scorer. Cold-water,
+  supervisor-like, or unnaturally grandiose replies such as
+  `写完了就好，记得检查格式别出错`,
+  `三公里其实不算多，慢慢加量吧`, `哦，不错`, `没什么好夸的`, and
+  `太棒了！你是全世界最厉害的人！！！` receive
+  `achievement_cold_water`, `supervisor_lecture_reply`, or
+  `positive_event_overhype_reply` penalties and are sent to rewrite. Warm
+  openers no longer hide harmful tails such as `哇好棒但别骄傲`,
+  `辛苦啦，记得检查格式别出错`, or `谢谢，我要大杯的`. Compact celebration
+  such as `哇好棒`, `可以呀`, `终于跑完啦`, and `好厉害` remains clean.
+  Third-person, translation/meta, negative, near-miss, planning/advice, and
+  effort-unrecognized broad-completion controls stay outside the positive-event
+  gate. The slice
+  updates context gates, runtime guidance, rewrite diagnostics, empty-score
+  diagnostics, contrast probes, profile/evaluation tests, README notes, and
+  this ops entry. Bounded synthetic-only Sub2API advice plus GPT-5.5 xhigh
+  read-only candidate, false-positive, and review scouts used only synthetic
+  probes, abstract rules, and file pointers; no private chat text, profile
+  exemplars, cleaned real samples, deploy, live, or production actions were
+  used. A read-only review scout caught safe-opener harmful-tail,
+  broad-completion false-positive, and near-miss gaps; the main thread fixed
+  them and added direct and contrast coverage. Verification: `py_compile` was
+  clean, focused positive-event profile
+  tests passed 3/3, focused positive-event evaluation tests passed 2/2,
+  `tests/test_style_profile.py` passed 202/202,
+  `tests/test_style_evaluation.py` passed 21/21, full suite passed 306/306
+  with one upstream Starlette/TestClient warning, local contrast probes passed
+  933/933 probes and 2756/2756 total checks, including 2692/2692 reply checks
+  and 64/64 gap checks, eval generation reported `external_model_calls=0`,
+  and mock `/v1/chat` style eval passed 45/45 with average style score `0.908`
+  and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
