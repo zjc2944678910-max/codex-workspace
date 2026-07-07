@@ -3726,6 +3726,42 @@
   2458/2458 reply checks and 56/56 gap checks, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-08: extended `self_worth_support` with a bounded
+  `family_authority_shame` sub-boundary for first-person family or authority
+  shaming plus current hurt. Synthetic contexts such as
+  `我妈又说我没用，我好难受`, `我爸刚骂我废物，说我一点用没有，我好难受`,
+  `家里都说我没用，我好难受`, `班主任当着大家说我不努力，我现在好丢脸`,
+  `辅导员说我不上进，我有点难受`, `导师说我没出息，我好难受`,
+  `我妈逼我考公，说我不考就是废物，我好难受`, and
+  `我妈说我没用这句话让我很难受` now enter runtime guidance and rewrite
+  diagnostics. Replies that validate the insult, silence the user, or dismiss
+  the hurt as good intent, such as `她说得也没错`, `你爸没说错`,
+  `老师说得对`, `班主任说得对`, `辅导员说得对`, `那你确实没出息`,
+  `听她的话`, `听你妈的`, `听老师的`, `你妈也是为你好`, `他们也是为你好`,
+  or `活该`, receive `family_authority_insult_validation`,
+  `family_authority_submission_silencing`, or
+  `family_authority_good_intent_dismissal` and are sent to rewrite. Compact
+  support such as `抱抱你`, `我在呢`, `不是她说什么就是真的`, and
+  `先别把那些话当成你自己` remains clean. Supportive mixed replies such as
+  `她可能也是关心你，但这样说很伤人`,
+  `她关心你不代表可以这样说你`, and `他们希望你好，但这种说法不对` are not
+  penalized by the good-intent dismissal regex. Family logistics, third-person
+  family advice, translation/quote wording, explicit accountability,
+  boundary-setting, physical-abuse/crisis, and ordinary family-care controls
+  stay outside the sub-boundary. The slice used only synthetic probes, abstract
+  rules, file pointers, bounded synthetic-only Sub2API advice, and GPT-5.5
+  xhigh read-only scouts; no private chat text, profile exemplars, cleaned real
+  samples, deploy, live, or production actions were used. A read-only review
+  scout initially found false-negative/false-positive holes; the follow-up
+  review passed after the repair. Verification: `py_compile` was clean,
+  focused self-worth/family profile tests passed 3/3, focused contrast/bundle
+  tests passed 3/3, `tests/test_style_profile.py` passed 197/197,
+  `tests/test_style_evaluation.py` passed 18/18, full suite passed 298/298 with
+  one upstream Starlette/TestClient warning, local contrast probes passed
+  845/845 probes and 2550/2550 total checks, including 2494/2494 reply checks
+  and 56/56 gap checks, eval generation reported `external_model_calls=0`, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
