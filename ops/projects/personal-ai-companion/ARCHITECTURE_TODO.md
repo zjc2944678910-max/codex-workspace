@@ -2602,6 +2602,26 @@
   full `tests/test_style_profile.py` passed 176/176, full suite passed 277/277
   with one upstream TestClient deprecation warning, and mock `/v1/chat` style eval
   passed 45/45 with average style score `0.908`.
+- Completed 2026-07-07: calibrated the existing `everyday_setback_support`
+  diagnostics for dismissive minimization in lost, forgotten, broken, spilled, or
+  clothing-stain mishaps. The slice keeps the same score schema but adds
+  `setback_dismissive_minimizing` for synthetic replies such as `那就丢了吧`,
+  `不就忘带了吗`, `碎了就碎了`, and `脏了就脏了` in contexts such as
+  `我耳机好像弄丢了好烦`, `我忘带钥匙了好烦`, `我水杯摔碎了有点难过`,
+  and `我衣服被咖啡弄脏了好烦`. It also extends the everyday-setback trigger
+  surface for `水杯`, clothing, and `弄脏了`/`沾到了` phrasings while preserving
+  compact practical care such as `先擦一下`, `再找找`, and `先别急`. Bounded
+  Sub2API advisory used only synthetic probe summaries, abstract rules, and file
+  pointers; no private chat text, profile exemplars, or cleaned real samples were
+  sent externally. Synthetic calibration now scores `不就忘带了吗` at `0.737`,
+  `那就丢了吧` at `0.715`, `碎了就碎了` at `0.655`, and `脏了就脏了` at
+  `0.655`, while preserving `先擦一下` at `0.895`. Verification:
+  `py_compile` was clean, focused everyday-setback tests passed 2/2, local
+  contrast probes passed 602/602 probes and 1731/1731 total checks, including
+  1713/1713 reply checks and 18/18 gap checks, eval generation reported
+  `external_model_calls=0`, full `tests/test_style_profile.py` passed 176/176,
+  full suite passed 277/277 with one upstream TestClient deprecation warning, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
