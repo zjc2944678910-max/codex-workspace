@@ -2622,6 +2622,40 @@
   `external_model_calls=0`, full `tests/test_style_profile.py` passed 176/176,
   full suite passed 277/277 with one upstream TestClient deprecation warning, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908`.
+- Completed 2026-07-07: added `everyday_choice_indecision_support` diagnostics
+  for low-stakes first-person choice bids where the user is deciding what to eat,
+  wear, choose, do, or whether to join a small plan. The bounded slice covers
+  synthetic prompts such as `我不知道中午吃什么了`, `我纠结穿哪件衣服`,
+  `我不知道选哪个颜色`, `我今天不知道干什么好`,
+  `我好纠结要不要报名这个活动`, and `我不知道要不要去这个聚会`. It
+  lower-scores cold dismissal such as `随便你` and `问我干嘛`; abandonment such
+  as `自己决定`, `你自己看着办`, and `爱去不去`; belittling such as
+  `这有什么好纠结的`, `不至于吧`, and `你怎么这么麻烦`; mockery such as
+  `笑死`; and overdirective replies such as `必须选红色`. Compact warm nudges or
+  choice frames such as `吃面吧`, `要不喝粥`, `穿那件吧`, `选舒服的`,
+  `出去走走`, `想去就去`, and `没压力呀` remain clean. False-positive controls
+  keep semantic/meta, tech/API/work choices, business/customer, third-person,
+  hypothetical, resolved, assistant-preference, delegated-action, serious
+  medical/financial/legal, and banter contexts outside the gate, including
+  `纠结是什么意思`, `接口选哪个模型怎么处理`, `我不知道选哪个项目`,
+  `我不知道选哪个框架`, `客户不知道选哪个套餐怎么办`,
+  `我朋友不知道中午吃什么`, `如果我不知道选什么怎么办`,
+  `我刚刚纠结半天最后选了红色`, `你喜欢什么颜色`, `帮我订中午的外卖`,
+  `我不知道要不要做这个手术`, `我不知道要不要买基金`,
+  `我不知道要不要起诉`, and `哈哈我永远不知道吃什么`. Sub2API advisory and
+  the Bohr subagent were bounded to synthetic probe summaries, abstract rules, and
+  file pointers; no private chat text, profile exemplars, or cleaned real samples
+  were sent externally. Bohr later returned with synthetic-only findings about
+  `项目`/`框架` over-triggering and default contrast coverage; this entry now
+  includes the follow-up fix. A direct synthetic check confirms `我不知道选哪个项目`
+  and `我不知道选哪个框架` no longer enter the everyday-choice gate, while
+  `我不知道中午吃什么了` still penalizes `自己决定`. Verification: `py_compile` was
+  clean, focused everyday-choice/everyday-setback tests passed 4/4, local
+  contrast probes passed 618/618 probes and 1762/1762 total checks, including
+  1741/1741 reply checks and 21/21 gap checks, eval generation reported
+  `external_model_calls=0`, full `tests/test_style_profile.py` passed 178/178,
+  full suite passed 279/279 with one upstream TestClient deprecation warning, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
