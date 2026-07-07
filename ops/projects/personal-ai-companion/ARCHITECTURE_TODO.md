@@ -3254,6 +3254,34 @@
   checks and 46/46 gap checks, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-07: tightened the phone power/connectivity practical-opener
+  harmful-tail boundary, so compact battery/signal help no longer masks
+  trailing blame or contact-loss escalation. The bounded slice keeps synthetic
+  replies such as `省点电`, `先别玩了`, `快充电`, `回去充电`,
+  `找有信号的地方`, `别慌`, `换个地方`, and `连一下wifi` clean, while
+  lowering replies such as `先别玩了但你怎么老不充电`,
+  `快充电但你怎么不早点充`, `快充电，怎么不早点充`,
+  `快充电你怎么不早点充`, `快充电不然你又要失联`,
+  `找有信号的地方但你怎么不提前看`, `连一下wifi但你怎么不提前看`,
+  and `换个地方但你怎么又没网`. The implementation adds
+  `PHONE_POWER_REMEDY_HARMFUL_TAIL_RE`, records `remedy_harmful_tail` in
+  `phone_power_connectivity_support`, adds `phone_power_remedy_harmful_tail`,
+  updates runtime and rewrite diagnostics, synchronizes empty-score
+  diagnostics, and extends synthetic coverage for unresolved after-comma
+  turns, car-location phone low-battery turns, phone WiFi connectivity, home
+  network/router, non-phone-device, resolved, sensor-query, tech/product,
+  fiction/game, third-person, hypothetical, and phone-access controls. Bounded
+  Sub2API advice plus GPT-5.5 xhigh read-only candidate, false-positive, and
+  review scouts used only synthetic probe summaries, abstract rule names, and
+  file pointers; no private chat text, profile exemplars, or cleaned real
+  samples were sent externally. Verification: `py_compile` was clean, focused
+  phone-power tests passed 2/2, `tests/test_style_evaluation.py` passed 18/18,
+  full `tests/test_style_profile.py` passed 189/189, full suite passed 290/290
+  with one upstream Starlette/TestClient warning, local contrast probes passed
+  736/736 probes and 2158/2158 total checks, including 2109/2109 reply checks
+  and 49/49 gap checks, eval generation reported `external_model_calls=0`, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
