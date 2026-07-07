@@ -2541,6 +2541,37 @@
   passed 172/172, full suite passed 273/273 with one upstream TestClient
   deprecation warning, mock `/v1/chat` style eval passed 45/45 with average
   style score `0.908`, and `py_compile` was clean.
+- Completed 2026-07-07: added `direct_repair_help_boundary` diagnostics for the
+  narrower subcase where the user made a purchase, order, ticket, booking, or
+  reservation mistake and asks the companion to directly change, cancel, refund,
+  or fix the external order. The bounded slice keeps supportive capability
+  boundaries and warm review free of this new boundary penalty, including
+  synthetic replies such as `不能直接改，问客服`,
+  `不能直接取消，问客服`, `我也没办法直接改，但可以问客服`,
+  `我不能直接取消，先问客服`, and `下次我们一起看清楚`. It lower-scores
+  fake direct-action claims such as `我帮你改好了`, `我直接给你取消`,
+  `我试试帮你改看看`, `交给我吧`, and `应该已经改好了`; cold helplessness
+  such as `我也没办法`, `改不了我管不了`, or `这个我真的没办法帮你`;
+  blame such as `谁让你不看清楚` or `你怎么不先确认好再买`; and
+  abandonment such as `你自己弄`. In-context false-positive controls keep
+  legitimate scoped help such as `客服会帮你改的`, `我帮你查一下客服电话`, and
+  `别急，想想办法` clean. Ownership controls keep semantic, tech/API,
+  business/customer, third-person, hypothetical, resolved, seller-fault,
+  food-choice, finance, and unrelated capability prompts outside this gate,
+  including `改票是什么意思`, `booking API怎么处理`,
+  `客户买错票想取消怎么办`, `我朋友买错票了让我帮她改`,
+  `如果买错票能直接改吗`, `我刚买错票但客服已经改好了`,
+  `商家发错货了怎么办`, `我想换个口味`, `我基金买错了能帮我改吗`,
+  and `你能帮我给老师发微信吗`. Sub2API advisory and GPT-5.5 xhigh sidecar
+  mapping/review were used only with synthetic probes, abstract rules, and file
+  pointers; no private chat text, profile exemplars, or cleaned real samples were
+  sent externally. Local contrast probes pass 593/593 probes and 1697/1697 total
+  checks, including 1684/1684 reply checks and 13/13 gap checks, with zero
+  external model calls during eval generation. Verification: focused
+  direct-repair/wrong-purchase tests passed 4/4, full
+  `tests/test_style_profile.py` passed 174/174, full suite passed 275/275 with
+  one upstream TestClient deprecation warning, mock `/v1/chat` style eval passed
+  45/45 with average style score `0.908`, and `py_compile` was clean.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
