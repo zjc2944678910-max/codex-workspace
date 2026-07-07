@@ -3676,6 +3676,30 @@
   and 56/56 gap checks, eval generation reported `external_model_calls=0`, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-08: added the peer-comparison pressure support slice under
+  `self_worth_support`. First-person comparison anxiety such as `同学都拿到offer了就我没有，有点慌`,
+  `大家都比我进度快，我有点焦虑`, `朋友圈看到别人都好厉害，我突然很焦虑`,
+  `我进度比大家慢，有点焦虑`, and `大家作业进度都比我快，我有点慌`
+  now enters runtime guidance and rewrite diagnostics. Replies that confirm
+  inferiority or lag, blame the user for not trying earlier, or attach hollow
+  hustle handoffs such as `那你确实落后了`, `别人都比你强`,
+  `你早点努力不就好了`, `继续努力`, `抱抱你，继续努力`, and `继续努力就好`
+  receive peer-comparison penalties and are sent to rewrite. Compact support
+  such as `先别拿自己比`, `我在呢，先看下一步`, `你不是落后啦`,
+  `你真的不是落后啦`, `不是你落后啦`, and `别急，先回到你自己这边`
+  remains clean. Meta, fiction/tech, third-person, resolved, direct planning,
+  objective feedback, and private-sample boundaries stay outside the gate. The
+  slice used only synthetic probes, abstract rules, file pointers, bounded
+  synthetic-only Sub2API advice, and GPT-5.5 xhigh read-only scouts; no private
+  samples, deploy, live, or production actions were used. Verification:
+  `py_compile` was clean, focused self-worth/peer profile tests passed 3/3,
+  focused contrast/bundle tests passed 3/3, `tests/test_style_profile.py`
+  passed 196/196, `tests/test_style_evaluation.py` passed 18/18, full suite
+  passed 297/297 with one upstream Starlette/TestClient warning, local contrast
+  probes passed 822/822 probes and 2490/2490 total checks, including
+  2434/2434 reply checks and 56/56 gap checks, eval generation reported
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908` and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
