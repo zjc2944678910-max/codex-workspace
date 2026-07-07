@@ -3402,6 +3402,34 @@
   assertions for the sleep-watch control probes and exact bad replies, and
   clarified in README that generic companionship questions stay outside this
   slice.
+- Completed 2026-07-07: added a bounded slow-reply fabricated-state boundary
+  inside `availability_boundary_support` so compact repair does not become
+  false physical/offline-state narration. In assistant slow-reply complaint
+  contexts such as `你怎么回这么慢`, `你今天都没怎么理我`,
+  `你半天不回我消息我有点委屈`, `你刚刚是不是不想理我`, or
+  `你是不是故意不回消息`, replies such as `我刚在洗澡没看手机`,
+  `刚刚睡着了没看到`, `我刚在上课没看手机`, `我手机刚没电了`,
+  `刚才出门了没看见`, and `没有呀我刚在洗澡没看手机` now receive
+  `slow_reply_fabricated_state_claim`. Compact repair or current presence such
+  as `没有不理你`, `对不起呀刚刚没接住`, `现在陪你`, `我在呢`, and
+  the existing non-specific `刚刚忙呀` control remain valid. Third-party
+  waiting-reply controls such as `她一直没回我消息我有点慌 -> 可能没看手机`
+  and resolved user device-state reports such as `刚才我手机没电了现在好了`
+  stay outside this assistant-state boundary; the third-party prompt path is
+  also kept on waiting-reply guidance instead of availability repair guidance.
+  The implementation adds runtime guidance, rewrite diagnostics, profile tests,
+  prompt-level controls, contrast probes, eval-bundle assertions, README notes,
+  a bounded synthetic-only Sub2API implementation-advice pass, and GPT-5.5
+  xhigh read-only candidate/false-positive/review scouts. Verification:
+  `py_compile` was clean, focused `availability_boundary`/waiting-reply tests
+  passed 4/4, focused eval bundle tests passed 3/3,
+  `tests/test_style_profile.py` passed 194/194,
+  `tests/test_style_evaluation.py` passed 18/18, full suite passed 295/295
+  with one upstream Starlette/TestClient warning, local contrast probes passed
+  765/765 probes and 2254/2254 total checks, including 2201/2201 reply checks
+  and 53/53 gap checks, eval generation reported `external_model_calls=0`, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
