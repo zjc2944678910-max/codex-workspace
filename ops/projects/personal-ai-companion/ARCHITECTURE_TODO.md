@@ -2656,6 +2656,47 @@
   `external_model_calls=0`, full `tests/test_style_profile.py` passed 178/178,
   full suite passed 279/279 with one upstream TestClient deprecation warning, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908`.
+- Completed 2026-07-07: added `wrong_message_or_social_mistake_support`
+  diagnostics for low-stakes first-person message or social slips where the user
+  just sent, replied, said, named, or typed the wrong thing and needs compact
+  reassurance or one repair nudge. The bounded slice covers synthetic prompts
+  such as `我刚发错消息了怎么办`, `我发错群了怎么办`,
+  `我刚把照片发错人了`, `我刚说错话了怎么办`, and
+  `我刚才把名字叫错了好尴尬`. It lower-scores cold dismissal such as `随便你`
+  and `问我干嘛`; blame/shame such as `活该`, `谁让你不看清楚`, and
+  `你怎么这么粗心`; confirmation such as `你确实说错了`; dismissive minimizing
+  such as `不就发错了吗` and `至于吗`; mockery such as `笑死` and
+  `丢人死了`; abandonment such as `自己处理`; and hopeless doom such as
+  `没救了` and `撤不回就算了`. Compact calm or repair nudges such as
+  `先别慌`, `能撤回吗`, `先解释一下`, `补一句说明`, `补一句就好`,
+  `没事慢慢说`, `可以道歉`, `不能直接改但可以解释`, and
+  `下次我们一起看清楚` remain clean, and practical-help texture now recognizes
+  these short repair phrases as concrete help. False-positive controls keep
+  semantic/meta, tech/API, business/customer, third-person, hypothetical,
+  resolved, fiction/game, serious privacy/work/legal/medical, wrong-purchase,
+  formal-submission, and banter contexts outside the gate, including
+  `发错消息是什么意思`, `API返回了错误消息怎么办`, `客户收到错误短信怎么办`,
+  `我朋友发错群了怎么办`, `如果我发错消息怎么办`,
+  `我刚发错消息但已经撤回了`, `我把私密照发错人了怎么办`,
+  `我发错工作群了怎么办`, `我把合同发错人了怎么办`,
+  `我在游戏里发错消息了怎么办`, `我买错票了怎么办`,
+  `我提交错文件了怎么办`, `我刚发错群了`, `我刚嘴瓢了哈哈哈`, and
+  `哈哈我又发错群了`. Ownership controls leave explicit public embarrassment,
+  existing social-misstep, and missed-message self-blame overlaps to their
+  existing gates, while this slice still handles advice-seeking `说错话了怎么办`
+  cases that the existing social-misstep gate intentionally excludes. Bounded
+  Sub2API advisory used only synthetic probe summaries, abstract rules, and file
+  pointers; no private chat text, profile exemplars, or cleaned real samples were
+  sent externally. The Delta subagent performed a read-only synthetic/file-pointer
+  review and identified overlap and neutral/playful over-trigger risks; this
+  entry includes the follow-up fixes. Verification: `py_compile` was clean,
+  focused wrong-message/social-mistake plus overlap/context-texture tests passed
+  15/15, local contrast probes passed 638/638 probes and 1809/1809 total checks,
+  including 1786/1786 reply checks and 23/23 gap checks, eval generation reported
+  `external_model_calls=0`, full `tests/test_style_profile.py` passed 180/180,
+  full suite passed 281/281 with one upstream TestClient deprecation warning, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
