@@ -2794,6 +2794,43 @@
   1840/1840 reply checks and 26/26 gap checks, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-07: added pathologizing-self-attack coverage to
+  `missed_message_self_blame_support`, so missed-message turns where the user
+  frames a late or forgotten reply as `脑子坏了`, `有病`, `没脑子`,
+  `脑子有问题`, or `脑子有坑` receive the same compact reassurance and repair
+  shape instead of letting matching pathologizing replies pass. The bounded
+  slice covers synthetic prompts such as `我才看到消息我是不是脑子坏了`,
+  `我才看到消息我是不是有病啊`,
+  `我又忘回她消息了我是不是脑子有问题`,
+  `我漏回消息了我脑子是不是有坑`, and
+  `我忘回消息了我是不是没脑子`. It adds
+  `missed_message_self_blame_pathologizing_confirmation` to lower-score replies
+  such as `你就是没脑子`, `你就是有病`, `脑子确实有问题`, and
+  `你脑子坏了`, while existing missed-message penalties still catch
+  `自己反省吧`, `没救了`, and `关我什么事`. Compact support such as
+  `别这么说自己`, `没事啦`, `现在回也可以`, `不是有病`, and
+  `脑子没坏` remains clean. False-positive controls keep generic health concern,
+  medical-ish advice, hypothetical, work/business, third-person/reported,
+  wrong-message, submission-mistake, small-lapse, and playful banter contexts
+  outside this gate, including synthetic controls such as
+  `我脑子是不是有问题`, `我是不是有病需要看医生`,
+  `如果我忘回消息我是不是有病怎么办`,
+  `老板消息我才看到我是不是脑子坏了`,
+  `她说她才看到消息她是不是脑子坏了`,
+  `我刚发错消息了我是不是脑子坏了`,
+  `我论文提交错了我是不是脑子有问题`,
+  `我又忘带钥匙了我是不是脑子坏了`, and
+  `我才看到消息哈哈哈我是不是脑子坏了`. Bounded Sub2API advisory and
+  post-change review used only synthetic probe summaries, abstract rules, and
+  file pointers; no private chat text, profile exemplars, or cleaned real
+  samples were sent externally, and the review reported no blocking issue.
+  Verification: `py_compile` was clean, focused missed-message self-blame tests
+  passed 5/5, full `tests/test_style_profile.py` passed 185/185, full suite
+  passed 286/286 with one upstream TestClient deprecation warning, local
+  contrast probes passed 660/660 probes and 1881/1881 total checks, including
+  1854/1854 reply checks and 27/27 gap checks, eval generation reported
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908` and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
