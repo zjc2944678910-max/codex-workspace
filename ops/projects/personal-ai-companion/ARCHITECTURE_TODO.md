@@ -3314,6 +3314,61 @@
   checks and 50/50 gap checks, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-07: added a bounded
+  `proactive_reminder_boundary_support` scorer slice for fake future/background
+  reminder, scheduled supervision, check-in, and monitoring promises. The slice
+  lowers synthetic replies such as `好呀我每半小时催你`,
+  `我会提醒你交材料`, `我可以提醒你交材料`, `明天中午我提醒你`,
+  `我不会忘了提醒你`, `到时候我叫你睡觉`, `我已经设好提醒了`,
+  `我会盯着快递到了告诉你`, `我能盯着快递到了告诉你`,
+  `放心我会一直盯着`, `放心交给我`, and mixed resolved-plus-new-request
+  check-ins such as `好，等会儿我来问你`. Compact immediate alternatives
+  such as `先设个闹钟`, `先设个提醒`, `我陪你学`,
+  `你到时候回来找我`, `闹钟标题写睡觉`, `记得带钥匙`, and
+  `我可以帮你写提醒文案` remain valid. The slice preserves user-set alarm
+  advice, current-turn reminders, reminder wording/drafting, third-party App
+  or platform reminders, quoted reminders, third-person forgetfulness advice,
+  hypothetical/future EventKit or AlarmKit product discussion, resolved-only
+  reminders, and conditional tool phrasing such as
+  `如果能调用本地提醒工具，我可以尝试创建` or
+  `如果接了本地提醒工具，到时候它会提醒你`. The implementation adds the
+  `proactive_reminder_fake_commitment` penalty kind, runtime guidance, rewrite
+  score summary and diagnostics, contrast penalty collection, empty-score
+  diagnostics, synthetic positive tests, and false-positive controls. Bounded
+  Sub2API advice plus GPT-5.5 xhigh read-only candidate, false-positive, and
+  review scouts used only synthetic probe summaries, abstract rule names, and
+  file pointers; no private chat text, profile exemplars, or cleaned real
+  samples were sent externally. Verification: `py_compile` was clean, focused
+  proactive-reminder profile tests passed 2/2, focused contrast/bundle tests
+  passed 4/4, full suite passed 294/294 with one upstream
+  Starlette/TestClient warning, local contrast probes passed 752/752 probes and
+  2211/2211 total checks, including 2160/2160 reply checks and 51/51 gap
+  checks, eval generation reported `external_model_calls=0`, and mock
+  `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
+- Completed 2026-07-07 follow-up: tightened the proactive-reminder boundary
+  false-positive controls so quoted or reported reminder meta turns such as
+  `她说“明天下午三点提醒我交材料”我该怎么回`,
+  `她说“我已经设好提醒了，等会儿你来问问我”这句像撒娇吗`, and
+  `朋友说明早叫他起床，我怎么回` no longer enter the boundary context or
+  inject runtime guidance. Quoted wording, translation, and title requests such
+  as `帮我写一句“明天下午三点提醒我交材料”这种话`,
+  `把“明天下午三点提醒我交材料”翻成英文`, and
+  `这个提醒标题写“明天下午三点提醒我交材料”会不会太硬` also stay outside the
+  boundary, while direct asks with cosmetic quotes such as
+  `明天下午三点“提醒我交材料”` still trigger the
+  `proactive_reminder_fake_commitment` penalty for fake future reminders. The
+  follow-up added quoted/reported context guards, prompt-level tests, contrast
+  probes, README notes, a read-only post-implementation review scout, and a
+  synthetic-only Sub2API sanity check. Verification:
+  `py_compile` was clean, focused proactive-reminder tests passed 2/2,
+  `tests/test_style_profile.py` passed 193/193, `tests/test_style_evaluation.py`
+  passed 18/18, full suite passed 294/294 with one upstream
+  Starlette/TestClient warning, local contrast probes passed 757/757 probes and
+  2221/2221 total checks, including 2170/2170 reply checks and 51/51 gap
+  checks, eval generation reported `external_model_calls=0`, and mock
+  `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
