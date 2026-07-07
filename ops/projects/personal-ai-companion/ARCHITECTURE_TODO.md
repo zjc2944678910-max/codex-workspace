@@ -2461,6 +2461,43 @@
   passed 168/168, full suite passed 269/269 with one upstream TestClient
   deprecation warning, mock `/v1/chat` style eval passed 45/45 with average
   style score `0.908`, and `py_compile` was clean.
+- Completed 2026-07-07: added `missed_message_self_blame_support` diagnostics
+  for first-person moments where the user forgot, delayed, or only just saw
+  someone else's message and now feels guilty, awkward, or worried they
+  cold-shouldered someone. The bounded slice covers synthetic contexts such as
+  `我忘回她消息了好内疚`, `我刚看到消息已经过了好久怎么办`,
+  `我好像冷落到朋友了`, `我忘记回群消息了好尴尬`, and
+  `我一忙就忘记回别人消息了好愧疚`. `score_text_against_profile()`
+  now reports `missed_message_self_blame_support`, with
+  `missed_message_self_blame_blame_reply` for replies such as
+  `谁让你不看手机` or `活该`, `missed_message_self_blame_confirmation`
+  for replies such as `你就是不在乎`,
+  `missed_message_self_blame_mockery_reply` for `笑死`,
+  `missed_message_self_blame_dismissive_minimizing` for replies such as
+  `不就一条消息吗`, `missed_message_self_blame_abandonment_reply` for
+  replies such as `那就别回了` or `自己处理`, and
+  `missed_message_self_blame_cold_reply` for replies such as `关我什么事`.
+  Compact reassurance or one tiny repair step such as `现在回也可以`,
+  `先回一下`, `解释一下就好`, `说一下刚看到`, `别太自责`,
+  `抱抱你`, and `不是故意的` remains valid. Ownership controls keep semantic,
+  tech, waiting-reply/reversed-agency, social-ignored, social-misstep,
+  public-embarrassment, everyday-setback, voluntary no-reply, third-person,
+  hypothetical, and resolved turns outside this gate, including
+  `忘回消息是什么意思`, `消息字段没回传`,
+  `她一直没回我消息我有点慌`, `我发群里没人理我`,
+  `我刚才说错话了是不是有点过分`,
+  `我在群里发错消息了尴尬死了`, `我忘带钥匙了怎么办`,
+  `我今天不想回别人消息`, `我朋友忘回她消息了很内疚`,
+  `如果忘回消息怎么办`, and `我刚刚补回了她消息已经解释了`.
+  Sub2API advisory and GPT-5.5 xhigh sidecars were used only with synthetic
+  rules, probe summaries, and file pointers; no private chat text, profile
+  exemplars, or cleaned real samples were sent externally. Local contrast
+  probes pass 582/582 probes and 1651/1651 total checks, including 1640/1640
+  reply checks and 11/11 gap checks, with zero external model calls during eval
+  generation. Verification: focused missed-message-self-blame tests passed 2/2,
+  full `tests/test_style_profile.py` passed 170/170, full suite passed 271/271
+  with one upstream TestClient deprecation warning, mock `/v1/chat` style eval
+  passed 45/45 with average style score `0.908`, and `py_compile` was clean.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
