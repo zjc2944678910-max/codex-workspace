@@ -3282,6 +3282,38 @@
   and 49/49 gap checks, eval generation reported `external_model_calls=0`, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-07: added a bounded `daily_companion_blame_tail_support`
+  scorer slice for generic low-stakes companion turns where a compact safe
+  opener is followed by a blame or shame tail. The slice lowers synthetic
+  replies such as `没有呀但你也别老这样`, `我在呢但你别作`,
+  `抱抱你但你自己也有问题`, `我在呢不过你自己也不上心`,
+  `我在呢你别作`, `抱抱你你自己也有问题`,
+  `没事啦但你也太粗心了下次可以做清单`, and
+  `下次记得带吧但你也太粗心了` in contexts such as
+  `你刚刚是不是不想理我`, `今天好烦感觉什么都没做好`, and
+  `我今天忘记带学生证了`, including low-stakes self-admitting variants such
+  as `我今天忘记带学生证了，我知道是我的问题`, while keeping compact safe
+  openers such as `没有呀`, `我在呢`, `抱抱你`, `没事啦`, and
+  `下次记得带吧` valid.
+  The implementation adds the `daily_companion_safe_opener_blame_tail` penalty
+  kind, no-pivot tail detection, harmful-first exemption ordering, runtime
+  guidance, rewrite score summary and diagnostics, contrast penalty collection,
+  empty-score diagnostics, synthetic positive tests, and false-positive controls
+  for playful teasing, safety redirection, capability boundaries, repair nudges,
+  quoted hurtful wording, self-blame interruption, event-level feedback,
+  third-person, feedback/accountability, and hypothetical contexts.
+  Bounded Sub2API advice plus GPT-5.5 xhigh read-only candidate,
+  false-positive, and review scouts used only synthetic probe summaries,
+  abstract rule names, and file pointers; no private chat text, profile
+  exemplars, or cleaned real samples were sent externally. Verification:
+  `py_compile` was clean, focused daily-companion profile tests passed 2/2,
+  focused contrast/bundle tests passed 4/4, `tests/test_style_evaluation.py` passed
+  18/18, full `tests/test_style_profile.py` passed 191/191, full suite passed
+  292/292 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 741/741 probes and 2179/2179 total checks, including 2129/2129 reply
+  checks and 50/50 gap checks, eval generation reported
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908` and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
