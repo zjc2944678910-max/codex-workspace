@@ -3232,6 +3232,28 @@
   and 43/43 gap checks, eval generation reported `external_model_calls=0`, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-07: tightened the weather-discomfort care/practical-opener
+  harmful-tail boundary, so compact weather care no longer masks trailing
+  blame. The bounded slice keeps synthetic replies such as `多穿点`, `别冻着`,
+  `找地方躲一下`, `快擦擦`, `找阴凉地方`, `戴帽子`, `喝点水`, and
+  `抱抱你` clean, while lowering replies such as
+  `多穿点但你怎么不看天气`, `快擦擦但你怎么不带伞`,
+  `戴帽子但你怎么不涂防晒`, and `喝点热水不过你为什么没穿厚点`.
+  The implementation adds `WEATHER_DISCOMFORT_REMEDY_HARMFUL_TAIL_RE`, records
+  `remedy_harmful_tail` in `weather_discomfort_support`, adds
+  `weather_remedy_harmful_tail`, updates runtime and rewrite guidance,
+  synchronizes empty-score diagnostics, and adds unit/contrast coverage plus
+  meta, tech, fiction/game, third-person, and product/cosmetic controls.
+  Bounded Sub2API advice used only synthetic probe summaries, abstract rule
+  names, and file pointers; no private chat text, profile exemplars, or cleaned
+  real samples were sent externally. Verification: `py_compile` was clean,
+  focused weather tests passed 2/2, `tests/test_style_evaluation.py` passed
+  18/18, full `tests/test_style_profile.py` passed 189/189, full suite passed
+  290/290 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 723/723 probes and 2107/2107 total checks, including 2061/2061 reply
+  checks and 46/46 gap checks, eval generation reported
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908` and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
