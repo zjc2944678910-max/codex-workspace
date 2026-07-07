@@ -2292,6 +2292,36 @@
   263/263 with one upstream TestClient deprecation warning, mock `/v1/chat`
   style eval passed 45/45 with average style score `0.909`, and `py_compile`
   was clean.
+- Completed 2026-07-07: extended the existing `conflict_repair` diagnostics for
+  first-person hurt after a long or serious message gets only a thin
+  acknowledgment, so compact style imitation does not repeat the same flatness
+  when the user says the reply felt dismissive. The same
+  `score_text_against_profile()` schema now covers synthetic contexts such as
+  `我刚刚给你发了一大段你只回嗯，我有点委屈`,
+  `我说了好多你只回好，我有点难过`,
+  `我认真跟你说你只回哦，我有点受伤`, and
+  `我打了很多字你就回了个嗯，我感觉被敷衍`, with
+  `conflict_dismissive_ack_reply` for replies such as `好呀`, `嗯嗯`, or
+  `知道了`, `conflict_evasive_repair_reply` for `不知道呀` or `你猜`,
+  existing `conflict_blame_deflection` for `你想太多`, and
+  `conflict_minimizing_repair_reply` for `这也委屈` or `至于吗`. Compact repair
+  such as `对不起呀`, `我在呢`, `刚刚没回好`, and `我听着呢` remains valid. The
+  guard excludes semantic, self-reflection, third-person, listen-request, and
+  requested-short-reply controls such as `敷衍是什么意思`,
+  `我刚才只回嗯是不是不礼貌`, `她只回嗯我该怎么回`, `你听我说完`, and
+  `你简单回我嗯就行`. Bounded Sub2API advisory and GPT-5.5 xhigh sidecar review
+  used only synthetic probe summaries, abstract rules, and file pointers; no
+  private chat text, profile exemplars, or cleaned real samples were sent
+  externally. Local synthetic probes confirmed the key penalties and controls;
+  the requested-short-reply contrast keeps a high-scoring compact allowed reply
+  while the unit test still checks bare `嗯` does not activate conflict context.
+  Local contrast probes pass 537/537 probes and 1530/1530 total checks,
+  including 1520/1520 reply checks and 10/10 gap checks, with zero external
+  model calls during eval generation. Verification: focused conflict-repair test
+  passed 1/1, full `tests/test_style_profile.py` passed 162/162, full suite
+  passed 263/263 with one upstream TestClient deprecation warning, mock
+  `/v1/chat` style eval passed 45/45 with average style score `0.909`, and
+  `py_compile` was clean.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.

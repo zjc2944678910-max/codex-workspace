@@ -151,6 +151,48 @@ Full pre-prune database dump:
 /root/codex-repair-sub2api-codex-prune-accounts-20260707T095800+0800/backup/sub2api-codex-before-prune.dump
 ```
 
+### K12 Account Hard Delete
+
+- On 2026-07-07, physically deleted every account row in the Codex-dedicated
+  instance except account IDs `1` through `12`, `181`, and `182`.
+- Hard delete scope was `accounts.id NOT IN (1-12,181,182)`, limited to
+  `/opt/sub2api-codex` / `sub2api-codex-postgres`.
+- PostgreSQL foreign keys cascaded the deletion through `account_groups`,
+  `scheduled_test_plans`, and `usage_logs` for the removed account IDs.
+- The shared instance under `/opt/sub2api` was not touched.
+
+Evidence on VPS:
+
+```text
+/root/codex-repair-sub2api-codex-hard-delete-accounts-20260707T101650+0800
+```
+
+Verification:
+
+- Pre-delete scope check found 182 total account rows: 14 keep rows and 168
+  hard-delete candidates.
+- `DELETE FROM accounts WHERE id NOT IN (...)` deleted 168 rows in one
+  transaction and committed successfully.
+- Current account table count: 14.
+- Current accounts are exactly `1-12`, `181`, and `182`; all are non-deleted,
+  `active`, schedulable, and bound to `openai-default`.
+- Unexpected references to removed account IDs in `account_groups`,
+  `scheduled_test_plans`, and `usage_logs`: 0.
+- `http://127.0.0.1:8081/health` returned `{"status":"ok"}`.
+- Authenticated `/v1/models` with the `codex_main` key returned HTTP 200 and 16
+  models.
+- `sub2api-codex`, `sub2api-codex-postgres`, and `sub2api-codex-redis` remained
+  healthy.
+
+Rollback:
+
+```text
+/root/codex-repair-sub2api-codex-hard-delete-accounts-20260707T101650+0800/backup/sub2api-codex-before-hard-delete.dump
+```
+
+This full database dump is the authoritative rollback point because the hard
+delete cascaded dependent account records.
+
 ### Rollback
 
 ```bash
