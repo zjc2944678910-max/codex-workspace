@@ -3853,6 +3853,47 @@
   checks and 63/63 gap checks, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-08: added a bounded `effort_unrecognized_support` scorer
+  slice for first-person concrete effort that went unthanked, unmentioned,
+  unnoticed, treated as expected, or credited to someone else. Synthetic
+  contexts such as `我加班到半夜把方案改了三遍，开会领导提都没提`,
+  `我给全家做了一桌子菜，吃完没人说一句好吃`,
+  `我帮室友搬了一下午东西，她连谢谢都没说`,
+  `我准备了很久的礼物，她收到后没什么反应`, and
+  `我把活动收尾都弄好了，群里大家只夸了别人` now enter runtime guidance and
+  rewrite diagnostics; real first-person technical or explanation labor such as
+  `我加班把代码改完了，最后汇报没人提我` and
+  `我给她解释了半天，她连谢谢都没说` is covered when it is not a meta or
+  strategy request. Replies that minimize, blame-shift, rationalize the
+  missing recognition, redirect to other people's effort, tell the user to
+  endure it, go cold, or hide a hurtful tail after a warm opener, such as
+  `不就改个方案吗`, `不就做个饭吗`, `谁让你不说`,
+  `谁让你自己愿意帮`, `可能她忘了吧别想太多`, `别人也很累啊`,
+  `那就忍着吧`, `说明你不重要`, and `抱抱你但你自己也有问题`, receive
+  effort-unrecognized penalties and are sent to rewrite. Compact support such
+  as `辛苦啦`, `抱抱你`, `委屈了`, `你已经很用心了`, `不是小事`,
+  `不是你的问题`, `这也值得被感谢`, and `会委屈的呀` remains clean.
+  Social ignored/no-reply/no-like, birthday,
+  wronged, positive praise-bid, third-person, translation/semantic/meta,
+  hypothetical, resolved, and workplace signature or credit-strategy controls
+  stay outside the gate. The slice adds context gates, runtime guidance,
+  rewrite diagnostics, contrast penalty collection, empty-score diagnostics,
+  profile/evaluation tests, README notes, and this ops entry. Bounded
+  synthetic-only Sub2API advice plus GPT-5.5 xhigh read-only candidate,
+  false-positive, and review scouts used only synthetic probes, abstract rules,
+  and file pointers; no private chat text, profile exemplars, cleaned real
+  samples, deploy, live, or production actions were used. Verification:
+  A read-only review scout caught safe-overlap and real technical/解释 effort
+  edge cases; the main thread fixed them and added direct and contrast coverage.
+  Verification: `py_compile` was clean, focused effort-unrecognized tests passed
+  4/4,
+  `tests/test_style_profile.py` passed 201/201,
+  `tests/test_style_evaluation.py` passed 20/20, full suite passed 304/304
+  with one upstream Starlette/TestClient warning, local contrast probes passed
+  919/919 probes and 2729/2729 total checks, including 2666/2666 reply checks
+  and 63/63 gap checks, eval generation reported `external_model_calls=0`,
+  and mock `/v1/chat` style eval passed 45/45 with average style score `0.908`
+  and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
