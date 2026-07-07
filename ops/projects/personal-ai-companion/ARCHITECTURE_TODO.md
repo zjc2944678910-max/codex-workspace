@@ -2980,6 +2980,37 @@
   eval generation reported `external_model_calls=0`, and mock `/v1/chat` style
   eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-07: tightened the existing `morning_routine_support` gate
+  for first-person overslept/no-alarm/late-get-up support so compact style
+  imitation does not become cold dismissal or postmortem scolding. The bounded
+  slice covers synthetic prompts such as `我睡过头了怎么办`,
+  `我睡过头了好慌`, `我闹钟没响睡过头了好烦`,
+  `我起晚了感觉要完了`, and `我睡过头了要迟到了`. It keeps compact
+  immediate support such as `快起来啦`, `先别慌`, `先洗漱`,
+  `赶紧起来`, and `给老师说一下` clean, and explicitly keeps warm future
+  prevention such as `下次我们一起设闹钟` free of the morning scolding penalty
+  while allowing context-texture scoring to prefer immediate help. Bad replies
+  such as `自己处理`, `长点记性`, `下次早点睡`, `下次设好闹钟`,
+  `下次别熬夜`, and `又睡过头` are now lower-scored under the existing
+  `morning_routine_abandonment_reply` or `morning_routine_scolding_reply`
+  penalties, while existing penalties still catch `活该`, `睡死你`,
+  `关我什么事`, and `没救了`. False-positive controls keep rest-day, semantic,
+  hypothetical, third-person, reported, resolved, and playful contexts outside
+  this gate, including synthetic controls such as `周末睡过头了也没事`,
+  `睡过头是什么意思`, `如果睡过头怎么办`,
+  `我朋友睡过头了怎么办`, `我睡过头了但已经到教室了`,
+  `昨天睡过头了不过没事`, `我妈说我睡过头了`,
+  `闹钟没响但我醒了`, and `哈哈哈我睡过头了`. Bounded Sub2API advisory and
+  review used only synthetic probe summaries, abstract rules, and file pointers;
+  no private chat text, profile exemplars, or cleaned real samples were sent
+  externally. Verification: `py_compile` was clean, focused morning-routine
+  tests passed 1/1, full `tests/test_style_profile.py` passed 189/189,
+  `tests/test_style_evaluation.py` passed 18/18, full suite passed 290/290 with
+  one upstream TestClient deprecation warning, local contrast probes passed
+  703/703 probes and 1985/1985 total checks, including 1952/1952 reply checks
+  and 33/33 gap checks, eval generation reported `external_model_calls=0`, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
