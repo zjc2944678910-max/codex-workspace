@@ -3833,11 +3833,14 @@
   self-included friend queue failures, natural abandonment variants such as
   `那就别排队了`, `那就别预约了`, `那就别办理了`, and
   `那就别要这个快递了`, plus hindsight-scolding advice such as
-  `那你下次早点去就不用排队了`. The slice also keeps third-person,
-  workplace/workflow, resolved delivery, meal-queue, direct-action, and semantic
-  controls outside the everyday-setback gate, and verifies that hybrid delivery
-  monitoring requests still trigger `proactive_reminder_fake_commitment` rather
-  than passing as ordinary comfort. Bounded synthetic-only Sub2API review plus
+  `那你下次早点去就不用排队了`, `你怎么不早点去`, and
+  `你怎么不提前预约`. It also adds service/process help-bid coverage for
+  `怎么办` / `有什么办法吗` forms while keeping third-person queue,
+  appointment, window, and delivery reports, workplace/workflow, resolved
+  delivery, meal-queue, direct-action, semantic, and wrong-booking controls
+  outside the everyday-setback gate. Hybrid delivery monitoring requests still
+  trigger `proactive_reminder_fake_commitment` rather than passing as ordinary
+  comfort. Bounded synthetic-only Sub2API review plus
   GPT-5.5 xhigh read-only candidate/false-positive/review scouts used only
   synthetic probes, abstract rules, and file pointers; no private chat text,
   profile exemplars, cleaned real samples, deploy, live, or production actions
@@ -3846,7 +3849,7 @@
   contrast/bundle tests passed 3/3, `tests/test_style_profile.py` passed
   199/199, `tests/test_style_evaluation.py` passed 18/18, full suite passed
   300/300 with one upstream Starlette/TestClient warning, local contrast probes
-  passed 896/896 probes and 2669/2669 total checks, including 2606/2606 reply
+  passed 902/902 probes and 2688/2688 total checks, including 2625/2625 reply
   checks and 63/63 gap checks, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
