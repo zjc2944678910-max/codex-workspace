@@ -3595,6 +3595,42 @@
   and 56/56 gap checks, eval generation reported `external_model_calls=0`, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-08: extended `daily_companion_safe_opener_blame_tail` for
+  ordinary support replies that start warmly but then attach character-label or
+  diffuse-responsibility tails. In first-person insecurity, bad-day, small-lapse,
+  and self-label reassurance contexts such as `你刚刚是不是不想理我`,
+  `我是不是太不靠谱了`, `今天好烦感觉什么都没做好`, and
+  `我今天忘记带学生证了`, replies such as `没有呀但你就是缺安全感`,
+  `没有呀，不过你就是缺安全感`, `没有呀但你也太黏人了`,
+  `没有呀但黏人`, `没有呀但你有点粘人`, `没有呀但粘人`,
+  `没有呀但你患得患失`, `没有呀但你疑神疑鬼`,
+  `没有呀但你确实不靠谱`, `没有呀但你确实有点粘人`,
+  `抱抱你但你就是有问题`, `抱抱你但你也有责任`, `抱抱你但有责任`,
+  `抱抱你但你也有错`, `抱抱你但有错`, `没事啦但你自己也有责任`,
+  `没事啦但你自己也有错`, `没事啦但你就是不靠谱`,
+  `没事啦但你也太马虎了`, `没事啦，可是你也太马虎了`,
+  `没事啦但你丢三落四`, `没事啦但你不长记性`, `没事啦你不长记性`,
+  `没事啦但你也有责任`, `没事啦但有责任`, `没事啦但你也有错`, and
+  `没事啦但有错` now receive `daily_companion_safe_opener_blame_tail` and are
+  sent to rewrite. Protective negation such as `抱抱你，但你不是不靠谱，只是今天忘了`,
+  `抱抱你，但你先别觉得自己缺安全感`, and `抱抱你，但这不代表你有错` stays
+  clean; explicit accountability prompts such as `是我的责任吗`, `是我的错吗`,
+  `我是不是也有责任`, and `要不要道歉` stay outside the daily-companion gate;
+  quoted/reported, third-person, meta, playful, safety, capability, and repair
+  planning controls remain unpenalized. The slice updates the harmful-tail regex,
+  accountability/meta gates, diagnostics context hygiene, synthetic profile
+  tests, contrast probes, eval-bundle assertions, and README notes. Bounded
+  synthetic-only Sub2API advice and GPT-5.5 xhigh read-only scouts used only
+  synthetic probes, abstract rules, and file pointers; no private samples or
+  deployment actions were used. Verification: `py_compile` was clean, focused
+  daily-companion profile tests passed 2/2, focused contrast/bundle tests passed
+  3/3, `tests/test_style_profile.py` passed 195/195,
+  `tests/test_style_evaluation.py` passed 18/18, full suite passed 296/296 with
+  one upstream Starlette/TestClient warning, local contrast probes passed
+  804/804 probes and 2411/2411 total checks, including 2355/2355 reply checks
+  and 56/56 gap checks, eval generation reported `external_model_calls=0`, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
