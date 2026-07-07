@@ -3011,6 +3011,45 @@
   and 33/33 gap checks, eval generation reported `external_model_calls=0`, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-07: extended the existing `waiting_reply_support` gate for
+  first-person specific-person waiting-reply anxiety with colloquial no-response
+  phrases, so `没信儿`, `没回音`, `没音讯`, `没消息`, and `一点音讯都没有`
+  no longer slip through as neutral short-chat texture. The bounded slice covers
+  synthetic prompts such as `我给她发了微信到现在没信儿我有点慌`,
+  `我给他发过去以后一直没回音有点慌`,
+  `她说一会儿答复我结果到现在没消息我有点难受`,
+  `我问她之后一直没音讯我是不是说错话了`,
+  `给她发消息以后半天没回音是不是不想理我`, and
+  `我发过去以后她一点音讯都没有我有点难受`. Existing waiting-reply penalties
+  now lower-score replies such as `她肯定不想理你`, `他肯定不想回你`,
+  `继续问到他回`, `继续轰炸她`, `那你也别理她`, `你想太多`, and
+  `关我什么事`, while compact soft replies such as `可能在忙`, `先别慌`,
+  `晚点再看看`, `不一定呢`, `抱抱你`, and `可能没看到` remain clean.
+  False-positive controls keep semantic/meta, tech/work,
+  customer/order/logistics, fiction/game, self-nonreplier,
+  hypothetical/generic, safety lost-contact, group/broadcast,
+  negated no-response correction, third-person advice, and physical-return
+  contexts outside this gate, including synthetic controls such as
+  `订单到现在没消息`, `快递一直没消息我有点急`,
+  `我给快递员发消息以后没回音我有点慌`,
+  `我一直没给她回音她会不会生气`, `小说里男主一直没音讯`,
+  `客户到现在没回音我有点焦虑`,
+  `假设我发消息以后没回音会不会焦虑`,
+  `我给她发消息以后没音讯我怕她失联出事`,
+  `我在群里发了消息半天没回音我有点难受`,
+  `我发过去不是没消息是她回了我没看到我更难受`, and
+  `我朋友给她对象发消息以后没回音她好焦虑我该怎么劝`. Bounded
+  Sub2API advisory/review and the local subagent review used only synthetic
+  probe summaries, abstract rules, and file pointers; no private chat text,
+  profile exemplars, or cleaned real samples were sent externally.
+  Verification: `py_compile` was clean, focused waiting-reply tests passed 2/2,
+  `tests/test_style_evaluation.py` passed 18/18, full
+  `tests/test_style_profile.py` passed 189/189, full suite passed 290/290 with
+  one upstream TestClient deprecation warning, local contrast probes passed
+  713/713 probes and 2011/2011 total checks, including 1977/1977 reply checks
+  and 34/34 gap checks, eval generation reported `external_model_calls=0`, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
