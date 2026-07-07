@@ -3430,6 +3430,28 @@
   and 53/53 gap checks, eval generation reported `external_model_calls=0`, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-07: tightened companionship/sleep support meta-frame
+  controls for plain third-person and quoted reports. `companionship_support`
+  now excludes report-style turns such as `我朋友一个人好无聊` and
+  `她说“我想你陪陪我”`, and `sleep_support` now excludes `我朋友准备睡觉了`
+  and `她说“我准备睡觉了”`, so reported speech no longer injects support
+  runtime guidance or receives current-user support penalties. Existing
+  current first-person positives remain covered, including
+  `我朋友都走了，我一个人好无聊`, `室友出门了，我不想一个人待着`,
+  `app提醒我该睡了，我准备睡了`, and `小说看完了，我准备睡觉了`.
+  The implementation updates shared meta-frame regexes, prompt/scoring
+  synthetic tests, default contrast probes, eval-bundle assertions, and README
+  notes. GPT-5.5 xhigh read-only candidate, false-positive, and review scouts
+  used only synthetic probes, abstract rules, and file pointers; no private
+  samples or deployment actions were used. Verification: `py_compile` was
+  clean, focused companionship/sleep profile tests passed 2/2, focused
+  contrast/bundle tests passed 3/3, `tests/test_style_profile.py` passed
+  194/194, `tests/test_style_evaluation.py` passed 18/18, full suite passed
+  295/295 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 773/773 probes and 2271/2271 total checks, including 2218/2218 reply
+  checks and 53/53 gap checks, eval generation reported
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908` and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
