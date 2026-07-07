@@ -2357,6 +2357,36 @@
   162/162, full suite passed 263/263 with one upstream TestClient deprecation
   warning, mock `/v1/chat` style eval passed 45/45 with average style score
   `0.909`, and `py_compile` was clean.
+- Completed 2026-07-07: added `social_misstep_support` diagnostics for
+  first-person post-hoc worries that the user may have misspoken, sounded too
+  harsh, offended someone, or made a chat awkward. The new bounded slice covers
+  synthetic contexts such as `我刚刚好像说错话了`,
+  `我是不是刚才说错话了`, `我刚才说话是不是有点过分`,
+  `我好像把话说重了`, `我是不是冒犯到别人了`,
+  `我刚才聊天好像有点尴尬`, and `我刚刚嘴瓢了但没人注意到`.
+  `score_text_against_profile()` now reports `social_misstep_support`, with
+  `social_misstep_confirmation` for replies such as `你确实说错了`,
+  `没事啦但你确实说错了`, or `尴尬死了`,
+  `social_misstep_blame_or_silencing` for replies such as `谁让你乱说话`,
+  `那就别说话了`, `闭嘴就好了`, or `活该`,
+  `social_misstep_dismissive_minimizing` for `你想太多`, and
+  `social_misstep_cold_reply` for `关我什么事`. Compact support such as
+  `没事啦`, `别想啦`, `不一定呢`, `怎么了呀`, `可以道个歉`, and
+  `下次注意点就好` remains valid. Ownership controls keep semantic, tech,
+  fiction, third-person, generic hypothetical, resolved, intentional, playful,
+  social-ignored, public-embarrassment, and social-insecurity turns outside this
+  gate, including `说错话是什么意思`, `接口返回misstep字段`,
+  `小说里主角说错话了`, `我朋友刚才说错话了怎么办`,
+  `如果说错话了怎么办`, `我刚才说错话但已经道歉了`,
+  `我故意说重话怼回去了`, `我刚刚嘴瓢了哈哈哈没人注意到`,
+  `说了半天没人接话是不是我说错了`, `我刚汇报的时候嘴瓢了好社死`,
+  and `我怕我说错话大家会讨厌我`. Local contrast probes pass 555/555 probes
+  and 1576/1576 total checks, including 1566/1566 reply checks and 10/10 gap
+  checks, with zero external model calls during eval generation. Verification:
+  focused social-misstep tests passed 2/2, full `tests/test_style_profile.py`
+  passed 164/164, full suite passed 265/265 with one upstream TestClient
+  deprecation warning, mock `/v1/chat` style eval passed 45/45 with average
+  style score `0.909`, and `py_compile` was clean.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
