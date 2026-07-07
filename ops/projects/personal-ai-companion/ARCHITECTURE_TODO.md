@@ -2498,6 +2498,49 @@
   full `tests/test_style_profile.py` passed 170/170, full suite passed 271/271
   with one upstream TestClient deprecation warning, mock `/v1/chat` style eval
   passed 45/45 with average style score `0.908`, and `py_compile` was clean.
+- Completed 2026-07-07: added `wrong_purchase_or_booking_mistake_support`
+  diagnostics for first-person or subject-dropped purchase, order, ticket,
+  address, size, variant, appointment, booking, or reservation mistakes where
+  the user feels panicked, frustrated, or asks whether the mistake can still be
+  fixed. The bounded slice covers synthetic contexts such as
+  `我买错票了怎么办`, `我点错地址了好慌`,
+  `我刚付款才发现买错了`, `我下单买错尺码了好烦`,
+  `我订错时间了怎么办`, and `我在购票页面选错座了怎么办`.
+  `score_text_against_profile()` now reports
+  `wrong_purchase_or_booking_mistake_support`, with
+  `wrong_purchase_or_booking_mistake_cold_dismissal` for replies such as
+  `关我什么事`, `wrong_purchase_or_booking_mistake_blame_or_shame` for
+  `活该`, `谁让你不看清楚`, or `你也太粗心了`,
+  `wrong_purchase_or_booking_mistake_hopeless_doom` for `没救了` or
+  `改不了啦`,
+  `wrong_purchase_or_booking_mistake_dismissive_minimizing` for
+  `那就认了吧` or `不就买错了吗`,
+  `wrong_purchase_or_booking_mistake_mockery_or_cruelty` for `笑死`, and
+  `wrong_purchase_or_booking_mistake_neglect_or_abandonment` for
+  `自己处理` or `去找客服啊还问我干嘛`. Compact recovery or reassurance such
+  as `先别慌`, `看看能不能改`, `问问客服`, `现在退还来得及吗`,
+  `先确认一下`, `还有办法`, and `抱抱你` remains valid for this support
+  gate, and practical-help texture now recognizes short recovery phrases such
+  as `看看能不能改/退/换/取消`. Ownership controls keep semantic, tech/API,
+  business/customer, finance/investment, seller-or-delivery-fault, food/order
+  choice, fiction/game, third-person, hypothetical, resolved,
+  submission-mistake, lateness/transport, money-stress, everyday-setback, and
+  prevention-advice turns outside this gate, including `买错是什么意思`,
+  `booking API怎么处理`, `前端页面选错规格状态怎么处理`,
+  `客户订单选错规格了怎么办`, `我基金投错了怎么办`,
+  `商家发错型号了怎么办`, `我点错外卖了好烦`,
+  `游戏里买错装备了怎么办`, `我朋友买错票了怎么办`,
+  `如果买错票怎么办`, `我刚发现买错了不过已经改好了`, and
+  `怎么避免买错尺码`. Sub2API advisory and GPT-5.5 xhigh sidecars were used
+  only with synthetic probe summaries, abstract rules, and file pointers; no
+  private chat text, profile exemplars, or cleaned real samples were sent
+  externally. Local contrast probes pass 589/589 probes and 1677/1677 total
+  checks, including 1665/1665 reply checks and 12/12 gap checks, with zero
+  external model calls during eval generation. Verification: focused
+  wrong-purchase-or-booking tests passed 2/2, full `tests/test_style_profile.py`
+  passed 172/172, full suite passed 273/273 with one upstream TestClient
+  deprecation warning, mock `/v1/chat` style eval passed 45/45 with average
+  style score `0.908`, and `py_compile` was clean.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
