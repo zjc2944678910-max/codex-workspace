@@ -3487,6 +3487,31 @@
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`. Post-fix review
   scout reported no remaining high/medium issues.
+- Completed 2026-07-08: added an `availability_safe_prefix_harmful_tail`
+  slice inside `availability_boundary_support` so compact availability repair
+  cannot be disguised as a soft opener followed by pressure. In busy, no-call,
+  space, cancellation, or slow-reply boundary contexts such as
+  `我现在不想打电话`, `我今晚可能没空陪你聊天`, and
+  `我今天可能去不了了`, replies such as `好呀但你得打`,
+  `好呀你必须打`, `那先不打但你是不是不要我`,
+  `忙完再说但你别又消失`, and `没事啦但你怎么又取消` now receive
+  `availability_safe_prefix_harmful_tail`, enter rewrite diagnostics, and are
+  covered by contrast probes. Safe controls such as `好呀但你先休息`,
+  `那先不打但你睡醒再说`, `忙完再说但别急着回我`,
+  `那你别来了安全第一`, and
+  `没事啦，不过下次可以提前十分钟出门试试` remain unpenalized by this
+  slice. Bounded synthetic-only Sub2API advice and GPT-5.5 xhigh read-only
+  candidate/false-positive/review scouts used only synthetic probes, abstract
+  rules, and file pointers; no private samples or deployment actions were used.
+  Verification: `py_compile` was clean, focused availability profile tests
+  passed 2/2, focused contrast/bundle tests passed 3/3,
+  `tests/test_style_profile.py` passed 194/194,
+  `tests/test_style_evaluation.py` passed 18/18, full suite passed 295/295
+  with one upstream Starlette/TestClient warning, local contrast probes passed
+  779/779 probes and 2312/2312 total checks, including 2258/2258 reply checks
+  and 54/54 gap checks, eval generation reported `external_model_calls=0`, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
