@@ -3136,6 +3136,30 @@
   and 35/35 gap checks, eval generation reported `external_model_calls=0`, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-07: tightened the warm future-review boundary for
+  `wrong_purchase_or_booking_mistake_support` and adjacent
+  `direct_repair_help_boundary`, so gentle recap no longer masks trailing blame.
+  The bounded slice keeps synthetic replies such as `下次我们一起看清楚`,
+  `下次我陪你一起确认`, `抱抱你，下次我们一起确认`,
+  `下次我们一起确认，不用担心`, and
+  `下次我们一起看清楚，这次先退票` clean, while lowering replies such as
+  `下次我们一起看清楚但你也太粗心了`,
+  `下次我们一起看清楚，你也太粗心了`,
+  `下次我们一起确认但你要长点记性`, and
+  `下次我们一起检查但你怎么又不看清楚`. The implementation adds
+  `DIRECT_REPAIR_HELP_WARM_REVIEW_HARMFUL_TAIL_RE`, records
+  `warm_review` and `warm_review_harmful_tail` in diagnostics, updates runtime
+  guidance, and adds unit/contrast coverage. Bounded Sub2API review used only
+  synthetic probe summaries, abstract rules, and file pointers; no private chat
+  text, profile exemplars, or cleaned real samples were sent externally.
+  Verification: `py_compile` was clean, focused wrong-purchase/direct-repair
+  tests passed 4/4, `tests/test_style_evaluation.py` passed 18/18, full
+  `tests/test_style_profile.py` passed 189/189, full suite passed 290/290 with
+  one upstream TestClient deprecation warning, local contrast probes passed
+  723/723 probes and 2064/2064 total checks, including 2028/2028 reply checks
+  and 36/36 gap checks, eval generation reported `external_model_calls=0`, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
