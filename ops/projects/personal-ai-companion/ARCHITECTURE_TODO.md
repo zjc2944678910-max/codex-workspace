@@ -2762,6 +2762,38 @@
   and 25/25 gap checks, eval generation reported `external_model_calls=0`, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-07: extended `missed_message_self_blame_support` again for
+  repaired-but-still-self-blaming missed-message turns, where the user has
+  already replied to, explained, or repaired a missed message but is still attacking
+  themselves. The bounded slice covers synthetic prompts such as
+  `我刚刚补回她消息了但还是觉得自己好没用`,
+  `我刚回了她消息但我还是想骂自己`,
+  `我回了她消息但还是觉得自己好没用`, and
+  `我补回去了可是我怎么老这样`. It reuses existing missed-message penalties
+  to lower-score confirmation/blame such as `你就是没用` and
+  `是啊你怎么老这样`; scolding such as `自己反省吧`; hopeless doom such
+  as `没救了`; cold replies such as `关我什么事`; and minimizing such as
+  `不就一条消息吗`. Compact support such as `别这么说自己`, `解释了就好`,
+  `补回去了就好`, `没事啦`, and `抱抱你` remains clean. False-positive controls
+  keep fully resolved, generic explanation, work/business, wrong-message,
+  non-message `补回`, third-person/reported, hypothetical, submission, and
+  small-lapse contexts outside this gate, including synthetic controls such as
+  `我刚刚补回了她消息已经解释了`,
+  `我刚刚补回了她消息已经解释了我真服了自己`,
+  `我已经解释了但还是好内疚`,
+  `老板消息我已经回了但还是觉得自己好没用`,
+  `我刚刚补回了进度但还是觉得自己好没用`, and
+  `我刚发错消息了但已经撤回了我还是觉得自己好蠢`. Bounded Sub2API advisory and
+  post-change review used only synthetic probe summaries, abstract rules, and
+  file pointers; no private chat text, profile exemplars, or cleaned real
+  samples were sent externally, and the review reported no blocking issue.
+  Verification: `py_compile` was clean, focused missed-message self-blame tests
+  passed 4/4, full `tests/test_style_profile.py` passed 184/184, full suite
+  passed 285/285 with one upstream TestClient deprecation warning, local
+  contrast probes passed 656/656 probes and 1866/1866 total checks, including
+  1840/1840 reply checks and 26/26 gap checks, eval generation reported
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908` and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
