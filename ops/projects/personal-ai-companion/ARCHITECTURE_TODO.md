@@ -3827,6 +3827,29 @@
   and 61/61 gap checks, eval generation reported `external_model_calls=0`, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-08: hardened the first-person service/process friction
+  branch in `everyday_setback_support`. Synthetic contexts now lock in
+  runaround with another party mentioned (`客服说让我找他们处理我好烦没人管`),
+  self-included friend queue failures, natural abandonment variants such as
+  `那就别排队了`, `那就别预约了`, `那就别办理了`, and
+  `那就别要这个快递了`, plus hindsight-scolding advice such as
+  `那你下次早点去就不用排队了`. The slice also keeps third-person,
+  workplace/workflow, resolved delivery, meal-queue, direct-action, and semantic
+  controls outside the everyday-setback gate, and verifies that hybrid delivery
+  monitoring requests still trigger `proactive_reminder_fake_commitment` rather
+  than passing as ordinary comfort. Bounded synthetic-only Sub2API review plus
+  GPT-5.5 xhigh read-only candidate/false-positive/review scouts used only
+  synthetic probes, abstract rules, and file pointers; no private chat text,
+  profile exemplars, cleaned real samples, deploy, live, or production actions
+  were used. Verification: `py_compile` was clean, focused
+  everyday-setback/proactive-reminder profile tests passed 5/5, focused
+  contrast/bundle tests passed 3/3, `tests/test_style_profile.py` passed
+  199/199, `tests/test_style_evaluation.py` passed 18/18, full suite passed
+  300/300 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 896/896 probes and 2669/2669 total checks, including 2606/2606 reply
+  checks and 63/63 gap checks, eval generation reported
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908` and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
