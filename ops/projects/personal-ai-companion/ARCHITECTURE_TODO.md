@@ -3762,6 +3762,39 @@
   and 56/56 gap checks, eval generation reported `external_model_calls=0`, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-08: added a bounded `food_guilt_support` scorer slice for
+  first-person or subject-dropped eating remorse. Synthetic contexts such as
+  `我刚吃完夜宵好罪恶`, `我今天又吃多了好内疚`,
+  `我忍不住吃了蛋糕感觉自己好胖`, `我晚上吃了好多零食有点负罪感`, and
+  `半夜偷吃了炸鸡好自责` now enter runtime guidance and rewrite diagnostics.
+  Replies that restrict/scold, body-shame, blame, answer coldly, or suggest
+  purging/compensation, such as `管住嘴`, `少吃点`, `别再吃了`, `胖死你`,
+  `活该`, `谁让你吃蛋糕`, `嘴馋`, `吐出来`, `明天别吃饭`, and
+  `关我什么事`, receive food-guilt penalties and are sent to rewrite. Compact
+  softening such as `没事啦`, `抱抱你`, `吃都吃啦`, `别太自责`,
+  `明天慢慢来`, `没关系`, and `先别骂自己` remains clean. Ordinary food choice,
+  hunger/basic care, meal disappointment, appearance/body insecurity, diet
+  planning, third-person, translation/quote/meta, resolved/no-guilt,
+  medical/nausea, purge/eating-disorder severity, and playful exaggeration
+  controls stay outside the gate. A post-review hardening pass added exact
+  controls for postposed translation (`请帮我把我刚吃完夜宵好罪恶翻译成英文`) and bare
+  food commentary (`奶茶好罪恶啊`), and added `food_guilt_support_score` to the
+  rewrite score summary. The slice adds context gates, runtime guidance, rewrite
+  diagnostics, contrast penalty collection, empty-score diagnostics,
+  profile/evaluation tests, README notes, and this ops entry. Bounded
+  synthetic-only Sub2API advice from the prior planning pass plus GPT-5.5 xhigh
+  read-only candidate, false-positive, and review scouts used only synthetic
+  probes, abstract rules, and file pointers; no private chat text, profile
+  exemplars, cleaned real samples, deploy, live, or production actions were
+  used. Verification: `py_compile` was clean, focused food/meal/appearance
+  profile tests passed 5/5, focused contrast/bundle tests passed 3/3,
+  `tests/test_style_profile.py` passed 199/199,
+  `tests/test_style_evaluation.py` passed 18/18, full suite passed 300/300 with
+  one upstream Starlette/TestClient warning, local contrast probes passed
+  861/861 probes and 2586/2586 total checks, including 2529/2529 reply checks
+  and 57/57 gap checks, eval generation reported `external_model_calls=0`, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
