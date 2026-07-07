@@ -3540,6 +3540,35 @@
   and 54/54 gap checks, eval generation reported `external_model_calls=0`, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-08: added a writing/translation meta-context slice for
+  `availability_boundary_support` so pure wording tasks no longer look like
+  current-user availability boundaries. Synthetic controls such as
+  `翻译：我现在不想打电话`, `请翻译“我今晚没空聊天”`,
+  `怎么委婉地说我今天去不了了`, `把我想一个人待会儿改得软一点`,
+  `这句“我现在不想打电话”会不会太硬`,
+  `委婉表达：我现在不想打电话`, and
+  `我现在不想打电话，帮我润色一下` now stay outside the availability runtime
+  guidance and penalty gate. Current first-person boundary turns that only
+  contain a wording preface remain inside, including
+  `我不知道怎么说但我现在不想打电话`,
+  `我想委婉点但我今晚没空陪你聊天`,
+  `我想礼貌点但我现在不想打电话`, and
+  `我不知道怎么委婉表达但我今晚没空陪你聊天`, so coercive or guilt tails such
+  as `好呀但你得打`, `不行就要打`, `不行陪我聊天`, and
+  `你不陪我我会难过` are still penalized. The slice added focused regex gating,
+  synthetic profile tests, contrast controls and boundary probes, contrast-level
+  `expected_availability_context` checks for meta controls, eval-bundle
+  assertions, README notes, bounded synthetic-only Sub2API advice, and GPT-5.5
+  xhigh read-only candidate/false-positive/review scouts; no private samples or
+  deployment actions were used. Verification: `py_compile` was clean, focused
+  availability profile tests passed 3/3, focused contrast/bundle tests passed
+  3/3, `tests/test_style_profile.py` passed 195/195,
+  `tests/test_style_evaluation.py` passed 18/18, full suite passed 296/296 with
+  one upstream Starlette/TestClient warning, local contrast probes passed
+  796/796 probes and 2350/2350 total checks, including 2296/2296 reply checks
+  and 54/54 gap checks, eval generation reported `external_model_calls=0`, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
