@@ -2300,14 +2300,19 @@
   `我刚刚给你发了一大段你只回嗯，我有点委屈`,
   `我说了好多你只回好，我有点难过`,
   `我认真跟你说你只回哦，我有点受伤`, and
-  `我打了很多字你就回了个嗯，我感觉被敷衍`, with
+  `我打了很多字你就回了个嗯，我感觉被敷衍`, plus semantic-looking but
+  still emotionally in-scope forms such as
+  `我发了好多你只回嗯是什么意思，我有点委屈`, with
   `conflict_dismissive_ack_reply` for replies such as `好呀`, `嗯嗯`, or
-  `知道了`, `conflict_evasive_repair_reply` for `不知道呀` or `你猜`,
-  existing `conflict_blame_deflection` for `你想太多`, and
+  `知道了`, including sentence-final punctuation variants,
+  `conflict_evasive_repair_reply` for `不知道呀` or `你猜`, existing
+  `conflict_blame_deflection` for `你想太多`, and
   `conflict_minimizing_repair_reply` for `这也委屈` or `至于吗`. Compact repair
   such as `对不起呀`, `我在呢`, `刚刚没回好`, and `我听着呢` remains valid. The
-  guard excludes semantic, self-reflection, third-person, listen-request, and
-  requested-short-reply controls such as `敷衍是什么意思`,
+  guard now requires the synthetic three-part shape of user effort, a thin
+  acknowledgment, and hurt, while excluding semantic, self-reflection,
+  third-person, listen-request, and requested-short-reply controls such as
+  `敷衍是什么意思`,
   `我刚才只回嗯是不是不礼貌`, `她只回嗯我该怎么回`, `你听我说完`, and
   `你简单回我嗯就行`. Bounded Sub2API advisory and GPT-5.5 xhigh sidecar review
   used only synthetic probe summaries, abstract rules, and file pointers; no
@@ -2315,8 +2320,8 @@
   externally. Local synthetic probes confirmed the key penalties and controls;
   the requested-short-reply contrast keeps a high-scoring compact allowed reply
   while the unit test still checks bare `嗯` does not activate conflict context.
-  Local contrast probes pass 537/537 probes and 1530/1530 total checks,
-  including 1520/1520 reply checks and 10/10 gap checks, with zero external
+  Local contrast probes pass 538/538 probes and 1536/1536 total checks,
+  including 1526/1526 reply checks and 10/10 gap checks, with zero external
   model calls during eval generation. Verification: focused conflict-repair test
   passed 1/1, full `tests/test_style_profile.py` passed 162/162, full suite
   passed 263/263 with one upstream TestClient deprecation warning, mock
