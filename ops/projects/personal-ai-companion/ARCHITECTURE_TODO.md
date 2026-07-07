@@ -3160,6 +3160,28 @@
   and 36/36 gap checks, eval generation reported `external_model_calls=0`, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-07: tightened the habitual harmful-tail boundary for
+  `missed_message_self_blame_support` and `small_lapse_self_blame_support`, so
+  reassuring prefixes no longer mask tails that confirm the user's repeated
+  self-blame. The bounded slice keeps synthetic replies such as `抱抱你`,
+  `没事啦`, `别这么说自己`, `下次一起记一下`,
+  `下次我陪你记一下`, and `抱抱你，下次一起记一下` clean, while lowering
+  `没事啦但你怎么老这样`, `下次一起记一下但你怎么老这样`, and
+  `别这么说自己但你确实老这样` in missed-message and small-lapse self-blame
+  contexts. The implementation adds `SELF_BLAME_HABITUAL_HARMFUL_TAIL_RE`,
+  records `habitual_harmful_tail` in both diagnostics, updates runtime and
+  rewrite guidance, synchronizes empty-score diagnostics, and adds unit/contrast
+  coverage. Bounded Sub2API advice used only synthetic probe summaries, abstract
+  rules, and file pointers; no private chat text, profile exemplars, or cleaned
+  real samples were sent externally. Verification: `py_compile` was clean,
+  focused missed-message/small-lapse tests passed 2/2,
+  `tests/test_style_evaluation.py` passed 18/18, full
+  `tests/test_style_profile.py` passed 189/189, full suite passed 290/290 with
+  one upstream TestClient deprecation warning, local contrast probes passed
+  723/723 probes and 2074/2074 total checks, including 2036/2036 reply checks
+  and 38/38 gap checks, eval generation reported `external_model_calls=0`, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
