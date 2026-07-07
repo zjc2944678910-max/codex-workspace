@@ -2387,6 +2387,80 @@
   passed 164/164, full suite passed 265/265 with one upstream TestClient
   deprecation warning, mock `/v1/chat` style eval passed 45/45 with average
   style score `0.909`, and `py_compile` was clean.
+- Completed 2026-07-07: added `motivation_slump_support` diagnostics for
+  first-person procrastination, low motivation, study block, task-initiation
+  block, and wasted-day guilt turns, without stealing ownership from
+  `task_overwhelm_support`. The bounded slice covers synthetic contexts such as
+  `我今天又拖延了一整天`, `我又摸鱼了一下午`,
+  `我一点都学不进去`, `我不想写作业了`, `我没有动力了`,
+  `我好摆烂`, and `我今天什么都没干好有负罪感`.
+  `score_text_against_profile()` now reports `motivation_slump_support`, with
+  `motivation_slump_shaming_reply` for replies such as `废物`, `自律一点`,
+  `真懒`, or `活该`, `motivation_slump_blame_reply` for replies such as
+  `谁让你拖延`, `motivation_slump_abandonment_reply` for replies such as
+  `那就别学了` or `那你继续摆烂`,
+  `motivation_slump_dismissive_or_minimizing_reply` for replies such as
+  `你想太多` or `别矫情`, and `motivation_slump_cold_reply` for replies such as
+  `关我什么事` or `所以呢`. Compact support such as `慢慢来`, `一点点来`,
+  `先写一点`, `先做一点点`, `先休息一下`, `抱抱你`, `我陪你`, and
+  `别自责` remains valid. Ownership controls keep semantic, tech,
+  third-person, generic advice, resolved, voluntary-rest, playful, and
+  task-overwhelm overlap turns outside this gate, including `拖延是什么意思`,
+  `接口返回motivation字段`, `我朋友学不进去怎么办`,
+  `我想改掉拖延怎么办`, `如果学不进去怎么办`,
+  `我今天拖延但已经写完了`, `今天周末我想摆烂一天`,
+  `哈哈哈我又摸鱼了`, and `我作业好多写不完了`. A GPT-5.5 xhigh sidecar was
+  used only as a read-only synthetic/file-pointer candidate scout and suggested
+  `meal_food_disappointment_support` as a possible next slice; it did not edit
+  files or read private samples. Local contrast probes pass 567/567 probes and
+  1604/1604 total checks, including 1594/1594 reply checks and 10/10 gap checks,
+  with zero external model calls during eval generation. Verification: focused
+  motivation-slump tests passed 2/2, full `tests/test_style_profile.py` passed
+  166/166, full suite passed 267/267 with one upstream TestClient deprecation
+  warning, mock `/v1/chat` style eval passed 45/45 with average style score
+  `0.909`, and `py_compile` was clean.
+- Completed 2026-07-07: added `meal_food_disappointment_support` diagnostics
+  for first-person or subject-dropped food and drink letdowns where anticipated,
+  ordered, bought, queued-for, or self-cooked food/drink was bad, wrong,
+  spoiled, closed, sold out, or otherwise disappointing. The bounded slice
+  covers synthetic contexts such as `中午吃的饭好难吃`,
+  `我期待了一天的外卖结果特别难吃`,
+  `外卖送错了我想吃的都没了`, `我刚做的饭翻车了好难吃`,
+  `想喝奶茶但是店关门了有点失落`,
+  `买的水果昨天才到今天就坏了`, and
+  `排了好久结果这家店不好吃`. `score_text_against_profile()` now reports
+  `meal_food_disappointment_support`, with
+  `meal_food_disappointment_cold_reply` for replies such as `关我什么事`,
+  `meal_food_disappointment_blame_or_shame` for replies such as
+  `谁让你点这个`, `你真不会做饭`, or `活该`,
+  `meal_food_disappointment_mockery_reply` for `笑死` or `哈哈哈`,
+  `meal_food_disappointment_dismissive_minimizing` for replies such as
+  `不就一顿饭吗` or `别矫情`, and
+  `meal_food_disappointment_abandonment_reply` for replies such as
+  `那就别吃了` or `那就别喝了`. Compact validation or one tiny next step such
+  as `太扫兴了`, `好烦哦`, `抱抱你`, `问问客服`, `先吃点别的`,
+  `下次不点这家`, `明天喝`, and `辛苦啦` remains valid. Ownership controls keep
+  hunger/basic-care, nausea, money-stress, delivery-lateness, everyday
+  spill/lost-item, plan-cancellation, social-exclusion, homesick, practical
+  food-choice/cooking, semantic, tech, fiction/game, third-person,
+  hypothetical, and resolved turns outside this gate, including
+  `我还没吃饭有点饿`, `吃完东西胃好难受想吐`,
+  `我点外卖花超预算了好烦`, `外卖迟到了好烦怎么办`,
+  `我把午饭洒了`, `本来说好一起吃饭结果她临时取消了`,
+  `他们聚餐没喊我有点难受`, `有点想妈妈做的饭`,
+  `外卖点什么好`, `汤太咸了怎么补救`, `难吃是什么意思`,
+  `接口返回bad_food字段`, `游戏里料理失败了`,
+  `我朋友外卖送错了怎么办`, `如果外卖送错怎么办`, and
+  `刚才外卖送错后来补了`. Sub2API advisory and GPT-5.5 xhigh sidecars were
+  used only with synthetic probe summaries, abstract rules, and file pointers;
+  no private chat text, profile exemplars, or cleaned real samples were sent
+  externally. Local contrast probes pass 576/576 probes and 1630/1630 total
+  checks, including 1620/1620 reply checks and 10/10 gap checks, with zero
+  external model calls during eval generation. Verification: focused
+  meal-food-disappointment tests passed 2/2, full `tests/test_style_profile.py`
+  passed 168/168, full suite passed 269/269 with one upstream TestClient
+  deprecation warning, mock `/v1/chat` style eval passed 45/45 with average
+  style score `0.908`, and `py_compile` was clean.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
