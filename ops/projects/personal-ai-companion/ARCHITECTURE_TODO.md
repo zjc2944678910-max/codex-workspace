@@ -3452,6 +3452,41 @@
   checks and 53/53 gap checks, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-08: extended the bounded
+  `daily_companion_blame_tail_support` scorer for safe-opener tails that
+  invalidate emotion or reframe low-stakes lapses as character blame. In
+  ordinary first-person reassurance, bad-day, or small-lapse contexts such as
+  `你刚刚是不是不想理我`, `今天好烦感觉什么都没做好`, and
+  `我今天忘记带学生证了`, replies such as `没有呀但你也太敏感了`,
+  `没有呀不过你想太多了`, `没有呀但想太多了`,
+  `我在呢但是你别闹`, `我在呢但别闹`,
+  `我在呢但你别无理取闹`, `我在呢但别无理取闹`,
+  `我在呢但你别这么矫情`,
+  `抱抱你但你就是想太多`, `抱抱你但你也别太玻璃心`,
+  `抱抱你但别玻璃心`, `没事啦但你怎么不早点想`,
+  `没事啦但不早点想`, `没事啦但你能不能上点心`,
+  `没事啦但上点心`, `下次记得带吧不过你也长点记性`, and
+  `没事啦但长点记性` now receive
+  `daily_companion_safe_opener_blame_tail`. The slice also broadens quoted/meta
+  protection for the newly covered phrases and invited-accountability controls
+  such as `客观点看下我今天忘记带学生证有没有责任`, while preserving repair
+  nudges and self-label interruptions such as
+  `没事啦，不过下次可以提前十分钟出门试试` and
+  `抱抱你，但先别急着给自己贴“想太多”的标签`,
+  `抱抱你，但你先别觉得自己太敏感`, and
+  `抱抱你，但不要把自己定义成无理取闹`. Bounded synthetic-only
+  Sub2API advice and GPT-5.5 xhigh read-only candidate/false-positive/review
+  scouts used only synthetic probes, abstract rules, and file pointers; no
+  private samples or deployment actions were used. Verification: `py_compile`
+  was clean, focused daily-companion profile tests passed 2/2, focused
+  contrast/bundle tests passed 3/3, `tests/test_style_profile.py` passed
+  194/194, `tests/test_style_evaluation.py` passed 18/18, full suite passed
+  295/295 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 776/776 probes and 2300/2300 total checks, including 2247/2247 reply
+  checks and 53/53 gap checks, eval generation reported
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908` and `external_model_calls=0`. Post-fix review
+  scout reported no remaining high/medium issues.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
