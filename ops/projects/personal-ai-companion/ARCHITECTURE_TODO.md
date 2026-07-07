@@ -3089,6 +3089,28 @@
   and 35/35 gap checks, eval generation reported `external_model_calls=0`, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-07: tightened the `social_ignored_support` safe-opener
+  harmful-tail boundary for indirect ignored-event metaphors and no-reply
+  confirmations. `safe_reply` remains visible in diagnostics, runtime guidance,
+  and rewrite diagnostics, but no longer bypasses penalty collection when the
+  reply continues into harm. The bounded slice covers synthetic replies such as
+  `抱抱你但没人想回你`, `可能在忙但人家就是不想理你`,
+  `我在呢但你就是透明人`, `我在呢不过大家确实都没注意到你`,
+  `没事啦那你别说了`, `抱抱你但你确实很无聊`,
+  `不一定是你的原因但你确实说错了`, and
+  `抱抱你，没人想回你也正常`. Compact safe replies such as `没事啦我在呢`,
+  `抱抱你可能大家没看到`, `可能大家没注意到`, and
+  `可能大家没注意到你的消息` remain clean. Bounded Sub2API review used only
+  synthetic probe summaries, abstract rules, and file pointers; no private chat
+  text, profile exemplars, or cleaned real samples were sent externally.
+  Verification: `py_compile` was clean, focused social-ignored tests passed 4/4,
+  `tests/test_style_evaluation.py` passed 18/18, full
+  `tests/test_style_profile.py` passed 189/189, full suite passed 290/290 with
+  one upstream TestClient deprecation warning, local contrast probes passed
+  723/723 probes and 2048/2048 total checks, including 2013/2013 reply checks
+  and 35/35 gap checks, eval generation reported `external_model_calls=0`, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
