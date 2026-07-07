@@ -2904,6 +2904,82 @@
   checks and 29/29 gap checks, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-07: extended the existing `everyday_setback_support` and
+  `small_lapse_self_blame_support` gates for physical clutter/mess mishaps and
+  repeated clutter self-blame. The bounded slice covers synthetic everyday
+  setback prompts such as `我把资料弄乱了好烦`, `我把桌子弄乱了怎么办`,
+  and `我把房间搞得一团糟我怎么这么没用`, plus repeated self-blame
+  prompts such as `我又把桌子弄乱了我真服了自己` and
+  `我又把包翻乱了我怎么老这样`. It extends the everyday-setback trigger
+  surface with physical `弄乱`/`搞乱`/`翻乱`/`一团糟` phrasings, adds
+  `clutter_or_mess` to small-lapse context kinds, and keeps compact replies
+  such as `先整理一下`, `慢慢收一下`, `先处理眼前的`, `没事啦`, and
+  `别这么说自己` clean. Bad replies such as `乱了就乱了`,
+  `你就是没用`, `长点记性`, `自己处理`, `下次长点记性`, `没救了`,
+  and `关我什么事` are lower-scored under the existing setback or small-lapse
+  penalties. False-positive controls keep semantic/meta, tech/layout,
+  business/customer, third-person, hypothetical/prevention, resolved, playful,
+  fiction/game, and abstract non-physical contexts outside these gates,
+  including synthetic controls such as `弄乱是什么意思`, `页面布局弄乱了`,
+  `客户资料弄乱了`, `我朋友把房间弄乱了她好烦`,
+  `如果弄乱房间怎么办`, `怎么避免把桌子弄乱`,
+  `我把桌子弄乱了但已经收拾好了`,
+  `哈哈哈我把桌子弄乱了`, `游戏里房间弄乱了`, and
+  `我把计划打乱了好烦`. Bounded Sub2API advisory used only synthetic probe
+  summaries, abstract rules, and file pointers; no private chat text, profile
+  exemplars, or cleaned real samples were sent externally. Verification:
+  `py_compile` was clean, focused everyday/small-lapse tests passed 6/6, full
+  `tests/test_style_profile.py` passed 189/189, `tests/test_style_evaluation.py`
+  passed 18/18, full suite passed 290/290 with one upstream TestClient
+  deprecation warning, local contrast probes passed 678/678 probes and
+  1932/1932 total checks, including 1901/1901 reply checks and 31/31 gap
+  checks, eval generation reported `external_model_calls=0`, and mock
+  `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
+- Completed 2026-07-07: extended the existing `waiting_reply_support` gate for
+  first-person sent-message no-response and no-followup anxiety. The bounded
+  slice covers synthetic prompts such as
+  `我发过去以后她一直没动静我有点慌`,
+  `我给她发了微信她到现在一点消息都没有我有点难受`,
+  `她那边一直没下文我是不是又说错话了`,
+  `我发消息过去半天没动静是不是她不想理我`,
+  `我消息发出去像没下文一样有点慌`,
+  `我给她发了消息以后没反应我有点慌`, and
+  `我给他发了消息以后没反应我有点慌`. It adds `sent_no_response`
+  and `no_followup` waiting-reply context kinds while reusing the existing
+  waiting-reply diagnostics, runtime guidance, rewrite diagnostics, and penalty
+  kinds. Compact support such as `可能在忙`, `可能没看到`, `先别慌`,
+  `不一定呢`, `晚点再看看`, and `抱抱你` stays clean, while bad replies
+  such as `她肯定不想理你`, `他肯定不想理你`, `继续轰炸她`,
+  `继续轰炸他`, `那你也别回她了`, `你别烦她了`, `有什么好慌的`,
+  `哈哈哈`, and `关我什么事` are lower-scored under the existing
+  waiting-reply penalties. False-positive controls keep semantic/meta,
+  tech/work, business/customer, fiction, reversed-agency, voluntary no-reply,
+  physical-return, health, file/homework/HR/post, third-person/proxy, and
+  generic/hypothetical contexts outside this gate, including synthetic controls
+  such as `不回我是什么意思`, `接口发过去以后没动静我有点慌`,
+  `客户消息发过去以后没下文我有点焦虑`,
+  `小说里女主发过去以后没下文我有点急`,
+  `我一直没回她消息她会不会生气`, `她没回家我有点慌`,
+  `我发烧以后一直没动静我有点慌`,
+  `我把文件发给她以后没动静我有点慌`,
+  `我把作业发给老师以后没动静我有点慌`,
+  `我把简历发给HR以后没动静我有点慌`,
+  `这个帖子发出去以后没下文我有点急`,
+  `我姐发消息给她男朋友以后没动静她好慌`,
+  `有人发消息以后没动静会慌吗`, and
+  `我朋友给她对象发消息以后没动静她好焦虑我该怎么劝`. Bounded
+  Sub2API advisory and post-change review used only synthetic probe summaries,
+  abstract rules, and file pointers; no private chat text, profile exemplars, or
+  cleaned real samples were sent externally. Verification: `py_compile` was
+  clean, focused waiting-reply tests passed 2/2, full
+  `tests/test_style_profile.py` passed 189/189, `tests/test_style_evaluation.py`
+  passed 18/18, full suite passed 290/290 with one upstream TestClient
+  deprecation warning, local contrast probes passed 692/692 probes and
+  1962/1962 total checks, including 1930/1930 reply checks and 32/32 gap checks,
+  eval generation reported `external_model_calls=0`, and mock `/v1/chat` style
+  eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
