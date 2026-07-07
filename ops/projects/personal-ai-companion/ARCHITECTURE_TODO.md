@@ -3050,6 +3050,45 @@
   and 34/34 gap checks, eval generation reported `external_model_calls=0`, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-07: extended the `waiting_reply_support` gate for
+  directed one-to-one no-response idioms and self-blame confirmation, so
+  `杳无音信` and directed `石沉大海` expressions no longer lose runtime
+  guidance or rewrite diagnostics when the user is anxious or self-doubting
+  after sending or asking. The bounded slice covers synthetic prompts such as
+  `我给她发消息以后就杳无音信我有点慌`,
+  `我问他以后杳无音信我是不是说错话了`,
+  `我给她发消息之后就石沉大海了我有点慌`, and
+  `我发给她的消息像石沉大海我是不是太烦了`. It adds the
+  `idiom_no_response` context kind, keeps broad group/social `石沉大海`
+  coverage in `social_ignored_support`, and adds
+  `waiting_reply_self_blame_confirmation` so replies such as
+  `你肯定说错话了` and `就是你说错了` are lower-scored while softening
+  alternatives such as `不一定是你说错了` and `也可能不是你说错了` remain
+  clean. Existing waiting-reply penalties still lower-score `她肯定不想理你`,
+  `继续问到他回`, `继续轰炸她`, and `关我什么事`. False-positive controls
+  keep meta, tech/work, customer/logistics, resume/interview-like work,
+  fiction, hypothetical/generic, safety lost-contact, third-person advice,
+  group/broadcast, and negated-correction contexts outside this gate, including
+  synthetic controls such as `杳无音信是什么意思`,
+  `接口请求发出去后杳无音信我有点慌`,
+  `客户消息发过去后杳无音信我有点焦虑`,
+  `简历投出去杳无音信我有点慌`, `小说里女主问完以后杳无音信`,
+  `如果发消息后杳无音信怎么办`,
+  `给她发消息后杳无音信我怕她失联出事`,
+  `我朋友问她以后杳无音信她好焦虑我该怎么劝`,
+  `我在群里发消息像石沉大海`, and
+  `我发过去不是石沉大海是她回了我没看到我更难受`. Bounded Sub2API
+  advisory/review and local subagent review used only synthetic probe
+  summaries, abstract rules, and file pointers; no private chat text, profile
+  exemplars, or cleaned real samples were sent externally. Verification:
+  `py_compile` was clean, focused waiting-reply tests passed 2/2,
+  `tests/test_style_evaluation.py` passed 18/18, full
+  `tests/test_style_profile.py` passed 189/189, full suite passed 290/290 with
+  one upstream TestClient deprecation warning, local contrast probes passed
+  723/723 probes and 2034/2034 total checks, including 1999/1999 reply checks
+  and 35/35 gap checks, eval generation reported `external_model_calls=0`, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
