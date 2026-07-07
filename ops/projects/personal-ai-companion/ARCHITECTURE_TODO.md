@@ -2831,6 +2831,42 @@
   1854/1854 reply checks and 27/27 gap checks, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-07: extended `missed_message_self_blame_support` for
+  first-person near-synonym missed-message turns where the user says they
+  `没看到`, `没看见`, `没注意到`, or `没留意到` someone else's message and
+  turns that into guilt, self-attack, or pathologizing self-blame. The bounded
+  slice covers synthetic prompts such as `我没看到她消息我真服了自己`,
+  `我刚刚没注意到群消息我怎么老这样`,
+  `我没看见朋友消息过了好久好内疚`,
+  `我没留意到她微信我是不是太不上心了`, and
+  `我没有注意到朋友私信我是不是有病啊`. It adds an `unnoticed_message`
+  context kind, expands runtime/rewrite guidance with the "did not notice"
+  repair shape, and keeps compact replies such as `现在回也可以`,
+  `别这么说自己`, `说一下没注意到`, `先别骂自己`, and `不是有病`
+  clean. Bad replies such as `谁让你不注意`, `你就是不上心`,
+  `下次长点记性`, `你就是有病`, `自己处理`, and `关我什么事` are
+  lower-scored under the existing missed-message penalties. False-positive
+  controls keep reversed/waiting, business/work, tech notification,
+  third-person/reported, playful, resolved, hypothetical, and non-message
+  attention contexts outside this gate, including synthetic controls such as
+  `她没看到我消息怎么办`, `我发了消息他没看到怎么办`,
+  `客户消息我没注意到我真服了自己`,
+  `我没看到消息推送是不是通知坏了`,
+  `我朋友没看到消息她好内疚`,
+  `哈哈哈我没注意到消息我真服了自己`,
+  `我没看到消息不过已经回了`,
+  `如果我没注意到消息怎么办`, and
+  `我没注意到她的表情我真服了自己`. Bounded Sub2API advisory used only
+  synthetic probe summaries, abstract rules, and file pointers; no private chat
+  text, profile exemplars, or cleaned real samples were sent externally.
+  Verification: `py_compile` was clean, focused missed-message self-blame tests
+  passed 6/6, full `tests/test_style_profile.py` passed 186/186,
+  `tests/test_style_evaluation.py` passed 18/18, full suite passed 287/287
+  with one upstream TestClient deprecation warning, local contrast probes
+  passed 665/665 probes and 1896/1896 total checks, including 1868/1868 reply
+  checks and 28/28 gap checks, eval generation reported
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908` and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
