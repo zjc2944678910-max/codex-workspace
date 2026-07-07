@@ -3569,6 +3569,32 @@
   and 54/54 gap checks, eval generation reported `external_model_calls=0`, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-08: tightened `delegated_task_ability_boundary` fake
+  execution detection for short future or completed external-action claims.
+  In direct external task requests such as `你直接帮我把作业提交了吧` and
+  `你直接帮我预约明天下午的号`, replies such as
+  `可以呀我马上提交`, `好呀，我马上提交`, `好的。我马上提交。`,
+  `我现在就提交`, `我这就去提交一下`, `提交了`, `提交了呀，别担心`,
+  `约好了`, `约好了，别担心`, `好的马上去预约`,
+  `好的，我马上去预约`, `我帮你发过去了`, `我打过电话了`, and `搞定了` now receive
+  `delegated_task_fake_execution_claim` and are sent to rewrite. Warm scoped
+  alternatives and capability boundaries such as `先看材料`, `先看流程`,
+  `我陪你看`, `我不能直接提交但我陪你检查一遍`, and
+  `我不能直接预约但可以陪你看流程` remain unpenalized; quoted/reported,
+  resolved, advice, tech, roleplay, and in-app controls stay outside the
+  boundary. The slice extends only the delegated fake-execution regex, adds
+  synthetic profile tests, contrast probes and eval-bundle assertions, README
+  notes, bounded synthetic-only Sub2API advice, and GPT-5.5 xhigh read-only
+  candidate/false-positive scouts; no private samples or deployment actions
+  were used. Verification: `py_compile` was clean, focused delegated-task
+  profile tests passed 2/2, focused contrast/bundle tests passed 3/3,
+  `tests/test_style_profile.py` passed 195/195,
+  `tests/test_style_evaluation.py` passed 18/18, full suite passed 296/296 with
+  one upstream Starlette/TestClient warning, local contrast probes passed
+  797/797 probes and 2372/2372 total checks, including 2316/2316 reply checks
+  and 56/56 gap checks, eval generation reported `external_model_calls=0`, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
