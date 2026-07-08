@@ -4063,6 +4063,43 @@
   and 68/68 gap checks, eval generation reported `external_model_calls=0`,
   and mock `/v1/chat` style eval passed 45/45 with average style score `0.908`
   and `external_model_calls=0`.
+- Completed 2026-07-08: added a bounded `standing_fatigue_support` style
+  scorer slice for low-risk first-person or self-included standing/walking
+  fatigue after long standing, queueing, commuting, or walking. Synthetic turns
+  such as `今天站了一天腿要废了`, `排队站太久脚好酸`,
+  `地铁站了一路腿好累`, `地铁上没座位站了一路腿好累`,
+  `今天走了好多路脚好酸`, `逛了一下午腿好累`, and
+  `我和朋友逛了一下午腿好累` now get runtime guidance and rewrite diagnostics
+  that prefer compact care or one tiny practical nudge. Cold, minimizing, or
+  blaming replies such as `关我什么事`, `忍着吧`, `谁让你不坐下`,
+  `谁让你站太久`, `谁叫你去排队`, `谁让你走那么多`, `别矫情`, and
+  `活该` now receive `standing_fatigue_cold_dismissal`,
+  `standing_fatigue_minimizing_reply`, or `standing_fatigue_blame_or_shame`
+  penalties and are sent to rewrite, while compact replies such as `抱抱你`,
+  `坐会儿吧`, `揉揉腿`, `先歇会儿`, and `泡泡脚` remain valid. Review-scout
+  hardening kept route/seat inquiries outside the gate while preserving
+  descriptive `没座位` fatigue, allowed self-included `我和朋友` variants,
+  moved dizziness-like symptoms such as `头晕` and `眼前发黑` out to adjacent
+  health/safety handling, and expanded blame variants such as `谁叫你去排队`.
+  Medical/severe symptoms, route/navigation/lateness, crowded-transit
+  discomfort, service/process friction, true third-person advice,
+  meta/explanatory prompts, abstract software queues, exercise/training,
+  weather/wet-shoe discomfort, resolved or joking recaps, and ability requests
+  such as occupying a seat stay outside this gate. The slice updated
+  `profile.py`, `evaluation.py`, profile/evaluation tests, README notes, and
+  this ops entry. Bounded synthetic-only Sub2API advice plus GPT-5.5 xhigh
+  read-only candidate, false-positive, and review scouts used only synthetic
+  probes, abstract rules, and file pointers; no private chat text, profile
+  exemplars, cleaned real samples, deploy, live, or production actions were
+  used. Verification: `py_compile` was clean, focused standing-fatigue profile
+  tests passed 2/2, focused standing-fatigue evaluation tests passed 1/1,
+  `tests/test_style_profile.py` passed 212/212,
+  `tests/test_style_evaluation.py` passed 26/26, full suite passed 321/321
+  with one upstream Starlette/TestClient warning, local contrast probes passed
+  1002/1002 probes and 2903/2903 total checks, including 2833/2833 reply checks
+  and 70/70 gap checks, eval generation reported `external_model_calls=0`, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
