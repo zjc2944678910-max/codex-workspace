@@ -87,7 +87,29 @@ rm -rf /Users/zhangjincheng/Documents/GitHub/codex-workspace/state/project-data/
 
 ## Device Notes
 
-- Do not install a StackChan boot script until the bridge path has been verified.
+- Do not install a StackChan boot script until the manual bridge client path has
+  been verified.
 - For MicroPython, send JSON request bodies as UTF-8 bytes so `Content-Length`
   is byte-accurate for non-ASCII text.
-- Store the bridge token on device only after an explicit write-device step.
+- Device token storage uses ESP32 NVS namespace `pac`, key `bridge_token`.
+- Manual client file:
+  `/flash/pac_bridge_client.py`
+
+Manual run from StackChan REPL:
+
+```python
+import pac_bridge_client
+pac_bridge_client.demo()
+```
+
+Manual removal from StackChan REPL:
+
+```python
+import os, esp32
+os.remove("/flash/pac_bridge_client.py")
+nvs = esp32.NVS("pac")
+nvs.erase_key("bridge_token")
+nvs.commit()
+```
+
+This does not remove or modify `/flash/boot.py` or `/flash/main.py`.

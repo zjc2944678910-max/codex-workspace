@@ -638,3 +638,73 @@ screen -S personal-ai-companion-stackchan-bridge -X quit
 
 If needed, restart the previous scratch bridge from:
 `/Users/zhangjincheng/Documents/GitHub/codex-workspace/scratch/projects/personal-ai-companion/stackchan-integration-20260708/stackchan_bridge.py`
+
+## Device Manual Client Persistence
+
+Date/time:
+
+- `2026-07-08 20:00-20:05 CST`
+
+Device-side persistent changes:
+
+- Added manual client file:
+  `/flash/pac_bridge_client.py`
+- Stored bridge token in ESP32 NVS:
+  - namespace: `pac`
+  - key: `bridge_token`
+- Did not modify:
+  - `/flash/boot.py`
+  - `/flash/main.py`
+- Did not install boot/run-always behavior.
+- Token value was not printed or copied into this report.
+
+Install verification:
+
+- `/flash/pac_bridge_client.py` did not preexist.
+- written size: `2479` bytes
+- NVS token readback:
+  - length: `64`
+  - match with local bridge token: `True`
+
+Manual run verification:
+
+- Device imported its persisted module:
+
+```python
+import pac_bridge_client
+pac_bridge_client.demo()
+```
+
+- Device Wi-Fi state:
+  - connected: `True`
+  - IP: `192.168.31.215`
+- Device request:
+  - target: `http://192.168.31.225:18769/stackchan/chat_async`
+  - queued: `request_id=req_65f345b1d73542bb`
+  - final reply: `DEVICE_CONNECTED`
+- Bridge log evidence:
+
+```text
+20:03:43 request_start client=192.168.31.215 path=/stackchan/chat_async
+20:03:59 upstream_done status=200 ok=True reply_chars=16
+```
+
+Current state:
+
+- Formal token bridge remains active on `192.168.31.225:18769`, PID `33490`.
+- Device serial port remained visible after reset:
+  - `/dev/cu.usbmodem101`
+  - `/dev/tty.usbmodem101`
+- StackChan has a manual client available, but it is not started automatically.
+
+Device rollback:
+
+Run from StackChan REPL:
+
+```python
+import os, esp32
+os.remove("/flash/pac_bridge_client.py")
+nvs = esp32.NVS("pac")
+nvs.erase_key("bridge_token")
+nvs.commit()
+```
