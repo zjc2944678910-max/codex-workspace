@@ -1122,3 +1122,104 @@ Conclusion:
 - StackChan now has two verified manual entries:
   - `/flash/apps/00_pac_bridge_demo.py` for `DEVICE_CONNECTED`.
   - `/flash/apps/01_pac_chat_test.py` for one-shot short text chat.
+
+## Boot-Time Auto-Start v1.2
+
+Date/time:
+
+- `2026-07-08 21:49-22:03 CST`
+
+L3 repair goal:
+
+- Reduce device screen tapping by making StackChan automatically run the PAC
+  connectivity handshake after reset/power-on.
+
+Attempted low-risk path:
+
+- Wrote a temporary `/flash/main.py` PAC launcher and tried
+  `uiflow/boot_option=0`.
+- Result: `boot_option=0` skipped UIFlow2 Wi-Fi initialization; device reported:
+  `WIFI False False ('0.0.0.0', '0.0.0.0', '0.0.0.0', '0.0.0.0')`
+- Immediate rollback completed:
+  - `uiflow/boot_option` restored to `1`
+  - `/flash/main.py` restored to the original placeholder:
+    `# main.py`
+- Recovery confirmation:
+  - UIFlow2 startup output returned
+  - StackChan became reachable again at `192.168.31.215`
+  - bridge health remained OK
+
+Successful auto-start path:
+
+- Backed up original boot source locally:
+  `/Users/zhangjincheng/Documents/GitHub/codex-workspace/scratch/projects/personal-ai-companion/stackchan-integration-20260708/backups/boot-py-before-pac-autostart-20260708-215857.py`
+- Wrote patched boot source from:
+  `/Users/zhangjincheng/Documents/GitHub/codex-workspace/scratch/projects/personal-ai-companion/stackchan-integration-20260708/boot-py-pac-autostart-20260708-215857.py`
+- Device-side persistent changes:
+  - `/flash/boot.py` patched with a flag-gated PAC auto-start hook
+  - `/flash/pac_autostart_enabled` added
+  - `uiflow/boot_option` set to `2`
+- Preserved:
+  - `/flash/main.py` remains the original 10-byte placeholder
+  - `/flash/pac_bridge_client.py`
+  - `/flash/apps/00_pac_bridge_demo.py`
+  - `/flash/apps/01_pac_chat_test.py`
+- The boot hook does not contain the bridge token.
+- The boot hook waits 3 seconds before launching, so serial Ctrl-C can interrupt
+  the path for recovery.
+
+Auto-start behavior:
+
+- UIFlow2 performs Wi-Fi initialization.
+- If `/flash/pac_autostart_enabled` exists, boot launches:
+  `/flash/apps/00_pac_bridge_demo.py`
+- After the PAC handshake app returns, the boot script continues to UIFlow2 sync.
+- Short text chat remains manual through:
+  `/flash/apps/01_pac_chat_test.py`
+
+Verification:
+
+- Reset output showed:
+  - `Startup with network type: WIFI`
+  - `WiFi initialized`
+  - `PAC autostart enabled; Ctrl-C within 3 seconds to cancel`
+  - `PAC autostart launching /flash/apps/00_pac_bridge_demo.py`
+  - Wi-Fi address: `192.168.31.215`
+  - queued: `request_id=req_57a327b46ba3461e`
+  - final reply: `DEVICE_CONNECTED`
+- Bridge log evidence:
+
+```text
+22:02:28 request_start client=192.168.31.215 path=/stackchan/chat_async
+22:02:31 upstream_done status=200 ok=True reply_chars=16
+```
+
+Post-verification:
+
+- bridge health:
+  `{"ok":true,"service":"stackchan_bridge","auth_required":true,"allowed_client":true}`
+- device ping:
+  `192.168.31.215` reachable
+
+Disable auto-start:
+
+Run from StackChan REPL:
+
+```python
+import os, esp32, machine
+try:
+    os.remove("/flash/pac_autostart_enabled")
+except OSError:
+    pass
+nvs = esp32.NVS("uiflow")
+nvs.set_u8("boot_option", 1)
+nvs.commit()
+machine.reset()
+```
+
+Conclusion:
+
+- Boot-time auto-start v1.2 is active and verified.
+- Current auto-start only performs the `DEVICE_CONNECTED` handshake.
+- Full voice control, continuous command polling, and Mac-side bridge autostart
+  remain future work.

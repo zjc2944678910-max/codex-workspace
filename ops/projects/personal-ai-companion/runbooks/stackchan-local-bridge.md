@@ -120,6 +120,56 @@ Before an auto-start repair, record:
 - rollback command or full-flash rollback path;
 - minimal verification plan.
 
+## Boot-Time Auto-Start
+
+Current device auto-start state:
+
+- `/flash/boot.py` has a PAC flag-gated auto-start patch.
+- `/flash/pac_autostart_enabled` exists and enables the PAC auto-start path.
+- UIFlow2 NVS `uiflow/boot_option` is set to `2`, which performs network setup
+  before the PAC launch.
+- `/flash/main.py` is the original placeholder:
+  `# main.py`
+- The auto-start path runs:
+  `/flash/apps/00_pac_bridge_demo.py`
+- This sends only the `DEVICE_CONNECTED` handshake. Short text chat remains
+  manual through:
+  `/flash/apps/01_pac_chat_test.py`
+
+Local backup and patch evidence:
+
+- Original boot backup:
+  `/Users/zhangjincheng/Documents/GitHub/codex-workspace/scratch/projects/personal-ai-companion/stackchan-integration-20260708/backups/boot-py-before-pac-autostart-20260708-215857.py`
+- Patched boot source:
+  `/Users/zhangjincheng/Documents/GitHub/codex-workspace/scratch/projects/personal-ai-companion/stackchan-integration-20260708/boot-py-pac-autostart-20260708-215857.py`
+- Original main placeholder backup:
+  `/Users/zhangjincheng/Documents/GitHub/codex-workspace/scratch/projects/personal-ai-companion/stackchan-integration-20260708/backups/main-py-before-autostart-20260708-214949.py`
+
+Disable auto-start from StackChan REPL:
+
+```python
+import os, esp32, machine
+try:
+    os.remove("/flash/pac_autostart_enabled")
+except OSError:
+    pass
+nvs = esp32.NVS("uiflow")
+nvs.set_u8("boot_option", 1)
+nvs.commit()
+machine.reset()
+```
+
+Re-enable auto-start from StackChan REPL:
+
+```python
+import esp32, machine
+open("/flash/pac_autostart_enabled", "wb").write(b"1\n")
+nvs = esp32.NVS("uiflow")
+nvs.set_u8("boot_option", 2)
+nvs.commit()
+machine.reset()
+```
+
 ## Stop
 
 ```bash
@@ -192,4 +242,6 @@ nvs.erase_key("bridge_token")
 nvs.commit()
 ```
 
-This does not remove or modify `/flash/boot.py` or `/flash/main.py`.
+This app/client removal does not restore the auto-start boot patch. Use the
+auto-start disable commands above first if reverting to stock UIFlow2 launch
+behavior.
