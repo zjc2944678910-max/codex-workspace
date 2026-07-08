@@ -4027,6 +4027,42 @@
   and 67/67 gap checks, eval generation reported `external_model_calls=0`,
   and mock `/v1/chat` style eval passed 45/45 with average style score `0.908`
   and `external_model_calls=0`.
+- Completed 2026-07-08: added a bounded
+  `public_crowd_discomfort_support` style scorer slice for low-risk
+  first-person or subject-dropped discomfort in crowded public transit,
+  carriages, stations, queues, or public crowds. Synthetic turns such as
+  `地铁太挤了我有点难受`, `早高峰地铁挤死了`,
+  `公交上人好多，我站都站不稳`, `车厢里又挤又闷，我好难受`, and
+  `排队一直被后面的人挤，我好烦` now get runtime guidance and rewrite
+  diagnostics that prefer compact care or one low-escalation safety nudge.
+  Cold, minimizing, blaming, or physically escalating replies such as
+  `关我什么事`, `忍着吧`, `谁让你坐地铁`, `谁让你坐公交`, `挤回去`,
+  `推回去`, and `撞回去` now receive `public_crowd_cold_dismissal`,
+  `public_crowd_endure_minimization`, `public_crowd_victim_blame`, or
+  `public_crowd_physical_escalation` penalties and are sent to rewrite, while
+  compact replies such as `抱抱你`, `站稳点呀`, `先扶好呀`, `抓稳点`,
+  `小心点呀`, and `快到了就好` remain valid. Post-review hardening kept
+  route/ticket/planning, lateness, harassment/assault, crowd danger, breathing
+  or chest-pain symptoms, nausea/carsickness, dizziness, third-person advice,
+  hypothetical/meta wording, abstract software/business queues,
+  fiction/game/media, joke/resolved recaps, weather, and phone/device overlap
+  outside the public-crowd gate; it also preserved negated low-escalation
+  replies such as `别推回去`, `不要挤回去`, and
+  `先扶好，别把后面的人推开`. The slice updated `profile.py`,
+  `evaluation.py`, profile/evaluation tests, README notes, and this ops entry.
+  Bounded synthetic-only Sub2API advice plus GPT-5.5 xhigh read-only
+  candidate, false-positive, and review scouts used only synthetic probes,
+  abstract rules, and file pointers; no private chat text, profile exemplars,
+  cleaned real samples, deploy, live, or production actions were used.
+  Verification: `py_compile` was clean, focused public-crowd profile tests
+  passed 2/2, focused public-crowd/bundle evaluation tests passed 2/2,
+  `tests/test_style_profile.py` passed 210/210,
+  `tests/test_style_evaluation.py` passed 25/25, full suite passed 318/318
+  with one upstream Starlette/TestClient warning, local contrast probes passed
+  988/988 probes and 2872/2872 total checks, including 2804/2804 reply checks
+  and 68/68 gap checks, eval generation reported `external_model_calls=0`,
+  and mock `/v1/chat` style eval passed 45/45 with average style score `0.908`
+  and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
