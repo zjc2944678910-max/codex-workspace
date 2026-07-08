@@ -769,9 +769,64 @@ Run from StackChan REPL:
 
 ```python
 import os, esp32
+os.remove("/flash/apps/00_pac_bridge_demo.py")
 os.remove("/flash/apps/pac_bridge_demo.py")
 os.remove("/flash/pac_bridge_client.py")
 nvs = esp32.NVS("pac")
 nvs.erase_key("bridge_token")
 nvs.commit()
+```
+
+## UIFlow2 Sorted App-List Shortcut
+
+Date/time:
+
+- `2026-07-08 20:40-20:42 CST`
+
+Device-side persistent changes:
+
+- Added sorted app-list shortcut:
+  `/flash/apps/00_pac_bridge_demo.py`
+- Source file copied unchanged from:
+  `/flash/apps/pac_bridge_demo.py`
+- Did not modify:
+  - `/flash/boot.py`
+  - `/flash/main.py`
+- Did not install boot/run-always behavior.
+- The shortcut file does not contain the bridge token.
+
+Install verification:
+
+- copied size: `1089` bytes
+- `/flash/apps` after shortcut install:
+  - `00_pac_bridge_demo.py`
+  - `helloworld.py`
+  - `pac_bridge_demo.py`
+
+Manual shortcut execution verification:
+
+- Executed from serial raw REPL:
+
+```python
+exec(open("/flash/apps/00_pac_bridge_demo.py").read())
+```
+
+- Device Wi-Fi address during verification:
+  `192.168.31.215`
+- queued: `request_id=req_690aa10e8b46418d`
+- final reply: `DEVICE_CONNECTED`
+- Bridge log evidence:
+
+```text
+20:41:54 request_start client=192.168.31.215 path=/stackchan/chat_async
+20:41:59 upstream_done status=200 ok=True reply_chars=16
+```
+
+Shortcut-only rollback:
+
+Run from StackChan REPL:
+
+```python
+import os
+os.remove("/flash/apps/00_pac_bridge_demo.py")
 ```
