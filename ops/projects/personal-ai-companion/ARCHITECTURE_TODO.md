@@ -4735,6 +4735,46 @@
   3420/3420 reply checks and 80/80 gap checks, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-08: added a bounded `hygiene_reluctance_support` style
+  scorer slice for first-person low-risk reluctance or procrastination before
+  brushing teeth, showering, washing hair, washing face, or washing up. Synthetic
+  turns such as `我今晚懒得刷牙了`, `我今天不想洗澡`, `我懒得洗头了`,
+  `不想洗脸了`, and `我懒得洗漱了` now receive runtime guidance, rewrite
+  diagnostics, contrast probes, and score penalties that reject shaming or
+  disgust (`你怎么这么懒`, `脏死了`, `油着吧`), cold dismissal (`关我什么事`,
+  `随便你`, `所以呢`), abandonment or enabling (`不洗算了`, `不刷算了`,
+  `不洗也行`), fake physical action (`我帮你洗`, `我帮你刷`,
+  `我替你洗漱`), and lecture or health-threat replies such as
+  `不刷牙会蛀牙`. Compact warm nudges such as `先刷一下嘛`, `快去洗澡啦`,
+  `洗完就舒服了`, `先洗个脸嘛`, and `先洗漱一下嘛` remain valid. The slice
+  keeps completed routines, generic motivation or task reluctance, outage/no-hot
+  water cases, sleep/morning turns, product/info and medical discomfort
+  questions, third-person/meta/hypothetical/delegated/reminder/technical
+  contexts outside the gate, including `刚刷完牙了`, `我洗完澡啦`,
+  `刚才不想刷牙但已经刷完了`, `我什么都不想做`, `懒得写作业`,
+  `寝室没热水了不想洗澡`, `太晚了懒得洗澡直接睡了`,
+  `早上起来不想洗脸`, `牙膏怎么选`, `洗发水推荐哪个好`,
+  `牙龈出血刷牙好疼不想刷`, `皮肤过敏不想洗脸`, `她不想洗澡怎么办`,
+  `翻译：我不想洗澡`, `如果不想洗澡怎么办`, `提醒我刷牙`,
+  `帮我把洗澡水放好`, and `hygiene_reluctance 里刷牙怎么分类`. Read-only
+  candidate and false-positive scouts converged on this slice, and the
+  post-implementation review scout found only a low-severity missing
+  `hygiene_reluctance_support_score` field in the rewrite `Local style score`
+  summary plus a missing tech/meta contrast control; both were fixed before
+  acceptance. Bounded synthetic-only Sub2API review found no blocking issues and
+  left future hardening ideas for transactional/sarcastic bad replies and one
+  longer empathetic good-reply control. The slice updated `profile.py`,
+  `evaluation.py`, profile/evaluation tests, README notes, and this ops entry.
+  All advisory/review work used only synthetic probes, abstract rules, local
+  behavior summaries, and file pointers; no private chat text, profile
+  exemplars, cleaned real samples, deploy, live, or production actions were
+  used. Verification: `py_compile` was clean, focused hygiene profile tests
+  passed 2/2, focused hygiene evaluation tests passed 1/1, full `.venv` suite
+  passed 355/355 with one upstream Starlette/TestClient warning, local contrast
+  probes passed 1253/1253 probes and 3544/3544 total checks, including
+  3464/3464 reply checks and 80/80 gap checks, eval generation reported
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908` and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
