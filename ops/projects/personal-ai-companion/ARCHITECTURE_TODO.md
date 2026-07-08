@@ -4646,6 +4646,55 @@
   checks and 80/80 gap checks, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-08: added a bounded `pet_concern_support` style scorer
+  slice for first-person worry about the user's own pet in low-to-moderate
+  vomiting, appetite, hiding, scratching, and small-incident turns. Synthetic
+  turns such as `我家猫今天一直吐，我有点担心`,
+  `狗狗突然不吃饭了，我有点慌`, `猫跑到床底下一直不出来，我好担心`,
+  `猫刚刚抓了我一下，我有点委屈又担心它是不是不舒服`,
+  `我家狗刚刚摔了一跤，我有点担心`, and
+  `家里兔子突然一瘸一拐，我是不是没照顾好`, plus active health-worry or
+  logistics turns such as `我家猫发烧了我好慌`,
+  `我家猫一直吐，我好慌，是不是猫瘟`, and
+  `我家猫一直吐，我很担心，附近宠物医院哪家靠谱`, now receive runtime
+  guidance, rewrite diagnostics, contrast probes, and score penalties that
+  reject cold dismissal (`关我什么事`, `猫有啥好担心的`, `吐就吐呗`,
+  `摔就摔呗`, `饿一顿就好了`), blame or shame (`活该`,
+  `谁让你逗它`, `谁让你没看好它`), unsafe veterinary diagnosis or treatment
+  (`肯定是肠胃炎`, `大概率是猫瘟`, `肯定骨折了`, `可能是猫瘟`,
+  `疑似细小`, `怀疑中毒`, `喂点药就行`, `喂点益生菌`), and fake pet
+  access or action (`我帮你看看它现在怎么样`, `我已经看到它没事了`).
+  Compact warmth with cautious next steps such as
+  `先别慌`, `先别自责`, `抱抱你`, `看看精神`, `先观察`,
+  `先别硬喂`, `先让它安静待会儿`, `先冲一下`, or `问问兽医` remains
+  valid. The slice keeps pet fever/allergy without an affect signal, pet
+  vomiting or minor accidents without worry, photo/video or sensor questions,
+  cute animal sharing, meta/quoted reply coaching, fiction/script/news/case
+  wording, recommendation or veterinary Q&A, professional/non-personal
+  contexts, severe pet emergencies, and human health overlaps outside this gate,
+  including `我家猫发烧了`, `我家猫过敏了`, `我家猫吐了`,
+  `我家猫摔了一跤`, `我家猫不舒服`,
+  `你能看我家猫这张照片是不是受伤了吗`,
+  `我发你一张猫吐了的照片，帮我看下是不是严重`,
+  `路边有只小猫好可爱`,
+  `“我家猫今天一直吐，我有点担心”这句话怎么回复更合适`,
+  `推荐适合新手养的猫品种`, `猫为什么会吐毛球`,
+  `我家猫一直吐还吐血，我好慌`, `狗狗尿不出来还站不稳`,
+  `猫误食百合怎么办`, `如果猫吐了怎么办`,
+  `救助站的猫呕吐率有点高`, `我抱着猫，我有点想吐`, and
+  `我抱着猫，我刚刚摔了一跤`. Candidate and false-positive scouts plus
+  bounded synthetic-only Sub2API review used only synthetic probes, abstract
+  rules, local behavior summaries, and file pointers; no private chat text,
+  profile exemplars, cleaned real samples, deploy, live, or production actions
+  were used. Verification: `py_compile` was clean, focused pet/neighbor profile
+  tests passed 12/12, focused pet/empty-output/contrast evaluation tests passed
+  5/5, `tests/test_style_profile.py tests/test_style_evaluation.py` passed
+  266/266, full `.venv` suite passed 349/349 with one upstream
+  Starlette/TestClient warning, local contrast probes passed 1224/1224 probes
+  and 3454/3454 total checks, including 3374/3374 reply checks and 80/80 gap
+  checks, eval generation reported `external_model_calls=0`, and mock
+  `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.

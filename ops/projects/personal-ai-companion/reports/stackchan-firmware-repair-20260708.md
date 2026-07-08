@@ -708,3 +708,70 @@ nvs = esp32.NVS("pac")
 nvs.erase_key("bridge_token")
 nvs.commit()
 ```
+
+## UIFlow2 App-List Entry
+
+Date/time:
+
+- `2026-07-08 20:13-20:18 CST`
+
+Device-side persistent changes:
+
+- Added app-list file:
+  `/flash/apps/pac_bridge_demo.py`
+- Did not modify:
+  - `/flash/boot.py`
+  - `/flash/main.py`
+- Did not install boot/run-always behavior.
+- The app file does not contain the bridge token.
+
+Install verification:
+
+- `/flash/apps` initially contained:
+  - `helloworld.py`
+- `/flash/apps/pac_bridge_demo.py` did not preexist.
+- written size: `1089` bytes
+- `/flash/apps` after install:
+  - `helloworld.py`
+  - `pac_bridge_demo.py`
+
+Manual app execution verification:
+
+- Executed from REPL:
+
+```python
+exec(open("/flash/apps/pac_bridge_demo.py").read())
+```
+
+- The app imported `/flash/pac_bridge_client.py`, read the NVS token, and
+  reached the formal bridge on `192.168.31.225:18769`.
+- queued: `request_id=req_5ef8d1acd4ef4b1a`
+- final reply: `DEVICE_CONNECTED`
+- Bridge log evidence:
+
+```text
+20:17:40 request_start client=192.168.31.215 path=/stackchan/chat_async
+20:17:43 upstream_done status=200 ok=True reply_chars=16
+```
+
+Current state:
+
+- Formal token bridge remains active on `192.168.31.225:18769`, PID `33490`.
+- Device serial port remained visible after reset:
+  - `/dev/cu.usbmodem101`
+  - `/dev/tty.usbmodem101`
+- The app-list file is present, but a physical screen check is still needed to
+  confirm how UIFlow2 refreshes or displays newly added app files.
+
+Device rollback:
+
+Run from StackChan REPL:
+
+```python
+import os, esp32
+os.remove("/flash/apps/pac_bridge_demo.py")
+os.remove("/flash/pac_bridge_client.py")
+nvs = esp32.NVS("pac")
+nvs.erase_key("bridge_token")
+nvs.commit()
+```

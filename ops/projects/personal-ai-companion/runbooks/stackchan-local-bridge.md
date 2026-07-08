@@ -94,6 +94,8 @@ rm -rf /Users/zhangjincheng/Documents/GitHub/codex-workspace/state/project-data/
 - Device token storage uses ESP32 NVS namespace `pac`, key `bridge_token`.
 - Manual client file:
   `/flash/pac_bridge_client.py`
+- UIFlow2 app-list entry:
+  `/flash/apps/pac_bridge_demo.py`
 
 Manual run from StackChan REPL:
 
@@ -102,10 +104,17 @@ import pac_bridge_client
 pac_bridge_client.demo()
 ```
 
+Manual run of the app-list entry from StackChan REPL:
+
+```python
+exec(open("/flash/apps/pac_bridge_demo.py").read())
+```
+
 Manual removal from StackChan REPL:
 
 ```python
 import os, esp32
+os.remove("/flash/apps/pac_bridge_demo.py")
 os.remove("/flash/pac_bridge_client.py")
 nvs = esp32.NVS("pac")
 nvs.erase_key("bridge_token")
