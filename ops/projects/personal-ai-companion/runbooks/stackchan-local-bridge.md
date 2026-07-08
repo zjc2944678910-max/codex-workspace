@@ -67,6 +67,59 @@ Use `/stackchan/chat_async` for device traffic:
 2. Read `request_id`.
 3. Poll `GET /stackchan/result/<request_id>` with the same token.
 
+## Formal Run Entry v1
+
+The current minimal formal entry is manual UIFlow2 App List launch.
+
+Use this entry when the goal is a repeatable, reversible StackChan bridge run
+without changing boot behavior:
+
+1. Confirm the local bridge is healthy:
+
+   ```bash
+   curl -sS http://192.168.31.225:18769/healthz
+   ```
+
+2. Confirm the local API is still loopback-only and listening on `8768`:
+
+   ```bash
+   lsof -nP -iTCP:8768 -sTCP:LISTEN
+   ```
+
+3. Confirm StackChan is reachable on the LAN:
+
+   ```bash
+   ping -c 1 192.168.31.215
+   arp -n 192.168.31.215
+   ```
+
+   Expected device MAC: `68:ee:8f:d7:44:94`.
+
+4. On the device, open UIFlow2 App List and launch
+   `/flash/apps/00_pac_bridge_demo.py`.
+
+5. Treat `DEVICE_CONNECTED` or a short successful text response as the minimal
+   end-to-end verification signal.
+
+This v1 entry intentionally does not modify `/flash/boot.py` or
+`/flash/main.py`. A formal entry is documented, repeatable, and reversible; it
+does not need to be automatic.
+
+## Auto-Start Gate
+
+Any move from manual App List launch to boot-time launch is L3 repair execution.
+
+Do not write `/flash/boot.py`, `/flash/main.py`, restart the bridge, or change
+service parameters until the user explicitly says `进入修复阶段`.
+
+Before an auto-start repair, record:
+
+- target file or service parameter;
+- reason for the change;
+- boot-loop, Wi-Fi, bridge, and serial-recovery risks;
+- rollback command or full-flash rollback path;
+- minimal verification plan.
+
 ## Stop
 
 ```bash
@@ -87,8 +140,8 @@ rm -rf /Users/zhangjincheng/Documents/GitHub/codex-workspace/state/project-data/
 
 ## Device Notes
 
-- Do not install a StackChan boot script until the manual bridge client path has
-  been verified.
+- Keep manual App List launch as the formal v1 entry unless an L3 auto-start
+  repair is explicitly opened.
 - For MicroPython, send JSON request bodies as UTF-8 bytes so `Content-Length`
   is byte-accurate for non-ASCII text.
 - Device token storage uses ESP32 NVS namespace `pac`, key `bridge_token`.

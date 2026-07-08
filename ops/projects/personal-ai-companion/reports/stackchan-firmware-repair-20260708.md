@@ -830,3 +830,79 @@ Run from StackChan REPL:
 import os
 os.remove("/flash/apps/00_pac_bridge_demo.py")
 ```
+
+## Read-Only Handoff And Formal Entry Decision
+
+Date/time:
+
+- `2026-07-08 21:03 CST`
+
+Scope:
+
+- Continued from the StackChan + `personal-ai-companion` integration handoff.
+- Kept this pass read-only for runtime and device state.
+- Did not read or export `.env`, `memory.db`, real chat logs, profile
+  exemplars, cleaning samples, API keys, or the bridge token.
+- Did not modify project code, `profile.py`, `evaluation.py`, tests, bridge
+  parameters, `127.0.0.1:8768`, `/flash/boot.py`, or `/flash/main.py`.
+- Did not deploy public infrastructure and did not touch NAS/OpenClaw/Cloudflare.
+
+Confirmed local state:
+
+- Bridge screen session:
+  `personal-ai-companion-stackchan-bridge`
+- Bridge listener:
+  `192.168.31.225:18769`
+- Bridge health check:
+  `{"ok":true,"service":"stackchan_bridge","auth_required":true,"allowed_client":true}`
+- `personal-ai-companion` API listener:
+  `127.0.0.1:8768`
+- API `/healthz` is not defined and returned `404`; this is not treated as an
+  API failure because `/v1/chat` is the defined chat route.
+- Direct `/v1/chat` was not called during this read-only pass because the route
+  records synthetic conversation/usage state.
+- Device serial port:
+  `/dev/cu.usbmodem101`
+- Device LAN reachability:
+  `192.168.31.215` responded to ping.
+- Device ARP identity:
+  `68:ee:8f:d7:44:94`
+- Bridge log tail showed earlier StackChan requests from `192.168.31.215`
+  completed with upstream HTTP `200` and `ok=True`.
+
+Device app-list status:
+
+- Prior install evidence confirms:
+  - `/flash/pac_bridge_client.py`
+  - `/flash/apps/pac_bridge_demo.py`
+  - `/flash/apps/00_pac_bridge_demo.py`
+- This pass did not reopen MicroPython REPL to re-enumerate `/flash/apps`,
+  because doing so could interrupt the current UIFlow2 foreground state.
+
+Decision:
+
+- The minimal reversible formal run entry is manual UIFlow2 App List launch of
+  `/flash/apps/00_pac_bridge_demo.py`.
+- This keeps the official UIFlow2 boot path intact and avoids boot-loop risk.
+- A formal entry means documented, repeatable, and reversible; it does not need
+  to be automatic.
+
+Rejected for this phase:
+
+- Writing `/flash/boot.py`.
+- Writing `/flash/main.py`.
+- Restarting or changing the bridge.
+- Changing `personal-ai-companion` service parameters.
+- Building the full voice chain.
+
+L3 gate:
+
+- Any move to boot-time auto-start, bridge restart, service parameter change, or
+  firmware boot file write must be handled as L3 repair execution.
+- Do not execute those actions until the user explicitly says
+  `进入修复阶段`.
+
+Current recommended next step:
+
+- Use the runbook's `Formal Run Entry v1` procedure for normal manual launches.
+- If auto-start becomes necessary, create a separate L3 repair checklist first.
