@@ -111,3 +111,69 @@ Official M5Stack-authored StackChan firmware entries from the public M5Burner li
 ## Current Stop Condition
 
 Do not flash until the human confirms the unbinding state and chooses the official target firmware: `StackChan-UserDemo V1.4.3` or `UIFlow2.0 StackChan v2.4.8`.
+
+## Flash Execution - UIFlow2.0 StackChan v2.4.8
+
+User confirmed:
+
+- StackChan World / xiaozhi.me unbinding was completed manually.
+- Target firmware: `UIFlow2.0` category `stackchan`, version `v2.4.8`.
+
+M5Burner GUI status:
+
+- Official M5Burner app launched from `/Volumes/m5burner/M5Burner.app`.
+- macOS reported the DMG app as unsigned (`spctl`: `no usable signature`), and the app process had no stable visible window for automation.
+- M5Burner app resource inspection confirmed:
+  - firmware download base: `https://m5burner-cdn.m5stack.com/firmware`
+  - burn command shape: `write_flash -z --flash_mode dio --flash_freq 80m --flash_size detect 0x000 <bin>`
+  - UIFlow2 config path overlays NVS at `0x9000` when explicitly configured.
+
+Official firmware downloaded:
+
+- url: `https://m5burner-cdn.m5stack.com/firmware/69c2504cc6c09df9b4bb8fc4daba138f.bin`
+- local_file: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/scratch/projects/personal-ai-companion/stackchan-firmware-20260708-160849/firmware/69c2504cc6c09df9b4bb8fc4daba138f.bin`
+- size: `16,121,856` bytes
+- sha256: `c8d7898b4d5530ae3876b7791c4247b13cf4463e48d6411092024e1f7589fc5a`
+
+Downloaded image evidence:
+
+- image type: `ESP32-S3`
+- bootloader compile time: `Jun 26 2026 09:16:26`
+- factory app project: `micropython`
+- factory app version: `V2.4.8`
+- factory app compile time: `Jun 26 2026 09:16:15`
+- factory app ESP-IDF: `v5.5.1-dirty`
+- partition table:
+
+| Label | Type | Subtype | Offset | Size |
+| --- | --- | --- | --- | --- |
+| nvs | data | nvs | `0x9000` | `24K` |
+| phy_init | data | phy | `0xf000` | `4K` |
+| factory | app | factory | `0x10000` | `9792K` |
+| sys | data | fat | `0x9a0000` | `1M` |
+| vfs | data | fat | `0xaa0000` | `4864K` |
+| storage | data | spiffs | `0xf60000` | `640K` |
+
+Flash command executed:
+
+```bash
+uvx --from 'esptool==4.8.1' esptool.py --chip auto --port /dev/cu.usbmodem101 --baud 460800 --before default_reset write_flash -z --flash_mode dio --flash_freq 80m --flash_size detect 0x000 /Users/zhangjincheng/Documents/GitHub/codex-workspace/scratch/projects/personal-ai-companion/stackchan-firmware-20260708-160849/firmware/69c2504cc6c09df9b4bb8fc4daba138f.bin
+```
+
+Flash result:
+
+- detected chip: `ESP32-S3 (QFN56) revision v0.2`
+- detected MAC: `68:ee:8f:d7:44:94`
+- detected flash size: `16MB`
+- erased range: `0x00000000` to `0x00f5ffff`
+- wrote: `16,121,856` bytes
+- write duration: `69.2` seconds
+- verification: `Hash of data verified.`
+- log: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/scratch/projects/personal-ai-companion/stackchan-firmware-20260708-160849/logs/esptool-write-uiflow2-v2.4.8.log`
+
+Post-flash verification status:
+
+- USB serial port briefly returned after reset, then disappeared during subsequent `read_mac` attempt.
+- After waiting, no `/dev/cu.usbmodem*` or Espressif USB device was visible from macOS.
+- Treat firmware write as successful because esptool completed data verification before reset.
+- Device boot/config status still requires physical screen confirmation.
