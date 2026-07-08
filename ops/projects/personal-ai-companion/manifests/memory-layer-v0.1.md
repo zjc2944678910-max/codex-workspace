@@ -623,14 +623,26 @@ Future implementation acceptance:
 - Consent state hydrates from stored records on startup.
 - L1 retention cleanup deletes context without deleting promoted atoms.
 - Migration dry-run reports counts only and can run without content export.
+- StackChan speaker recall and spoken-output decisions are audit-logged without
+  storing sensitive payloads.
+- Recall APIs have rate limits or abuse guards so an allowed client cannot
+  enumerate memory through repeated queries.
 
 ## Open Decisions
 
 - Whether to keep candidate atoms in `memory_atoms.status=candidate` or split a
   separate `candidate_atoms` table.
 - Exact encryption and key-storage mechanism for L3.
+- Exact consent-record schema, revocation behavior, and cascade rules for atoms
+  and vault handles tied to revoked consent.
+- Exact normalization gate behavior: quote limits, entity extraction, fact
+  decomposition, rejection, retry, and review escalation.
 - Whether ordinary L1 default remains 24h or expands to 72h after more use.
 - Whether NAS search uses SQLite FTS, vector search, or both.
 - Whether owner export ever supports raw L2 export, or only summaries.
 - How StackChan presence detection should prove that owner-private speech is
   safe in a room.
+- How owner-initiated reclassification works when a memory is too strict, too
+  broad, or mapped to the wrong class.
+- The migration dry-run runbook and rollback verification test to require
+  before any future schema/data migration.
