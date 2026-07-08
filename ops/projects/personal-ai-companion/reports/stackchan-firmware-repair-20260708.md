@@ -469,3 +469,94 @@ rm -rf /Users/zhangjincheng/Documents/GitHub/codex-workspace/scratch/projects/pe
 ```
 
 - If the device is left in REPL, press physical `RST` to return to UIFlow2.
+
+## Authenticated Local Bridge Staging
+
+Date/time:
+
+- `2026-07-08 19:23-19:31 CST`
+
+Purpose:
+
+- Stage a formal local StackChan bridge with both LAN allowlist and token auth.
+- Keep the previous scratch bridge on `18769` running until the device token
+  write/switch step is explicitly performed.
+
+Added durable artifacts:
+
+- Product script:
+  `/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/personal-ai-companion/scripts/stackchan_bridge.py`
+- Ops runbook:
+  `/Users/zhangjincheng/Documents/GitHub/codex-workspace/ops/projects/personal-ai-companion/runbooks/stackchan-local-bridge.md`
+
+Local-only state:
+
+- Token file:
+  `/Users/zhangjincheng/Documents/GitHub/codex-workspace/state/project-data/personal-ai-companion/stackchan-bridge/token`
+- Token file permissions: `0600`
+- Token value was not printed or copied into this report.
+
+Formal bridge staging instance:
+
+- Listener: `192.168.31.225:18770`
+- PID: `91919`
+- Allowed clients:
+  - `192.168.31.225`
+  - `192.168.31.215`
+- Upstream: `http://127.0.0.1:8768/v1/chat`
+- Fixed upstream envelope:
+  - `channel=stackchan`
+  - `device_id=stackchan-01`
+  - `actor_entity_id=entity:user:self`
+  - `delivery_mode=speaker`
+  - `scope=owner_private`
+  - `model_hint=claude`
+  - `memory_limit=0`
+  - `recent_context_limit=0`
+  - `conversation_context_retention_hours=0`
+  - `style_rewrite=false`
+
+Verification:
+
+- Health check returned:
+
+```json
+{"ok":true,"service":"stackchan_bridge","auth_required":true,"allowed_client":true}
+```
+
+- Unauthenticated `POST /stackchan/chat_async` returned:
+
+```json
+{"ok":false,"status":"error","error":"unauthorized"}
+```
+
+- Authenticated async self-test returned:
+  - queued: `request_id=req_d340792b9dfa4a08`
+  - final reply: `FORMAL_BRIDGE_OK`
+  - total time: about `6.7s`
+
+Current split state:
+
+- Old scratch bridge remains on `192.168.31.225:18769`, PID `42186`.
+- Formal token bridge is staged on `192.168.31.225:18770`, PID `91919`.
+- No StackChan boot script or token file was written to the device in this step.
+
+Rollback:
+
+- Stop staged formal bridge:
+
+```bash
+kill 91919
+```
+
+- Remove staged local token/PID state only if intentionally decommissioning:
+
+```bash
+rm -rf /Users/zhangjincheng/Documents/GitHub/codex-workspace/state/project-data/personal-ai-companion/stackchan-bridge
+```
+
+Next switch step:
+
+- Stop old scratch bridge on `18769`.
+- Restart `scripts/stackchan_bridge.py` on `18769` with the token file.
+- Update/paste a StackChan device client that sends `Authorization: Bearer <token>`.
