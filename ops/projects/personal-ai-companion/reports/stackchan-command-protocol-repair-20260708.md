@@ -49,8 +49,18 @@ Backups:
   `backups/stackchan_bridge.log.before-command-protocol-v0.1`
 - bridge log before adding generic event endpoint:
   `backups/stackchan_bridge.log.before-events-endpoint`
+- bridge script before speak audio:
+  `backups/stackchan_bridge.before-speak-audio-v0.1.py`
+- bridge log before enabling speak audio:
+  `backups/stackchan_bridge.log.before-speak-audio-v0.1`
+- bridge log before one-shot audio cleanup:
+  `backups/stackchan_bridge.log.before-audio-cleanup-v0.1`
 - prior device bridge client:
   `backups/pac_bridge_client.before-command-protocol-v0.1.py`
+- device command client before physical action feedback:
+  `backups/pac_command_client.before-physical-action-v0.1.py`
+- device command client before speak audio:
+  `backups/pac_command_client.before-speak-audio-v0.1.py`
 
 ## Bridge Changes
 
@@ -81,6 +91,7 @@ Current bridge after repair:
 - pid file:
   `/Users/zhangjincheng/Documents/GitHub/codex-workspace/state/project-data/personal-ai-companion/stackchan-bridge/stackchan_bridge.pid`
 - observed PID after final restart: `78272`
+- observed PID after enabling speak audio cleanup: `28981`
 
 ## Device Changes
 
@@ -108,11 +119,12 @@ Device client behavior:
 - Acks command results through `POST /stackchan/commands/ack`.
 - Implements `status` as a real network/status snapshot.
 - Implements `expression` as screen state.
-- Implements `motion`/`action` as safe display-mode placeholders with ack
-  `partial`.
-- Implements `speak` as screen text plus short speaker tone with ack
-  `partial`, because the current UIFlow2 `M5.Speaker` API exposes tone/WAV
-  playback but not text-to-speech.
+- Implements `motion`/`action` as safe physical feedback through LED, short
+  vibration, and tone, with ack `ok` when the physical feedback call succeeds.
+- Implements `speak` as authenticated bridge-generated WAV playback. The bridge
+  uses macOS `say` plus `afconvert`, serves the WAV through
+  `/stackchan/audio/<id>.wav`, deletes it after serving, and the device plays it
+  with `M5.Speaker.playWavFile`.
 
 ## Verification
 
@@ -149,7 +161,14 @@ Device verification:
 - Device executed `status` command and acked `ok`.
 - Device executed `expression` command and acked `ok`.
 - Device executed `motion` command and acked `partial`.
-- Device executed public-safe `speak` command and acked `partial`.
+- After reloading the updated device client, device executed `action` and
+  `motion` commands and acked `ok`.
+- Device executed public-safe `speak` command with WAV playback and acked `ok`.
+- After the final `speak` verification, the bridge audio directory was empty,
+  confirming one-shot audio cleanup.
+- Fresh `status` verification after the final restart produced
+  `device_event type=status device_id=stackchan-01`, then command ack `ok`.
+- Final health check returned `command_queue_depth=0`.
 
 ## Rollback
 
@@ -180,8 +199,9 @@ for path in ("/flash/pac_command_client.py", "/flash/apps/02_pac_command_poll_te
 - The command queue is in-memory. Commands are lost if the bridge restarts.
 - v0.1 does not redeliver commands after `poll`; delivered commands wait for
   ack or TTL.
-- Device-side `speak` is display-plus-tone only, not true TTS.
-- Device-side `motion`/`action` is a safe display-mode placeholder, not physical
-  servo control.
+- Device-side `motion`/`action` is safe LED/vibration/tone feedback, not
+  physical servo control.
+- `speak` depends on macOS `say` and `afconvert` being available on the bridge
+  host.
 - The polling client is installed but not wired into boot auto-start. That is
   intentional; changing boot behavior remains a separate L3 step.

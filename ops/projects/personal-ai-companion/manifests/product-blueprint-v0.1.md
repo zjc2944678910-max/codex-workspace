@@ -56,8 +56,9 @@ signals, devices, and boundaries.
 - StackChan command protocol v0.1 now runs on the local authenticated bridge and
   has removable device files for manual polling. It covers `boot` events,
   `status`, `expression`, safe placeholder `motion/action`, public-safe
-  `speak`, `ack`, and `error` envelopes. It is not yet wired into boot
-  auto-start, true TTS, physical servo control, durable queues, or redelivery.
+  `speak` through bridge-generated local WAV playback, `ack`, and `error`
+  envelopes. It is not yet wired into boot auto-start, physical servo control,
+  durable queues, or redelivery.
 - Full voice, camera, continuous command polling, iOS app, HealthKit, NAS, and
   VPS production integration remain future phases.
 
@@ -161,8 +162,8 @@ Acceptance anchors:
 - Decide when the style-category thread has enough coverage to freeze a v1
   response-shape baseline.
 - Decide whether the next StackChan repair should prioritize continuous polling
-  auto-start, true local/remote TTS playback, physical servo action mapping, or
-  durable command queue/redelivery.
+  auto-start, physical servo action mapping, richer voice selection, or durable
+  command queue/redelivery.
 - Decide the iOS MVP surface: text chat first, device control first, or health
   permission flow first.
 - Decide memory storage hardening before widening always-on use: schema

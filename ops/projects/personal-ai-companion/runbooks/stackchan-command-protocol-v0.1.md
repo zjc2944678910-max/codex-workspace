@@ -174,6 +174,23 @@ evicting older commands or silently dropping work.
 - The bridge validates and logs event id/type/device only. It does not log event
   body text or private details.
 
+### Speak Audio
+
+When the bridge starts with `--speak-audio`, public-safe `speak` commands are
+converted to local WAV audio on the Mac:
+
+1. bridge validates the command and speaker privacy gates;
+2. bridge runs macOS `say` to synthesize an AIFF file;
+3. bridge runs `afconvert` to produce 16 kHz mono PCM WAV;
+4. command body receives `audio_url`, `audio_format=wav`, and
+   `audio_generated_by=macos_say`;
+5. device downloads the WAV through authenticated `GET /stackchan/audio/<id>`;
+6. bridge deletes the WAV after serving it;
+7. device plays the file with `M5.Speaker.playWavFile` and acks `ok`.
+
+If audio generation or playback fails, the device keeps the text on screen and
+acks `partial`.
+
 ## Speaker Delivery Privacy Rules
 
 StackChan speaker output is treated as more public than private iOS/screen
@@ -228,7 +245,7 @@ Completed on 2026-07-08 after the user explicitly said `进入修复阶段`:
    with the existing token file and allowlist.
 3. Added a removable MicroPython device client and one-shot app.
 4. Verified `boot` event, `status`, `expression`, `motion`, public-safe
-   `speak`, `ack`, and sensitive speaker rejection.
+   `speak` with WAV playback, `ack`, and sensitive speaker rejection.
 
-Future physical servo control, true text-to-speech, continuous polling
-auto-start, durable command queues, or redelivery are separate L3 repairs.
+Future physical servo control, continuous polling auto-start, durable command
+queues, or redelivery are separate L3 repairs.

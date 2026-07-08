@@ -70,6 +70,7 @@ exec python3 -u scripts/stackchan_bridge.py \
   --recent-context-limit 0 \
   --retention-hours 0 \
   --reply-chars 180 \
+  --speak-audio \
   > '$STATE_DIR/stackchan_bridge.log' 2>&1"
 ```
 
@@ -236,6 +237,9 @@ rm -rf /Users/zhangjincheng/Documents/GitHub/codex-workspace/state/project-data/
   `/flash/pac_command_client.py`
 - Command protocol one-shot test app:
   `/flash/apps/02_pac_command_poll_test.py`
+- Command protocol `speak` uses bridge-generated local WAV audio from macOS
+  `say`/`afconvert`, downloaded over the authenticated bridge and played with
+  `M5.Speaker.playWavFile`.
 
 Manual run from StackChan REPL:
 
