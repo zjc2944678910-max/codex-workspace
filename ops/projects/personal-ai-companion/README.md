@@ -42,6 +42,7 @@ node docs/workspace/codex-register-project.mjs --regen
 ## Stable Docs
 
 - `README.md`
+- `manifests/product-blueprint-v0.1.md`
 - `manifests/architecture-decisions-2026-07-04.md`
 - `runbooks/mvp-build-order.md`
 - `runbooks/stackchan-local-bridge.md`
