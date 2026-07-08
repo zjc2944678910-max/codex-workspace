@@ -2,6 +2,13 @@
 
 ## Near Term
 
+- Completed 2026-07-08: documented memory-layer v0.1 under
+  `manifests/memory-layer-v0.1.md`, splitting short-term context, long-term
+  memory atoms, and a future sensitive data vault into explicit data models,
+  API drafts, privacy rules, retention policies, and a plan-only migration route
+  from the current local `memory.db`. No database contents, real chat records,
+  profile exemplars, health data, API keys, bridge logs, or bridge tokens were
+  read.
 - Completed 2026-07-04: initial FastAPI/Python + SQLite local skeleton under
   `projects/products/personal-ai-companion`.
 - Completed 2026-07-04: first `InteractionEnvelope`, `IdentityKernel`,

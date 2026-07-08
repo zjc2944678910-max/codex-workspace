@@ -135,6 +135,10 @@ a design target until a later local bridge restart is explicitly approved.
 - Response: `200` with `commands`, `remaining`, and `poll_interval_ms`.
 - The bridge discards expired commands before returning work.
 - Returned commands are marked delivered and remain in memory until ack or TTL.
+- v0.1 does not redeliver a command after it has been returned by `poll`.
+  If the device fails before posting ack, the command remains delivered until
+  its TTL expires and is then discarded. Redelivery, dead-letter inspection, and
+  durable queue persistence are deferred to v0.2 or the L3 repair plan.
 
 ### Ack Result
 
@@ -147,6 +151,12 @@ a design target until a later local bridge restart is explicitly approved.
   `next_poll_interval_ms`.
 - The bridge removes acked commands from the in-memory queue.
 - Bridge logs should record ids and result only, not spoken text.
+
+### Queue Limits
+
+The v0.1 local queue is intentionally in-memory and bounded. The local helper
+defaults to `max_depth=20`. A full queue rejects new commands instead of
+evicting older commands or silently dropping work.
 
 ## Speaker Delivery Privacy Rules
 
