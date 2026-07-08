@@ -4322,6 +4322,41 @@
   3007/3007 reply checks and 73/73 gap checks, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-08: tightened `public_embarrassment_support` for implicit
+  public exposure without requiring the user to literally say `尴尬`, `社死`, or
+  `丢人`. Synthetic asks such as `我刚才上课回答错了全班都看我`,
+  `我上课演示时回答错了全班都看我`, and `我把消息发错群了` now enter
+  `implicit_public_exposure`. Replies such as `这也太丢人了`, `丢不丢人`,
+  `你怎么这么蠢`, `谁让你不认真听`, `早就跟你说了`, and
+  `赶紧撤回呀你也太马虎了` receive the existing
+  `public_embarrassment_shame_amplification`, `public_embarrassment_insult_reply`,
+  or `public_embarrassment_blame_reply` penalties and are sent to rewrite, while
+  compact replies such as `没事啦`, `大家不会记得的`, and `撤回了吗` remain clean.
+  Review caught an over-broad first draft where `发错群/发错消息` stole practical
+  wrong-message asks from their owner and where bare third-person class examples
+  could trigger the implicit gate. The final boundary now keeps third-person,
+  witness/gossip, fiction, positive, neutral review, hypothetical/dream,
+  prevention/how-to, intentional, and group-request controls outside the gate,
+  including `我看到同学答错了全班都看她`, `同学答错了全班都笑`,
+  `他发错群了`, `朋友发错群了怎么办`, `提醒我别发错群`,
+  `怎么避免发错群`, `发错群怎么撤回`, `如果答错了全班都看我怎么办`,
+  `昨天梦到全班都看我答错了`, `全班都看我拿奖了好开心`, and
+  `帮我把文件发到群里`. Practical first-person asks such as
+  `我刚发错消息了怎么办` and `我发错群了怎么办` remain owned by
+  `wrong_message_or_social_mistake_support`. The slice updated `profile.py`,
+  `evaluation.py`, profile/evaluation tests, README notes, and this ops entry.
+  Bounded synthetic-only Sub2API review and GPT-5.5 xhigh read-only scouts used
+  only synthetic probes, abstract rules, local behavior summaries, and file
+  pointers; no private chat text, profile exemplars, cleaned real samples,
+  deploy, live, or production actions were used. Verification: `py_compile` was
+  clean, focused public-embarrassment/wrong-message profile tests passed 4/4,
+  focused contrast/bundle tests passed 14/14, `tests/test_style_profile.py`
+  passed 215/215, `tests/test_style_evaluation.py` passed 28/28, full suite
+  passed 326/326 with one upstream Starlette/TestClient warning, local contrast
+  probes passed 1068/1068 probes and 3112/3112 total checks, including
+  3039/3039 reply checks and 73/73 gap checks, eval generation reported
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908` and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
