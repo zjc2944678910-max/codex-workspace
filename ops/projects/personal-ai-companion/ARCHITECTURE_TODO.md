@@ -9,6 +9,12 @@
 - Completed 2026-07-04: local endpoints for `/v1/chat`, `/v1/admin/usage`,
   `/v1/memory/ingest`, `/v1/memory/recall`, `/v1/memory/search`,
   `/v1/memory/{id}/explain`, promote, reject, and delete.
+- Completed 2026-07-08: designed and locally validated StackChan command
+  protocol v0.1. Added side-effect-free command/event envelope validation,
+  speaker-delivery privacy gates, bounded in-memory queue semantics for
+  enqueue/poll/ack, focused tests, and the
+  `runbooks/stackchan-command-protocol-v0.1.md` bridge API design. This did not
+  write device files, restart the bridge, change tokens, or contact the device.
 - Completed 2026-07-04: unit tests for identity binding, privacy scopes,
   StackChan speaker delivery, owner-confirmed memory promotion/deletion, and
   mock model routing.
