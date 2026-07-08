@@ -1092,3 +1092,33 @@ Conclusion:
   requests.
 - The accepted launch path remains manual; auto-start remains out of scope until
   a separate L3 repair gate is authorized.
+
+## UIFlow2 Short Text Screen Launch Acceptance
+
+Date/time:
+
+- `2026-07-08 21:39 CST`
+
+Scope:
+
+- Verified the physical UIFlow2 app-list/manual launch path for
+  `/flash/apps/01_pac_chat_test.py`.
+- User launched the installed short text app from the device screen.
+- Did not write device flash during this acceptance check.
+- Did not modify `/flash/boot.py`, `/flash/main.py`, bridge parameters,
+  `profile.py`, `evaluation.py`, or tests.
+
+Bridge log evidence:
+
+```text
+21:39:11 request_start client=192.168.31.215 path=/stackchan/chat_async
+21:39:15 upstream_done status=200 ok=True reply_chars=25
+```
+
+Conclusion:
+
+- The UIFlow2 manual screen path can trigger the v1.1 short text app
+  successfully.
+- StackChan now has two verified manual entries:
+  - `/flash/apps/00_pac_bridge_demo.py` for `DEVICE_CONNECTED`.
+  - `/flash/apps/01_pac_chat_test.py` for one-shot short text chat.
