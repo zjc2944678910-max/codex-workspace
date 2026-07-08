@@ -4357,6 +4357,51 @@
   3039/3039 reply checks and 73/73 gap checks, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-08: added a bounded `treat_craving_support` style scorer
+  slice for ordinary first-person casual treat cravings before the user has
+  framed them as diet failure, guilt, or medical concern. Synthetic asks such as
+  `我突然好想喝奶茶`, `我好想吃蛋糕`, `下班路上好想吃小蛋糕`,
+  `今天好想吃甜品`, `我想吃夜宵`, `你看我突然好想喝奶茶`,
+  `我跟你说我突然好想喝奶茶`, and `我好想喝奶茶你陪我去买嘛` now receive
+  runtime guidance and rewrite diagnostics that prefer compact permissive or
+  playful replies such as
+  `想喝就喝`, `买小杯嘛`, `买小杯少冰的嘛`, `要不要我陪你去买`,
+  `吃一点嘛`, and `吃点热的`. Replies such as `别喝会胖`, `胖死你`,
+  `管住嘴`, `喝什么喝`, `嘴馋`, `自己买`, `你不是在减肥吗`, and
+  `关我什么事` receive `treat_craving_restrictive_scolding`,
+  `treat_craving_body_shaming`, `treat_craving_blame_or_shame`,
+  `treat_craving_unsolicited_diet_reminder`, or
+  `treat_craving_cold_dismissal` penalties and are sent to rewrite. The slice
+  keeps diet planning and active diet advice, food guilt/remorse, meal
+  disappointment, hunger/basic care, third-person advice, translation/meta,
+  ordinary food choice, gifts, ordering/delegation, and medical/eating-disorder
+  controls outside the gate, including `我想减肥但是好想吃蛋糕怎么办`,
+  `我在减肥，帮我想想怎么不那么想吃甜的`,
+  `我忍不住吃了蛋糕感觉自己好胖`, `想喝奶茶但是店关门了有点失落`,
+  `我还没吃饭有点饿`, `她说她好想喝奶茶`, `翻译：我突然好想喝奶茶`,
+  `我对象好想喝奶茶`, `我妈想吃蛋糕`, `妈妈突然好想喝奶茶`,
+  `我妹妹好想吃蛋糕`, `我家小孩想吃夜宵`, `我想吃火锅哪家好吃`,
+  `我给你买了奶茶`, `帮我点一杯奶茶`, and
+  `我总是想吃甜的是不是血糖有问题`. A read-only post-implementation review
+  initially rejected the slice because `你` in the third-person guard excluded
+  first-person wrappers such as `你看我...`, while family/partner terms were
+  missing from third-person controls; the final patch removed that over-broad
+  `你` actor and added those controls before acceptance. The slice updated
+  `profile.py`,
+  `evaluation.py`, profile/evaluation tests, README notes, and this ops entry.
+  Bounded synthetic-only Sub2API review and GPT-5.5 xhigh read-only scout work
+  used only synthetic probes, abstract rules, local behavior summaries, and file
+  pointers; no private chat text, profile exemplars, cleaned real samples,
+  deploy, live, or production actions were used. Verification: `py_compile` was
+  clean, focused treat-craving/food-guilt/meal-disappointment profile tests
+  passed 6/6, focused contrast/bundle tests passed 14/14,
+  `tests/test_style_profile.py` passed 217/217,
+  `tests/test_style_evaluation.py` passed 28/28, full suite passed 328/328 with
+  one upstream Starlette/TestClient warning, local contrast probes passed
+  1084/1084 probes and 3149/3149 total checks, including 3075/3075 reply checks
+  and 74/74 gap checks, eval generation reported `external_model_calls=0`, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
