@@ -4526,6 +4526,42 @@
   3201/3201 reply checks and 77/77 gap checks, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-08: added a bounded
+  `shared_media_game_reaction_support` style scorer slice for first-person,
+  low-stakes current media/game reaction shares. Synthetic turns such as
+  `这首歌好好听`, `这段剧情好绝`, `这个综艺好搞笑`,
+  `这个游戏好好玩`, `我刚开始觉得这个游戏好好玩`,
+  `刚赢了一局好开心`, and `刚输了好气` now receive runtime guidance,
+  rewrite diagnostics, contrast probes, and score penalties that reject cold
+  dismissal (`所以呢`, `关我什么事`, `别吵`), flat minimization (`一般吧`,
+  `有啥绝的`, `赢一局而已`, `输一局而已`), shaming or hostility
+  (`菜就多练`, `输不起`, `活该`, `菜鸡`), and fake co-experience such as
+  `我也听到了很好听`, `我也看到了`, `我也看过很好笑`, or
+  `我已经进房间了`. Compact reception such as `真的呀，哪首歌`,
+  `好绝呀，讲讲`, `好玩就多玩会儿`, `好厉害呀`, and
+  `差一点真的会气，再来一局` remains valid. The slice keeps
+  recommendation/meta/translation/writing/technical turns, rating questions,
+  third-person and postposed attribution, sensor/delegated tasks, existing
+  activity callbacks, game-advice requests, generic non-game anger, and explicit
+  non-game outcomes outside this gate, including `这个游戏好玩吗`,
+  `这首歌好不好听`, `这首歌好好听是她说的`, `帮我投屏这个电影`,
+  `我把歌放好了`, `刚输了，帮我复盘一下`, `我好气`,
+  `刚赢了比赛好开心`, and `刚输了股票好气`. The slice updated
+  `profile.py`, `evaluation.py`, profile/evaluation tests, README notes, and
+  this ops entry. Candidate, false-positive, and review scouts plus
+  synthetic-only Sub2API review used only synthetic probes, abstract rules,
+  local behavior summaries, and file pointers; no private chat text, profile
+  exemplars, cleaned real samples, deploy, live, or production actions were
+  used. Verification: `py_compile` was clean, focused shared-media profile tests
+  passed 2/2, focused shared-media/empty-output evaluation tests passed 2/2,
+  neighboring shared-leisure/positive-event regression tests passed 15/15,
+  `tests/test_style_profile.py` passed 225/225,
+  `tests/test_style_evaluation.py` passed 33/33, full `.venv` suite passed
+  341/341 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1165/1165 probes and 3325/3325 total checks, including 3247/3247 reply
+  checks and 78/78 gap checks, eval generation reported
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908` and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
