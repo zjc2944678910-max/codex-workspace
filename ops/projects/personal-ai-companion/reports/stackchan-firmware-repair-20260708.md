@@ -906,3 +906,44 @@ Current recommended next step:
 
 - Use the runbook's `Formal Run Entry v1` procedure for normal manual launches.
 - If auto-start becomes necessary, create a separate L3 repair checklist first.
+
+## Formal Run Entry v1 Acceptance
+
+Date/time:
+
+- `2026-07-08 21:22-21:26 CST`
+
+Network recovery:
+
+- Mac Wi-Fi returned to:
+  `192.168.31.225`
+- StackChan remained reachable at:
+  `192.168.31.215`
+- Device ARP identity:
+  `68:ee:8f:d7:44:94`
+- Bridge health check returned:
+  `{"ok":true,"service":"stackchan_bridge","auth_required":true,"allowed_client":true}`
+
+Acceptance execution:
+
+- Executed the same formal entry file:
+  `/flash/apps/00_pac_bridge_demo.py`
+- The execution did not write device flash and did not modify
+  `/flash/boot.py` or `/flash/main.py`.
+- queued:
+  `request_id=req_5c2d883ad8c84f32`
+- final reply:
+  `DEVICE_CONNECTED`
+- Bridge log evidence:
+
+```text
+21:26:31 request_start client=192.168.31.215 path=/stackchan/chat_async
+21:26:36 upstream_done status=200 ok=True reply_chars=16
+```
+
+Conclusion:
+
+- Formal Run Entry v1 is accepted for the current phase.
+- The accepted behavior is manual launch through the UIFlow2 app-list entry or
+  equivalent one-shot execution of `/flash/apps/00_pac_bridge_demo.py`.
+- Auto-start remains out of scope until a separate L3 repair gate is authorized.
