@@ -4717,7 +4717,17 @@
   `我眼睛不酸了`, and `我写作业写得好累`. Candidate and false-positive
   scouts used only synthetic probes, abstract rules, local behavior summaries,
   and file pointers; no private chat text, profile exemplars, cleaned real
-  samples, deploy, live, or production actions were used. Verification pending.
+  samples, deploy, live, or production actions were used. Bounded Sub2API
+  review used only synthetic slice summaries and led to narrowing the eye-drop
+  penalty to certainty/`就好了` wording plus adding soft-suggestion,
+  task-aware, empathy-only, and blunt-stop tests. Verification: `py_compile`
+  was clean, focused screen/neighbor profile tests passed 10/10, focused
+  screen/empty-output/contrast evaluation tests passed 5/5, full `.venv` suite
+  passed 352/352 with one upstream Starlette/TestClient warning, local contrast
+  probes passed 1238/1238 probes and 3486/3486 total checks, including
+  3406/3406 reply checks and 80/80 gap checks, eval generation reported
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908` and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
