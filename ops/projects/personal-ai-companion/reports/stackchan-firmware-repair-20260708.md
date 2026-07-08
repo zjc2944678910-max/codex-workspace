@@ -277,3 +277,100 @@ NVS write result:
 - verification: `Hash of data verified.`
 - post-reset port: `/dev/cu.usbmodem101` and `/dev/tty.usbmodem101` remained visible for at least 12 seconds.
 - log: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/scratch/projects/personal-ai-companion/stackchan-firmware-20260708-160849/logs/esptool-write-uiflow2-wifi-nvs.log`
+
+## Minimal LAN Integration Validation
+
+Date/time:
+
+- `2026-07-08 18:25-18:34 CST`
+
+Scope:
+
+- Validated only the minimal StackChan-to-local-API path.
+- No project code was changed.
+- No `.env`, `memory.db`, real chats, profile exemplars, cleaning samples, or API keys were read or exported.
+- No persistent StackChan `main.py` or RUN ALWAYS script was written.
+
+Local API state:
+
+- `personal-ai-companion` newer service was listening only on loopback:
+  - process: `python -m uvicorn personal_ai_companion.api.app:create_app --factory --host 127.0.0.1 --port 8768`
+  - listener: `127.0.0.1:8768`
+- Mac Wi-Fi address used for device access: `192.168.31.225`
+
+Temporary LAN proxy:
+
+- Started a temporary Python reverse proxy bound to `192.168.31.225:18768`.
+- Upstream target: `127.0.0.1:8768`.
+- Allowed path: `POST /v1/chat` only.
+- Other paths/methods returned `403`.
+- The proxy was stopped after validation; `lsof -nP -iTCP:18768 -sTCP:LISTEN` returned no listener.
+
+Local API payload shape used for validation:
+
+```json
+{
+  "channel": "stackchan",
+  "device_id": "stackchan-01",
+  "actor_entity_id": "entity:user:self",
+  "delivery_mode": "speaker",
+  "scope": "owner_private",
+  "text": "StackChan device LAN integration ping",
+  "model_hint": "mock",
+  "memory_limit": 0,
+  "recent_context_limit": 0,
+  "conversation_context_retention_hours": 0,
+  "style_rewrite": false,
+  "metadata": {
+    "integration_test": "stackchan_device_lan_ping"
+  }
+}
+```
+
+Observed local API response:
+
+- HTTP status: `200`
+- route: `provider=relay`, `model=mock`, `reason=explicit_model_hint`
+- model status: `ok=false`, `error=http_503`
+- reply body was the controlled relay-unavailable fallback.
+- `memory_ids` was empty.
+- `recent_context_count` was `0`.
+
+Device-side validation:
+
+- Device serial port before and after test: `/dev/cu.usbmodem101`
+- StackChan Wi-Fi state from MicroPython REPL:
+  - active: `True`
+  - connected: `True`
+  - IP: `192.168.31.215`
+  - netmask: `255.255.255.0`
+  - gateway: `192.168.31.1`
+  - DNS: `192.168.31.1`
+- Device began POST to `http://192.168.31.225:18768/v1/chat`.
+- Proxy log confirmed the request arrived from the StackChan IP and upstream returned `200`:
+
+```text
+18:31:39 request_start path=/v1/chat client=192.168.31.215
+18:31:41 upstream_done status=200 bytes=553
+18:31:41 access client=192.168.31.215 "POST /v1/chat HTTP/1.0" 200 -
+```
+
+Notes:
+
+- The host serial reader lost the USB serial connection during/after the device POST with `Device not configured`.
+- The USB serial device reappeared immediately afterward at `/dev/cu.usbmodem101` and `/dev/tty.usbmodem101`.
+- Because the proxy logged the StackChan source IP and upstream HTTP `200`, the LAN/API integration path was confirmed even though the serial reader did not capture the device-side response print.
+
+Rollback/current state:
+
+- Temporary LAN proxy has been stopped.
+- No device-side persistent file was written, so there is no device script to remove.
+- If the screen is not back on UIFlow2, press the physical `RST` button or run `machine.reset()` from REPL.
+- Full flash rollback image remains:
+  `/Users/zhangjincheng/Documents/GitHub/codex-workspace/scratch/projects/personal-ai-companion/stackchan-firmware-20260708-160849/backups/stackchan-68ee8fd74494-full-flash-20260708-1619.bin`
+
+Next bounded integration options:
+
+- Keep using a temporary local LAN proxy for manual testing.
+- Add a small authenticated local StackChan bridge that exposes only the intended `/v1/chat` shape.
+- Write a removable StackChan-side MicroPython app after confirming the desired input/output UX.
