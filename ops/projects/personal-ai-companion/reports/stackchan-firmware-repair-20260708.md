@@ -178,6 +178,32 @@ Post-flash verification status:
 - Treat firmware write as successful because esptool completed data verification before reset.
 - Device boot/config status still requires physical screen confirmation.
 
+## UIFlow2 Wi-Fi Configuration
+
+Observed after physical confirmation:
+
+- Device booted into `UIFlow2` and showed `Device MAC: 68EE8FD74494`.
+- `DEVELOP` page initially showed no access code because Wi-Fi/server link was not established.
+- The device screen did not provide a usable on-screen keyboard for direct SSID/password entry.
+
+Configuration method:
+
+- Generated a UIFlow2 NVS config using the official M5Burner `nvs` tool.
+- Wi-Fi SSID/password were entered locally by the user in a Terminal prompt and were not written to this report or to esptool logs.
+- Wrote only the UIFlow2 NVS partition at `0x9000`; did not reflash the full firmware.
+
+NVS write result:
+
+- usb_identity_before_write: `Espressif USB JTAG/serial debug unit`
+- port: `/dev/cu.usbmodem101`
+- chip: `ESP32-S3 (QFN56) revision v0.2`
+- mac: `68:ee:8f:d7:44:94`
+- erase/write range: `0x00009000` to `0x0000efff`
+- wrote: `24,576` bytes
+- verification: `Hash of data verified.`
+- after action: `Staying in bootloader`; requires physical short `RST` press to boot UIFlow2.
+- log: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/scratch/projects/personal-ai-companion/stackchan-firmware-20260708-160849/logs/esptool-write-uiflow2-wifi-nvs-20260708-175223.log`
+
 ## UIFlow2 Wi-Fi NVS Configuration
 
 Physical screen confirmation:
