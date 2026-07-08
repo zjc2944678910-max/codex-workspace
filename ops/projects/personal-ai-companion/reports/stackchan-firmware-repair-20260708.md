@@ -177,3 +177,44 @@ Post-flash verification status:
 - After waiting, no `/dev/cu.usbmodem*` or Espressif USB device was visible from macOS.
 - Treat firmware write as successful because esptool completed data verification before reset.
 - Device boot/config status still requires physical screen confirmation.
+
+## UIFlow2 Wi-Fi NVS Configuration
+
+Physical screen confirmation:
+
+- Device booted into `Head Calibration`.
+- After calibration, device booted into `UIFlow2` with `DEVELOP`, `SETTING`, `APP RUN`, `APP LIST`, and `EZ-DATA` tabs.
+- Device MAC shown on screen: `68EE8FD74494`.
+
+Configuration path:
+
+- The on-device `SETTING` page exposes `SSID`, `PASS`, and `SERVER`, but did not provide a practical on-screen keyboard for text entry.
+- Used the official M5Burner UIFlow2 NVS format and M5Burner bundled `nvs` tool.
+- Wi-Fi SSID and password were entered locally through hidden macOS dialogs and were not printed in chat or logs.
+- Temporary CSV and NVS files were created under `/tmp/stackchan-uiflow2-config.*` and removed by the execution trap after flashing.
+
+NVS configuration values written:
+
+- `server`: `uiflow2.m5stack.com`
+- `sntp0`: `ntp.aliyun.com`
+- `sntp1`: `cn.pool.ntp.org`
+- `sntp2`: `pool.ntp.org`
+- `tz`: `CST-8`
+- `boot_option`: `1`
+- Wi-Fi SSID/password: supplied locally; not recorded.
+
+NVS write command shape:
+
+```bash
+uvx --from 'esptool==4.8.1' esptool.py --chip auto --port /dev/cu.usbmodem101 --baud 460800 --before default_reset write_flash -z --flash_mode dio --flash_freq 80m --flash_size detect 0x9000 <temp-uiflow2-cfg.bin>
+```
+
+NVS write result:
+
+- detected chip: `ESP32-S3 (QFN56) revision v0.2`
+- detected MAC: `68:ee:8f:d7:44:94`
+- erased range: `0x00009000` to `0x0000efff`
+- wrote: `24,576` bytes
+- verification: `Hash of data verified.`
+- post-reset port: `/dev/cu.usbmodem101` and `/dev/tty.usbmodem101` remained visible for at least 12 seconds.
+- log: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/scratch/projects/personal-ai-companion/stackchan-firmware-20260708-160849/logs/esptool-write-uiflow2-wifi-nvs.log`
