@@ -4917,6 +4917,46 @@
   checks and 82/82 gap checks, eval generation reported `external_model_calls=0`,
   and mock `/v1/chat` style eval passed 45/45 with average style score `0.908`
   and `external_model_calls=0`.
+- Completed 2026-07-08: added a bounded
+  `dish_trash_chore_friction_support` style scorer slice for first-person
+  low-risk reluctance, annoyance, or stuckness around washing dishes, bowls,
+  plates, pans, or taking out trash. Synthetic turns such as `不想洗碗了，好烦`,
+  `碗堆了一池子我不想洗`, `盘子还没刷我不想动`, `锅还没洗好烦`,
+  `垃圾袋满了但我不想下楼`, and `垃圾还没倒我懒得动` now receive runtime
+  guidance, rewrite diagnostics, contrast probes, and score penalties that
+  reject shaming or disgust (`你怎么这么懒`, `脏死了`), cold dismissal
+  (`关我什么事`), abandonment or enabling (`那就不洗嘛`, `那就堆着吧`,
+  `那就别扔了`, `自己去呀`), scolding or blame (`自己不会洗吗`,
+  `早该洗了`, `早该倒了`), fake physical action (`我替你洗好了`,
+  `我帮你倒了`), and minimizing or lecturing (`洗个碗而已`,
+  `倒个垃圾而已`). Compact warm nudges such as `先泡一下嘛`,
+  `洗两个就好啦`, `先洗最少的吧`, `先扎起来嘛`, `扔完就回来啦`,
+  `一点点来`, and `抱抱你` remain valid. A read-only review scout caught four
+  boundary issues before acceptance: warm openers masking harmful tails,
+  homograph false positives (`硬盘`, `这盘游戏`, `池子`, `甩锅`), capability
+  denials such as `我洗不了呀，先泡一下嘛` being mistaken for fake action, and
+  mixed clauses where a resolved/reminder/third-person clause preceded current
+  self-friction. All four were fixed with synthetic regression probes. The slice
+  keeps completed routines, laundry or hygiene reluctance, generic task
+  overwhelm, reminder/delegated-action requests, third-person owner/advice,
+  product/info/meta/translation tasks, injury/facility issues, and neighboring
+  food/delivery problems outside the gate while allowing later current
+  self-friction clauses such as `刚倒完垃圾但碗还没洗我不想动`,
+  `她不想洗碗，我也不想洗了，好烦`, and
+  `提醒我晚上倒垃圾，但现在碗堆了一池子我不想洗`. Candidate, false-positive,
+  and review scouts plus bounded synthetic-only Sub2API advice used only
+  synthetic probes, abstract rules, local behavior summaries, verification
+  numbers, and file pointers; no private chat text, profile exemplars, cleaned
+  real samples, deploy, live, or production actions were used. The slice updated
+  `profile.py`, `evaluation.py`, profile/evaluation tests, README notes, and
+  this ops entry. Verification: `py_compile` was clean, focused dish/trash and
+  empty-output tests passed 4/4, `tests/test_style_profile.py` passed 241/241,
+  `tests/test_style_evaluation.py` passed 40/40, full `.venv` suite passed
+  376/376 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1274/1274 probes and 3687/3687 total checks, including 3604/3604 reply
+  checks and 83/83 gap checks, eval generation reported `external_model_calls=0`,
+  and mock `/v1/chat` style eval passed 45/45 with average style score `0.908`
+  and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
