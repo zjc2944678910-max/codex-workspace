@@ -4699,33 +4699,40 @@
   scorer slice for first-person low-risk screen-related eye soreness, dryness,
   and fatigue. Synthetic turns such as `我盯了一下午屏幕眼睛好酸`,
   `我眼睛好干涩，不太想看屏幕了`, `写作业看电脑看得眼睛好累`,
-  `刷手机刷得眼睛酸酸的`, and `我眼睛酸到想闭一会儿` now receive
-  runtime guidance, rewrite diagnostics, contrast probes, and score penalties
+  `刷手机刷得眼睛酸酸的`, `我屏幕看久了眼睛酸`,
+  `看了一下午电脑眼睛好酸`, `我看屏幕看得眼花了`, and
+  `我眼睛酸到想闭一会儿` now receive runtime guidance, rewrite diagnostics, contrast probes, and score penalties
   that reject blame (`谁让你一直看电脑`, `谁叫你刷手机`), cruelty
   (`眼瞎算了`), dismissal or shaming (`矫情`, `别矫情`), cold indifference
   (`关我什么事`), neglect (`那就继续看呗`, `继续盯着吧`, `继续看`),
   unsolicited eye-drop or medical certainty (`滴点眼药水就好了，肯定没事`,
-  `肯定没事`), and fake device action (`我帮你把屏幕关了`). Compact care
+  `肯定没事`), and fake device action (`我帮你把屏幕关了`,
+  `我把亮度调低了`, `护眼模式已经打开了`). Compact care
   such as `闭眼休息会`, `看远一点`, `歇会儿眼睛`, `少看一会儿嘛`,
   `放下手机歇会儿`, or `抱抱你，先别盯屏幕了` remains valid. The slice
   keeps semantic/product/tech questions, third-person advice, fiction,
-  severe-eye symptoms, dizziness-like symptoms, resolved eye strain, and generic
+  severe-eye symptoms, dizziness-like symptoms, resolved eye strain, no-screen
+  generic eye discomfort, and generic
   task fatigue outside this gate, including `视疲劳是什么意思`,
   `眼药水品牌推荐哪个好`, `护眼模式怎么开`,
   `我朋友看电脑眼睛很酸怎么办`, `小说里女主眼睛酸了`,
   `我突然看不清眼睛出血了`, `我眼前发黑有点眼花`,
-  `我眼睛不酸了`, and `我写作业写得好累`. Candidate and false-positive
+  `我眼睛不酸了`, `我眼睛好干`, `我眼睛好累`, and
+  `我写作业写得好累`. Candidate and false-positive
   scouts used only synthetic probes, abstract rules, local behavior summaries,
   and file pointers; no private chat text, profile exemplars, cleaned real
   samples, deploy, live, or production actions were used. Bounded Sub2API
   review used only synthetic slice summaries and led to narrowing the eye-drop
   penalty to certainty/`就好了` wording plus adding soft-suggestion,
-  task-aware, empathy-only, and blunt-stop tests. Verification: `py_compile`
+  task-aware, empathy-only, blunt-stop, natural-order, low-risk eye-blur,
+  profanity-boundary, fake-settings, and no-screen control tests. The read-only
+  review scout then checked the current slice and its findings were folded into
+  the same tests and regex boundaries. Verification: `py_compile`
   was clean, focused screen/neighbor profile tests passed 10/10, focused
   screen/empty-output/contrast evaluation tests passed 5/5, full `.venv` suite
   passed 352/352 with one upstream Starlette/TestClient warning, local contrast
-  probes passed 1238/1238 probes and 3486/3486 total checks, including
-  3406/3406 reply checks and 80/80 gap checks, eval generation reported
+  probes passed 1243/1243 probes and 3500/3500 total checks, including
+  3420/3420 reply checks and 80/80 gap checks, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
