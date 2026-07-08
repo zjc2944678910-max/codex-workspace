@@ -4958,6 +4958,50 @@
   checks and 83/83 gap checks, eval generation reported `external_model_calls=0`,
   and mock `/v1/chat` style eval passed 45/45 with average style score `0.908`
   and `external_model_calls=0`.
+- Completed 2026-07-08: added a bounded
+  `reentry_wake_soft_checkin_support` style scorer slice for first-person
+  low-risk wake or chat-return check-ins after normal sleep, naps, or resting.
+  Synthetic turns such as `我睡醒啦`, `午觉醒了，有点懵`,
+  `刚小睡了一会儿醒啦`, `我刚睡醒，脑子还没开机`,
+  `刚补了个觉，醒啦`, `我回来啦`, `我回来了，来找你啦`, and
+  `我回来啦，刚刚睡着了` now receive runtime guidance, rewrite diagnostics,
+  contrast probes, and score penalties that reject cold or hollow
+  acknowledgments (`谁问你了`, `关我什么事`, `知道了`), hostile push-away
+  (`自己清醒去`, `醒了别黏我`, `回来就别烦我`), guilt or reporting-shame
+  replies (`睡个觉也要说`, `睡个午觉也要报备`, `你还知道回来`), and warm
+  openers that pivot into a harmful tail (`醒啦但别黏我`). Compact warm
+  receipts such as `醒啦`, `睡醒啦抱抱`, `慢慢醒`, `先缓缓`, `来啦`,
+  `欢迎回来`, `回来啦`, `等你呢`, `喝口水`, and `歇好了吗` remain valid, as
+  does playful affectionate mock-scolding such as `你还知道回来啊哼想你了`.
+  A read-only review scout caught three gaps before acceptance: the playful
+  rescue exemption was too broad for near-miss blame variants such as
+  `你还知道回来啦` and `睡个觉也要说醒啦`, the empty-output skeleton lacked
+  `penalty_count`, and fiction/text-generation controls were only documented
+  rather than tested. All three were fixed with synthetic regression probes.
+  The slice keeps arrival/departure, sleep/goodnight or sleep-watch, nightmare,
+  morning routine, proactive reminders, delegated task/help requests, illness
+  or distress, third-person/reported/quoted turns, translation/meta requests,
+  tech/game/fiction wording, and distinct second-clause tasks outside the gate,
+  including `我到家啦`, `我回宿舍啦`, `我在路上啦`, `我准备睡觉啦`,
+  `我刚做噩梦吓醒了`, `早啊我今天不想起床`, `明天我睡醒提醒我`,
+  `我回来啦，帮我查天气`, `睡醒头疼`, `我睡醒啦，想哭了`,
+  `翻译：我睡醒啦`, `她说“我睡醒啦”怎么回`, `她睡醒啦`,
+  `接口返回 wake 字段`, and `游戏里角色醒了`. Candidate and
+  false-positive scouts used only synthetic probes, abstract rules, local
+  behavior summaries, and file pointers; no private chat text, profile
+  exemplars, cleaned real samples, deploy, live, or production actions were
+  used. A bounded synthetic-only Sub2API review was attempted but the local
+  gateway returned connection refused, so the slice proceeded with local scout
+  and test review only. The slice updated `profile.py`, `evaluation.py`,
+  profile/evaluation tests, README notes, and this ops entry. Verification:
+  `py_compile` was clean, focused reentry/empty-output tests passed 4/4,
+  `tests/test_style_profile.py` passed 243/243, `tests/test_style_evaluation.py`
+  passed 41/41, full `.venv` suite passed 379/379 with one upstream
+  Starlette/TestClient warning, local contrast probes passed 1277/1277 probes
+  and 3718/3718 total checks, including 3634/3634 reply checks and 84/84 gap
+  checks, eval generation reported `external_model_calls=0`, and mock
+  `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
