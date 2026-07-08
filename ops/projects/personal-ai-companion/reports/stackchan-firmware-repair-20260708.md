@@ -204,6 +204,32 @@ NVS write result:
 - after action: `Staying in bootloader`; requires physical short `RST` press to boot UIFlow2.
 - log: `/Users/zhangjincheng/Documents/GitHub/codex-workspace/scratch/projects/personal-ai-companion/stackchan-firmware-20260708-160849/logs/esptool-write-uiflow2-wifi-nvs-20260708-175223.log`
 
+Post-NVS recovery:
+
+- After the first NVS-only Wi-Fi write, UIFlow2 booted to USB CDC but the screen remained black.
+- USB identity in app mode: `StackChan(UiFlow2)`.
+- MicroPython REPL was reachable and confirmed:
+  - MicroPython: `1.27.0`
+  - machine: `M5STACK StackChan with ESP32S3`
+  - display APIs were callable.
+- Soft boot log initially failed in `boot.py` / `startup` with `ESP_ERR_NVS_NOT_FOUND`.
+- Additional missing UIFlow2 network keys were added via MicroPython NVS without printing Wi-Fi secrets:
+  - `net_mode=WIFI`
+  - `protocol=DHCP`
+  - `ip_addr=`
+  - `netmask=255.255.255.0`
+  - `gateway=`
+  - `dns=8.8.8.8`
+- Next boot showed missing StackChan servo zero keys. The firmware log's own default values were written:
+  - `zero_pos_1=450`
+  - `zero_pos_2=125`
+- Latest observed soft reboot log no longer showed NVS or servo calibration errors and reached:
+
+```text
+Startup with network type: WIFI
+WiFi initialized
+```
+
 ## UIFlow2 Wi-Fi NVS Configuration
 
 Physical screen confirmation:
