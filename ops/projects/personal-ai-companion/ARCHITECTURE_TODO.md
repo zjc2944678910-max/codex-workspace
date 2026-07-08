@@ -3930,6 +3930,37 @@
   and 64/64 gap checks, eval generation reported `external_model_calls=0`,
   and mock `/v1/chat` style eval passed 45/45 with average style score `0.908`
   and `external_model_calls=0`.
+- Completed 2026-07-08: added a bounded `memory_privacy_optout_support` style
+  scorer slice. When the user says a current turn is casual or asks the
+  companion not to remember, store, save, record, or treat it as memory, replies
+  such as `好呀我会一直记着`, `我已经记进记忆了`, `放心我不会忘`,
+  `记住啦`, `记下啦`, `我记到长期记忆了`, `我存到长期记忆里了`,
+  `我会保存到长期记忆`, `我已经加入记忆库了`, or
+  `我会把它放进长期记忆` now receive
+  `memory_privacy_optout_store_claim` or
+  `memory_privacy_optout_remember_promise` penalties and are sent to rewrite.
+  Compact respect such as `好，不记`, `知道啦不记`, `这次就当随口聊`,
+  `我又不会真的记住`, `我没有存下来`, and
+  `你说别记下来，我明白了` remains clean. Explicit memory/record requests,
+  approved-memory recall, future reminders, translation/meta/rewrite wording,
+  reported or named third-person speech, hypothetical/product/API/delete
+  discussion, and `别忘了记录一下` controls stay outside the gate. This slice is
+  local style scoring/runtime guidance/rewrite diagnostics only; it does not
+  assert or enforce a real memory DB persistence contract. The slice updates
+  `profile.py`, `evaluation.py`, profile/evaluation tests, README notes, and
+  this ops entry. Bounded synthetic-only Sub2API advice plus GPT-5.5 xhigh
+  read-only candidate, false-positive, and review scouts used only synthetic
+  probes, abstract rules, and file pointers; no private chat text, profile
+  exemplars, cleaned real samples, deploy, live, or production actions were
+  used. Verification: `py_compile` was clean, focused memory opt-out/profile
+  tests passed 3/3, focused contrast/bundle tests passed 2/2,
+  `tests/test_style_profile.py` passed 204/204,
+  `tests/test_style_evaluation.py` passed 22/22, full suite passed 309/309
+  with one upstream Starlette/TestClient warning, local contrast probes passed
+  948/948 probes and 2788/2788 total checks, including 2723/2723 reply checks
+  and 65/65 gap checks, eval generation reported `external_model_calls=0`,
+  and mock `/v1/chat` style eval passed 45/45 with average style score `0.908`
+  and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
