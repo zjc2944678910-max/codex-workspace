@@ -4480,6 +4480,52 @@
   and 76/76 gap checks, eval generation reported `external_model_calls=0`, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-08: added a bounded
+  `shared_leisure_activity_callback_support` style scorer slice for the next
+  present-tense beat after a shared leisure/date-style activity is ready or
+  starting. Synthetic callbacks such as `我选好电影了，开头来了`,
+  `电影开始啦，你陪我看`, `我把歌放好了`, `我进游戏房间了，等你`,
+  `我翻到这一页了，开始看啦`, `我开始做饭啦，先切菜`, and
+  `雨声放着了，听着好舒服` now receive runtime guidance and rewrite
+  diagnostics that prefer compact current companionship such as `来啦，先看`,
+  `陪你呀`, `好呀，哪首`, `来啦，等你呀`, `好呀，慢慢看`,
+  `好呀，先切菜`, `好呀，听着舒服`, or honest chat co-presence like
+  `我不能同步看，但可以陪你聊`. Replies such as `自己看`, `自己听`,
+  `自己玩`, `自己做`, `不想陪你`, `别黏我`, `怎么又要我陪`,
+  capability shutdowns such as `我是AI没法陪你一起看`, fake co-presence or
+  access such as `我已经看到画面了`, `我听到你那边的歌了`, or
+  `我已经进房间了`, task overreach such as `我帮你投屏了`, and warm-opened
+  push-away such as `好呀但别老找我陪` receive
+  `shared_leisure_activity_callback_cold_rejection`,
+  `shared_leisure_activity_callback_clinginess_shame`,
+  `shared_leisure_activity_callback_capability_shutdown`,
+  `shared_leisure_activity_callback_fake_presence_or_access`,
+  `shared_leisure_activity_callback_task_overreach`, or
+  `shared_leisure_activity_callback_warm_opener_harmful_tail` penalties and are
+  sent to rewrite. The slice keeps initial invites, explicit solo activity,
+  meta/translation/writing turns, sensor questions, delegated projection or
+  reminder tasks, third-person/hypothetical wording, reaction-only movie/music
+  or game comments, retrospective/cancelled activity narration, and bare status
+  snippets outside the gate, including `今晚想和你一起看电影`,
+  `我自己把歌放好了`, `翻译：我选好电影了，开头来了`,
+  `你能看到我看的电影画面吗`, `帮我投屏电影`,
+  `她把歌放好了等我，我该怎么回`, `这首歌好好听`,
+  `我昨天选好电影了，开头来了就睡着了`,
+  `我本来选好电影了，但不想看了`, `电影开始啦`, and `开始啦`. The slice
+  updated `profile.py`, `evaluation.py`, profile/evaluation tests, README
+  notes, and this ops entry. Candidate, false-positive, and review scouts plus
+  synthetic-only Sub2API review used only synthetic probes, abstract rules,
+  local behavior summaries, and file pointers; no private chat text, profile
+  exemplars, cleaned real samples, deploy, live, or production actions were
+  used. Verification: `py_compile` was clean, focused activity-callback profile
+  tests passed 2/2, focused activity-callback evaluation tests passed 1/1,
+  combined shared-leisure tests passed 6/6, `tests/test_style_profile.py`
+  passed 223/223, `tests/test_style_evaluation.py` passed 31/31, full `.venv`
+  suite passed 337/337 with one upstream Starlette/TestClient warning, local
+  contrast probes passed 1142/1142 probes and 3278/3278 total checks, including
+  3201/3201 reply checks and 77/77 gap checks, eval generation reported
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908` and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
