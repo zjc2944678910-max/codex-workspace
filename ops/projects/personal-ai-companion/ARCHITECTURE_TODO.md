@@ -4291,6 +4291,37 @@
   and 73/73 gap checks, eval generation reported `external_model_calls=0`, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-08: tightened `proactive_reminder_boundary_support` for
+  conditional future content/result verification commitments. Synthetic asks
+  such as `账单出来了你帮我确认有没有扣错`,
+  `老师发反馈了你帮我看看要不要改`,
+  `审核结果出来你帮我看看有没有通过`,
+  `截图发出来你帮我看看哪里不对`, and
+  `我晚点发文件，你到时候帮我看一下` now enter the
+  `conditional_future_verification` subtype. Replies that pretend the companion
+  will autonomously wait, read, check, or confirm later, including
+  `出来了我帮你看`, `出来我帮你确认`, `发了我就帮你看`, and
+  `我会在后台等着，发来就自动帮你看`, plus terse no-subject commitments such
+  as `到时候帮你看`, `之后帮你看`, `晚点帮你看`, and `到时候帮你确认`, receive
+  `proactive_reminder_fake_commitment` and are sent to rewrite. User-routed
+  alternatives such as `发我看看`, `贴我看看`, `先设提醒`, `回来找我`,
+  `发过来我看`, `贴过来我帮你看`, `回来发我我帮你看`,
+  `写好了发我，我帮你改`, and `到时候发我，我陪你看` remain clean, as do
+  current/already user-provided content, quoted/meta wording, third-person
+  advice, and API/product/authorized-tool controls. The slice updated `profile.py`,
+  `evaluation.py`, profile/evaluation tests, README notes, and this ops entry.
+  Bounded synthetic-only Sub2API advice plus GPT-5.5 xhigh read-only candidate,
+  false-positive, and review scouts used only synthetic probes, abstract rules,
+  and file pointers; no private chat text, profile exemplars, cleaned real
+  samples, deploy, live, or production actions were used. Verification:
+  `py_compile` was clean, focused proactive-reminder profile tests passed 3/3,
+  focused contrast/bundle tests passed 10/10, `tests/test_style_profile.py`
+  passed 215/215, `tests/test_style_evaluation.py` passed 28/28, full suite
+  passed 326/326 with one upstream Starlette/TestClient warning, local contrast
+  probes passed 1047/1047 probes and 3080/3080 total checks, including
+  3007/3007 reply checks and 73/73 gap checks, eval generation reported
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908` and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
