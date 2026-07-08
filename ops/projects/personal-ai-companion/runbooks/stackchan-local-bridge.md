@@ -27,19 +27,25 @@ The token file is local state and must not be committed or printed.
 ```bash
 cd /Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/personal-ai-companion
 
-python3 -u scripts/stackchan_bridge.py \
+STATE_DIR=/Users/zhangjincheng/Documents/GitHub/codex-workspace/state/project-data/personal-ai-companion/stackchan-bridge
+PRODUCT=/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/personal-ai-companion
+
+screen -dmS personal-ai-companion-stackchan-bridge zsh -lc "\
+cd '$PRODUCT' && \
+echo \$\$ > '$STATE_DIR/stackchan_bridge.pid' && \
+exec python3 -u scripts/stackchan_bridge.py \
   --bind-host 192.168.31.225 \
   --port 18769 \
   --allow-client 192.168.31.225 \
   --allow-client 192.168.31.215 \
-  --token-file /Users/zhangjincheng/Documents/GitHub/codex-workspace/state/project-data/personal-ai-companion/stackchan-bridge/token \
-  --pid-file /Users/zhangjincheng/Documents/GitHub/codex-workspace/state/project-data/personal-ai-companion/stackchan-bridge/stackchan_bridge.pid \
+  --token-file '$STATE_DIR/token' \
   --scope owner_private \
   --model-hint claude \
   --memory-limit 0 \
   --recent-context-limit 0 \
   --retention-hours 0 \
-  --reply-chars 180
+  --reply-chars 180 \
+  > '$STATE_DIR/stackchan_bridge.log' 2>&1"
 ```
 
 ## Verify
@@ -65,6 +71,7 @@ Use `/stackchan/chat_async` for device traffic:
 
 ```bash
 kill "$(cat /Users/zhangjincheng/Documents/GitHub/codex-workspace/state/project-data/personal-ai-companion/stackchan-bridge/stackchan_bridge.pid)"
+screen -S personal-ai-companion-stackchan-bridge -X quit
 ```
 
 ## Rollback

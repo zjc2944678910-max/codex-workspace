@@ -560,3 +560,81 @@ Next switch step:
 - Stop old scratch bridge on `18769`.
 - Restart `scripts/stackchan_bridge.py` on `18769` with the token file.
 - Update/paste a StackChan device client that sends `Authorization: Bearer <token>`.
+
+## Authenticated Bridge Cutover
+
+Date/time:
+
+- `2026-07-08 19:45-19:55 CST`
+
+Cutover result:
+
+- Old scratch bridge on `18769` was stopped.
+- Formal token bridge was moved from staging port `18770` to production local
+  port `18769`.
+- `18770` no longer had a listener after the cutover.
+- Formal bridge now runs under detached `screen` session:
+  `personal-ai-companion-stackchan-bridge`
+- Current bridge PID: `33490`
+- Listener: `192.168.31.225:18769`
+- Log:
+  `/Users/zhangjincheng/Documents/GitHub/codex-workspace/state/project-data/personal-ai-companion/stackchan-bridge/stackchan_bridge.log`
+
+Mac verification after cutover:
+
+- Health check returned:
+
+```json
+{"ok":true,"service":"stackchan_bridge","auth_required":true,"allowed_client":true}
+```
+
+- Unauthenticated `POST /stackchan/chat_async` returned:
+
+```json
+{"ok":false,"status":"error","error":"unauthorized"}
+```
+
+- Authenticated Mac async self-test:
+  - queued: `request_id=req_89301f59615d4bc4`
+  - final reply: `FORMAL18769_OK`
+  - total time: about `5.1s`
+
+StackChan verification after cutover:
+
+- Device IP: `192.168.31.215`
+- Device made authenticated async request to:
+  `http://192.168.31.225:18769/stackchan/chat_async`
+- queued: `request_id=req_4d70339d68ca4d2c`
+- final device-side output:
+
+```text
+__PAC_OK__ True
+__PAC_REPLY__ TOKEN18769_OK
+```
+
+Bridge log evidence:
+
+```text
+19:53:54 request_start client=192.168.31.215 path=/stackchan/chat_async
+19:53:59 upstream_done status=200 ok=True reply_chars=13
+```
+
+Current state:
+
+- Formal token bridge is active on `192.168.31.225:18769`.
+- Token is stored only in local state file with `0600` permissions.
+- Token value was not printed or copied into this report.
+- No StackChan boot script or persistent token file was written to the device.
+- Device serial port remained visible after reset:
+  - `/dev/cu.usbmodem101`
+  - `/dev/tty.usbmodem101`
+
+Rollback:
+
+```bash
+kill "$(cat /Users/zhangjincheng/Documents/GitHub/codex-workspace/state/project-data/personal-ai-companion/stackchan-bridge/stackchan_bridge.pid)"
+screen -S personal-ai-companion-stackchan-bridge -X quit
+```
+
+If needed, restart the previous scratch bridge from:
+`/Users/zhangjincheng/Documents/GitHub/codex-workspace/scratch/projects/personal-ai-companion/stackchan-integration-20260708/stackchan_bridge.py`
