@@ -230,6 +230,13 @@ Startup with network type: WIFI
 WiFi initialized
 ```
 
+Final observed device state:
+
+- UIFlow2 `DEVELOP` page displayed the expected device MAC.
+- Wi-Fi status icon was present.
+- `Access Code` appeared on screen, confirming the UIFlow2 server link was established.
+- The transient access code was not recorded in this report.
+
 ## UIFlow2 Wi-Fi NVS Configuration
 
 Physical screen confirmation:
