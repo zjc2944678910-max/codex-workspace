@@ -1,6 +1,7 @@
 # StackChan Command Protocol v0.1
 
-Status: local design and validation baseline.
+Status: deployed to the local bridge and installed as a removable manual device
+client.
 
 This protocol upgrades StackChan from a boot-time `DEVICE_CONNECTED` handshake
 to a safe local command/event contract. It is intentionally bridge-first: the
@@ -13,8 +14,12 @@ file, restarting the bridge, or changing device runtime state.
 - Current bridge: `192.168.31.225:18769`.
 - Current upstream API: `http://127.0.0.1:8768/v1/chat`.
 - Current device IP: `192.168.31.215`.
-- No `/flash/boot.py`, `/flash/main.py`, device client, bridge restart, token
-  change, port switch, or flashing is part of v0.1 local validation.
+- No `/flash/boot.py`, `/flash/main.py`, token change, port switch, or flashing
+  is part of v0.1.
+- L3 repair on 2026-07-08 restarted the local bridge on the same listener and
+  installed removable device files:
+  `/flash/pac_command_client.py` and
+  `/flash/apps/02_pac_command_poll_test.py`.
 - Any device write, service restart, token change, or port switch is L3 repair
   execution and waits for the explicit phrase `进入修复阶段`.
 
@@ -111,8 +116,7 @@ profile examples.
 
 ## Bridge API Design
 
-The v0.1 bridge API is additive to the current authenticated LAN bridge. It is
-a design target until a later local bridge restart is explicitly approved.
+The v0.1 bridge API is additive to the current authenticated LAN bridge.
 
 ### Enqueue Command
 
@@ -157,6 +161,18 @@ a design target until a later local bridge restart is explicitly approved.
 The v0.1 local queue is intentionally in-memory and bounded. The local helper
 defaults to `max_depth=20`. A full queue rejects new commands instead of
 evicting older commands or silently dropping work.
+
+### Device Events
+
+`POST /stackchan/events`
+
+- Caller: StackChan device.
+- Auth: existing bridge token.
+- Body: event envelope with `type=boot`, `touch`, `button`, `battery`,
+  `network`, `status`, or `error`.
+- Response: `200` with `received`, `event_id`, and `type`.
+- The bridge validates and logs event id/type/device only. It does not log event
+  body text or private details.
 
 ## Speaker Delivery Privacy Rules
 
@@ -205,15 +221,14 @@ This verifies:
 
 ## Next L3 Repair Plan Boundary
 
-When the user explicitly says `进入修复阶段`, a later repair plan may include:
+Completed on 2026-07-08 after the user explicitly said `进入修复阶段`:
 
-1. Add the three command endpoints to `scripts/stackchan_bridge.py`.
-2. Restart the local bridge on the existing `192.168.31.225:18769` listener
+1. Added command/event endpoints to `scripts/stackchan_bridge.py`.
+2. Restarted the local bridge on the existing `192.168.31.225:18769` listener
    with the existing token file and allowlist.
-3. Add or paste a removable MicroPython device client that polls commands and
-   posts ack events.
-4. Verify first with `status`, then `expression`, then a short public-safe
-   `speak`, and finally a combined expression plus speak flow.
+3. Added a removable MicroPython device client and one-shot app.
+4. Verified `boot` event, `status`, `expression`, `motion`, public-safe
+   `speak`, `ack`, and sensitive speaker rejection.
 
-Do not perform any of those runtime or device actions during v0.1 local design
-validation.
+Future physical servo control, true text-to-speech, continuous polling
+auto-start, durable command queues, or redelivery are separate L3 repairs.

@@ -18,9 +18,9 @@ This runbook covers the local authenticated StackChan bridge for
 - Current device entry: boot-time PAC auto-start v1.2.
 - Manual UIFlow2 App List launch remains a rollback/fallback path.
 - Command protocol v0.1 is documented in
-  `runbooks/stackchan-command-protocol-v0.1.md` and validated locally through
-  the product test suite. It is not yet deployed into the running bridge or
-  written to the device.
+  `runbooks/stackchan-command-protocol-v0.1.md`, deployed into the current
+  local bridge, and installed as removable device files. It is not wired into
+  boot auto-start.
 
 ## Local Runtime Boundaries
 
@@ -232,6 +232,10 @@ rm -rf /Users/zhangjincheng/Documents/GitHub/codex-workspace/state/project-data/
   `/flash/apps/00_pac_bridge_demo.py`
 - UIFlow2 short text test app:
   `/flash/apps/01_pac_chat_test.py`
+- Command protocol client:
+  `/flash/pac_command_client.py`
+- Command protocol one-shot test app:
+  `/flash/apps/02_pac_command_poll_test.py`
 
 Manual run from StackChan REPL:
 
@@ -258,14 +262,29 @@ Manual run of the short text test app from StackChan REPL:
 exec(open("/flash/apps/01_pac_chat_test.py").read())
 ```
 
+Manual run of the command polling client from StackChan REPL:
+
+```python
+import pac_command_client
+pac_command_client.run_once(send_boot=True)
+```
+
+Manual run of the command polling app from StackChan REPL:
+
+```python
+exec(open("/flash/apps/02_pac_command_poll_test.py").read())
+```
+
 Manual removal from StackChan REPL:
 
 ```python
 import os, esp32
 os.remove("/flash/apps/00_pac_bridge_demo.py")
 os.remove("/flash/apps/01_pac_chat_test.py")
+os.remove("/flash/apps/02_pac_command_poll_test.py")
 os.remove("/flash/apps/pac_bridge_demo.py")
 os.remove("/flash/pac_bridge_client.py")
+os.remove("/flash/pac_command_client.py")
 nvs = esp32.NVS("pac")
 nvs.erase_key("bridge_token")
 nvs.commit()

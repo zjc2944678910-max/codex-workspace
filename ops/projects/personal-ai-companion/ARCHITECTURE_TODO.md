@@ -29,6 +29,13 @@
   enqueue/poll/ack, focused tests, and the
   `runbooks/stackchan-command-protocol-v0.1.md` bridge API design. This did not
   write device files, restart the bridge, change tokens, or contact the device.
+- Completed 2026-07-08: after explicit L3 authorization, deployed StackChan
+  command protocol v0.1 to the local authenticated bridge and installed
+  removable manual device files. Verified bridge enqueue/poll/ack/events,
+  device `boot` event, `status`, `expression`, safe placeholder `motion`, and
+  public-safe `speak`; sensitive speaker commands are rejected before enqueue.
+  Left boot auto-start, true TTS, physical servo control, durable queueing, and
+  redelivery as future L3 repair decisions.
 - Completed 2026-07-04: unit tests for identity binding, privacy scopes,
   StackChan speaker delivery, owner-confirmed memory promotion/deletion, and
   mock model routing.
