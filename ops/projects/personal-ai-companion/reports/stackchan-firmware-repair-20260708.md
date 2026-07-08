@@ -1019,3 +1019,76 @@ Conclusion:
 - The UIFlow2 manual screen path can trigger the StackChan bridge successfully.
 - The accepted v1 launch path is now both documented and physically verified:
   select `/flash/apps/00_pac_bridge_demo.py` from UIFlow2 App List and run once.
+
+## UIFlow2 Short Text App v1.1
+
+Date/time:
+
+- `2026-07-08 21:35-21:37 CST`
+
+Device-side persistent changes:
+
+- Added app-list file:
+  `/flash/apps/01_pac_chat_test.py`
+- Local source evidence:
+  `/Users/zhangjincheng/Documents/GitHub/codex-workspace/scratch/projects/personal-ai-companion/stackchan-integration-20260708/pac_chat_test_app.py`
+- Written size:
+  `1187` bytes
+- Did not modify:
+  - `/flash/boot.py`
+  - `/flash/main.py`
+- Did not install boot/run-always behavior.
+- The app file does not contain the bridge token.
+
+App behavior:
+
+- Imports `/flash/pac_bridge_client.py`.
+- Sends the synthetic non-private fixed test text:
+  `我在 StackChan 上叫你啦，请用一句中文回复我。`
+- Displays `PAC Chat`, `OK`, and the first part of the model reply on the
+  StackChan screen when successful.
+
+Install verification:
+
+- `/flash/apps` after install:
+  - `00_pac_bridge_demo.py`
+  - `01_pac_chat_test.py`
+  - `helloworld.py`
+  - `pac_bridge_demo.py`
+
+Execution verification:
+
+- Executed from serial raw REPL:
+
+```python
+exec(open("/flash/apps/01_pac_chat_test.py").read())
+```
+
+- Device Wi-Fi address during verification:
+  `192.168.31.215`
+- queued:
+  `request_id=req_a611f2e2c93941e3`
+- final reply:
+  `你好！很高兴在 StackChan 上和你聊天！😊`
+- Bridge log evidence:
+
+```text
+21:37:13 request_start client=192.168.31.215 path=/stackchan/chat_async
+21:37:17 upstream_done status=200 ok=True reply_chars=25
+```
+
+Shortcut-only rollback:
+
+Run from StackChan REPL:
+
+```python
+import os
+os.remove("/flash/apps/01_pac_chat_test.py")
+```
+
+Conclusion:
+
+- v1.1 now has a reversible UIFlow2 app-list entry for one-shot real short text
+  requests.
+- The accepted launch path remains manual; auto-start remains out of scope until
+  a separate L3 repair gate is authorized.

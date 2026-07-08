@@ -151,6 +151,8 @@ rm -rf /Users/zhangjincheng/Documents/GitHub/codex-workspace/state/project-data/
   `/flash/apps/pac_bridge_demo.py`
 - UIFlow2 app-list shortcut, sorted before the default sample:
   `/flash/apps/00_pac_bridge_demo.py`
+- UIFlow2 short text test app:
+  `/flash/apps/01_pac_chat_test.py`
 
 Manual run from StackChan REPL:
 
@@ -171,11 +173,18 @@ Manual run of the sorted app-list shortcut from StackChan REPL:
 exec(open("/flash/apps/00_pac_bridge_demo.py").read())
 ```
 
+Manual run of the short text test app from StackChan REPL:
+
+```python
+exec(open("/flash/apps/01_pac_chat_test.py").read())
+```
+
 Manual removal from StackChan REPL:
 
 ```python
 import os, esp32
 os.remove("/flash/apps/00_pac_bridge_demo.py")
+os.remove("/flash/apps/01_pac_chat_test.py")
 os.remove("/flash/apps/pac_bridge_demo.py")
 os.remove("/flash/pac_bridge_client.py")
 nvs = esp32.NVS("pac")
