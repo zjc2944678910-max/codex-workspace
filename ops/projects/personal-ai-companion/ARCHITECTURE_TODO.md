@@ -3961,6 +3961,37 @@
   and 65/65 gap checks, eval generation reported `external_model_calls=0`,
   and mock `/v1/chat` style eval passed 45/45 with average style score `0.908`
   and `external_model_calls=0`.
+- Completed 2026-07-08: added a bounded `shared_small_beauty_support` style
+  scorer slice for first-person small pleasant observations. Synthetic turns
+  such as `刚刚路上看到晚霞，真的好漂亮`, `今天月亮好圆`,
+  `路边有只小猫好可爱`, and `今天路边的花开得好好看` now get runtime guidance
+  and rewrite diagnostics that prefer compact warm receipt such as
+  `听着就好美`, `哇好漂亮`, `好圆呀`, `好可爱`, or `肯定很好看`.
+  Cold dismissal or fake co-experience replies such as `有什么好看的`,
+  `所以呢`, `关我什么事`, `猫有什么好看的`, `我也看到了好漂亮`,
+  `我也看到了`, and `看到了很好看` now receive
+  `shared_small_beauty_cold_dismissal` or
+  `shared_small_beauty_fake_coexperience` penalties and are sent to rewrite.
+  Post-review hardening kept translation, caption/social-post writing,
+  recommendation, knowledge/product, fiction, hypothetical, third-person,
+  direct photo-query, and declarative photo-share controls outside the
+  shared-small-beauty gate; declarative photo-share fake visual replies such as
+  `我发你一张晚霞照片好漂亮` / `我也看到了好漂亮` now route through the existing
+  sensor boundary via `unavailable_visual_access_claim`. The slice updated
+  `profile.py`, `evaluation.py`, profile/evaluation tests, README notes, and
+  this ops entry. Bounded synthetic-only Sub2API review plus GPT-5.5 xhigh
+  read-only candidate, false-positive, and review scouts used only synthetic
+  probes, abstract rules, and file pointers; no private chat text, profile
+  exemplars, cleaned real samples, deploy, live, or production actions were
+  used. Verification: `py_compile` was clean, focused style profile tests
+  passed 5/5, focused evaluation tests passed 2/2,
+  `tests/test_style_profile.py` passed 206/206,
+  `tests/test_style_evaluation.py` passed 23/23, full suite passed 312/312
+  with one upstream Starlette/TestClient warning, local contrast probes passed
+  960/960 probes and 2815/2815 total checks, including 2749/2749 reply checks
+  and 66/66 gap checks, eval generation reported `external_model_calls=0`,
+  and mock `/v1/chat` style eval passed 45/45 with average style score `0.908`
+  and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
