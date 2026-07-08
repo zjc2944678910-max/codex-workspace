@@ -5002,6 +5002,39 @@
   checks, eval generation reported `external_model_calls=0`, and mock
   `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-09: hardened the existing `companionship_support` slice
+  for plain first-person boredom and light chat bids without adding a new gate.
+  Synthetic turns such as `我好无聊`, `无聊死了，想找你玩`,
+  `没事干，来找你一下`, and `有点无聊，想跟你说说话` now receive runtime
+  guidance, rewrite diagnostics, contrast probes, and score penalties that
+  reject cold push-away replies (`关我什么事`, `自己找事干`, `别烦我`,
+  `谁问你了`, `别来找我`, `不想听`) and flat deflections (`那你去玩啊`).
+  Compact warm receipts such as `来找我呀`, `我陪你呀`, `陪你聊会儿`, and
+  `来啦` remain valid. The slice keeps class/movie/game/object boredom,
+  definition/translation/test/fiction/hypothetical/resolved turns, voluntary
+  alone turns, task or tool requests, third-person reports, and quoted or
+  unquoted reported speech outside the gate, including `我想一个人待着`,
+  `我好无聊帮我查电影`, `我好无聊，打开计时器`, `这个电影好无聊`,
+  `这节课好无聊`, `她说我好无聊`, and `她说‘我好无聊’`. The review scout
+  caught three false-positive risks before acceptance: voluntary-alone language,
+  no-punctuation or non-listed tool requests, and unquoted reported speech; all
+  were fixed with synthetic regression probes, and the empty-output skeleton now
+  includes `companionship_support.penalty_count`. Candidate, false-positive,
+  and review scouts used only synthetic probes, abstract rules, local behavior
+  summaries, and file pointers; no private chat text, profile exemplars, cleaned
+  real samples, deploy, live, or production actions were used. A bounded
+  synthetic-only Sub2API smoke test was attempted, but the local gateway returned
+  connection refused, so the slice proceeded with local scout and test review
+  only. The slice updated `profile.py`, `evaluation.py`, profile/evaluation
+  tests, README notes, and this ops entry. Verification: `py_compile` was clean,
+  focused companionship and empty-output tests passed 2/2,
+  `tests/test_style_profile.py` passed 243/243, `tests/test_style_evaluation.py`
+  passed 41/41, full `.venv` suite passed 379/379 with one upstream
+  Starlette/TestClient warning, local contrast probes passed 1279/1279 probes
+  and 3747/3747 total checks, including 3662/3662 reply checks and 85/85 gap
+  checks, eval generation reported `external_model_calls=0`, and mock
+  `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
