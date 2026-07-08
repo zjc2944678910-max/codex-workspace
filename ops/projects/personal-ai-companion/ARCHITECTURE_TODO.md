@@ -3622,6 +3622,72 @@
   and 73/73 gap checks, eval generation reported `external_model_calls=0`, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-08: broadened `proactive_reminder_boundary_support` for
+  everyday external status monitoring requests. Synthetic asks such as
+  `帮我看着航班状态，变了通知我`, `帮我刷着报名页面，有名额告诉我`,
+  `帮我蹲一下报名名额，有了叫我`, `帮我盯着客服回复，有消息告诉我`,
+  `帮我看着退款到账，到了告诉我`, `帮我刷着票，有了告诉我`, and no-monitor
+  trigger forms such as `快递到了告诉我`, `价格降了告诉我`,
+  `报名页面有名额告诉我`, and `客服回复了告诉我` now enter the proactive
+  monitoring boundary. Replies that fake autonomous monitoring or related
+  external action, including `有变化我告诉你`, `有名额我告诉你`,
+  `有名额我叫你`, `有消息我告诉你`, `有回复我告诉你`,
+  `到账我告诉你`, `有票我告诉你`, and `我帮你发过去了`, receive
+  `proactive_reminder_fake_commitment` and are sent to rewrite. Third-party actor
+  advice remains clean for replies such as `航旅App会通知你`, `飞常准会通知你`,
+  `12306会通知你`, `报名平台有名额提醒会通知你`, `官网会通知你`,
+  `公众号会通知你`, `支付宝会通知你`, `银行短信会通知你到账`, and
+  `客服系统会通知你`; review-scout feedback also closed the mixed-tail gap where
+  a safe third-party recommendation was followed by a first-person fake tail,
+  e.g. `平台降价提醒会通知你，我也会盯着，有变化我告诉你` or
+  `快递App会通知你，我也会盯着，到了告诉你`. Monitoring a refund/payment arrival
+  is now treated as a status-monitoring ask rather than a delegated external
+  refund action. The slice updated `profile.py`, `evaluation.py`,
+  profile/evaluation tests, README notes, and this ops entry. Bounded
+  synthetic-only Sub2API advice plus read-only candidate, false-positive, and
+  review scouts used only synthetic probes, abstract rules, and file pointers;
+  no private chat text, profile exemplars, cleaned real samples, deploy, live, or
+  production actions were used. Verification: `py_compile` was clean, focused
+  proactive/delegated profile tests passed 4/4, focused contrast/bundle tests
+  passed 13/13, `tests/test_style_profile.py` passed 213/213,
+  `tests/test_style_evaluation.py` passed 27/27, full suite passed 323/323 with
+  one upstream Starlette/TestClient warning, local contrast probes passed
+  1024/1024 probes and 3013/3013 total checks, including 2940/2940 reply checks
+  and 73/73 gap checks, eval generation reported `external_model_calls=0`, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
+- Completed 2026-07-08: tightened `proactive_reminder_boundary_support` so
+  direct monitoring requests can recommend third-party App/platform/system
+  reminder mechanisms without being rewritten as fake autonomous commitments.
+  In synthetic direct asks such as `帮我盯着快递到了告诉我`,
+  `帮我盯着价格降了告诉我`, and `明天中午提醒我交材料`, replies where the
+  tool is the actor now remain clean, including `快递App会到件提醒你`,
+  `快递App会通知你`, `平台降价提醒会通知你`,
+  `开平台降价提醒，降了会通知你`, `系统到点会通知你`, and
+  `你可以开个闹钟，到点会提醒你`. First-person or assistant-owned setup claims
+  are still penalized even when they mention an App or platform, including
+  `我已经在App里设好了，到点会提醒你` and
+  `我帮你开了平台提醒，降了会通知你`, while existing fake commitments such as
+  `我会盯着快递到了告诉你`, `到了告诉你`, `降了我跟你说`,
+  `有变化我告诉你`, and `我会提醒你交材料` continue to receive
+  `proactive_reminder_fake_commitment`. The slice adds third-party tool-advice
+  and fake-tool-setup diagnostics, synthetic profile tests, contrast controls,
+  an explicit proactive probe-pass assertion, README notes, and this ops note.
+  Bounded Sub2API advice and GPT-5.5 xhigh read-only scouts used only synthetic
+  probes, abstract rules, and file pointers; no private chat text, profile
+  exemplars, cleaned real samples, deploy, live, or production actions were used.
+  Verification: `py_compile` was clean, focused proactive-reminder profile tests
+  passed 2/2, focused contrast/bundle tests passed 3/3,
+  `tests/test_style_profile.py` passed 213/213,
+  `tests/test_style_evaluation.py` passed 27/27, full suite passed 323/323 with
+  one upstream Starlette/TestClient warning, local contrast probes passed
+  1019/1019 probes and 2983/2983 total checks, including 2910/2910 reply checks
+  and 73/73 gap checks, eval generation reported `external_model_calls=0`, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`. Next candidate from read-only scouting: broaden
+  external monitoring coverage for `刷/蹲/守` plus objects such as flight status,
+  customer-service replies, signup pages, available slots, tickets, and payment
+  arrival; this was not changed in this slice.
 - Completed 2026-07-08: extended `daily_companion_safe_opener_blame_tail` for
   ordinary support replies that start warmly but then attach character-label or
   diffuse-responsibility tails. In first-person insecurity, bad-day, small-lapse,
