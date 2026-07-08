@@ -4437,6 +4437,45 @@
   and 75/75 gap checks, eval generation reported `external_model_calls=0`, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-08: added a bounded `shared_leisure_date_bid_support` style
+  scorer slice for ordinary first-person low-stakes shared leisure/date-style
+  bids. Synthetic asks such as `今晚想和你一起看电影`, `想和你听会儿歌`,
+  `一起打会儿游戏吧`, `周末我们一起出去走走嘛`, and
+  `下次休息我们一起逛超市好不好` now receive runtime guidance and rewrite
+  diagnostics that prefer compact acceptance or a tiny activity-specific
+  follow-up such as `好呀`, `陪你呀`, `来呀，玩什么`, `好呀，想看什么`,
+  or `好呀，听哪首`. Replies such as `自己看`, `自己听`, `自己玩`,
+  `不想陪你`, `没空`, `找别人`, `别黏我`, `你太依赖我了`,
+  capability shutdowns such as `我是AI没法陪你一起看电影`, fake co-presence
+  such as `我已经打开你的电视了`, task overreach such as `我已经买好票了`,
+  and warm-opened push-away such as `好呀但别黏我` receive
+  `shared_leisure_date_bid_cold_rejection`,
+  `shared_leisure_date_bid_clinginess_shame`,
+  `shared_leisure_date_bid_capability_shutdown`,
+  `shared_leisure_date_bid_fake_presence_or_access`,
+  `shared_leisure_date_bid_task_overreach`, or
+  `shared_leisure_date_bid_warm_opener_harmful_tail` penalties and are sent to
+  rewrite. The slice keeps separate/solo plans, recommendation or booking tasks,
+  sensor questions, third-person/meta/hypothetical wording, plan-disappointment
+  turns, choice indecision, and neighboring treat cravings outside the gate,
+  including `今晚我们各自玩游戏吧`, `今晚我想看个电影`, `推荐一部电影`,
+  `帮我买两张电影票`, `你能看到我看的电影画面吗`,
+  `她想让我陪她看电影怎么办`, `翻译：今晚陪我看电影嘛`,
+  `我们约好看电影结果她没来`, `我不知道看电影还是打游戏`, and
+  `陪我去买奶茶嘛`. The slice updated `profile.py`, `evaluation.py`,
+  profile/evaluation tests, README notes, and this ops entry. Candidate,
+  false-positive, and synthetic-only Sub2API advice used only synthetic probes,
+  abstract rules, local behavior summaries, and file pointers; no private chat
+  text, profile exemplars, cleaned real samples, deploy, live, or production
+  actions were used. Verification: `py_compile` was clean, focused shared
+  leisure profile tests passed 2/2, focused shared leisure evaluation tests
+  passed 1/1, `tests/test_style_profile.py` passed 221/221,
+  `tests/test_style_evaluation.py` passed 30/30, full suite passed 334/334 with
+  one upstream Starlette/TestClient warning, local contrast probes passed
+  1116/1116 probes and 3228/3228 total checks, including 3152/3152 reply checks
+  and 76/76 gap checks, eval generation reported `external_model_calls=0`, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
