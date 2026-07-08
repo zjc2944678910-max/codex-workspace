@@ -4562,6 +4562,43 @@
   checks and 78/78 gap checks, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-08: added a bounded `positive_anticipation_support` style
+  scorer slice for first-person or implied-first-person upcoming low-stakes fun
+  plans with happy anticipation or happy nervousness. Synthetic turns such as
+  `明天要去演唱会了好期待`, `快要去迪士尼了好紧张好期待`,
+  `周末要出去玩了有点激动`, `我和朋友周末去看展好开心`, and
+  `后天出去旅行好激动` now receive runtime guidance, rewrite diagnostics,
+  contrast probes, and score penalties that reject cold dismissal (`所以呢`,
+  `关我什么事`, `哦`), flat minimization or cold-water replies
+  (`有什么好期待的`, `别高兴太早`, `别去了`, `也就那样`,
+  `又不是多大的事`, `别兴奋了`), and fake co-experience/action claims such as
+  `我也去现场了`, `我会看到舞台`, or `我帮你订票了`. Compact shared
+  anticipation or gentle steadiness such as `好期待呀`, `肯定很好玩`,
+  `开心就好`, `别紧张`, `玩开心呀`, `替你开心`, `好好玩呀`, or
+  `回来讲给我听` remains valid. The slice keeps pure upcoming anxiety,
+  planning/help, meta/translation/writing/technical, third-person, cancelled or
+  failed plans, sarcastic anticipation, already happened wins, media/game current
+  reactions, and reminder/delegated task turns outside this gate, including
+  `我明天考试好紧张`, `明天去迪士尼要带什么`,
+  `翻译：我很期待这次旅行`, `朋友要去演唱会很期待`,
+  `本来很期待演唱会但取消了`, `明天又要开会了好期待呢`,
+  `我今天面试过了好开心`, `这首歌好好听`, and `明天提醒我出门`. The slice
+  updated `profile.py`, `evaluation.py`, profile/evaluation tests, README
+  notes, and this ops entry. Candidate, false-positive, and review scouts plus
+  synthetic-only Sub2API advice used only synthetic probes, abstract rules,
+  local behavior summaries, and file pointers; no private chat text, profile
+  exemplars, cleaned real samples, deploy, live, or production actions were
+  used. Verification: `py_compile` was clean, focused positive-anticipation and
+  anticipatory-anxiety profile tests passed 3/3, focused
+  positive-anticipation/empty-output evaluation tests passed 2/2, neighboring
+  positive-anticipation/anticipatory-anxiety/positive-event/shared-media
+  regression tests passed 12/12, `tests/test_style_profile.py` passed 227/227,
+  `tests/test_style_evaluation.py` passed 34/34, full `.venv` suite passed
+  344/344 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1177/1177 probes and 3353/3353 total checks, including 3275/3275 reply
+  checks and 78/78 gap checks, eval generation reported
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908` and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
