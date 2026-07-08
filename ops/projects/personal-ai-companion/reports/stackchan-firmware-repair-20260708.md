@@ -374,3 +374,98 @@ Next bounded integration options:
 - Keep using a temporary local LAN proxy for manual testing.
 - Add a small authenticated local StackChan bridge that exposes only the intended `/v1/chat` shape.
 - Write a removable StackChan-side MicroPython app after confirming the desired input/output UX.
+
+## StackChan Bridge Integration
+
+Date/time:
+
+- `2026-07-08 18:40-18:59 CST`
+
+Implemented local bridge artifacts:
+
+- Bridge script:
+  `/Users/zhangjincheng/Documents/GitHub/codex-workspace/scratch/projects/personal-ai-companion/stackchan-integration-20260708/stackchan_bridge.py`
+- Device-side reusable MicroPython source:
+  `/Users/zhangjincheng/Documents/GitHub/codex-workspace/scratch/projects/personal-ai-companion/stackchan-integration-20260708/stackchan_device_async_client.py`
+
+Bridge behavior:
+
+- Listens on: `192.168.31.225:18769`
+- Upstream: `http://127.0.0.1:8768/v1/chat`
+- Allowed clients for this run:
+  - Mac self-test: `192.168.31.225`
+  - StackChan: `192.168.31.215`
+- Allowed StackChan request path:
+  - sync: `POST /stackchan/chat`
+  - async: `POST /stackchan/chat_async`
+  - async result polling: `GET /stackchan/result/<request_id>`
+- Fixed upstream envelope values:
+  - `channel=stackchan`
+  - `device_id=stackchan-01`
+  - `actor_entity_id=entity:user:self`
+  - `delivery_mode=speaker`
+  - `scope=owner_private`
+  - `model_hint=claude`
+  - `memory_limit=0`
+  - `recent_context_limit=0`
+  - `conversation_context_retention_hours=0`
+  - `style_rewrite=false`
+
+Synchronous bridge finding:
+
+- Mac self-test through `POST /stackchan/chat` returned `ok=true`.
+- StackChan synchronous request reached the bridge and upstream returned HTTP `200`, but the device-side serial session did not reliably capture the reply after a multi-second blocking request.
+- A first device request with non-ASCII JSON returned `400 invalid_json`; likely cause was MicroPython `urequests` `Content-Length` mismatch when sending a Unicode string body.
+- Device client source now encodes JSON with `.encode("utf-8")` before POST.
+
+Async bridge validation:
+
+- Mac async self-test:
+  - queued response included `request_id=req_97d879d02c454de0`
+  - polling returned `ok=true`, `reply=ASYNC_CONNECTED`
+  - upstream route: `provider=claude`, `model=claude-sonnet-4-6`
+- StackChan async device test:
+  - device IP: `192.168.31.215`
+  - queued response included `request_id=req_a2e3bfd4152440eb`
+  - first poll was pending
+  - second poll returned:
+
+```text
+__PAC_OK__ True
+__PAC_REPLY__ DEVICE_CONNECTED
+```
+
+Bridge log evidence:
+
+```text
+18:54:49 request_start client=192.168.31.215 path=/stackchan/chat_async
+18:54:51 upstream_done status=200 ok=True reply_chars=16
+```
+
+Current state:
+
+- Bridge process remained running after validation:
+  - PID: `42186`
+  - listener: `192.168.31.225:18769`
+  - health check: `{"ok":true,"service":"stackchan_bridge"}`
+- Device serial port remained visible after reset:
+  - `/dev/cu.usbmodem101`
+  - `/dev/tty.usbmodem101`
+- No StackChan boot script was installed.
+- No product source file was changed.
+
+Rollback:
+
+- Stop the temporary bridge process:
+
+```bash
+kill 42186
+```
+
+- Remove scratch artifacts if no longer needed:
+
+```bash
+rm -rf /Users/zhangjincheng/Documents/GitHub/codex-workspace/scratch/projects/personal-ai-companion/stackchan-integration-20260708
+```
+
+- If the device is left in REPL, press physical `RST` to return to UIFlow2.
