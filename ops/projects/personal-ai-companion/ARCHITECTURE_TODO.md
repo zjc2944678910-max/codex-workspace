@@ -2,6 +2,13 @@
 
 ## Near Term
 
+- Completed 2026-07-08: documented memory-layer v0.1 implementation readiness
+  under `manifests/memory-layer-v0.1-implementation-readiness.md`, including
+  current-code gaps, L1-safe implementation phases, L3-only migration/repair
+  boundaries, API priorities, test plan, file-level change list, and future L3
+  checklist. No `memory.db`, real chat data, profile exemplars, HealthKit data,
+  API keys, `.env`, state logs, bridge tokens, service restarts, schema writes,
+  or migrations were used.
 - Completed 2026-07-08: documented memory-layer v0.1 under
   `manifests/memory-layer-v0.1.md`, splitting short-term context, long-term
   memory atoms, and a future sensitive data vault into explicit data models,
