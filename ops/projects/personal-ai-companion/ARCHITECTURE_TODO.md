@@ -4695,6 +4695,29 @@
   checks, eval generation reported `external_model_calls=0`, and mock
   `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-08: added a bounded `screen_eye_strain_support` style
+  scorer slice for first-person low-risk screen-related eye soreness, dryness,
+  and fatigue. Synthetic turns such as `我盯了一下午屏幕眼睛好酸`,
+  `我眼睛好干涩，不太想看屏幕了`, `写作业看电脑看得眼睛好累`,
+  `刷手机刷得眼睛酸酸的`, and `我眼睛酸到想闭一会儿` now receive
+  runtime guidance, rewrite diagnostics, contrast probes, and score penalties
+  that reject blame (`谁让你一直看电脑`, `谁叫你刷手机`), cruelty
+  (`眼瞎算了`), dismissal or shaming (`矫情`, `别矫情`), cold indifference
+  (`关我什么事`), neglect (`那就继续看呗`, `继续盯着吧`, `继续看`),
+  unsolicited eye-drop or medical certainty (`滴点眼药水就好了，肯定没事`,
+  `肯定没事`), and fake device action (`我帮你把屏幕关了`). Compact care
+  such as `闭眼休息会`, `看远一点`, `歇会儿眼睛`, `少看一会儿嘛`,
+  `放下手机歇会儿`, or `抱抱你，先别盯屏幕了` remains valid. The slice
+  keeps semantic/product/tech questions, third-person advice, fiction,
+  severe-eye symptoms, dizziness-like symptoms, resolved eye strain, and generic
+  task fatigue outside this gate, including `视疲劳是什么意思`,
+  `眼药水品牌推荐哪个好`, `护眼模式怎么开`,
+  `我朋友看电脑眼睛很酸怎么办`, `小说里女主眼睛酸了`,
+  `我突然看不清眼睛出血了`, `我眼前发黑有点眼花`,
+  `我眼睛不酸了`, and `我写作业写得好累`. Candidate and false-positive
+  scouts used only synthetic probes, abstract rules, local behavior summaries,
+  and file pointers; no private chat text, profile exemplars, cleaned real
+  samples, deploy, live, or production actions were used. Verification pending.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
