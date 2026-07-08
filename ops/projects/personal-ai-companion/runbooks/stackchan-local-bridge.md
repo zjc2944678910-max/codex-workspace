@@ -17,6 +17,10 @@ This runbook covers the local authenticated StackChan bridge for
 - Current bridge upstream: `http://127.0.0.1:8768/v1/chat`.
 - Current device entry: boot-time PAC auto-start v1.2.
 - Manual UIFlow2 App List launch remains a rollback/fallback path.
+- Command protocol v0.1 is documented in
+  `runbooks/stackchan-command-protocol-v0.1.md` and validated locally through
+  the product test suite. It is not yet deployed into the running bridge or
+  written to the device.
 
 ## Local Runtime Boundaries
 
@@ -132,6 +136,10 @@ Any future change to boot-time launch behavior is L3 repair execution.
 
 Do not write `/flash/boot.py`, `/flash/main.py`, restart the bridge, or change
 service parameters until the user explicitly says `进入修复阶段`.
+
+The same gate applies to installing a StackChan command-polling client, changing
+the bridge listener, changing token storage, or turning the v0.1 command API on
+in the running bridge.
 
 Before an auto-start repair, record:
 

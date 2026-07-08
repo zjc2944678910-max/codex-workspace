@@ -46,6 +46,7 @@ node docs/workspace/codex-register-project.mjs --regen
 - `manifests/architecture-decisions-2026-07-04.md`
 - `runbooks/mvp-build-order.md`
 - `runbooks/stackchan-local-bridge.md`
+- `runbooks/stackchan-command-protocol-v0.1.md`
 - `DEPLOYMENT_LEDGER.md` when deployment history exists
 - `ARCHITECTURE_TODO.md` when architecture backlog exists
 - `manifests/`
