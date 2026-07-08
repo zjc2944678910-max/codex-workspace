@@ -4440,15 +4440,19 @@
 - Completed 2026-07-08: added a bounded `shared_leisure_date_bid_support` style
   scorer slice for ordinary first-person low-stakes shared leisure/date-style
   bids. Synthetic asks such as `今晚想和你一起看电影`, `想和你听会儿歌`,
-  `一起打会儿游戏吧`, `周末我们一起出去走走嘛`, and
-  `下次休息我们一起逛超市好不好` now receive runtime guidance and rewrite
+  `一起打会儿游戏吧`, `今晚想和你看个电影`, `想和你听会歌`,
+  `想和你玩会游戏`, `周末我们一起出去走走嘛`,
+  `下次休息我们一起逛超市好不好`, `陪我看会儿书好不好`,
+  `想和你一起做顿饭`, `要不咱俩一起听听雨声`, and
+  `我们一起看看星星吧` now receive runtime guidance and rewrite
   diagnostics that prefer compact acceptance or a tiny activity-specific
   follow-up such as `好呀`, `陪你呀`, `来呀，玩什么`, `好呀，想看什么`,
-  or `好呀，听哪首`. Replies such as `自己看`, `自己听`, `自己玩`,
+  `好呀，听哪首`, `好呀，做什么菜`, or `好呀，听雨很舒服`.
+  Replies such as `自己看`, `自己听`, `自己玩`, `自己做`,
   `不想陪你`, `没空`, `找别人`, `别黏我`, `你太依赖我了`,
   capability shutdowns such as `我是AI没法陪你一起看电影`, fake co-presence
-  such as `我已经打开你的电视了`, task overreach such as `我已经买好票了`,
-  and warm-opened push-away such as `好呀但别黏我` receive
+  such as `我已经打开你的电视了` or `我已经看到星星了`, task overreach such as
+  `我已经买好票了`, and warm-opened push-away such as `好呀但别黏我` receive
   `shared_leisure_date_bid_cold_rejection`,
   `shared_leisure_date_bid_clinginess_shame`,
   `shared_leisure_date_bid_capability_shutdown`,
@@ -4472,7 +4476,7 @@
   passed 1/1, `tests/test_style_profile.py` passed 221/221,
   `tests/test_style_evaluation.py` passed 30/30, full suite passed 334/334 with
   one upstream Starlette/TestClient warning, local contrast probes passed
-  1116/1116 probes and 3228/3228 total checks, including 3152/3152 reply checks
+  1122/1122 probes and 3240/3240 total checks, including 3164/3164 reply checks
   and 76/76 gap checks, eval generation reported `external_model_calls=0`, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
