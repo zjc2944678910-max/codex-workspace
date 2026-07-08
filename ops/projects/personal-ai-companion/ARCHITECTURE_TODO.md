@@ -3992,6 +3992,41 @@
   and 66/66 gap checks, eval generation reported `external_model_calls=0`,
   and mock `/v1/chat` style eval passed 45/45 with average style score `0.908`
   and `external_model_calls=0`.
+- Completed 2026-07-08: added a bounded
+  `ambient_intrusion_roommate_noise_support` style scorer slice for
+  first-person everyday living-environment noise complaints. Synthetic turns
+  such as `楼上装修一直钻墙，吵死了`,
+  `室友外放短视频好吵，我好烦`, `室友手机外放好吵，我好烦`,
+  `隔壁音响太响了，我头疼`, `楼上一直拖椅子，吵得我睡不着`, and
+  `室友吵得我睡不着，降噪耳机有用吗` now get runtime guidance and rewrite
+  diagnostics that prefer compact validation plus one low-escalation nudge.
+  Dismissive, blaming, cold, or retaliatory replies such as `你太敏感了`,
+  `忍着吧`, `关我什么事`, `谁让你住这里`, `上去骂他们`, `你就怼回去`,
+  and `去砸门` now receive `ambient_intrusion_sensitivity_blame_reply`,
+  `ambient_intrusion_dismissive_minimizing_reply`,
+  `ambient_intrusion_cold_reply`, `ambient_intrusion_blame_or_shame_reply`,
+  or `ambient_intrusion_retaliation_escalation_reply` penalties and are sent
+  to rewrite. Post-review hardening kept translation/definition, pure product
+  recommendation, device/audio troubleshooting, weather/wind-noise, assistant
+  hearing/sensor, third-person advice, fiction/game/media, joking, resolved
+  noise, hearing-health, and neutral/pleasant music controls outside the
+  ambient gate; it also fixed the existing fear/safety odd-noise word-order
+  gap so `隔壁有奇怪声音，我有点怕` / `怕什么` routes to
+  `fear_safety_minimizing_reply` instead of ambient. The slice updated
+  `profile.py`, `evaluation.py`, profile/evaluation tests, README notes, and
+  this ops entry. Bounded synthetic-only Sub2API advice plus GPT-5.5 xhigh
+  read-only candidate, false-positive, and review scouts used only synthetic
+  probes, abstract rules, and file pointers; no private chat text, profile
+  exemplars, cleaned real samples, deploy, live, or production actions were
+  used. Verification: `py_compile` was clean, focused ambient/fear profile
+  tests passed 4/4, focused ambient/bundle evaluation tests passed 2/2,
+  `tests/test_style_profile.py` passed 208/208,
+  `tests/test_style_evaluation.py` passed 24/24, full suite passed 315/315
+  with one upstream Starlette/TestClient warning, local contrast probes passed
+  975/975 probes and 2847/2847 total checks, including 2780/2780 reply checks
+  and 67/67 gap checks, eval generation reported `external_model_calls=0`,
+  and mock `/v1/chat` style eval passed 45/45 with average style score `0.908`
+  and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
