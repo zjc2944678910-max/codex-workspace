@@ -4227,6 +4227,38 @@
   checks and 71/71 gap checks, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-08: tightened `delegated_task_ability_boundary` for
+  conditional future external actions. Synthetic asks such as
+  `有票了你就帮我抢`, `有名额了你就帮我报名`, `客服一回你就帮我处理`,
+  `退款一到账你就帮我续费`, `报名页面开了你就直接帮我约`, and
+  `价格一降你就帮我下单` now enter a delegated-task conditional boundary.
+  Replies that pretend the companion will execute later, including
+  `一有票我就帮你抢`, `有名额我就帮你报上`, `客服回了我就替你处理`,
+  `到账后我顺手帮你续费`, `一开放我直接给你约`, and
+  `降了我马上给你下单`, receive `delegated_task_fake_execution_claim` and are
+  sent to rewrite. Immediate scoped help and boundaries such as `先开候补`,
+  `先备材料`, `写话术`, `先设提醒`, `回来找我`,
+  `不能自动抢，先开候补`, and `有票了我也不能帮你抢，先开候补` remain clean.
+  Third-party platform or tool-actor controls also stay clean, including
+  `12306候补会自动兑现`, `平台自动续费会自己扣`, and
+  `如果接入抢票工具，授权后才可以`; third-person, quoted/reported, product/API,
+  hypothetical, and resolved contexts such as `朋友让我有票就帮她抢怎么办`,
+  `她说“有票了帮我抢”我该怎么回`, `我在做自动抢票系统，有票后怎么下单`,
+  and `我刚刚已经抢到票了` stay outside the boundary. The slice updated
+  `profile.py`, `evaluation.py`, profile/evaluation tests, README notes, and
+  this ops entry. Bounded synthetic-only Sub2API advice plus GPT-5.5 xhigh
+  read-only candidate, false-positive, and review scouts used only synthetic
+  probes, abstract rules, and file pointers; no private chat text, profile
+  exemplars, cleaned real samples, deploy, live, or production actions were
+  used. Verification: `py_compile` was clean, focused delegated-task profile
+  tests passed 2/2, focused contrast/bundle tests passed 13/13,
+  `tests/test_style_profile.py` passed 213/213,
+  `tests/test_style_evaluation.py` passed 27/27, full suite passed 323/323 with
+  one upstream Starlette/TestClient warning, local contrast probes passed
+  1029/1029 probes and 3033/3033 total checks, including 2960/2960 reply checks
+  and 73/73 gap checks, eval generation reported `external_model_calls=0`, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
