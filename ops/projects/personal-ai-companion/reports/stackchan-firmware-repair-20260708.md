@@ -992,3 +992,30 @@ Conclusion:
   bridge to `personal-ai-companion` and receive a short model response.
 - The current accepted level is still manual/one-shot execution, not boot-time
   auto-start and not a full voice chain.
+
+## UIFlow2 Manual Screen Launch Acceptance
+
+Date/time:
+
+- `2026-07-08 21:32 CST`
+
+Scope:
+
+- Verified the physical UIFlow2 app-list/manual launch path.
+- User launched the installed app-list entry from the device screen.
+- Did not write device flash.
+- Did not modify `/flash/boot.py`, `/flash/main.py`, bridge parameters,
+  `profile.py`, `evaluation.py`, or tests.
+
+Bridge log evidence:
+
+```text
+21:32:04 request_start client=192.168.31.215 path=/stackchan/chat_async
+21:32:08 upstream_done status=200 ok=True reply_chars=16
+```
+
+Conclusion:
+
+- The UIFlow2 manual screen path can trigger the StackChan bridge successfully.
+- The accepted v1 launch path is now both documented and physically verified:
+  select `/flash/apps/00_pac_bridge_demo.py` from UIFlow2 App List and run once.
