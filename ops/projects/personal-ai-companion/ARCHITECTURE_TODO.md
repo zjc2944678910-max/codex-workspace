@@ -4860,6 +4860,49 @@
   checks and 81/81 gap checks, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-08: added a bounded `laundry_chore_friction_support` style
+  scorer slice for first-person low-risk reluctance, annoyance, or stuckness
+  around washing, hanging, collecting, taking out laundry, or changing bedding.
+  Synthetic turns such as `我懒得洗衣服了`, `脏衣服堆了好多不想洗`,
+  `衣服还没晾我有点烦`, `洗衣机里衣服忘拿出来了好烦`,
+  `床单该洗了但我不想动`, `衣服晾了一晚上还没收，有点不想动`,
+  `衣服不想洗了`, `床单不想换了`, and `我不想把衣服拿出来` now receive
+  runtime guidance, rewrite diagnostics, contrast probes, and score penalties
+  that reject shaming or disgust (`你怎么这么懒`, `脏死了`, `床单脏死了`),
+  cold dismissal (`关我什么事`, `所以呢`), abandonment or enabling
+  (`不洗算了`, `你自己不会晾吗`, `你自己不会拿吗`), scolding or blame
+  (`早该拿出来了`, `怎么又堆这么多`), and fake physical action
+  (`我帮你洗好了`, `我替你收好了`). Compact warm nudges such as
+  `先丢洗衣机嘛`, `洗一小筐就好`, `先洗一件嘛`, `先晾一下嘛`,
+  `先拿出来`, `床单先换下来嘛`, `等下顺手收一下`, and `抱抱你`
+  remain valid. The slice keeps completed or starting routines, hygiene
+  reluctance, generic task overwhelm, stain/weather setbacks, reminders or
+  delegated actions, third-person owner cases, meta/translation/quote tasks,
+  past-only narration, hypothetical advice, and product/info questions outside
+  the gate, including `我洗完衣服啦`, `我去洗衣服啦`, `不想洗澡`,
+  `家务好多做不完`, `衣服被咖啡弄脏了`, `下雨衣服湿了`,
+  `提醒我晚上收衣服`, `帮我洗衣服`, `她懒得洗衣服了`,
+  `我弟懒得洗衣服`, `上周我懒得洗衣服结果没衣服穿`,
+  `用"懒得洗衣服"造个句`, `翻译：我懒得洗衣服了`,
+  `如果不想洗衣服怎么办`, and `洗衣机推荐哪个好`. A post-implementation
+  read-only review scout found two non-blocking gaps: object-first phrasing and
+  mixed past/third-person clauses with a later current self-friction clause.
+  Both were fixed before acceptance, so `上周我懒得洗衣服结果没衣服穿，现在又不想洗了`
+  and `我妈说我懒得洗衣服，我现在更不想洗了` now enter the gate while the
+  past-only and owner-only controls remain outside it. Candidate, false-positive,
+  and review scouts plus bounded synthetic-only Sub2API review used only
+  synthetic probes, abstract rules, local behavior summaries, verification
+  numbers, and file pointers; no private chat text, profile exemplars, cleaned
+  real samples, deploy, live, or production actions were used. The slice updated
+  `profile.py`, `evaluation.py`, profile/evaluation tests, README notes, and
+  this ops entry. Verification: `py_compile` was clean, focused laundry and
+  empty-output tests passed 4/4, `tests/test_style_profile.py` passed 239/239,
+  `tests/test_style_evaluation.py` passed 39/39, full `.venv` suite passed
+  373/373 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1271/1271 probes and 3640/3640 total checks, including 3558/3558 reply
+  checks and 82/82 gap checks, eval generation reported `external_model_calls=0`,
+  and mock `/v1/chat` style eval passed 45/45 with average style score `0.908`
+  and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
