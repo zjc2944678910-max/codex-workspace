@@ -3595,6 +3595,33 @@
   and 56/56 gap checks, eval generation reported `external_model_calls=0`, and
   mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-08: extended the delegated-task fake-execution hardening to
+  upload/share/cancel/refund success aliases and an independent group-share
+  contrast context. In direct external upload/share requests such as
+  `你帮我把这个文件上传到系统里吧`, `你直接帮我把材料传到网站上`, and
+  `帮我把表格发到群里吧`, replies such as `上传好了`, `我上传好了`,
+  `上传成功了`, `传好了`, `传成功了`, `发群里了`, `我帮你发群里了`,
+  `发送成功了`, `分享好了`, `分享成功了`, and `转发成功了` now receive
+  `delegated_task_fake_execution_claim`. Cancel/refund completion aliases such
+  as `取消好了`, `取消成功了`, `好的马上退票`, and `退票成功了` are also
+  covered. Scoped help and local review/planning controls remain clean, including
+  `先看步骤`, `先想一句`, `我陪你看`, `不能上传但我帮你看看步骤`,
+  `不能发但我帮你想一句`, `帮我看看作业提交材料齐不齐`,
+  `帮我检查一下提交前的附件`, `帮我预约一下明晚复习计划`, and
+  `帮我预约一下明晚聊天时间`. The slice updates runtime regex coverage,
+  synthetic profile tests, default contrast probes, eval-bundle assertions,
+  README notes, and this ops note. Bounded Sub2API advice and GPT-5.5 xhigh
+  sidecar agents used only synthetic probes, abstract rules, and file pointers;
+  no private chat text, profile exemplars, cleaned real samples, deploy, live, or
+  production actions were used. Verification: `py_compile` was clean, focused
+  delegated-task profile tests passed 2/2, focused contrast/bundle tests passed
+  3/3, `tests/test_style_profile.py` passed 213/213,
+  `tests/test_style_evaluation.py` passed 27/27, full suite passed 323/323 with
+  one upstream Starlette/TestClient warning, local contrast probes passed
+  1019/1019 probes and 2975/2975 total checks, including 2902/2902 reply checks
+  and 73/73 gap checks, eval generation reported `external_model_calls=0`, and
+  mock `/v1/chat` style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
 - Completed 2026-07-08: extended `daily_companion_safe_opener_blame_tail` for
   ordinary support replies that start warmly but then attach character-label or
   diffuse-responsibility tails. In first-person insecurity, bad-day, small-lapse,
