@@ -4810,6 +4810,43 @@
   checks, including 3493/3493 reply checks and 81/81 gap checks, eval generation
   reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
   45/45 with average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-08: hardened the existing
+  `shared_leisure_activity_callback_support` scorer with a bounded
+  `hollow_ack` slice for the present-tense shared leisure callback moment.
+  Synthetic callbacks such as `我选好电影了，开头来了`,
+  `电影开始啦，你陪我看`, `现在这首歌开始了，陪我听`,
+  `我把歌放好了`, `我进游戏房间了，等你`,
+  `游戏房间开好了等你`, and `雨声开始了，一起听吗` now penalize empty
+  receipt replies such as `知道了`, `嗯`, `嗯嗯`, and `行吧` with
+  `shared_leisure_activity_callback_hollow_ack`, while preserving compact
+  current companionship such as `来啦，先看`, `陪你呀`, `好呀，哪首`,
+  `来啦，陪你听`, `来啦，等你呀`, and `好呀，听着舒服`. The hardening also
+  widened callback detection for current song/game-room/rain-start variants and
+  added false-positive boundaries for initial invites, status-only starts,
+  postposed reminder/task wording, postposed solo/separate wording, no-show or
+  cancellation narration, classification/meta strings, rating or sensor-style
+  questions, negated/not-ready starts, third-person/hypothetical wording,
+  delegated projection, and media/game reaction-only turns, including
+  `今晚想和你一起看电影`, `电影开始啦`, `这首歌开始了`,
+  `电影开始前提醒我`, `电影开始了叫我`, `歌放好了，我自己听`,
+  `歌放好了，我们各自听`, `我选好电影了，结果他没来`,
+  `shared_leisure_activity_callback 里电影开始啦怎么分类`,
+  `电影开始啦好看吗`, `歌还没放好`, and
+  `电影还没开始，你不用等`. Candidate and false-positive scouts plus
+  bounded synthetic-only Sub2API implementation advice used only synthetic
+  probes, abstract rules, local behavior summaries, verification numbers, and
+  file pointers; no private chat text, profile exemplars, cleaned real samples,
+  deploy, live, or production actions were used. The slice updated
+  `profile.py`, `evaluation.py`, profile/evaluation tests, README notes, and
+  this ops entry. Verification: `py_compile` was clean, focused
+  activity-callback profile tests passed 2/2, focused activity-callback and
+  empty-output evaluation tests passed 2/2, `tests/test_style_profile.py`
+  `tests/test_style_evaluation.py` passed 275/275, full `.venv` suite passed
+  358/358 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1268/1268 probes and 3601/3601 total checks, including 3520/3520 reply
+  checks and 81/81 gap checks, eval generation reported
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908` and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.

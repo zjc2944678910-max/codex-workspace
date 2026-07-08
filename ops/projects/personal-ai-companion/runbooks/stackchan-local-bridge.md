@@ -11,6 +11,13 @@ This runbook covers the local authenticated StackChan bridge for
 - StackChan reaches only the bridge on the home LAN.
 - The bridge forwards only the fixed StackChan envelope shape to `/v1/chat`.
 
+## Current State
+
+- Current bridge listener: `192.168.31.225:18769`.
+- Current bridge upstream: `http://127.0.0.1:8768/v1/chat`.
+- Current device entry: boot-time PAC auto-start v1.2.
+- Manual UIFlow2 App List launch remains a rollback/fallback path.
+
 ## Files
 
 - Product script:
@@ -67,12 +74,12 @@ Use `/stackchan/chat_async` for device traffic:
 2. Read `request_id`.
 3. Poll `GET /stackchan/result/<request_id>` with the same token.
 
-## Formal Run Entry v1
+## Historical Manual Entry v1
 
-The current minimal formal entry is manual UIFlow2 App List launch.
+The first minimal formal entry was manual UIFlow2 App List launch.
 
-Use this entry when the goal is a repeatable, reversible StackChan bridge run
-without changing boot behavior:
+Keep this entry as a repeatable rollback/fallback path when the goal is to run
+the StackChan bridge without changing boot behavior:
 
 1. Confirm the local bridge is healthy:
 
@@ -101,13 +108,13 @@ without changing boot behavior:
 5. Treat `DEVICE_CONNECTED` or a short successful text response as the minimal
    end-to-end verification signal.
 
-This v1 entry intentionally does not modify `/flash/boot.py` or
-`/flash/main.py`. A formal entry is documented, repeatable, and reversible; it
-does not need to be automatic.
+This historical v1 entry intentionally did not modify `/flash/boot.py` or
+`/flash/main.py`. The current device state is the v1.2 boot-time auto-start
+documented below.
 
 ## Auto-Start Gate
 
-Any move from manual App List launch to boot-time launch is L3 repair execution.
+Any future change to boot-time launch behavior is L3 repair execution.
 
 Do not write `/flash/boot.py`, `/flash/main.py`, restart the bridge, or change
 service parameters until the user explicitly says `进入修复阶段`.
@@ -190,8 +197,8 @@ rm -rf /Users/zhangjincheng/Documents/GitHub/codex-workspace/state/project-data/
 
 ## Device Notes
 
-- Keep manual App List launch as the formal v1 entry unless an L3 auto-start
-  repair is explicitly opened.
+- Keep manual App List launch as a rollback/fallback path. The current entry is
+  the v1.2 boot-time PAC auto-start path documented above.
 - For MicroPython, send JSON request bodies as UTF-8 bytes so `Content-Length`
   is byte-accurate for non-ASCII text.
 - Device token storage uses ESP32 NVS namespace `pac`, key `bridge_token`.
