@@ -4602,25 +4602,36 @@
 - Completed 2026-07-08: added a bounded `living_utility_outage_support` style
   scorer slice for first-person or implied-first-person current dorm/room/home
   utility failures. Synthetic turns such as `宿舍停水了好烦`,
-  `寝室没热水了洗不了澡`, `宿舍断电了烦死了`, and `空调坏了好热`
-  now receive runtime guidance, rewrite diagnostics, contrast probes, and score
-  penalties that reject cold dismissal (`所以呢`, `关我什么事`), blame or shame
-  (`活该`), abandonment (`自己解决`, `那你别洗`, `没电就别用`), cruelty
-  (`热死你`, `臭着吧`), fake repair/action claims (`我帮你恢复来水了`,
-  `我帮你恢复供电了`, `我帮你修好了`), and remedy-plus-blame tails such as
+  `寝室没热水了洗不了澡`, `宿舍断电了烦死了`, `空调坏了好热`, and
+  `我和室友寝室没热水了洗不了澡` now receive runtime guidance, rewrite
+  diagnostics, contrast probes, and score penalties that reject cold dismissal
+  (`所以呢`, `关我什么事`), blame or shame (`活该`), abandonment (`自己解决`,
+  `那你别洗`, `没电就别用`), cruelty (`热死你`, `臭着吧`), fake
+  repair/action claims (`我帮你恢复来水了`, `我帮你恢复供电了`,
+  `我帮你修好了`, `我现在帮你报修`), and remedy-plus-blame tails such as
   `先接点水但你怎么不提前接` or `开风扇但你怎么不早点修`. Compact support
   and practical nudges such as `啊好烦`, `抱抱你`, `先接点水嘛`, `问问宿管`,
   `报修`, `省点电`, and `先开风扇嘛` remain valid. The slice keeps
-  definition/meta, notice-writing, technical/API, third-person, hypothetical,
-  resolved, direct-help, and product-choice controls outside the gate, including
-  `停水是什么意思`, `明天宿舍停水通知怎么写`, `接口返回power_outage字段`,
-  `我室友说寝室没热水了怎么办`, `朋友家里断电了好烦怎么办`,
-  `万一宿舍停水怎么办`, `刚才宿舍停水了现在来水了`,
-  `家里停水了怎么办`, and `空调哪个型号好`. A read-only review scout found
-  that early dorm/AC examples overlapped with ambient-intrusion and weather
-  discomfort gates; the final patch excludes living-utility contexts from those
-  neighboring gates and adds regression assertions that the living-utility
-  prompts do not receive ambient/weather guidance. The slice updated
+  definition/meta, notice-writing, technical/API, third-person, quoted
+  rewrite/reply coaching, hypothetical, resolved, phone-battery overlap,
+  direct-help, product-choice, neighboring-room, and notice/product hybrids
+  outside the gate, including `停水是什么意思`, `明天宿舍停水通知怎么写`,
+  `接口返回power_outage字段`, `我室友说寝室没热水了怎么办`,
+  `朋友家里断电了好烦怎么办`,
+  `把'宿舍停水了好烦'这句话改得可爱点`,
+  `这句'空调坏了好热'怎么回复`, `万一宿舍停水怎么办`,
+  `遇到宿舍停水洗不了澡该怎么办`, `刚才宿舍停水了现在来水了`,
+  `刚才宿舍停水洗不了澡，后来洗完了`, `我手机没电了好烦`,
+  `家里停水了怎么办`, `家里停水了洗不了澡怎么办`,
+  `物业群说今晚停水洗不了澡`, `空调哪个型号好`,
+  `空调坏了好热，哪个型号好`, and `隔壁寝室停水了好烦`. Read-only review
+  scouts found that early dorm/AC examples overlapped with ambient-intrusion
+  and weather discomfort gates, and later found quoted/meta, alternate
+  hypothetical/resolved, phone-battery, reported/non-user, and hybrid false
+  positives. The final patch keeps pure living-utility examples out of
+  ambient/weather while allowing explicit mixed turns such as a utility outage
+  plus building noise or outside heat/sun to still trigger those neighboring
+  gates. The slice updated
   `profile.py`, `evaluation.py`, profile/evaluation tests, README notes, and
   this ops entry. Candidate, false-positive, and review scouts plus bounded
   synthetic-only advisory work used only synthetic probes, abstract rules, local
@@ -4631,7 +4642,7 @@
   evaluation tests passed 4/4, `tests/test_style_profile.py` passed 229/229,
   `tests/test_style_evaluation.py` passed 34/34, full `.venv` suite passed
   346/346 with one upstream Starlette/TestClient warning, local contrast probes
-  passed 1188/1188 probes and 3384/3384 total checks, including 3304/3304 reply
+  passed 1198/1198 probes and 3396/3396 total checks, including 3316/3316 reply
   checks and 80/80 gap checks, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
