@@ -18,6 +18,20 @@ This runbook covers the local authenticated StackChan bridge for
 - Current device entry: boot-time PAC auto-start v1.2.
 - Manual UIFlow2 App List launch remains a rollback/fallback path.
 
+## Local Runtime Boundaries
+
+- `8768` is the StackChan integration API port. Keep it running while the bridge
+  is active.
+- `8767` may still exist as an older or parallel local development API
+  instance. Do not treat it as the StackChan upstream unless the bridge
+  configuration is changed deliberately.
+- Local API processes currently use the product root as their working directory,
+  so `memory.db` and uvicorn log/PID files may appear there during local MVP
+  runs.
+- Do not stop `8767`/`8768`, move `memory.db`, or consolidate the two API
+  processes as part of a docs-only cleanup. That is a separate L3 repair because
+  it changes live local runtime state.
+
 ## Files
 
 - Product script:
