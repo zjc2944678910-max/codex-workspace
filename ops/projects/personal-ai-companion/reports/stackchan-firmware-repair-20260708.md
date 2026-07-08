@@ -947,3 +947,48 @@ Conclusion:
 - The accepted behavior is manual launch through the UIFlow2 app-list entry or
   equivalent one-shot execution of `/flash/apps/00_pac_bridge_demo.py`.
 - Auto-start remains out of scope until a separate L3 repair gate is authorized.
+
+## Short Text Request Acceptance
+
+Date/time:
+
+- `2026-07-08 21:29 CST`
+
+Scope:
+
+- Ran one synthetic non-private short text request through the installed
+  StackChan bridge client.
+- Did not write device flash.
+- Did not modify `/flash/boot.py`, `/flash/main.py`, bridge parameters,
+  `profile.py`, `evaluation.py`, or tests.
+- This request did call `/v1/chat`, so it may have produced one synthetic
+  local usage/conversation-state event.
+
+Input:
+
+- `你好，StackChan 短文本接入测试，请用一句中文回复 OK。`
+
+Device-side evidence:
+
+- Wi-Fi connected:
+  `192.168.31.215`
+- queued:
+  `request_id=req_37686bb141794754`
+- final `ok`:
+  `True`
+- final reply:
+  `你好！测试收到，一切正常，OK！ 😊`
+
+Bridge log evidence:
+
+```text
+21:29:25 request_start client=192.168.31.215 path=/stackchan/chat_async
+21:29:31 upstream_done status=200 ok=True reply_chars=18
+```
+
+Conclusion:
+
+- StackChan can send a real short text request through the authenticated local
+  bridge to `personal-ai-companion` and receive a short model response.
+- The current accepted level is still manual/one-shot execution, not boot-time
+  auto-start and not a full voice chain.
