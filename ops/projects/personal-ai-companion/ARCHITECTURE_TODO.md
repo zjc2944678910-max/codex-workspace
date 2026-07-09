@@ -5130,16 +5130,20 @@
   False-positive controls keep translation/meta,消防演练/knowledge, sensor and
   smart-home state queries, third-person reports, already-resolved/fire-service
   arrived turns, ordinary cooking oil-smoke, utility repair, fiction, jokes, and
-  the existing third-person home-safety controls outside the gate. Candidate,
+  the existing third-person home-safety controls outside the gate. The review
+  pass also hardened common wording such as `泄露`, standalone `烟味`/`糊味`,
+  `一直响`, short resolved forms like `油锅着火已经灭了`, and camera/monitor
+  smoke or fire state queries so fake visual claims route to sensor-boundary
+  `unavailable_home_state_claim`. Candidate,
   false-positive, and review scouts were read-only and used only synthetic
   probes, abstract rules, local behavior summaries, and file pointers; no
   private chat text, profile exemplars, cleaned real samples, deploy, live, or
   production actions were used. Verification: `compileall` was clean, requested
   focused home-emergency/home-safety/sensor-boundary/empty-output/contrast tests
-  passed 8/8, `tests/test_style_profile.py` passed 251/251,
+  passed 9/9, `tests/test_style_profile.py` passed 251/251,
   `tests/test_style_evaluation.py` passed 43/43, full `.venv` suite passed
   411/411 with one upstream Starlette/TestClient warning, local contrast probes
-  passed 1295/1295 probes and 4018/4018 total checks, including 3927/3927 reply
+  passed 1295/1295 probes and 4024/4024 total checks, including 3933/3933 reply
   checks and 91/91 gap checks with `pass_rate=1.0`, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
