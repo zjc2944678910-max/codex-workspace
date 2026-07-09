@@ -5375,6 +5375,34 @@
   checks passed 4091/4091 with `pass_rate=1.0`, eval generation
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908`.
+- Completed 2026-07-09: added and stabilized a bounded
+  `account_access_friction_support` style slice for first-person, current,
+  unresolved account-access pressure: missing SMS/email verification codes,
+  login lockouts or password failures, QR/scan login failure, and payment or
+  collection codes failing in public pressure. The scorer now lowers cold,
+  blaming, fake-access, secret-request, and unsafe-bypass replies such as
+  `关我什么事`, `谁让你输错`, `我帮你登上了`, `验证码发我`, `密码给我`, or
+  `绕过验证就行`, while preserving compact safe replies that steady the user
+  and point to official steps like resend/wait, spam/SMS filtering checks,
+  official recovery, fallback payment, or QR refresh. Controls keep
+  private-content access requests, already provided secrets, phone power or
+  no-signal cases, product/API/security education, CAPTCHA/OAuth text, generic
+  order/refund/payment failures, generic event/menu/ordering QR issues,
+  ordinary scan-to-pay order failures, third-person or quoted coaching,
+  translation and meta text work, hypothetical prompts, and resolved logins
+  outside this gate. A read-only review pass then tightened the QR boundary so
+  bare `扫码`/`二维码` no longer trigger account-access unless tied to login or
+  payment/collection-code access. The pass used only synthetic probes, abstract
+  rules, file pointers, and local verification; no private chat originals,
+  profile exemplars, cleaned samples, deploy, live, or production actions were
+  used. Verification: `compileall` was clean, focused account-access,
+  empty-output, and contrast tests passed 8/8, `tests/test_style_profile.py` passed 261/261,
+  `tests/test_style_evaluation.py` passed 45/45, full `.venv` suite passed
+  423/423 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1310/1310, reply checks passed 4097/4097, gap checks passed 95/95, and
+  total checks passed 4192/4192 with `pass_rate=1.0`, eval generation
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
