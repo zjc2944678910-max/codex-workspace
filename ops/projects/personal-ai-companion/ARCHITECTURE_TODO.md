@@ -5544,6 +5544,38 @@
   and total checks passed 4281/4281 with `pass_rate=1.0`, eval generation
   reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
   45/45 with average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-09: added a bounded `soft_reveal_followthrough_support`
+  slice for the second beat after a soft opening, when the user has started to
+  reveal something but is still saying it vaguely or cautiously. Synthetic
+  turns such as `就是今天有点委屈，想跟你说一下`,
+  `我也不知道怎么说，就是有点怪怪的`, `有点烦，想跟你说一下`, and
+  `我想继续跟你说刚刚那个事` now receive runtime guidance, rewrite
+  diagnostics, contrast probes, and score penalties that reject impatient
+  probing (`那你到底想说什么`, `直接说重点吧`), premature utility framing
+  (`所以你想让我帮你什么`, `请具体描述你的问题`), flat probe replies
+  (`好`), unsoftened delay (`晚点再说吧`), and warm-opened pressure such as
+  `我在呢，但快说重点`. Compact followthrough replies such as
+  `我在呢，你慢慢说`, `你说呀，我听着`, `怎么啦，慢慢跟我说`,
+  `慢慢说呀`, `我在，先跟我说说看`, and `好呀，我陪你往下说` remain
+  valid. False-positive controls keep companionship-first turns,
+  conflict-repair turns, availability complaints and opt-outs, task/help or
+  reminder tails, quoted/meta text work, concrete wronged suffixes, and
+  resolved-past turns outside this gate. Candidate scout and false-positive
+  scout both converged on the same candidate using only synthetic probes,
+  abstract rules, and local file pointers. A bounded synthetic-only Sub2API
+  advisory pass was attempted but the local gateway returned connection
+  refused, so the slice proceeded with local evidence and scout input only.
+  The review scout only confirmed readiness and did not return findings before
+  closeout, so the final regression pass stayed local on the main thread.
+  Verification: `compileall` was clean, the focused
+  soft-reveal/soft-talk/conflict/availability/companionship/wronged subset
+  passed 13/13, `tests/test_style_profile.py` passed 269/269,
+  `tests/test_style_evaluation.py` passed 49/49, full `.venv` suite passed
+  435/435 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1347/1347, reply checks passed 4211/4211, gap checks passed 99/99,
+  and total checks passed 4310/4310 with `pass_rate=1.0`, eval generation
+  reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
+  45/45 with average style score `0.908` and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
