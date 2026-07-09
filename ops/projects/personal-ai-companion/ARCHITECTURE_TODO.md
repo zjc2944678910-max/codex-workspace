@@ -5136,6 +5136,31 @@
   warning, local contrast probes 1291/1291 and total checks 3949/3949 with
   `pass_rate=1.0`, eval generation `external_model_calls=0`, and mock
   `/v1/chat` style eval 45/45 with average style score `0.908`.
+- Completed 2026-07-09: extended the existing
+  `affection_attention_bid_support` scorer for vulnerable current
+  soft-clinginess bids where the user wants to be close but pre-apologizes for
+  possibly bothering the companion. Synthetic turns such as
+  `我有点想黏着你但又怕打扰你`, `我想黏你一下但怕你烦`, and
+  `我好想赖着你又怕你嫌我烦` now receive the existing attention-bid runtime
+  guidance, rewrite diagnostics, contrast probes, and penalties. Replies such
+  as `别黏人`, `随便你`, and `我无法提供持续陪伴` are lower-scored through
+  `affection_attention_cold_dismissal` or `affection_attention_deflection`,
+  while compact warm receipts such as `不打扰呀`, `想黏就黏`, and `我在呢`
+  remain valid. The slice deliberately did not widen into `晚安，亲亲我嘛`;
+  sleep/goodnight ritual handling remains separate for a future pass. Controls
+  keep love/like reassurance, ordinary companionship, opt-outs, third-person
+  and quoted reports, translation/meta, hypothetical, and resolved-past turns
+  outside this gate. Candidate and false-positive scouts plus the bounded
+  Sub2API advice pass used only synthetic probes, abstract rules, behavior
+  summaries, and file pointers; no private chat text, profile exemplars,
+  cleaned real samples, deploy, live, or production actions were used.
+  Verification: `compileall` was clean, focused affection-attention,
+  empty-output, and contrast tests passed 5/5, `tests/test_style_profile.py`
+  passed 249/249, `tests/test_style_evaluation.py` passed 43/43, full `.venv`
+  suite passed 409/409 with one upstream Starlette/TestClient warning, local
+  contrast probes passed 1293/1293 and total checks 3962/3962 with
+  `pass_rate=1.0`, eval generation `external_model_calls=0`, and mock
+  `/v1/chat` style eval passed 45/45 with average style score `0.908`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
