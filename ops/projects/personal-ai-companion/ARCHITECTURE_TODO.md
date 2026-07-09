@@ -5207,6 +5207,34 @@
   checks and 93/93 gap checks with `pass_rate=1.0`, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-09: finished and hardened the pre-existing but incomplete
+  `casual_ping_support` scorer slice for low-content affectionate connection
+  bids such as `在嘛`, `戳戳`, `想你啦`, and `来找你一下`. The slice was already
+  partly present in `profile.py`; this pass connected it to score output, total
+  scoring, rewrite diagnostics, empty-output skeletons, contrast penalty
+  harvesting, default contrast probes, README notes, and focused tests. It now
+  rejects task-assistant framing (`有什么需要帮助`, `请问有什么任务`), cold
+  pushaway (`谁问你了`, `这么闲`, `别打扰我`, `别黏我`, `自己玩去`),
+  capability deflection (`我无法提供陪伴`), and warm-openers with rejecting tails
+  (`来啦但别烦我`, `来啦没空`, `在呢没空`). Compact warm presence such as
+  `在呢`, `来啦`, `怎么啦`, `戳回来`, `我也想你`, and `抱抱你` remains valid.
+  Controls keep meta/translation, quoted or third-person pings, task/professional
+  requests after `在吗`, wrong-chat reports, morning/reentry/routine overlap,
+  companionship, and soft-clinginess bids outside this narrow gate. Candidate
+  and false-positive scouts were read-only and used only synthetic probes,
+  abstract rules, local behavior summaries, and file pointers; no private chat
+  text, profile exemplars, cleaned real samples, deploy, live, or production
+  actions were used. A final read-only review scout found the `来啦没空` /
+  `在呢没空` harmful-tail miss, which the main thread fixed before final
+  verification, then the scout was closed. Verification: `compileall` was clean,
+  focused casual-ping/empty-output/contrast tests passed 7/7,
+  `tests/test_style_profile.py` passed 259/259,
+  `tests/test_style_evaluation.py` passed 45/45, full `.venv` suite passed
+  421/421 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1307/1307 probes and 4164/4164 total checks, including 4069/4069 reply
+  checks and 95/95 gap checks with `pass_rate=1.0`, eval generation reported
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908` and `external_model_calls=0`.
 - Completed 2026-07-09: added a bounded `home_emergency_safety_support` style
   scorer slice for first-person current home emergencies such as smelling gas,
   visible smoke, active fire, unsafe appliance smoke, or active gas/smoke/CO
