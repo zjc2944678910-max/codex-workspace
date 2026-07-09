@@ -5482,6 +5482,39 @@
   and total checks passed 4255/4255 with `pass_rate=1.0`, eval generation
   reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
   45/45 with average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-09: added a bounded `soft_talk_opening_support` slice for
+  the tiny receptive beat before the user actually says the thing they want to
+  talk about. Synthetic turns such as `我有个事想跟你说`, `想跟你说件事`,
+  `我忙完啦，想跟你聊个事`, and `我想跟你聊聊` now receive runtime
+  guidance, rewrite diagnostics, contrast probes, and score penalties that
+  reject cold shutdowns (`谁问你了`, `不想听`, `别烦我`), flat handoffs
+  (`好`, `说`), impatient pushes (`有事就直说，别卖关子`), task-assistant
+  intake language (`请详细描述，我会为你分析`), unsoftened delays
+  (`晚点说吧`), and warm-opened push-away such as
+  `我在呢，但快点说我很忙`. Compact warm openings such as `你说呀`,
+  `怎么啦`, `你慢慢说`, `我在呢，你说`, `来啦，你说`, and softened
+  delay like `你先说，我可能回慢一点` remain valid. The slice deliberately
+  keeps companionship-first turns such as `有点无聊，想跟你说说话`,
+  quoted or reported coaching like `她说“我有个事想跟你说”我怎么回`,
+  translation/meta requests, task/help forms such as
+  `我有个事想问你，米饭要煮多久`, reminder or external-task tails, explicit
+  availability/opt-out mixtures such as `我有个事想跟你说，我现在不想打电话`,
+  conflict/distress suffixes such as `我有个事想跟你说，我刚刚给你发了一大段你只回嗯，我有点委屈`,
+  and resolved-past turns such as `刚才有个事想跟你说，现在好了` outside this
+  gate. Candidate scout and false-positive scout both converged on the same
+  candidate using only synthetic probes, abstract rules, and local file
+  pointers; a bounded synthetic-only Sub2API advisory pass agreed on the slice
+  shape. The review scout only completed route-lock/readiness confirmation
+  before timing out, so the final regression pass stayed local on the main
+  thread. Verification: `compileall` was clean, the requested focused
+  soft-talk/routine/companionship/conflict/availability subset passed 11/11,
+  `tests/test_style_profile.py` passed 267/267,
+  `tests/test_style_evaluation.py` passed 48/48, full `.venv` suite passed
+  432/432 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1335/1335, reply checks passed 4183/4183, gap checks passed 98/98,
+  and total checks passed 4281/4281 with `pass_rate=1.0`, eval generation
+  reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
+  45/45 with average style score `0.908` and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
