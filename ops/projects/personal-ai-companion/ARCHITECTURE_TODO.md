@@ -5642,6 +5642,34 @@
   and total checks passed 4366/4366 with `pass_rate=1.0`, eval generation
   reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
   45/45 with average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-09: hardened the existing
+  `affection_reassurance_support` slice for more natural relationship-testing
+  variants instead of introducing a new parallel gate. The scorer already
+  covered direct forms such as `你是不是不喜欢我了` and `你还爱我吗`; this
+  pass extended the same slice to variants such as `你是不是觉得我很麻烦`,
+  `你是不是不要我了`, `你刚刚回那么冷，是不是烦我了`,
+  `你是不是只是懒得哄我`, `是不是我又搞砸了你才不想理我`, and
+  `是不是我太烦了你才回这么冷`. Those prompts now penalize evasive hedges
+  (`那你自己觉得呢`, `也许吧`), insecurity confirmation (`有点烦`,
+  `你确实烦`), and dismissive replies (`这也要问`, `别老试我`) instead of
+  slipping through at neutral scores. The pass also added exclusions so plain
+  preference questions, availability/conflict-adjacent turns such as
+  `你刚刚是不是不想理我`, self-label questions such as `我是不是太粘人了`,
+  quoted/meta text work, and resolved-past turns such as
+  `刚刚还在想你是不是不喜欢我了，不过现在没事了` stay outside the gate.
+  Candidate scout and false-positive scout both converged on hardening the
+  existing slice using only synthetic probes, abstract rules, and local file
+  pointers. A bounded synthetic-only Sub2API advisory pass independently
+  recommended extending `affection_reassurance_support` rather than adding a
+  new slice. Verification: `compileall` was clean, the focused
+  affection/conflict/availability/self-worth/companionship subset passed
+  13/13, `tests/test_style_profile.py` passed 273/273,
+  `tests/test_style_evaluation.py` passed 51/51, full `.venv` suite passed
+  441/441 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1375/1375, reply checks passed 4295/4295, gap checks passed 101/101,
+  and total checks passed 4396/4396 with `pass_rate=1.0`, eval generation
+  reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
+  45/45 with average style score `0.908` and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
