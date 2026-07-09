@@ -5450,6 +5450,37 @@
   4226/4226 with `pass_rate=1.0`, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908`.
+- Completed 2026-07-10: hardened the existing `soft_talk_opening_support` slice
+  for permission-checking and afraid-to-interrupt openers rather than adding a
+  parallel gate. Synthetic probes such as `我有件事想跟你说，可以吗`,
+  `你现在方便听我说一下吗`, `我想说但怕打扰你`,
+  `我有点想跟你说个事但怕打扰你`, and `我现在想跟你说个事，你方便吗`
+  now route into the existing `soft_talk_opening_context` with explicit
+  `permission_checking` tagging. Cold, flat, impatient, unsoftened-delay, and
+  warm-opened harmful-tail replies remain penalized, while compact receipts
+  such as `你说呀`, `方便呀，我听着`, `不打扰呀，你说`,
+  `不会打扰，你慢慢说`, and `方便呀，你说` remain safe. Controls keep
+  permission-plus-task requests, plain availability questions, companionship
+  or clinginess bids, apology/politeness, quoted/meta, third-person,
+  hypothetical, and resolved-past turns outside this gate. Candidate scout and
+  false-positive scout used only synthetic probes, abstract rules, and local
+  file pointers; a bounded synthetic-only Sub2API advisory pass agreed that
+  hardening the existing slice was safer than adding a new one. The
+  false-positive scout returned after the initial wait and completed its
+  read-only control audit. No private chat text, profile exemplars, cleaned
+  real samples, deploy/live/production actions, or profile JSON contents were
+  read or sent. The review scout found no blocking issue; its low-risk request
+  for explicit burden-shame and withdrawn-vulnerability controls was absorbed
+  into the synthetic regression test. Verification: `compileall` and
+  `git diff --check` were clean, the permission-focused profile subset passed
+  1/1, the soft-talk evaluation subset passed 1/1,
+  `tests/test_style_profile.py` passed 278/278,
+  `tests/test_style_evaluation.py` passed 53/53, full `.venv` pytest passed
+  448/448 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1405/1405, reply checks passed 4366/4366, gap checks passed 103/103,
+  and total checks passed 4469/4469 with `pass_rate=1.0`, eval generation
+  reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
+  45/45 with average style score `0.908` and `external_model_calls=0`.
 - Completed 2026-07-09: added a bounded `shared_leisure_afterglow_support`
   slice for the lingering warm beat right after a shared movie, playlist, game
   round, or rain-sound moment ends. Synthetic turns such as `电影看完啦`,
