@@ -5087,13 +5087,45 @@
   `profile.py`, `evaluation.py`, profile/evaluation tests, the mock API eval
   seeding script, README notes, and
   this ops entry. Verification: `compileall` was clean, focused home-safety,
-  empty-output, and contrast tests passed 7/7, `tests/test_style_profile.py`
-  passed 245/245, `tests/test_style_evaluation.py` passed 41/41, full `.venv`
-  suite passed 403/403 with one upstream Starlette/TestClient warning, local
-  contrast probes passed 1282/1282 probes and 3842/3842 total checks, including
-  3756/3756 reply checks and 86/86 gap checks with `pass_rate=1.0`, eval
-  generation reported `external_model_calls=0`, and mock `/v1/chat` style eval
-  passed 45/45 with average style score `0.908` and `external_model_calls=0`.
+  bathroom-access, sensor-boundary, empty-output, and contrast tests passed
+  10/10, `tests/test_style_profile.py` passed 247/247,
+  `tests/test_style_evaluation.py` passed 42/42, full `.venv` suite passed
+  406/406 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1286/1286 probes and 3875/3875 total checks, including 3788/3788 reply
+  checks and 87/87 gap checks with `pass_rate=1.0`, eval generation reported
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-09: added and stabilized a bounded
+  `bathroom_access_urgency_support` style scorer slice for first-person current
+  urgency when the user is outside, on transit, or stuck in a queue and cannot
+  find or reach a restroom. Synthetic turns such as `我在外面突然想上厕所但找不到卫生间`,
+  `地铁上有点憋不住`, `公交上想上厕所快憋不住了`,
+  `排队快到我了但想去卫生间`, `商场厕所排好久我快憋不住了`, and
+  subject-dropped forms such as `商场里想上厕所找不到洗手间，快憋不住了`
+  now receive runtime guidance, rewrite diagnostics, contrast probes, and score
+  penalties. The scorer rejects cold dismissal (`关我什么事`), mockery or shame
+  (`笑死，那你就尿裤子吧`), blame (`谁让你刚才不去`), bare endure/minimize
+  replies (`憋着吧`, `忍着吧`), unsafe or indecent suggestions
+  (`找个角落解决`), and fake location/map/visual claims
+  (`我看了，前面就有厕所`). Compact practical replies such as `先别慌，搜最近卫生间`,
+  `问问工作人员`, `下一站能下就先下`, and `问问前后能不能留位` remain valid.
+  False-positive controls keep medical/nausea/basic-care symptom-led turns,
+  pure restroom navigation questions, public-crowd discomfort, sensor/location
+  requests, meta/translation, third-person reports, resolved/past turns,
+  prevention/planning, ordinary going-to-bathroom turns, fiction/game/media,
+  and pet urinary concerns outside the gate. The final repair fixed the safe
+  reply recognizer for `先问工作人员`-style wording and connected
+  `bathroom_access_urgency_support` penalties to contrast-report penalty
+  collection. Candidate/false-positive/review scouts and the bounded Sub2API
+  review used only synthetic probes, abstract rules, local behavior summaries,
+  and file pointers; no private chat text, profile exemplars, cleaned real
+  samples, deploy, live, or production actions were used. Verification is the
+  same final run as above: `compileall` clean, focused tests 10/10,
+  `tests/test_style_profile.py` 247/247, `tests/test_style_evaluation.py`
+  42/42, full `.venv` suite 406/406 with one upstream Starlette/TestClient
+  warning, local contrast probes 1286/1286 and total checks 3875/3875 with
+  `pass_rate=1.0`, eval generation `external_model_calls=0`, and mock
+  `/v1/chat` style eval 45/45 with average style score `0.908`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
