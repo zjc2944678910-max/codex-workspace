@@ -5069,10 +5069,10 @@
   succeeded in the final pass and only used abstract rules plus file pointers;
   no private samples were sent. The slice updated
   `profile.py`, `evaluation.py`, profile/evaluation tests, README notes, and
-  this ops entry. Verification: `py_compile` was clean, focused home-safety,
+  this ops entry. Verification: `compileall` was clean, focused home-safety,
   empty-output, and contrast tests passed 7/7, `tests/test_style_profile.py`
   passed 245/245, `tests/test_style_evaluation.py` passed 41/41, full `.venv`
-  suite passed 381/381 with one upstream Starlette/TestClient warning, local
+  suite passed 386/386 with one upstream Starlette/TestClient warning, local
   contrast probes passed 1282/1282 probes and 3808/3808 total checks, including
   3722/3722 reply checks and 86/86 gap checks with `pass_rate=1.0`, eval
   generation reported `external_model_calls=0`, and mock `/v1/chat` style eval
