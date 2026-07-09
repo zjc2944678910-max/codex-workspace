@@ -5606,6 +5606,46 @@
   reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
   45/45 with average style score `0.908` and `external_model_calls=0`.
 - Completed 2026-07-09: added a bounded
+  `gentle_holding_after_withdrawn_vulnerability_support` slice for the moment
+  when the user was about to open up and then quietly pulls back instead.
+  Synthetic turns such as `算了不说了，我自己消化一下`,
+  `我本来想跟你说的，还是算了`, `不麻烦你了，我自己待会儿就好了`,
+  `我不该说这么多`, `我是不是太麻烦你了`, `没事，我自己消化一下`,
+  `好了，我自己缓缓`, and even reticent closures such as
+  `算了不说了，没事了我自己消化一下` now receive runtime guidance, rewrite
+  diagnostics, contrast probes, and score penalties that reject cold closure
+  (`那就别说`, `随你`, `那行`), self-isolation confirmation
+  (`那你自己消化吧`), impatient prying (`你到底要说什么`), dismissive
+  replies (`你别矫情了`), procedural pushes (`想好了再说`), flat
+  acknowledgments (`收到`), and warm-openers with harmful shutdown tails such as
+  `没事呀，你想说的时候我在，那就别说` and `我在呢，但你快点说`. Compact
+  holding replies such as `我在呢，不急`, `不急，先不用勉强自己说`,
+  `那就先放这儿，我陪你`, and `要是只是想让我陪着也可以` remain valid.
+  False-positive controls keep practical space requests like
+  `我作业好多写不完了，先别管我` and `我没有动力了，先别安慰我`, the
+  existing self-blame repair turn `算了，是我表达不好`, availability
+  boundaries like `我有个事想跟你说，我现在不想打电话`, quoted or
+  hypothetical coaching turns, second-person prior-proposal turns like
+  `你说的还是算了，我不去了`, and resolved-past turns like
+  `刚刚本来想说的，现在没事了` outside the gate. Candidate scout and
+  false-positive scout both converged on the same new slice using only
+  synthetic probes, abstract rules, and local file pointers. A bounded
+  synthetic-only Sub2API advisory pass independently recommended a new slice
+  rather than hardening `gentle_repair_after_self_blame_spiral_support`. The
+  review scout returned two high-severity and one medium-severity read-only
+  findings during implementation; the main thread absorbed them by broadening
+  harmful-tail coverage, admitting punctuated `没事/好了` self-silencing
+  variants, and adding second-person false-positive controls before final
+  acceptance. Verification: `compileall` was clean, the focused nearby subset
+  passed 12/12 plus the focused evaluation subset passed 2/2, full
+  `tests/test_style_profile.py` passed 275/275,
+  `tests/test_style_evaluation.py` passed 52/52, full `.venv` suite passed
+  444/444 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1388/1388, reply checks passed 4329/4329, gap checks passed 102/102,
+  and total checks passed 4431/4431 with `pass_rate=1.0`, eval generation
+  reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
+  45/45 with average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-09: added a bounded
   `gentle_repair_after_self_blame_spiral_support` slice for the moment when
   the user stops blaming the companion out loud and starts blaming themselves
   instead. Synthetic turns such as `算了，是我表达不好`,
