@@ -5074,9 +5074,9 @@
   passed 245/245, `tests/test_style_evaluation.py` passed 41/41, full `.venv`
   suite passed 381/381 with one upstream Starlette/TestClient warning, local
   contrast probes passed 1282/1282 probes and 3808/3808 total checks, including
-  3722/3722 reply checks and 86/86 gap checks, eval generation reported
-  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
-  average style score `0.908` and `external_model_calls=0`.
+  3722/3722 reply checks and 86/86 gap checks with `pass_rate=1.0`, eval
+  generation reported `external_model_calls=0`, and mock `/v1/chat` style eval
+  passed 45/45 with average style score `0.908` and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
