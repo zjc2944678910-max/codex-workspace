@@ -5403,6 +5403,36 @@
   total checks passed 4192/4192 with `pass_rate=1.0`, eval generation
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908`.
+- Completed 2026-07-09: added and stabilized a bounded
+  `post_workout_soreness_support` style slice for first-person, low-risk
+  muscle soreness after exercise or training, separate from standing fatigue
+  and injury/medical safety. Synthetic turns such as
+  `今天深蹲完腿酸到下楼梯都抖`, `跑完步小腿酸到发软`,
+  `练腿之后腿酸到下楼都抖`, and `健身完全身肌肉酸痛` now receive runtime
+  guidance, scoring diagnostics, rewrite feedback, empty-output skeletons, and
+  contrast probes. The scorer lowers cold, blaming, minimizing, and unsafe
+  push-through replies such as `关我什么事`, `谁让你练这么狠`,
+  `酸一下而已`, `忍着吧`, and `继续练就不酸了`, while preserving compact
+  care and gentle recovery nudges such as `慢慢走呀`, `先歇会儿`,
+  `别硬撑`, `轻轻拉伸一下`, and `泡泡脚`. Candidate and false-positive scouts
+  were read-only and used only synthetic probes plus public file pointers. The
+  review pass tightened controls for `尖锐疼痛`, `拉伤`, commute/standing
+  soreness with a later workout mention, period waist soreness where the period
+  cue appears after exercise, report/check-in forms such as
+  `训练完成报备一下腿酸`, translation/meta/testcase prompts, third-person advice,
+  and resolved variants such as `没事了` or `缓过来了`. It also keeps ordinary
+  workout soreness from double-counting as `minor_injury_support`, while severe
+  injury or medical signals remain outside this low-risk slice. No private chat
+  originals, profile exemplars, cleaned samples, deploy, live, or production
+  actions were used. Verification: `compileall` was clean, focused
+  post-workout, standing-fatigue, empty-output, and contrast tests passed 7/7,
+  `tests/test_style_profile.py` passed 263/263,
+  `tests/test_style_evaluation.py` passed 46/46, full `.venv` suite passed
+  426/426 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1313/1313, reply checks passed 4124/4124, gap checks passed 96/96, and
+  total checks passed 4220/4220 with `pass_rate=1.0`, eval generation
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
