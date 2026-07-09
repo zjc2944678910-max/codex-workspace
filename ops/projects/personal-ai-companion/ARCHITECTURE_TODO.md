@@ -5606,6 +5606,41 @@
   reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
   45/45 with average style score `0.908` and `external_model_calls=0`.
 - Completed 2026-07-09: added a bounded
+  `burden_shame_taking_up_space_support` slice for the moment when the user is
+  still present and still talking, but starts shrinking first by framing their
+  own reaching as too much. Synthetic turns such as `我不该说这么多`,
+  `我是不是太麻烦你了`, `我是不是又在烦你`,
+  `我好像每次一难受就来找你，会不会太多了`, and
+  `感觉我老这样找你是不是不太好` now receive runtime guidance, rewrite
+  diagnostics, contrast probes, and score penalties that reject burden
+  confirmation (`你本来就话太多`, `有一点吧`), evasive replies
+  (`那你自己觉得呢`, `这也要问`), suppressive replies (`那以后少说点`,
+  `那以后少来找我`), minimizing replies (`你想多了`), procedural redirects
+  (`先说重点就不麻烦`), flat acknowledgments (`知道了`), and warm-openers
+  with shrinking tails such as `不会烦呀，但你别老这样`. Compact reassurance
+  replies such as `不会烦呀`, `不是负担呀`, `来找我我会开心呀`, and `我愿意听`
+  remain valid. False-positive controls keep explicit retreat such as
+  `算了我不说了，怕烦到你`, direct attention bids such as
+  `抱抱我一下，我怕我太烦了`, direct reassurance tests such as
+  `你是不是觉得我很麻烦`, apology-repair turns such as
+  `对不起我又来烦你了`, availability boundaries such as `我现在不想打电话`,
+  soft clinginess bids such as `我有点想黏着你但又怕打扰你`, quoted or
+  hypothetical coaching turns, and resolved-past turns such as
+  `刚刚还在想是不是太麻烦你了，不过现在没事了` outside the gate.
+  Candidate scout, false-positive scout, and a bounded synthetic-only Sub2API
+  advisory pass all converged on this slice shape using only synthetic probes,
+  abstract rules, and local file pointers. The follow-up review scout failed
+  upstream with a `502 Bad Gateway`, so final acceptance stayed on the main
+  thread and was verified locally end-to-end. Verification: `compileall` was
+  clean, the focused nearby subset passed 10/10 plus the focused evaluation
+  subset passed 2/2, full `tests/test_style_profile.py` passed 277/277,
+  `tests/test_style_evaluation.py` passed 53/53, full `.venv` suite passed
+  447/447 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1400/1400, reply checks passed 4356/4356, gap checks passed 103/103,
+  and total checks passed 4459/4459 with `pass_rate=1.0`, eval generation
+  reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
+  45/45 with average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-09: added a bounded
   `gentle_holding_after_withdrawn_vulnerability_support` slice for the moment
   when the user was about to open up and then quietly pulls back instead.
   Synthetic turns such as `算了不说了，我自己消化一下`,
