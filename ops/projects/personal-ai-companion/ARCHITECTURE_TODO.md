@@ -5086,10 +5086,10 @@
   home-safety false-positive controls forbid
   the newer speculative-reassurance and premature-prevention penalties.
   The final review scout also caught two late false negatives: first-person
-  exclamations such as `妈呀我刚下楼怀疑门没锁` were no longer swallowed by
-  bare kinship controls, and unrelated blockers such as `手机显示没网`,
-  `app打不开`, or `设备连不上` no longer suppress an otherwise active unresolved
-  home-safety check. Candidate and false-positive scouts used only
+  exclamations such as `妈呀我刚下楼怀疑门没锁` now stay active instead of being
+  swallowed by bare kinship controls, and unrelated blockers such as
+  `手机显示没网`, `app打不开`, or `设备连不上` no longer suppress an otherwise
+  active unresolved home-safety check. Candidate and false-positive scouts used only
   synthetic probes, abstract rules, local behavior summaries, and file pointers;
   no private chat text, profile exemplars, cleaned real samples, deploy, live,
   or production actions were used. A bounded synthetic-only Sub2API review
