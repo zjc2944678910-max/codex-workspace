@@ -5089,7 +5089,11 @@
   exclamations such as `妈呀我刚下楼怀疑门没锁` now stay active instead of being
   swallowed by bare kinship controls, and unrelated blockers such as
   `手机显示没网`, `app打不开`, or `设备连不上` no longer suppress an otherwise
-  active unresolved home-safety check. Candidate and false-positive scouts used only
+  active unresolved home-safety check. A final false-positive pass added late
+  regression coverage for unresolved `现在无法确认`/`现在不能检查`/`现在没法确认`
+  phrasing, `萤石` smart-home state queries, gas-alarm state claims such as
+  `现在没有报警`/`当前无报警`/`显示未报警`, and wider third-person kinship controls
+  such as `我奶奶`, `亲戚`, and `老人`. Candidate and false-positive scouts used only
   synthetic probes, abstract rules, local behavior summaries, and file pointers;
   no private chat text, profile exemplars, cleaned real samples, deploy, live,
   or production actions were used. A bounded synthetic-only Sub2API review
@@ -5101,8 +5105,8 @@
   7/7, `tests/test_style_profile.py` passed 249/249,
   `tests/test_style_evaluation.py` passed 43/43, full `.venv` suite passed
   409/409 with one upstream Starlette/TestClient warning, local contrast probes
-  passed 1291/1291 probes and 3949/3949 total checks, including 3861/3861 reply
-  checks and 88/88 gap checks with `pass_rate=1.0`, eval generation reported
+  passed 1293/1293 probes and 3973/3973 total checks, including 3884/3884 reply
+  checks and 89/89 gap checks with `pass_rate=1.0`, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
 - Completed 2026-07-09: added and stabilized a bounded
@@ -5154,13 +5158,14 @@
   Sub2API advice pass used only synthetic probes, abstract rules, behavior
   summaries, and file pointers; no private chat text, profile exemplars,
   cleaned real samples, deploy, live, or production actions were used.
-  Verification: `compileall` was clean, focused affection-attention,
-  empty-output, and contrast tests passed 5/5, `tests/test_style_profile.py`
+  Verification: `compileall` was clean, focused home-safety, sensor-boundary,
+  empty-output, and contrast tests passed 7/7, `tests/test_style_profile.py`
   passed 249/249, `tests/test_style_evaluation.py` passed 43/43, full `.venv`
   suite passed 409/409 with one upstream Starlette/TestClient warning, local
-  contrast probes passed 1293/1293 and total checks 3962/3962 with
-  `pass_rate=1.0`, eval generation `external_model_calls=0`, and mock
-  `/v1/chat` style eval passed 45/45 with average style score `0.908`.
+  contrast probes passed 1293/1293, reply checks passed 3884/3884, and total
+  checks passed 3973/3973 with `pass_rate=1.0`, eval generation
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
