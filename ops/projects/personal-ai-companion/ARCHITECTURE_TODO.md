@@ -5084,8 +5084,12 @@
   `指纹锁`, `烟感`, `烟雾传感器`, `一氧化碳报警器`, `可视门铃`, `小米`,
   `涂鸦`, `应用里`, `智能家居里`, and `Home Assistant`. All
   home-safety false-positive controls forbid
-  the newer speculative-reassurance and premature-prevention penalties. Candidate
-  and false-positive scouts used only
+  the newer speculative-reassurance and premature-prevention penalties.
+  The final review scout also caught two late false negatives: first-person
+  exclamations such as `妈呀我刚下楼怀疑门没锁` were no longer swallowed by
+  bare kinship controls, and unrelated blockers such as `手机显示没网`,
+  `app打不开`, or `设备连不上` no longer suppress an otherwise active unresolved
+  home-safety check. Candidate and false-positive scouts used only
   synthetic probes, abstract rules, local behavior summaries, and file pointers;
   no private chat text, profile exemplars, cleaned real samples, deploy, live,
   or production actions were used. A bounded synthetic-only Sub2API review
@@ -5097,7 +5101,7 @@
   7/7, `tests/test_style_profile.py` passed 249/249,
   `tests/test_style_evaluation.py` passed 43/43, full `.venv` suite passed
   409/409 with one upstream Starlette/TestClient warning, local contrast probes
-  passed 1291/1291 probes and 3942/3942 total checks, including 3854/3854 reply
+  passed 1291/1291 probes and 3949/3949 total checks, including 3861/3861 reply
   checks and 88/88 gap checks with `pass_rate=1.0`, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
@@ -5129,7 +5133,7 @@
   same final run as above: `compileall` clean, focused requested tests 7/7,
   `tests/test_style_profile.py` 249/249, `tests/test_style_evaluation.py`
   43/43, full `.venv` suite 409/409 with one upstream Starlette/TestClient
-  warning, local contrast probes 1291/1291 and total checks 3942/3942 with
+  warning, local contrast probes 1291/1291 and total checks 3949/3949 with
   `pass_rate=1.0`, eval generation `external_model_calls=0`, and mock
   `/v1/chat` style eval 45/45 with average style score `0.908`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
