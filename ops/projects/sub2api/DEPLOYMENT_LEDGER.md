@@ -1,5 +1,47 @@
 # Sub2API Deployment Ledger
 
+## 2026-07-10: Codex 5.6 Model Exposure For Codex-Dedicated Instance
+
+Live host: `107.175.180.163`
+
+### Changes
+
+- Updated only the Codex-dedicated instance account model mappings in
+  `sub2api_codex`.
+- Added identity mappings for `gpt-5.6-sol`, `gpt-5.6-terra`, and
+  `gpt-5.6-luna` to OpenAI accounts in `openai-default` (group id `5`).
+- Restarted only the `sub2api-codex` application container to clear in-memory
+  account/model-list caches.
+- Did not change the shared `sub2api` instance, PostgreSQL/Redis containers,
+  nginx, Cloudflare, API keys, OAuth tokens, or image tags.
+
+### Evidence On VPS
+
+- `/root/codex-repair-sub2api-codex-gpt56-20260710T030016+0800`
+
+### Verification
+
+- `sub2api-codex` remained healthy on image
+  `sub2api:codex-fresh-20260706T132016`.
+- Authenticated `https://codex-sub.nodezjc12348888.xyz/v1/models` now returns
+  `gpt-5.6-sol`, `gpt-5.6-terra`, and `gpt-5.6-luna`.
+- Gateway `/v1/responses` still returns HTTP 200 for `gpt-5.5`.
+- Gateway `/v1/responses` for the 5.6 models now routes to account `187`
+  instead of failing pre-routing with 404, but the upstream account returns
+  HTTP 502/503 for actual 5.6 inference.
+- Direct upstream check against account `187` (`https://api.zicc.cc`) shows
+  `/v1/models` lists the 5.6 models, `gpt-5.5` inference returns HTTP 200, and
+  5.6 inference returns upstream HTTP 502/503. Remaining failure is therefore
+  upstream/account availability, not Sub2API model recognition.
+
+### Rollback
+
+```bash
+docker exec -i sub2api-codex-postgres psql -U sub2api_codex -d sub2api_codex \
+  < /root/codex-repair-sub2api-codex-gpt56-20260710T030016+0800/rollback/remove-gpt56-model-mapping.sql
+docker restart sub2api-codex
+```
+
 ## 2026-07-06: Codex-Dedicated Fresh Sub2API Instance
 
 Live host: `107.175.180.163`
