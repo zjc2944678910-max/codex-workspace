@@ -5120,6 +5120,50 @@
   checks and 93/93 gap checks with `pass_rate=1.0`, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-09: added and stabilized a bounded
+  `post_confirmation_residual_anxiety_support` scorer slice for first-person
+  residual unease after a home-safety state was already confirmed safe by the
+  user, a roommate, family member, friend, property contact, or other credible
+  helper. Synthetic turns such as `室友刚确认门锁好了，但我还是不踏实`,
+  `物业刚确认燃气没问题，但我还是放心不下`,
+  `我自己回去看过水阀关好了，但还是心慌`, and
+  `朋友确认电饭锅关了，可我脑子停不下来` now receive runtime guidance,
+  rewrite diagnostics, contrast probes, empty-output skeleton fields, and score
+  penalties. The scorer rejects cold annoyance (`烦不烦，都说锁了别想了`),
+  pathologizing (`你有病吧`, `强迫症犯了吧`), blame
+  (`谁让你这么焦虑`), affirmative recheck loops (`再回去看一遍`), doom or
+  doubt (`说不定真没关`), and fake personal reconfirmation
+  (`我又看了，锁好了`). Compact supportive replies that anchor to the existing
+  confirmation or help the user settle remain valid, including
+  `确认过就先靠这个证据放下`, `先按物业确认的来`,
+  `你已经看过了，先让心慢下来`, `我陪你缓一会，不用再回去看`, and
+  `别给自己贴强迫症标签，先按确认结果来`. The false-positive pass fixed
+  negated recheck support (`不用再回去看`) and anti-labeling language so they do
+  not trigger penalties, split credible third-party confirmers from true
+  third-person-subject controls such as `室友确认门锁好了但她还是不踏实`, and
+  routed pending delegated checks with `还没回信`/`还没回复消息` back through
+  `home_safety_check_support` so fake `锁好了`/`关了` replies are still
+  punished. Controls keep unresolved home-safety checks, real emergencies,
+  sensor/smart-home current-state queries, third-person subject reports,
+  meta/translation, future prevention/checklists, ordinary arrival/departure,
+  and fully resolved `现在放心了` turns outside this new gate; sensor fake-state
+  replies still route to `sensor_boundary` as `unavailable_home_state_claim`.
+  Candidate, false-positive, and review scouts were read-only and used only
+  synthetic probes, abstract rules, local behavior summaries, and file pointers;
+  no private chat text, profile exemplars, cleaned real samples, deploy, live,
+  or production actions were used. A bounded Sub2API review also used only an
+  abstract synthetic brief and flagged possible future risks around stale
+  confirmations, partial confirmations, and implicit self-confirmation wording.
+  This slice updated `profile.py`, `evaluation.py`, profile/evaluation tests,
+  README notes, and this ops entry. Verification: `compileall` was clean,
+  requested focused home-safety/post-confirmation/sensor-boundary/empty-output/
+  contrast tests passed 10/10, `tests/test_style_profile.py` passed 255/255,
+  `tests/test_style_evaluation.py` passed 44/44, full `.venv` suite passed
+  416/416 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1302/1302 probes and 4111/4111 total checks, including 4018/4018 reply
+  checks and 93/93 gap checks with `pass_rate=1.0`, eval generation reported
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908` and `external_model_calls=0`.
 - Completed 2026-07-09: added a bounded `home_emergency_safety_support` style
   scorer slice for first-person current home emergencies such as smelling gas,
   visible smoke, active fire, unsafe appliance smoke, or active gas/smoke/CO
