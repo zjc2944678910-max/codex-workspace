@@ -5045,12 +5045,15 @@
   guidance, rewrite diagnostics, contrast probes, and score penalties. A final
   read-only review pass extended the same slice to nearby fire/appliance worry
   wording such as `厨房火`, `电饭锅`, `空气炸锅`, `取暖器`, `卷发棒`, and
-  `插线板`, natural state wording such as `关了没`, `锁了没`, and `有没有关`,
+  `插线板`, later adding high-risk everyday devices such as `熨斗`, `电热毯`,
+  `直板夹`, and `充电器还插着没拔`, natural state wording such as `关了没`, `锁了没`, and `有没有关`,
   plus `到现在也没人确认` unresolved phrasing. The scorer now
   rejects fake confirmation (`我看了锁好了`, `我看到燃气关了`,
   `我看到了，关了`, `我看了，锁好了`, bare `锁好了`/`关了`,
-  `放心我帮你确认了`), false reassurance or blocking (`放心肯定没事`,
-  `怕什么`, `别回去了`), blame (`谁让你不检查`), cold dismissal
+  `放心我帮你确认了`, `我这边显示关着呢`, `我刚看了一眼，没问题`),
+  false reassurance or blocking (`放心肯定没事`,
+  `怕什么`, `别回去了`, `不会有事的，别焦虑`, `别折腾了，不用回去`),
+  blame (`谁让你不检查`, `谁让你出门不锁门`, `你出门前怎么不看一眼`), cold dismissal
   (`关我什么事`), doom escalation (`肯定没关`, `那你家完了`), speculative
   habit/probability reassurance (`你平时都会关的，应该没事`,
   `按你习惯应该锁了，放心吧`), and premature future-prevention pivots such as
@@ -5078,7 +5081,8 @@
   `sensor_boundary` instead, where fake current-state replies now receive
   `unavailable_home_state_claim`; a final follow-up also added third-person
   controls for father/mother/spouse variants and sensor aliases such as
-  `指纹锁`, `烟感`, `烟雾传感器`, `一氧化碳报警器`, and `可视门铃`. All
+  `指纹锁`, `烟感`, `烟雾传感器`, `一氧化碳报警器`, `可视门铃`, `小米`,
+  `涂鸦`, `应用里`, `智能家居里`, and `Home Assistant`. All
   home-safety false-positive controls forbid
   the newer speculative-reassurance and premature-prevention penalties. Candidate
   and false-positive scouts used only
@@ -5087,15 +5091,14 @@
   or production actions were used. A bounded synthetic-only Sub2API review
   succeeded in the final pass and only used abstract rules plus file pointers;
   no private samples were sent. The slice updated
-  `profile.py`, `evaluation.py`, profile/evaluation tests, the mock API eval
-  seeding script, README notes, and
-  this ops entry. Verification: `compileall` was clean, focused home-safety,
-  bathroom-access, sensor-boundary, empty-output, and contrast tests passed
-  10/10, `tests/test_style_profile.py` passed 247/247,
-  `tests/test_style_evaluation.py` passed 42/42, full `.venv` suite passed
-  406/406 with one upstream Starlette/TestClient warning, local contrast probes
-  passed 1286/1286 probes and 3885/3885 total checks, including 3798/3798 reply
-  checks and 87/87 gap checks with `pass_rate=1.0`, eval generation reported
+  `profile.py`, `evaluation.py`, profile/evaluation tests, README notes, and
+  this ops entry. Verification: `compileall` was clean, the requested focused
+  home-safety, sensor-boundary, empty-output, and contrast tests passed
+  7/7, `tests/test_style_profile.py` passed 249/249,
+  `tests/test_style_evaluation.py` passed 43/43, full `.venv` suite passed
+  409/409 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1291/1291 probes and 3942/3942 total checks, including 3854/3854 reply
+  checks and 88/88 gap checks with `pass_rate=1.0`, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
 - Completed 2026-07-09: added and stabilized a bounded
@@ -5123,10 +5126,10 @@
   review used only synthetic probes, abstract rules, local behavior summaries,
   and file pointers; no private chat text, profile exemplars, cleaned real
   samples, deploy, live, or production actions were used. Verification is the
-  same final run as above: `compileall` clean, focused tests 10/10,
-  `tests/test_style_profile.py` 247/247, `tests/test_style_evaluation.py`
-  42/42, full `.venv` suite 406/406 with one upstream Starlette/TestClient
-  warning, local contrast probes 1286/1286 and total checks 3885/3885 with
+  same final run as above: `compileall` clean, focused requested tests 7/7,
+  `tests/test_style_profile.py` 249/249, `tests/test_style_evaluation.py`
+  43/43, full `.venv` suite 409/409 with one upstream Starlette/TestClient
+  warning, local contrast probes 1291/1291 and total checks 3942/3942 with
   `pass_rate=1.0`, eval generation `external_model_calls=0`, and mock
   `/v1/chat` style eval 45/45 with average style score `0.908`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
