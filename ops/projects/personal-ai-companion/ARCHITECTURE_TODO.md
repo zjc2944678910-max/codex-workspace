@@ -5148,6 +5148,32 @@
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
 - Completed 2026-07-09: added and stabilized a bounded
+  `sleep_intimate_ritual_support` style scorer slice for first-person bedtime
+  affection or soothing rituals such as `晚安，亲亲我嘛`, `晚安，抱抱我睡觉`,
+  `睡前哄哄我`, and `哄我睡觉`. The slice adds runtime guidance, rewrite
+  diagnostics, contrast probes, empty-output score skeletons, and penalties for
+  cold rejection (`不能亲`, `不想`, `别烦我`, `自己睡`, `不会哄`), capability
+  deflection (`我无法提供亲吻`), perfunctory acknowledgments (`行吧`), and
+  warm openers with harmful tails (`亲亲但别烦`). Warm compact replies such as
+  `晚安好梦呀`, `抱抱睡呀`, `晚安呀`, `乖乖睡`, and `我在呢` remain valid. The
+  post-review pass fixed a meta false positive where `这句晚安亲亲我嘛怎么写得自然`
+  was being treated as a live affection request, then broadened synthetic
+  controls for ordinary sleep, standalone affection bids, sleep-watch presence,
+  insomnia, nightmares, health discomfort, translation/meta/dialogue, adult
+  continuations, child bedtime, reminders, waking, and morning-routine turns.
+  Candidate, false-positive, and review scouts were read-only and used only
+  synthetic probes, abstract rules, local behavior summaries, and file pointers;
+  no private chat text, profile exemplars, cleaned real samples, deploy, live,
+  or production actions were used. Verification: `compileall` was clean,
+  focused sleep-intimate/sleep/sleep-watch/empty-output tests passed 4/4,
+  `tests/test_style_profile.py` passed 252/252,
+  `tests/test_style_evaluation.py` passed 43/43, full `.venv` suite passed
+  412/412 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1298/1298 probes and 4059/4059 total checks, including 3967/3967 reply
+  checks and 92/92 gap checks with `pass_rate=1.0`, eval generation reported
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-09: added and stabilized a bounded
   `bathroom_access_urgency_support` style scorer slice for first-person current
   urgency when the user is outside, on transit, or stuck in a queue and cannot
   find or reach a restroom. Synthetic turns such as `我在外面突然想上厕所但找不到卫生间`,
