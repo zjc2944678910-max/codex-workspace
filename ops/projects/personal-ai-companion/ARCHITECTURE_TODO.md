@@ -5164,6 +5164,49 @@
   checks and 93/93 gap checks with `pass_rate=1.0`, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-09: added and stabilized a bounded
+  `stale_or_partial_home_confirmation_support` scorer slice for the middle
+  ground between unresolved home-safety checks and fully confirmed residual
+  anxiety. Synthetic turns such as
+  `早上出门前我确认过门锁，但现在下午了我又不踏实`,
+  `物业说燃气管道没漏，但灶台旋钮我没确认，还是慌`, and
+  `室友刚确认门锁好了，但燃气还没看，我还是有点慌` now receive runtime
+  guidance, rewrite diagnostics, contrast probes, empty-output skeleton fields,
+  and score penalties. The scorer rejects fake full reassurance
+  (`早上确认过就别想了`, `都确认过了，没事`), erasing prior evidence
+  (`全部重新检查一遍`), pathologizing, blame, broad recheck loops, doom or
+  doubt, and fake personal reconfirmation, while allowing compact replies that
+  preserve evidence and name the remaining gap such as
+  `早上确认过是证据，隔了半天不踏实就问下室友`,
+  `管道没漏是好消息，旋钮没确认就问人看下`,
+  `门锁先放心，燃气还是问她看一眼`, `燃气再确认一遍`, and
+  `窗户再确认一遍`. The pass also confirmed the prior home-safety review
+  fixes: `现在还没确认`/`还没检查` stays unresolved and fake `锁好了`/`关了`
+  replies are punished by `home_safety_check_support`; camera/smart-lock/gas
+  alarm current-state prompts stay outside `home_safety_check_support` while
+  fake state replies route to `sensor_boundary` as `unavailable_home_state_claim`;
+  and third-person reports such as `我父母`/`家里人`/`长辈出门好像忘了关燃气`
+  remain false-positive controls. Candidate and false-positive scouting plus
+  bounded Sub2API advice used only synthetic probes, abstract rules, local
+  behavior summaries, and file pointers; no private chat text, profile
+  exemplars, cleaned real samples, deploy, live, or production actions were
+  used. A final read-only review scout was opened with the same privacy
+  boundary after implementation, then closed after collection; it found and the
+  main thread fixed a sensor-boundary safe-prefix/fake-state tail miss
+  (`看不了状态，但现在锁了`), plus stale/partial false-positive risks around
+  kinship third-person subjects, anti-label support, and anti-loop support.
+  This slice updated
+  `profile.py`, `evaluation.py`, profile/evaluation tests, README notes, and
+  this ops entry. Verification: `compileall` was clean, focused
+  stale/partial/post-confirmation/home-safety/sensor-boundary/empty-output/
+  contrast tests passed 11/11, the requested home-safety/sensor focused subset
+  passed 9/9, `tests/test_style_profile.py` passed 257/257,
+  `tests/test_style_evaluation.py` passed 45/45, full `.venv` suite passed
+  419/419 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1304/1304 probes and 4130/4130 total checks, including 4037/4037 reply
+  checks and 93/93 gap checks with `pass_rate=1.0`, eval generation reported
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908` and `external_model_calls=0`.
 - Completed 2026-07-09: added a bounded `home_emergency_safety_support` style
   scorer slice for first-person current home emergencies such as smelling gas,
   visible smoke, active fire, unsafe appliance smoke, or active gas/smoke/CO
