@@ -5433,6 +5433,23 @@
   total checks passed 4220/4220 with `pass_rate=1.0`, eval generation
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908`.
+- Completed 2026-07-09: hardened the home/smart-home `sensor_boundary` follow-up
+  from the `home_safety_check_support` review. The scorer now catches natural
+  current-state prompts such as `智能门锁锁好了吗`, `Aqara里门锁锁好了吗`,
+  `HomeKit里炉灶是不是开着`, `门磁是不是关着`, and `燃气报警器有没有响`
+  without routing them into `home_safety_check_support`; fake state replies such
+  as `锁好了`, `还开着`, `关着`, and `没有响` receive
+  `unavailable_home_state_claim`. The pass also added diagnostic-level eval
+  coverage so home-state sensor probes assert penalties directly rather than
+  relying only on probe presence. Verification: `compileall` was clean, the
+  requested focused home-safety/sensor/empty-output/contrast subset passed 9/9,
+  `tests/test_style_profile.py` passed 263/263, `tests/test_style_evaluation.py`
+  passed 46/46, full `.venv` suite passed 426/426 with one upstream
+  Starlette/TestClient warning, local contrast probes passed 1313/1313, reply
+  checks passed 4130/4130, gap checks passed 96/96, and total checks passed
+  4226/4226 with `pass_rate=1.0`, eval generation reported
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
