@@ -5042,11 +5042,15 @@
   `我出门了突然怀疑门没锁好，有点慌`, `我好像忘了关燃气，现在有点慌`,
   `我刚下楼，老觉得窗户没关`, `我不确定水龙头关没关，越想越慌`, and
   `我都到地铁站了，突然想不起燃气关没关，有点慌` now receive runtime
-  guidance, rewrite diagnostics, contrast probes, and score penalties that
-  reject fake confirmation (`我看了锁好了`, `我看到燃气关了`,
-  `我看到了，关了`, `放心我帮你确认了`), false reassurance or blocking
-  (`放心肯定没事`, `怕什么`, `别回去了`), blame (`谁让你不检查`), cold
-  dismissal (`关我什么事`), and doom escalation (`肯定没关`, `那你家完了`).
+  guidance, rewrite diagnostics, contrast probes, and score penalties. A final
+  read-only review pass extended the same slice to nearby fire/appliance worry
+  wording such as `厨房火`, `电饭锅`, `空气炸锅`, `取暖器`, `卷发棒`, and
+  `插线板`, plus `到现在也没人确认` unresolved phrasing. The scorer now
+  rejects fake confirmation (`我看了锁好了`, `我看到燃气关了`,
+  `我看到了，关了`, `我看了，锁好了`, bare `锁好了`/`关了`,
+  `放心我帮你确认了`), false reassurance or blocking (`放心肯定没事`,
+  `怕什么`, `别回去了`), blame (`谁让你不检查`), cold dismissal
+  (`关我什么事`), and doom escalation (`肯定没关`, `那你家完了`).
   Compact steady replies such as `先别慌`, `回去看一眼`, `确认一下`,
   `问问室友`, `燃气别赌`, and `近的话回去` remain valid. The false-positive
   scout caught six boundary gaps before acceptance: sensor/smart-home state
@@ -5056,8 +5060,10 @@
   `师傅已经在路上帮我看`. A final false-positive scout also caught the
   negated-delegation edge `妈妈还没帮我看`/`爸爸说等下帮我看，但还没去`;
   those now stay in the active home-safety context and punish fake
-  confirmation instead of being treated as already delegated. All were fixed
-  with synthetic profile controls and contrast probes. The slice keeps
+  confirmation instead of being treated as already delegated. The final review
+  also caught comma-split and bare fake confirmations, alarm-state tails such as
+  `没有响，安全`, and new appliance quoted/meta/translation controls; those
+  were fixed with synthetic profile controls and contrast probes. The slice keeps
   emergency gas/smoke/fire/alarm cases,
   sensor/state requests, delegated or in-progress physical checks, normal
   arrival/departure, living-utility outages, item loss, prevention/checklist
