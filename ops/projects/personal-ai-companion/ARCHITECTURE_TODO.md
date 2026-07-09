@@ -5053,24 +5053,28 @@
   wording, future prevention/SOP requests, resolved-by-third-party
   confirmations, compact kinship reports such as `我妈`/`我爸`, quoted/meta
   rewrite requests, and already-delegated physical checks such as
-  `师傅已经在路上帮我看`. All were fixed with synthetic profile controls and
-  contrast probes. The slice keeps emergency gas/smoke/fire/alarm cases,
+  `师傅已经在路上帮我看`. A final false-positive scout also caught the
+  negated-delegation edge `妈妈还没帮我看`/`爸爸说等下帮我看，但还没去`;
+  those now stay in the active home-safety context and punish fake
+  confirmation instead of being treated as already delegated. All were fixed
+  with synthetic profile controls and contrast probes. The slice keeps
+  emergency gas/smoke/fire/alarm cases,
   sensor/state requests, delegated or in-progress physical checks, normal
   arrival/departure, living-utility outages, item loss, prevention/checklist
   planning, third-person/reported/meta/translation turns, and already-resolved
   confirmations outside the gate. Candidate and false-positive scouts used only
   synthetic probes, abstract rules, local behavior summaries, and file pointers;
   no private chat text, profile exemplars, cleaned real samples, deploy, live,
-  or production actions were used. A bounded synthetic-only Sub2API smoke test
-  was attempted, but the local gateway returned connection refused, so the
-  slice proceeded with local scouts and tests only. The slice updated
+  or production actions were used. A bounded synthetic-only Sub2API review
+  succeeded in the final pass and only used abstract rules plus file pointers;
+  no private samples were sent. The slice updated
   `profile.py`, `evaluation.py`, profile/evaluation tests, README notes, and
   this ops entry. Verification: `py_compile` was clean, focused home-safety,
-  empty-output, and contrast tests passed 5/5, `tests/test_style_profile.py`
+  empty-output, and contrast tests passed 7/7, `tests/test_style_profile.py`
   passed 245/245, `tests/test_style_evaluation.py` passed 41/41, full `.venv`
   suite passed 381/381 with one upstream Starlette/TestClient warning, local
-  contrast probes passed 1281/1281 probes and 3790/3790 total checks, including
-  3704/3704 reply checks and 86/86 gap checks, eval generation reported
+  contrast probes passed 1282/1282 probes and 3808/3808 total checks, including
+  3722/3722 reply checks and 86/86 gap checks, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
