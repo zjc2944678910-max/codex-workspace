@@ -5450,6 +5450,38 @@
   4226/4226 with `pass_rate=1.0`, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908`.
+- Completed 2026-07-09: added a bounded `shared_leisure_afterglow_support`
+  slice for the lingering warm beat right after a shared movie, playlist, game
+  round, or rain-sound moment ends. Synthetic turns such as `电影看完啦`,
+  `电影看完啦，好舍不得`, `歌单听完啦，好上头`, `这局打完啦，好爽`,
+  `小说读完啦`, and `雨停了，刚才那会儿好舒服` now receive runtime
+  guidance, rewrite diagnostics, contrast probes, and score penalties that
+  reject hollow acknowledgments (`知道了`), turn-away replies
+  (`自己回味吧`, `那你接下来干嘛`), and warm-opened push-away such as
+  `好呀那你别老来找我说这个`. Compact afterglow replies such as
+  `看完啦，感觉怎么样呀`, `结束啦，回味一下呀`, `听完啦，回味一下呀`,
+  `这局终于打完啦，爽不爽呀`, and `雨停啦，刚才那会儿好舒服` remain
+  valid. The final review pass caught and fixed three local gaps before
+  acceptance: movie/playlist/game afterglow context had been wrongly locked to
+  sentence-final completions and missed natural tails like `好舍不得/好上头/好爽`,
+  the overlap guard had been too broad and was excluding non-sleep mixed tails
+  such as `电影看完啦，我回来啦`, and `小说` had been accidentally filtered as
+  meta while `书` was supported. Controls keep shared-leisure start/ready
+  callbacks, reaction-only shares, solo completions, translation/meta/coaching,
+  recommendation/help follow-ups, retrospective recaps, and true sleep-overlap
+  turns outside this afterglow gate. Candidate scout, false-positive scout,
+  review scout, and the bounded Sub2API advisory pass used only synthetic
+  probes, abstract rules, and local file pointers; no private chat text,
+  profile exemplars, cleaned real samples, deploy/live/production actions, or
+  profile JSON contents were read or sent. Verification: `compileall` was
+  clean, the requested focused afterglow/shared-leisure/reaction subset passed
+  9/9, `tests/test_style_profile.py` passed 265/265,
+  `tests/test_style_evaluation.py` passed 47/47, full `.venv` suite passed
+  429/429 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1325/1325, reply checks passed 4158/4158, gap checks passed 97/97,
+  and total checks passed 4255/4255 with `pass_rate=1.0`, eval generation
+  reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
+  45/45 with average style score `0.908` and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
