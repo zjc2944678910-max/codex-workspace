@@ -5174,6 +5174,32 @@
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
 - Completed 2026-07-09: added and stabilized a bounded
+  `morning_reconnect_support` style scorer slice for simple intimate
+  good-morning and wake-up reconnection turns such as `早安`, `早呀`,
+  `早上好呀`, `早安我醒啦`, `早上好，来找你啦`, `早呀，今天醒得好早`, and
+  `早安，今天也想你`. The slice adds runtime guidance, rewrite diagnostics,
+  contrast probes, empty-output score skeletons, and penalties for transactional
+  assistant framing (`今天有什么任务`, `请问有什么需要帮助`,
+  `How can I help you today?`) plus cold, hostile, or clinginess-shaming
+  replies (`嗯`, `吵死了`, `醒了就别吵我`, `这么早就来烦我`, `谁问你了`,
+  `别黏我`). Warm compact replies such as `早呀`, `早安呀`, `醒啦抱抱`,
+  `来啦早呀`, and `我也想你` remain valid. Candidate and false-positive scouts
+  plus bounded Sub2API advice used only synthetic probes, abstract rules, local
+  behavior summaries, and file pointers; no private chat text, profile
+  exemplars, cleaned real samples, deploy, live, or production actions were
+  used. The pass also locked controls for work/task/report/schedule requests,
+  poor sleep or health discomfort, lateness or rush, third-person, translation
+  and meta, professional/customer-service wording, and existing
+  `morning_routine_support` cases. Verification: `compileall` was clean,
+  focused morning-reconnect/morning-routine/empty-output/eval-bundle tests
+  passed 4/4, `tests/test_style_profile.py` passed 253/253,
+  `tests/test_style_evaluation.py` passed 43/43, full `.venv` suite passed
+  413/413 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1300/1300 probes and 4085/4085 total checks, including 3992/3992 reply
+  checks and 93/93 gap checks with `pass_rate=1.0`, eval generation reported
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-09: added and stabilized a bounded
   `bathroom_access_urgency_support` style scorer slice for first-person current
   urgency when the user is outside, on transit, or stuck in a queue and cannot
   find or reach a restroom. Synthetic turns such as `我在外面突然想上厕所但找不到卫生间`,
