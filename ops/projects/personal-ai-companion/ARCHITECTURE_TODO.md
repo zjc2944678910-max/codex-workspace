@@ -5576,6 +5576,35 @@
   and total checks passed 4310/4310 with `pass_rate=1.0`, eval generation
   reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
   45/45 with average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-09: added a bounded
+  `micro_repair_after_missed_attunement_support` slice for the moment when the
+  user explicitly says the companion's last reply did not catch them. Synthetic
+  turns such as `我都鼓起勇气说了你刚刚那句一点都没接住我`,
+  `你刚刚那个回复让我更难受了`, `我不是要方案，我是想让你先接住我`,
+  `我刚刚已经很认真说了，你回得像没听见`, and
+  `你那句回得我有点被晾住了` now receive runtime guidance, rewrite
+  diagnostics, contrast probes, and score penalties that reject defensive
+  self-justification (`我不是都回你了吗`), impatient reprompts
+  (`那你直接说重点吧`), minimizing repair (`好啦别想那么多`), procedural
+  fix framing (`所以你现在要我怎么做`), flat acknowledgment (`知道了`), and
+  unsoftened delay (`晚点再说吧`). Compact micro-repair replies such as
+  `对不起呀，刚刚那句没接住`, `我重新来，我在听`, `刚刚那句没接好`, and
+  `我想认真接住你刚刚那句` remain valid. False-positive controls keep
+  slow-reply complaints and thin-ack hurt with the existing
+  `availability_boundary_support` and `conflict_repair` owners, plus apology,
+  task/help, quoted/meta text work, and resolved-past turns outside this gate.
+  Candidate scout and false-positive scout both converged on the same
+  candidate using only synthetic probes, abstract rules, and local file
+  pointers. The review scout never returned findings, so final acceptance stayed
+  on the main thread. Verification: `compileall` was clean, the focused
+  micro-repair/soft-reveal/soft-talk/conflict/availability/apology subset
+  passed 14/14, `tests/test_style_profile.py` passed 271/271,
+  `tests/test_style_evaluation.py` passed 50/50, full `.venv` suite passed
+  438/438 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1356/1356, reply checks passed 4237/4237, gap checks passed 100/100,
+  and total checks passed 4337/4337 with `pass_rate=1.0`, eval generation
+  reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
+  45/45 with average style score `0.908` and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
