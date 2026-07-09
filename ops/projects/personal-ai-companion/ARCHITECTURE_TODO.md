@@ -5076,7 +5076,10 @@
   turns, and already-resolved confirmations outside the gate. Sensor/smart-home
   status queries such as cameras, smart locks, and gas alarms route through
   `sensor_boundary` instead, where fake current-state replies now receive
-  `unavailable_home_state_claim`; all home-safety false-positive controls forbid
+  `unavailable_home_state_claim`; a final follow-up also added third-person
+  controls for father/mother/spouse variants and sensor aliases such as
+  `指纹锁`, `烟感`, `烟雾传感器`, `一氧化碳报警器`, and `可视门铃`. All
+  home-safety false-positive controls forbid
   the newer speculative-reassurance and premature-prevention penalties. Candidate
   and false-positive scouts used only
   synthetic probes, abstract rules, local behavior summaries, and file pointers;
@@ -5091,7 +5094,7 @@
   10/10, `tests/test_style_profile.py` passed 247/247,
   `tests/test_style_evaluation.py` passed 42/42, full `.venv` suite passed
   406/406 with one upstream Starlette/TestClient warning, local contrast probes
-  passed 1286/1286 probes and 3875/3875 total checks, including 3788/3788 reply
+  passed 1286/1286 probes and 3885/3885 total checks, including 3798/3798 reply
   checks and 87/87 gap checks with `pass_rate=1.0`, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
@@ -5123,7 +5126,7 @@
   same final run as above: `compileall` clean, focused tests 10/10,
   `tests/test_style_profile.py` 247/247, `tests/test_style_evaluation.py`
   42/42, full `.venv` suite 406/406 with one upstream Starlette/TestClient
-  warning, local contrast probes 1286/1286 and total checks 3875/3875 with
+  warning, local contrast probes 1286/1286 and total checks 3885/3885 with
   `pass_rate=1.0`, eval generation `external_model_calls=0`, and mock
   `/v1/chat` style eval 45/45 with average style score `0.908`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
