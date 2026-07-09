@@ -5605,6 +5605,43 @@
   and total checks passed 4337/4337 with `pass_rate=1.0`, eval generation
   reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
   45/45 with average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-09: added a bounded
+  `gentle_repair_after_self_blame_spiral_support` slice for the moment when
+  the user stops blaming the companion out loud and starts blaming themselves
+  instead. Synthetic turns such as `算了，是我表达不好`,
+  `可能还是我太敏感了`, `应该是我又想多了`, `我是不是表达得很差`,
+  `算了怪我自己没说清楚`, and `可能是我太矫情了` now receive runtime
+  guidance, rewrite diagnostics, contrast probes, and score penalties that
+  reject self-blame confirmation (`你本来就老这样`, `你就是太敏感了`),
+  defensive reply frames (`我也没说错，是你自己先这么讲的`), procedural
+  redirects (`那你先把重点说清楚，我才知道怎么回`), minimizing replies
+  (`别想太多，这点事不至于`), and flat acknowledgments (`嗯`, `收到`,
+  `我知道了`). Compact interruption-and-repair replies such as `先别怪自己`,
+  `不是你表达差`, `刚刚那句是我没接好`, `我没接好，不怪你`, and
+  `我在呢，别先怪自己` remain valid. The final review pass caught and the main
+  thread fixed two local gaps before acceptance: first-person quoted self-talk
+  like `我刚刚还在想“我是不是太敏感了”` had been wrongly filtered by the
+  quoted-text guard, and future-softened but unresolved self-blame such as
+  `我是不是太敏感了，不过应该很快就过去了` had been wrongly filtered by the
+  resolved guard; the pass also broadened flat-ack penalties to catch
+  non-repair fillers like `收到` and `我知道了`. False-positive controls keep
+  broader self-worth dips, missed-message guilt, explicit conflict-repair
+  turns, apology bids, quoted/meta text work, explicit accountability
+  questions, and resolved-past turns outside this gate. Candidate scout and
+  false-positive scout both converged on the same candidate using only
+  synthetic probes, abstract rules, and local file pointers. A bounded
+  synthetic-only Sub2API advisory pass agreed on the slice shape. The review
+  scout returned two `P1` findings during implementation, which the main thread
+  absorbed and reverified locally before acceptance. Verification: `compileall`
+  was clean, the focused
+  self-blame/micro-repair/self-worth/missed-message/conflict/availability/apology
+  subset passed 20/20, `tests/test_style_profile.py` passed 273/273,
+  `tests/test_style_evaluation.py` passed 51/51, full `.venv` suite passed
+  441/441 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1365/1365, reply checks passed 4265/4265, gap checks passed 101/101,
+  and total checks passed 4366/4366 with `pass_rate=1.0`, eval generation
+  reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
+  45/45 with average style score `0.908` and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
   migration layer before adding embeddings.
 - Next: add explicit DB migration/versioning before the schema grows further.
