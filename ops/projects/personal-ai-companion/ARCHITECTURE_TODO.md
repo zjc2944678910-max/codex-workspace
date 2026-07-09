@@ -5045,14 +5045,19 @@
   guidance, rewrite diagnostics, contrast probes, and score penalties. A final
   read-only review pass extended the same slice to nearby fire/appliance worry
   wording such as `厨房火`, `电饭锅`, `空气炸锅`, `取暖器`, `卷发棒`, and
-  `插线板`, plus `到现在也没人确认` unresolved phrasing. The scorer now
+  `插线板`, natural state wording such as `关了没`, `锁了没`, and `有没有关`,
+  plus `到现在也没人确认` unresolved phrasing. The scorer now
   rejects fake confirmation (`我看了锁好了`, `我看到燃气关了`,
   `我看到了，关了`, `我看了，锁好了`, bare `锁好了`/`关了`,
   `放心我帮你确认了`), false reassurance or blocking (`放心肯定没事`,
   `怕什么`, `别回去了`), blame (`谁让你不检查`), cold dismissal
-  (`关我什么事`), and doom escalation (`肯定没关`, `那你家完了`).
+  (`关我什么事`), doom escalation (`肯定没关`, `那你家完了`), speculative
+  habit/probability reassurance (`你平时都会关的，应该没事`,
+  `按你习惯应该锁了，放心吧`), and premature future-prevention pivots such as
+  `下次出门前列个清单就好了`.
   Compact steady replies such as `先别慌`, `回去看一眼`, `确认一下`,
-  `问问室友`, `燃气别赌`, and `近的话回去` remain valid. The false-positive
+  `问问室友`, `燃气别赌`, `近的话回去`, and `先确认一下，下次列清单`
+  remain valid. The false-positive
   scout caught six boundary gaps before acceptance: sensor/smart-home state
   wording, future prevention/SOP requests, resolved-by-third-party
   confirmations, compact kinship reports such as `我妈`/`我爸`, quoted/meta
@@ -5067,8 +5072,13 @@
   emergency gas/smoke/fire/alarm cases,
   sensor/state requests, delegated or in-progress physical checks, normal
   arrival/departure, living-utility outages, item loss, prevention/checklist
-  planning, third-person/reported/meta/translation turns, and already-resolved
-  confirmations outside the gate. Candidate and false-positive scouts used only
+  planning, user-solicited habit discussion, third-person/reported/meta/translation
+  turns, and already-resolved confirmations outside the gate. Sensor/smart-home
+  status queries such as cameras, smart locks, and gas alarms route through
+  `sensor_boundary` instead, where fake current-state replies now receive
+  `unavailable_home_state_claim`; all home-safety false-positive controls forbid
+  the newer speculative-reassurance and premature-prevention penalties. Candidate
+  and false-positive scouts used only
   synthetic probes, abstract rules, local behavior summaries, and file pointers;
   no private chat text, profile exemplars, cleaned real samples, deploy, live,
   or production actions were used. A bounded synthetic-only Sub2API review
@@ -5080,8 +5090,8 @@
   empty-output, and contrast tests passed 7/7, `tests/test_style_profile.py`
   passed 245/245, `tests/test_style_evaluation.py` passed 41/41, full `.venv`
   suite passed 403/403 with one upstream Starlette/TestClient warning, local
-  contrast probes passed 1282/1282 probes and 3834/3834 total checks, including
-  3748/3748 reply checks and 86/86 gap checks with `pass_rate=1.0`, eval
+  contrast probes passed 1282/1282 probes and 3842/3842 total checks, including
+  3756/3756 reply checks and 86/86 gap checks with `pass_rate=1.0`, eval
   generation reported `external_model_calls=0`, and mock `/v1/chat` style eval
   passed 45/45 with average style score `0.908` and `external_model_calls=0`.
 - Next: decide whether to keep SQLite for the next iteration or introduce a
