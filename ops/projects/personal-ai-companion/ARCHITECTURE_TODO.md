@@ -5472,6 +5472,28 @@
   and total checks passed 4560/4560 with `pass_rate=1.0`, eval generation
   reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
   45/45 with average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-10: hardened the existing `affection_reassurance_support`
+  slice with a narrow `affection_callback` subtype for first-person moments
+  where something reminds the user of the companion. Synthetic probes such as
+  `我刚刚想起你了`, `今天突然想到你了`, `刚才看到一只猫，突然想到你`,
+  `我看到这个就想起你了`, and `这个东西让我想起你` now receive reciprocal
+  warmth or gentle curiosity. Flat receipts (`知道了`, `哦`), cold dismissal
+  (`关我什么事`), impatient pushes (`有事直说`), and warm-opened harmful tails
+  (`我也想你，但你别黏我`) receive dedicated callback penalties. Memory/utility
+  callbacks such as `我想起你说的那个词了`, translation/meta, third-person,
+  hypothetical, resolved-past, negated, and ordinary-share controls stay
+  outside this subtype. Candidate, false-positive, and review scouts were
+  closed without waiting for output; no private chat text, profile exemplars,
+  cleaned real samples, deploy/live/production actions, or profile JSON contents
+  were read or sent. Verification: `compileall` and `git diff --check` were
+  clean, the callback profile subset passed 1/1, the eval bundle check passed
+  1/1, `tests/test_style_profile.py` passed 285/285,
+  `tests/test_style_evaluation.py` passed 53/53, full `.venv` pytest passed
+  466/466 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1421/1421, reply checks passed 4464/4464, gap checks passed 110/110,
+  and total checks passed 4574/4574 with `pass_rate=1.0`, eval generation
+  reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
+  45/45 with average style score `0.908` and `external_model_calls=0`.
 - Completed 2026-07-10: hardened the existing `companionship_support` slice
   with a narrow `quiet_presence` subtype for users who do not want to talk but
   still want the companion nearby. Synthetic probes such as
