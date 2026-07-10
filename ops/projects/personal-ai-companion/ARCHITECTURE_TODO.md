@@ -5474,6 +5474,7 @@
   and total checks passed 4501/4501 with `pass_rate=1.0`, eval generation
   reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
   45/45 with average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-10: hardened the existing `positive_event_support` slice
   with a narrow `small_positive_share` subtype for the warm beat before a user
   gives the details of a small happy thing. Synthetic probes such as
   `我有个小开心想告诉你`, `我今天有个好消息想跟你分享`,
