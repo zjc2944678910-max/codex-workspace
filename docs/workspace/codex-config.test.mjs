@@ -81,7 +81,7 @@ test("codex profile v2 files define token budget profiles", (context) => {
   assert.ok(loadedProfiles.audit.model_auto_compact_token_limit > loadedProfiles.standard.model_auto_compact_token_limit);
 });
 
-test("codex subagents default to gpt-5.5 xhigh", () => {
+test("codex subagents default to gpt-5.6-luna xhigh", () => {
   const agentFiles = fs
     .readdirSync(agentsDir)
     .filter((file) => file.endsWith(".toml"));
@@ -89,7 +89,7 @@ test("codex subagents default to gpt-5.5 xhigh", () => {
 
   for (const file of agentFiles) {
     const agent = loadToml(path.join(agentsDir, file));
-    assert.equal(agent.model, "gpt-5.5", file);
+    assert.equal(agent.model, "gpt-5.6-luna", file);
     assert.equal(agent.model_reasoning_effort, "xhigh", file);
   }
 });
