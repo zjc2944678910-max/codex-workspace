@@ -5986,6 +5986,21 @@
   Eval generation reported `external_model_calls=0`, and mock `/v1/chat` style
   eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
+- Completed 2026-07-10: extended `casual_ping_support` with a narrow
+  `soft_connection_aimless` subtype for first-person bids where the user wants
+  the companion but has no topic ready. Synthetic probes such as
+  `我想找你，但又不知道说什么`, `我好像只是想听你说两句`,
+  `我想跟你待一会儿但不知道聊什么`, `我有点想你，但不知道跟你说什么`,
+  and `我本来没什么事，看到你就想说话` now receive warm-presence guidance.
+  Flat receipts (`收到`), cold/impatient turns (`那就别说`, `有事直说`), and
+  warm-opened harmful tails (`在呢，但你自己聊`) reuse the existing soft-
+  connection penalties. Third-person, translation/meta, hypothetical,
+  resolved-past, negated, task/help, availability, and quiet-presence controls
+  stay outside the subtype. Candidate and false-positive scouts were closed
+  without waiting for output; no private chat text, profile exemplars, cleaned
+  real samples, deploy/live/production actions, or profile JSON contents were
+  read or sent. Focused aimless profile/evaluation tests passed 1/1 each and
+  compileall passed; full validation metrics follow after completion.
 
 ## Later
 
