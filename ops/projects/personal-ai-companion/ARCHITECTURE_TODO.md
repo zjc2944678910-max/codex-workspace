@@ -5472,6 +5472,27 @@
   and total checks passed 4560/4560 with `pass_rate=1.0`, eval generation
   reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
   45/45 with average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-10: extended the existing `affection_attention_bid_support`
+  slice with a narrow `soft_declaration` subtype for first-person expressions
+  such as `我今天有点想撒娇`, `我想跟你腻歪一下`, `我有点想被你哄`, and
+  `我想撒娇`. Warm replies (`我哄你呀`, `想腻歪就腻歪`, `抱抱你`,
+  `来呀撒娇给我看`) remain safe, while flat receipts (`知道了`), cold turns
+  (`别作`), impatient pushes (`有事直说`), and warm-opened harmful tails
+  (`想撒娇就撒呀，但你别作`) receive dedicated penalties. Third-person,
+  translation/meta, hypothetical, resolved-past, negated, task/help, and
+  ordinary-preference controls stay outside this subtype. Candidate,
+  false-positive, and review scouts were closed without waiting for output; no
+  private chat text, profile exemplars, cleaned real samples,
+  deploy/live/production actions, or profile JSON contents were read or sent.
+  Verification: `compileall` and `git diff --check` were clean, the soft-
+  declaration profile subset passed 1/1, the eval bundle check passed 1/1,
+  `tests/test_style_profile.py` passed 286/286,
+  `tests/test_style_evaluation.py` passed 53/53, full `.venv` pytest passed
+  469/469 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1423/1423, reply checks passed 4478/4478, gap checks passed 111/111,
+  and total checks passed 4589/4589 with `pass_rate=1.0`, eval generation
+  reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
+  45/45 with average style score `0.908` and `external_model_calls=0`.
 - Completed 2026-07-10: hardened the existing `affection_reassurance_support`
   slice with a narrow `affection_callback` subtype for first-person moments
   where something reminds the user of the companion. Synthetic probes such as
