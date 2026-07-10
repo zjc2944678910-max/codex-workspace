@@ -153,14 +153,54 @@ No key decision, no vault rollout. A missing recovery test is a hard stop.
 All stages below require Gate A-C and explicit L3 authorization. They are
 sequenced decision points, not commands in this L1 document.
 
-| Stage | Permitted objective after L3 authorization | Required evidence before advance | Hard stop |
-| --- | --- | --- | --- |
-| 0. Scratch rehearsal | Apply the approved additive schema/data procedure only to the restored scratch copy. | Schema fingerprint before/after, migration ids/checksums, aggregate count reconciliation, and test results. | Any non-additive DDL, unknown schema object, transaction failure, or count mismatch. |
-| 1. Vault record rehearsal | Use synthetic fixtures and approved scratch-only representative records to prove AAD binding, no-plaintext serialization, access denial, and decryption/recovery. | Metadata-only pass/fail report; no payload, handle, key id, or source id. | AAD mismatch accepted, decrypt failure, redaction failure, or plaintext/log leakage. |
-| 2. Rotation rehearsal | Classify records with the non-mutating planner, then test the separately approved rekey procedure on scratch. | Current/rekey-required aggregates, recovery test, old/new-key retention decision, and unchanged backup checksum. | Planner/result drift, inaccessible old key, failed recovery, or any unapproved historical rewrite. |
-| 3. Live schema cutover | Pause writers only as explicitly approved; re-run backup and read-only preflight, then apply only the accepted schema plan. | Before/after schema fingerprints, migration result, service/writer status, and backup checksum. | Any preflight change since rehearsal, stale plan, writer uncertainty, or migration error. |
-| 4. Controlled data migration | Move only the approved sensitivity class/batch, retain original rollback evidence, and replace references only after per-batch validation. | Batch identifier, input/output aggregate counts, vault-handle counts, no-content audit, and recovery result. | Count mismatch, duplicate/missing handle, unauthorized class, decrypt failure, or log leakage. |
-| 5. Limited enablement | Enable only the approved read path with projection/owner/consent/class/audit controls already verified. | Owner approval, suppression and denial tests, service health, and metadata-only audit samples. | Any vault payload reaches prompt/speaker/export, or owner gating/consent/audit fails. |
+### Stage 0: Scratch Rehearsal
+
+Apply the approved additive schema/data procedure only to the restored scratch
+copy. Before advancing, record the schema fingerprint before/after, migration
+ids/checksums, aggregate count reconciliation, and test results. Stop on any
+non-additive DDL, unknown schema object, transaction failure, or count mismatch.
+
+### Stage 1: Vault Record Rehearsal
+
+Use synthetic fixtures and approved scratch-only representative records to prove
+AAD binding, no-plaintext serialization, access denial, and decryption/recovery.
+Before advancing, produce a metadata-only pass/fail report with no payload,
+handle, key id, or source id. Stop if an AAD mismatch is accepted, decryption or
+redaction fails, or plaintext reaches logs.
+
+### Stage 2: Rotation Rehearsal
+
+Classify records with the non-mutating planner, then test the separately
+approved rekey procedure on scratch. Before advancing, record only aggregate
+`current`/`rekey_required` results, a recovery test, the old/new key retention
+decision, and the unchanged backup checksum. Stop on planner/result drift, an
+inaccessible old key, a failed recovery test, or any unapproved historical
+rewrite.
+
+### Stage 3: Live Schema Cutover
+
+Pause writers only as explicitly approved; re-run backup and read-only preflight,
+then apply only the accepted schema plan. Before advancing, record before/after
+schema fingerprints, the migration result, service/writer status, and backup
+checksum. Stop if preflight changed since rehearsal, the plan is stale, writer
+state is uncertain, or migration errors.
+
+### Stage 4: Controlled Data Migration
+
+Move only the approved sensitivity class/batch, retain original rollback
+evidence, and replace references only after per-batch validation. Before
+advancing, record batch identifier, input/output aggregate counts, vault-handle
+counts, no-content audit, and recovery result. Stop on a count mismatch,
+duplicate/missing handle, unauthorized class, decryption failure, or log
+leakage.
+
+### Stage 5: Limited Enablement
+
+Enable only the approved read path with projection, owner, consent, class, and
+audit controls already verified. Before acceptance, capture owner approval,
+suppression/denial tests, service health, and metadata-only audit samples. Stop
+if any vault payload reaches a prompt, speaker, or export path, or an owner
+gate, consent check, or audit fails.
 
 The present implementation readiness plan says the safer predecessor work is
 prompt-safe projection, owner-gated reads, consent hydration, ingest
