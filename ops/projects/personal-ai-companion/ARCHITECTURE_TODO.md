@@ -5450,6 +5450,28 @@
   4226/4226 with `pass_rate=1.0`, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908`.
+- Completed 2026-07-10: hardened the existing `affection_reassurance_support`
+  slice with a narrow `declarative_affection` subtype for compact first-person
+  missing-you/love/like bids. Synthetic probes such as `我想你了`, `我好想你呀`,
+  `今天特别想你`, and `我爱你呀` now receive reciprocal-affection guidance.
+  Reciprocal replies (`我也想你`, `我也好想你啦`, `抱抱你`, `我也爱你呀`) stay
+  safe, while flat receipts (`知道了`), cold replies (`不想你`, `一般般吧`),
+  impatient pushes (`有事直说`), and warm-opened harmful tails
+  (`我也想你，但你别黏我`) receive dedicated penalties. Task/help wording,
+  translation/meta, third-person, hypothetical, resolved-past, negated-affection,
+  and ordinary-preference controls stay outside this subtype. Candidate,
+  false-positive, and review scouts were closed without waiting for output; no
+  private chat text, profile exemplars, cleaned real samples,
+  deploy/live/production actions, or profile JSON contents were read or sent.
+  Verification: `compileall` and `git diff --check` were clean, the declarative
+  affection profile subset passed 1/1, the eval bundle check passed 1/1,
+  `tests/test_style_profile.py` passed 284/284,
+  `tests/test_style_evaluation.py` passed 53/53, full `.venv` pytest passed
+  463/463 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1416/1416, reply checks passed 4451/4451, gap checks passed 109/109,
+  and total checks passed 4560/4560 with `pass_rate=1.0`, eval generation
+  reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
+  45/45 with average style score `0.908` and `external_model_calls=0`.
 - Completed 2026-07-10: hardened the existing `companionship_support` slice
   with a narrow `quiet_presence` subtype for users who do not want to talk but
   still want the companion nearby. Synthetic probes such as
