@@ -6318,7 +6318,7 @@
   reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
   45/45 with average style score `0.908` and `external_model_calls=0`.
 
-- In progress 2026-07-10: tightened the existing `conflict_repair` context
+- Completed 2026-07-10: tightened the existing `conflict_repair` context
   gate for synthetic false-positive families. Hypothetical/reporting turns such
   as `如果有人说你不想理我怎么回`, `她说你不想理她，我该怎么回`, and
   `我朋友和你吵架了我怎么安慰她`, resolved-past turns such as
@@ -6391,6 +6391,11 @@
 
 ## Later
 
+- Deferred 2026-07-10: dedicated current first-person lighthearted
+  funny-video/short-anecdote sharing was fully rolled back after the
+  `怕你觉得烦` burden-context false positive. No implementation, probe, or test
+  remains; revisit only after an explicit reopen with a newly designed narrower
+  boundary.
 - Add streaming audio, multipart upload ergonomics, and StackChan device registration.
 - Add Memory Admin UI/API.
 - Add iOS app permission flows for HealthKit/EventKit/AlarmKit/App Intents.
