@@ -6292,6 +6292,26 @@
   reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
   45/45 with average style score `0.908` and `external_model_calls=0`.
 
+- Completed 2026-07-10: tightened the `availability_boundary_support` context
+  gate for three synthetic false-positive families. Hypothetical prompts such
+  as `如果我今晚没空陪你聊天怎么办` and `假如我现在不想打电话呢`,
+  prefix-reported third-party wording such as
+  `我朋友说她今晚没空陪你聊天，我该怎么回`, and punctuated resolved-past
+  wording such as `之前不方便，现在已经没事了` now stay outside current-user
+  availability guidance and penalties. Current first-person boundaries and
+  mixed turns remain inside, including `我现在不想打电话`,
+  `她说别打了，我现在也不想打电话`,
+  `我都说了我今晚没空陪你聊天，她还一直催我回`, and
+  `刚才手机没电了现在好了，但我还是不想聊天`. The change adds a narrow
+  hypothetical gate, excludes third-party prefixes from current-subject
+  matching, allows punctuation in resolved-past matching, and adds synthetic
+  profile/evaluation controls. Candidate and false-positive scouts used
+  `gpt-5.6-luna` and were closed immediately without waiting; no private chat
+  text, profile exemplars, cleaned real samples, deploy/live/production
+  actions, or profile JSON contents were read or sent. Verification is being
+  completed in the current round; final counts follow after the full local
+  validation chain.
+
 ## Later
 
 - Add streaming audio, multipart upload ergonomics, and StackChan device registration.
