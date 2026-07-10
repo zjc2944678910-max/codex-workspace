@@ -6008,6 +6008,23 @@
   and total checks passed 4625/4625 with `pass_rate=1.0`. Eval generation
   reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
   45/45 with average style score `0.908` and `external_model_calls=0`.
+- Completed 2026-07-10: hardened the existing `soft_talk_opening_support`
+  permission-checking slice with a narrow vulnerable-paraphrase extension.
+  Synthetic first-person variants such as `我有点话想跟你讲，你有空吗`,
+  `我想跟你说句话，你现在有空不`, `我能不能跟你说个事`,
+  `我想跟你说点心里话，可以听我一下吗`, `我有点事想说，不知道会不会打扰你`,
+  `我不知道该不该跟你说这个`, `我有句话想跟你说，但有点不敢`,
+  `你现在有空听我说两句吗`, and `我刚忙完，想跟你说个事，你有空吗` now
+  receive the same warm-opening guidance. Flat, cold, impatient, assistant-
+  framed, unsoftened-delay, and harmful-tail replies reuse the existing
+  `soft_talk_opening_*` penalties. Task/question, translation/meta, quoted or
+  third-person, hypothetical, resolved-past, availability opt-out,
+  companionship, and comfort/burden controls stay outside this extension.
+  Candidate and false-positive scouts were closed without waiting for output;
+  no private chat text, profile exemplars, cleaned real samples, deploy/live/
+  production actions, or profile JSON contents were read or sent. Focused
+  permission-vulnerable profile/evaluation tests passed 1/1 each and compileall
+  passed; full validation metrics follow after completion.
 
 ## Later
 
