@@ -6344,14 +6344,27 @@
   generation reported `external_model_calls=0`, and mock `/v1/chat` style eval
   passed 45/45 with average style score `0.908` and `external_model_calls=0`.
 
-- In progress 2026-07-10: tightened the existing `task_overwhelm_support`
+- Completed 2026-07-10: tightened the existing `task_overwhelm_support`
   context gate for synthetic hypothetical and third-person controls. Prompts
   such as `如果我作业好多写不完怎么办`, `假如我ddl赶不上怎么办`, and
   `如果有人作业好多写不完怎么办` now stay outside current-user task-pressure
   support, while the subjectless current-help form `作业好多写不完怎么办`
-  remains inside. Verification is pending; no private chat text, profile
-  exemplars, cleaned real samples, deploy/live/production actions, or profile
-  JSON contents were read or sent.
+  remains inside. The slice adds an explicit
+  `expected_task_overwhelm_context` contrast assertion, profile controls,
+  README notes, and this ops record. Candidate and false-positive scouts used
+  `gpt-5.6-luna` and were closed immediately without waiting; the review scout
+  also used `gpt-5.6-luna` and was closed immediately. No private chat text,
+  profile exemplars, cleaned real samples, deploy/live/production actions, or
+  profile JSON contents were read or sent. Verification is complete:
+  compileall and `git diff --check` were clean, focused task-overwhelm profile
+  controls passed 2/2, the focused contrast regression passed 1/1, the full
+  style profile suite passed 299/299, the full style evaluation suite passed
+  55/55, and full `.venv` pytest passed 568/568 with one upstream
+  Starlette/TestClient warning. Local contrast probes passed 1452/1452, reply
+  checks passed 4720/4720, gap checks passed 124/124, and total checks passed
+  4844/4844 with `pass_rate=1.0`. Eval generation reported
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908` and `external_model_calls=0`.
 
 ## Later
 
