@@ -39,6 +39,26 @@ node docs/workspace/codex-register-project.mjs --regen
 - Next useful work: Keep routing facts synced with the registry; add project-specific commands or runbooks when they become confirmed; promote durable conclusions out of scratch/session notes.
 - Model review guidance: Use Sub2API/Claude review for architecture, code review, writing, research, or UX polish when the task is non-tiny. Use [model-review-packets.md](../../../docs/workspace/model-review-packets.md) for packet shape.
 
+## Current Program Control State (2026-07-10)
+
+This section is the current ops-level fact index. It supersedes contradictory
+completion wording in older manifests, reports, and running logs; those older
+documents remain historical evidence, not an authorization to repeat live
+actions. Status labels are defined in the [continuous program
+runbook](runbooks/continuous-program-authorization-and-task-lifecycle.md).
+
+| Surface | Confirmed current fact | Not confirmed / not authorized |
+| --- | --- | --- |
+| StackChan | L3-S1 accepted one neutral-expression producer. | Device acknowledgement and physical field observation for that producer are unconfirmed. It must not be described as a repaired screen. |
+| iOS MVP | Mock-only SwiftUI/package evidence and an unsigned Simulator Host pass exist locally. | Real LAN transport, real credentials/Keychain, signing, entitlements, real-device behavior, and real StackChan integration are blocked. |
+| HealthKit | Mock permission states and design-time scope/rollback packets exist. | System consent, entitlement/signing, collection, and use of real health data are unconfirmed and outside the present program authority. |
+| Memory/privacy | A local memory design and implementation-readiness plan exist with conservative review/retention boundaries. | No current task may read/export private memory or make a live schema/data change without a separately authorized slice. |
+| Style/persona | Local style mechanisms and synthetic evaluation surfaces are historical implementation evidence. | No identity/personality imitation based on unapproved private material is authorized; consent, revocation, and private-data handling remain separate gates. |
+
+The active 12-hour authorization, task protocol, stop rules, and non-overlapping
+queue are in
+[continuous-program-authorization-and-task-lifecycle.md](runbooks/continuous-program-authorization-and-task-lifecycle.md).
+
 ## Stable Docs
 
 - `README.md`
@@ -49,6 +69,7 @@ node docs/workspace/codex-register-project.mjs --regen
 - `runbooks/mvp-build-order.md`
 - `runbooks/stackchan-local-bridge.md`
 - `runbooks/stackchan-command-protocol-v0.1.md`
+- `runbooks/continuous-program-authorization-and-task-lifecycle.md`
 - `DEPLOYMENT_LEDGER.md` when deployment history exists
 - `ARCHITECTURE_TODO.md` when architecture backlog exists
 - `manifests/`

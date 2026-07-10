@@ -1,5 +1,55 @@
 # Personal AI Companion Architecture TODO
 
+## Active Program Queue And Authority (2026-07-10)
+
+This running log may contain historical completed-work claims. The current
+program control source is
+[continuous-program-authorization-and-task-lifecycle.md](runbooks/continuous-program-authorization-and-task-lifecycle.md).
+When this file conflicts with that runbook's dated facts, authorization ledger,
+or stop rules, the runbook wins.
+
+### Current Corrections
+
+- StackChan L3-S1: one neutral-expression producer is **producer accepted**;
+  device ack and physical field observation are **unconfirmed**. Do not label
+  the screen repaired.
+- iOS: local/mock and unsigned Simulator evidence is **local/mock verified**;
+  real integration remains blocked.
+- HealthKit: mock/design evidence exists; system consent, real collection, and
+  signing/entitlement behavior are unconfirmed.
+- Memory and style: local designs/implementation surfaces do not authorize raw
+  private-data access, real data migration, or persona imitation from
+  unapproved private material.
+
+### Queue Discipline
+
+- The authorization expires at `2026-07-11T11:22:52+08:00`; after expiry,
+  no L3 action may start without renewed explicit authority.
+- Synchronize the ops facts and queue before each implementation wave.
+- Only the explicitly selected queue item may run. Dependencies do not imply
+  concurrency or authorization for dependent work.
+- Every live task must carry target, reason, risk, rollback, verification,
+  expiry check, and a no-scope-expansion stop condition.
+
+### Proposed Next Task Order
+
+| Order | Task ID | Type | Dependency / manual gate | Owned surface |
+| --- | --- | --- | --- | --- |
+| 0 | `PAC-DOCS-SYNC` | L1 | Required before every implementation wave. | The assigned ops docs only. |
+| 1 | `PAC-STACKCHAN-ACK-DIAG` | L2 | L3-S1 producer accepted; read-only diagnostics and redacted evidence only. | StackChan display acknowledgement evidence. |
+| 2 | `PAC-STACKCHAN-AUDIO` | L3 | Fresh expiry check, explicit repair gate, and prior docs sync. | One bounded audio path. |
+| 3 | `PAC-STACKCHAN-MOTION` | L3 | Audio outcome reviewed; explicit physical safety envelope and rollback. | One servo/motion mapping only. |
+| 4 | `PAC-STACKCHAN-TOUCH` | L3 | Motion safety result and explicit input behavior decision. | One touch interaction path. |
+| 5 | `PAC-STACKCHAN-CAMERA` | L3 | Explicit camera/privacy consent and capture-retention policy. | One camera path. |
+| 6 | `PAC-IOS-MOCK-UX` | L1 | Docs sync; no live transport or credentials. | Mock-only iOS UI/tests. |
+| 7 | `PAC-IOS-REAL-INTEGRATION` | L3 | Completed mock UX, explicit signing/credential/LAN decision, rollback. | One real integration seam. |
+| 8 | `PAC-HEALTHKIT-SCOPE` | L3 | Explicit owner-selected scope and consent wording; no real data before gate. | One HealthKit authorization/collection slice. |
+| 9 | `PAC-MEMORY-PRIVACY` | L1 or L3 | L1 for isolated temp/test-only code; L3 for data/schema/runtime changes. | One named memory policy or migration surface. |
+| 10 | `PAC-STYLE-PERSONA` | L1 | Documented consent/revocation and approved material boundary. | One local style-policy/eval surface. |
+
+The detailed classification, dependencies, manual gates, and stop conditions are
+normative in the runbook; this table is intentionally not a concurrency plan.
+
 ## Near Term
 
 - Completed 2026-07-08: documented memory-layer v0.1 implementation readiness
