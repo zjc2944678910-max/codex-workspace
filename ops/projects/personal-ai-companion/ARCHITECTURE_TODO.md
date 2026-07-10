@@ -6318,6 +6318,25 @@
   reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
   45/45 with average style score `0.908` and `external_model_calls=0`.
 
+- In progress 2026-07-10: tightened the existing `conflict_repair` context
+  gate for synthetic false-positive families. Hypothetical/reporting turns such
+  as `如果有人说你不想理我怎么回`, `她说你不想理她，我该怎么回`, and
+  `我朋友和你吵架了我怎么安慰她`, resolved-past turns such as
+  `之前吵架了，现在已经和好了`, explicit negation such as
+  `我不是不想理你`, and translation/definition forms such as
+  `翻译：你不想理我` and `你不想理我是什么意思` now stay outside current
+  conflict-repair guidance. Unresolved current conflict, space, social-time,
+  and thin-ack turns remain inside, including `你刚刚是不是不想理我`,
+  `我今晚想早点睡`, `我要去见朋友啦`,
+  `我刚刚给你发了一大段你只回嗯，我有点委屈`, and
+  `刚刚吵架了，现在还是很生气`. The slice adds conflict-specific context
+  gates, an explicit `expected_conflict_context` contrast assertion, profile
+  controls, README notes, and this ops record. Candidate and false-positive
+  scouts used `gpt-5.6-luna` and were closed immediately without waiting; no
+  private chat text, profile exemplars, cleaned real samples, deploy/live/
+  production actions, or profile JSON contents were read or sent. Verification
+  follows after the full local validation chain.
+
 ## Later
 
 - Add streaming audio, multipart upload ergonomics, and StackChan device registration.
