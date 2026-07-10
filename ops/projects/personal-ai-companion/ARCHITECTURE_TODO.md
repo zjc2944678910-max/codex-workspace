@@ -6389,13 +6389,34 @@
   reported `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45
   with average style score `0.908` and `external_model_calls=0`.
 
+ - Completed 2026-07-10: reopened the dedicated current first-person
+  lighthearted funny-video/short-anecdote sharing slice as standalone
+  `lighthearted_share_support`, not as a widened `casual_ping_support` regex.
+  Activation now requires all three synthetic-only signals: `我` plus a recent
+  `刚刷到`/`刚看到`/`刚遇到` discovery, explicit light positive or absurd content
+  such as a funny/absurd/cute-funny video, meme, joke, or small anecdote, and an
+  explicit sharing intent. Compact curiosity such as `什么呀，快讲讲` or
+  `听着就很好笑，跟我说说` remains safe; flat reception, impatient pushing,
+  cold dismissal, fake visual access, and warm-opened rejection tails are
+  penalized. The prior 2026-07-10 attempt was fully rolled back after its
+  `怕你觉得烦` burden-context false positive. The reopened design instead uses
+  explicit owner arbitration, so `我刚看到个好笑的小视频想跟你讲，但怕你觉得烦`
+  now stays with `burden_shame_taking_up_space_support` and never enters this
+  subtype. Permission/availability, companionship/affection, apology, visual
+  inspection, existing song/plot/variety/game/small-beauty owners,
+  distress/advice, quoted/meta/third-person/hypothetical/resolved/negated/future
+  controls remain outside. Verification is local and synthetic-only: compileall
+  was clean; focused profile/evaluation tests passed 1/1 each;
+  `tests/test_style_profile.py` passed 300/300;
+  `tests/test_style_evaluation.py` passed 56/56; full `.venv` pytest passed
+  667/667 with one existing Starlette/TestClient warning; contrast probes passed
+  1478/1478, reply checks 4765/4765, gap checks 125/125, and total checks
+  4890/4890 with `pass_rate=1.0` and `external_model_calls=0`; mock `/v1/chat`
+  style eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`. This record makes no claim of real-model validation.
+
 ## Later
 
-- Deferred 2026-07-10: dedicated current first-person lighthearted
-  funny-video/short-anecdote sharing was fully rolled back after the
-  `怕你觉得烦` burden-context false positive. No implementation, probe, or test
-  remains; revisit only after an explicit reopen with a newly designed narrower
-  boundary.
 - Add streaming audio, multipart upload ergonomics, and StackChan device registration.
 - Add Memory Admin UI/API.
 - Add iOS app permission flows for HealthKit/EventKit/AlarmKit/App Intents.
