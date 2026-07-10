@@ -6389,7 +6389,7 @@
   reported `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45
   with average style score `0.908` and `external_model_calls=0`.
 
- - Completed 2026-07-10: reopened the dedicated current first-person
+- Completed 2026-07-10: reopened the dedicated current first-person
   lighthearted funny-video/short-anecdote sharing slice as standalone
   `lighthearted_share_support`, not as a widened `casual_ping_support` regex.
   Activation now requires all three synthetic-only signals: `我` plus a recent
