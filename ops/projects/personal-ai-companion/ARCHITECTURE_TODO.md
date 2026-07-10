@@ -6033,6 +6033,31 @@
   eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`.
 
+- Completed 2026-07-10: extended the existing
+  `soft_reveal_followthrough_support` slice with a narrow `unsayable_reveal`
+  subtype for first-person moments where the user wants to open up but cannot
+  quite get the words out. Synthetic variants such as `我有点说不出口`,
+  `我不知道怎么开口跟你说`, `我不知道该怎么跟你讲这件事`,
+  `我想说但总觉得说不清楚`, `我不知道从哪里开始讲`,
+  `我有点哽住了，不知道怎么讲`, and
+  `我想把这件事告诉你但好难说` now receive the existing warm followthrough
+  guidance. Flat, impatient, premature-utility, unsoftened-delay, and
+  warm-opener harmful-tail replies reuse the existing
+  `soft_reveal_followthrough_*` penalties. Task/help, translation/meta,
+  quoted/third-person, hypothetical, resolved-past, companionship,
+  availability, and opt-out controls stay outside the subtype. Candidate and
+  false-positive scouts were closed without waiting for output; no private chat
+  text, profile exemplars, cleaned real samples, deploy/live/production
+  actions, or profile JSON contents were read or sent. Verification: compileall
+  and `git diff --check` were clean, focused unsayable profile/evaluation tests
+  passed 1/1 each, `tests/test_style_profile.py` passed 290/290,
+  `tests/test_style_evaluation.py` passed 53/53, full `.venv` pytest passed
+  473/473 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1431/1431, reply checks passed 4555/4555, gap checks passed 115/115,
+  and total checks passed 4670/4670 with `pass_rate=1.0`. Eval generation
+  reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
+  45/45 with average style score `0.908` and `external_model_calls=0`.
+
 ## Later
 
 - Add streaming audio, multipart upload ergonomics, and StackChan device registration.
