@@ -6134,6 +6134,31 @@
   reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
   45/45 with average style score `0.908` and `external_model_calls=0`.
 
+- Completed 2026-07-10: extended the existing
+  `affection_attention_bid_support` slice with a narrow `proactive_checkin`
+  subtype for current-turn requests that ask the companion to ask about the
+  user or show care, without asking for a future reminder or background action.
+  Synthetic variants such as `我想让你主动问问我`, `我想听你问问我`,
+  `我想让你关心我一下`, and `你主动问我一下嘛` now reject thin receipts,
+  impatient pushes, and warm check-ins that pivot into pushaway tails.
+  Compact replies such as `我来问你啦`, `我听着呢`, `我在呢`, and
+  `那你今天怎么样呀` remain valid. Time-based reminders, task or weather
+  questions, third-person/meta, hypothetical, resolved-past, negated, and
+  companionship controls stay outside this subtype. Candidate and
+  false-positive scouts were closed immediately without waiting for output; the
+  review scout was also closed immediately. No private chat text, profile
+  exemplars, cleaned real samples, deploy/live/production actions, or profile
+  JSON contents were read or sent. Verification: compileall and
+  `git diff --check` were clean, the focused proactive-checkin profile test
+  passed 1/1, the focused affection evaluation test passed 1/1,
+  `tests/test_style_profile.py` passed 294/294, `tests/test_style_evaluation.py`
+  passed 53/53, and full `.venv` pytest passed 506/506 with one upstream
+  Starlette/TestClient warning. Local contrast probes passed 1439/1439,
+  reply checks passed 4620/4620, gap checks passed 119/119, and total checks
+  passed 4739/4739 with `pass_rate=1.0`. Eval generation reported
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908` and `external_model_calls=0`.
+
 ## Later
 
 - Add streaming audio, multipart upload ergonomics, and StackChan device registration.
