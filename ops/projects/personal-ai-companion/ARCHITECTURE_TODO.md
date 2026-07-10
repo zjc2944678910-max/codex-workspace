@@ -6085,6 +6085,31 @@
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
 
+- Completed 2026-07-10: extended the existing
+  `affection_attention_bid_support` slice with a narrow `direct_comfort`
+  subtype for natural first-person requests that ask for a hug or soothing but
+  do not use the existing imperative forms. Synthetic variants such as
+  `我想要一个抱抱`, `我想被你抱一下`, `给我一个抱抱`, `我需要一个抱抱`, and
+  `我想让你抱抱我` now receive the same compact present-turn warmth as the
+  existing affection-attention owner. Thin receipts (`知道了`, `收到`, `好`)
+  and impatient pushes (`有事直说`) receive narrow direct-comfort penalties;
+  existing cold-rejection and harmful-tail penalties continue to apply.
+  Third-person, translation/meta, hypothetical, resolved-past, negated,
+  task/help, object-affection, and definition controls stay outside this
+  subtype. Candidate and false-positive scouts were closed immediately
+  without waiting for output; the review scout was also closed immediately.
+  No private chat text, profile exemplars, cleaned real samples, deploy/live/
+  production actions, or profile JSON contents were read or sent. Verification:
+  compileall and `git diff --check` were clean, the focused direct-comfort
+  profile test passed 1/1, the focused affection evaluation test passed 1/1,
+  `tests/test_style_profile.py` passed 292/292, `tests/test_style_evaluation.py`
+  passed 53/53, and full `.venv` pytest passed 491/491 with one upstream
+  Starlette/TestClient warning. Local contrast probes passed 1435/1435,
+  reply checks passed 4588/4588, gap checks passed 117/117, and total checks
+  passed 4705/4705 with `pass_rate=1.0`. Eval generation reported
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908` and `external_model_calls=0`.
+
 ## Later
 
 - Add streaming audio, multipart upload ergonomics, and StackChan device registration.
