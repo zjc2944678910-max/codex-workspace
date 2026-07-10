@@ -6183,6 +6183,31 @@
   reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
   45/45 with average style score `0.908` and `external_model_calls=0`.
 
+- Completed 2026-07-10: extended the existing
+  `affection_attention_bid_support` slice with a narrow `exclusive_favor`
+  subtype for present-turn requests to be偏心、偏爱或被选. Synthetic variants
+  such as `我想让你偏心我一下`, `你偏心我一下嘛`, `我想要一点偏爱`,
+  `我只想被你偏爱`, `我想让你一直选我`, and `你能不能多偏爱我一点` now
+  reject thin receipts (`知道了`, `收到`), cold refusals (`不偏爱你`),
+  impatient pushes (`有事直说`), and warm replies that pivot into blame such
+  as `当然选你，但你别作`. Compact replies such as `偏心你呀`, `偏爱你呀`,
+  `只偏爱你`, `当然选你`, and `我当然站你这边` remain valid. Soft-spoiling
+  requests, ordinary preference statements, object/work praise, third-person
+  or fictional reports, meta/hypothetical, resolved-past, negated, and
+  task/help controls stay outside this exclusive-favor subtype. Candidate and
+  false-positive scouts plus the review scout used `gpt-5.6-luna` and were
+  closed immediately without waiting for output. No private chat text, profile
+  exemplars, cleaned real samples, deploy/live/production actions, or profile
+  JSON contents were read or sent. Verification: compileall and `git diff --check`
+  were clean, the focused exclusive-favor profile test passed 1/1, the focused
+  affection evaluation test passed 1/1, `tests/test_style_profile.py` passed
+  296/296, `tests/test_style_evaluation.py` passed 53/53, and full `.venv`
+  pytest passed 514/514 with one upstream Starlette/TestClient warning. Local
+  contrast probes passed 1443/1443, reply checks passed 4653/4653, gap checks
+  passed 121/121, and total checks passed 4774/4774 with `pass_rate=1.0`. Eval
+  generation reported `external_model_calls=0`, and mock `/v1/chat` style eval
+  passed 45/45 with average style score `0.908` and `external_model_calls=0`.
+
 ## Later
 
 - Add streaming audio, multipart upload ergonomics, and StackChan device registration.
