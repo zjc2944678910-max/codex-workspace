@@ -5964,6 +5964,29 @@
 - Next: add at-rest encryption/key-management decisions for stored conversation
   context before widening always-on use.
 
+- Completed 2026-07-10: hardened the existing `casual_ping_support` slice with
+  a narrow `soft_connection` subtype for low-content first-person bids where
+  the user has no concrete task but wants to find the companion or chat. Synthetic
+  probes such as `我今天没什么事就是想找你`, `我现在好想和你说说话`,
+  `我想跟你说句话`, `我想跟你聊会儿`, and
+  `我今天有件小事想跟你分享` now receive warm-presence guidance. Replies such
+  as `收到`, `关我什么事`, and `在呢，但你自己聊` receive dedicated flat,
+  cold, or harmful-tail penalties, while tell-opening, companionship,
+  task/help, translation/meta, third-person, hypothetical, resolved-past,
+  negated, and ordinary-preference controls stay outside this subtype. Candidate
+  and false-positive scouts were closed without waiting for output; no private
+  chat text, profile exemplars, cleaned real samples, deploy/live/production
+  actions, or profile JSON contents were read or sent. Verification: compileall
+  and `git diff --check` were clean, the focused soft-connection profile test
+  passed 1/1, the eval bundle test passed 1/1, `tests/test_style_profile.py`
+  passed 287/287, `tests/test_style_evaluation.py` passed 53/53, full `.venv`
+  pytest passed 470/470 with one upstream Starlette/TestClient warning, local
+  contrast probes passed 1425/1425, reply checks passed 4494/4494, gap checks
+  passed 112/112, and total checks passed 4606/4606 with `pass_rate=1.0`.
+  Eval generation reported `external_model_calls=0`, and mock `/v1/chat` style
+  eval passed 45/45 with average style score `0.908` and
+  `external_model_calls=0`.
+
 ## Later
 
 - Add streaming audio, multipart upload ergonomics, and StackChan device registration.
