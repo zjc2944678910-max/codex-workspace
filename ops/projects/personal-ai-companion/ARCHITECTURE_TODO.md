@@ -5450,6 +5450,30 @@
   4226/4226 with `pass_rate=1.0`, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908`.
+- Completed 2026-07-10: hardened the existing `affection_attention_bid_support`
+  slice with a narrow indirect playful-attention subtype for users who hint at
+  wanting to be noticed without directly asking. Synthetic probes such as
+  `你都不问我一下嘛`, `你怎么不来看看我呀`, `你都不来哄我呢`, and
+  `我等你来哄我呢` now route into the existing attention-bid gate. Flat
+  receipts (`知道了`), impatient pushes (`有事直说`), cold replies
+  (`关我什么事`), and warm-opened tails (`我在呢，但你快点说`) receive
+  dedicated indirect-bid penalties. Companionship, slow-reply complaints,
+  task/help questions, negative relationship insecurity, quoted/meta,
+  hypothetical, and resolved-past controls remain outside this subtype. The
+  candidate and false-positive scouts were closed without waiting for output;
+  the post-implementation review scout hit the workspace usage limit before
+  returning, so the main thread performed the final synthetic control review.
+  No private chat text, profile exemplars, cleaned real samples, deploy/live/
+  production actions, or profile JSON contents were read or sent. Verification:
+  `compileall` and `git diff --check` were clean, the indirect-attention
+  profile subset passed 2/2, the evaluation subset passed 1/1,
+  `tests/test_style_profile.py` passed 281/281,
+  `tests/test_style_evaluation.py` passed 53/53, full `.venv` pytest passed
+  451/451 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1408/1408, reply checks passed 4410/4410, gap checks passed 106/106,
+  and total checks passed 4516/4516 with `pass_rate=1.0`, eval generation
+  reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
+  45/45 with average style score `0.908` and `external_model_calls=0`.
 - Completed 2026-07-10: hardened the existing `positive_event_support` slice
   with a narrow playful-teaser subtype for the warm beat before a likely happy
   detail is revealed. Synthetic probes such as `你猜我刚刚发生了什么`,
