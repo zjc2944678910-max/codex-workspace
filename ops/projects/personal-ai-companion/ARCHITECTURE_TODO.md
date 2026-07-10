@@ -6308,9 +6308,15 @@
   profile/evaluation controls. Candidate and false-positive scouts used
   `gpt-5.6-luna` and were closed immediately without waiting; no private chat
   text, profile exemplars, cleaned real samples, deploy/live/production
-  actions, or profile JSON contents were read or sent. Verification is being
-  completed in the current round; final counts follow after the full local
-  validation chain.
+  actions, or profile JSON contents were read or sent. Verification:
+  compileall and `git diff --check` were clean, the focused availability
+  profile controls passed 3/3, the full style profile suite passed 299/299,
+  the full style evaluation suite passed 53/53, and full `.venv` pytest passed
+  543/543 with one upstream Starlette/TestClient warning. Local contrast probes
+  passed 1450/1450, reply checks passed 4710/4710, gap checks passed 124/124,
+  and total checks passed 4834/4834 with `pass_rate=1.0`. Eval generation
+  reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
+  45/45 with average style score `0.908` and `external_model_calls=0`.
 
 ## Later
 
