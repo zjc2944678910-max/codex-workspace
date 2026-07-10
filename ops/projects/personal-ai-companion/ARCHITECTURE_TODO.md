@@ -6058,6 +6058,33 @@
   reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
   45/45 with average style score `0.908` and `external_model_calls=0`.
 
+- Completed 2026-07-10: extended the existing
+  `micro_repair_after_missed_attunement_support` slice with a narrow
+  `thin_ack_after_reveal` subtype for first-person moments where the user has
+  already shared at length or asked to be heard, but the companion answered
+  with a thin acknowledgment or moved past the disclosure. Synthetic variants
+  such as `我刚刚跟你说了好多，你只回了个嗯`, `我认真跟你说了半天，你怎么只回好`,
+  `我刚说到一半你就开始讲别的了`, `我想让你先听我说完`, and
+  `我不是想让你解决，我只是想让你听我说` now reuse the existing
+  micro-repair guidance and penalties for flat acknowledgment, defensive
+  self-justification, impatient reprompt, minimizing repair, procedural fix
+  framing, unsoftened delay, and harmful tails. Artifact/task, reported or
+  meta, translation, hypothetical, resolved-past, conflict-with-hurt-suffix,
+  availability, burden, and companionship controls stay outside this subtype.
+  Candidate and false-positive scouts were closed without waiting for output;
+  no private chat text, profile exemplars, cleaned real samples, deploy/live/
+  production actions, or profile JSON contents were read or sent. The review
+  scout was also closed immediately without waiting for output. Verification:
+  compileall and `git diff --check` were clean, the focused thin-ack profile
+  test passed 1/1, the focused thin-ack evaluation test passed 1/1,
+  `tests/test_style_profile.py` passed 291/291, `tests/test_style_evaluation.py`
+  passed 53/53, and full `.venv` pytest passed 485/485 with one upstream
+  Starlette/TestClient warning. Local contrast probes passed 1433/1433,
+  reply checks passed 4573/4573, gap checks passed 116/116, and total checks
+  passed 4689/4689 with `pass_rate=1.0`. Eval generation reported
+  `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
+  average style score `0.908` and `external_model_calls=0`.
+
 ## Later
 
 - Add streaming audio, multipart upload ergonomics, and StackChan device registration.
