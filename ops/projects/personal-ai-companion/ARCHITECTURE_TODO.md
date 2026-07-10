@@ -6261,6 +6261,37 @@
   generation reported `external_model_calls=0`, and mock `/v1/chat` style eval
   passed 45/45 with average style score `0.908` and `external_model_calls=0`.
 
+- Completed 2026-07-10: extended the existing
+  `affection_attention_bid_support` slice with a narrow `attentive_response`
+  subtype for current-turn requests for a fuller, more present reply instead
+  of a thin `嗯嗯`. Synthetic variants such as `我想让你认真回我`,
+  `你别只回我嗯嗯`, `我想听你多说两句`, `你能不能好好回应我`,
+  `我想让你给我一个回应`, `我想让你接住我一下`, and `你别敷衍我好不好`
+  now reject flat receipts (`嗯嗯`, `收到`), cold refusals (`不想回`),
+  impatient pushes (`有事直说`), and warm replies that pivot into blame such
+  as `我好好回你，但你别作`. Compact replies such as `我在认真听呀`,
+  `我好好回你`, `你说我听着`, `我认真听着呢`, and `我认真回你呀` remain
+  valid. Already-missed response repairs, question/email/homework requests,
+  translation/meta, third-person, hypothetical, resolved-past, negated, and
+  future-action controls stay outside this attentive-response subtype. The
+  candidate/false-positive scout runtime initially blocked, so the main thread
+  used equivalent synthetic-only analysis; a delayed false-positive review also
+  identified broader pre-existing gates for jealousy, reassurance, direct
+  affection attention, companionship, availability, conflict repair, and
+  task/help. Those findings remain a separate follow-up slice. The final review
+  scout used `gpt-5.6-luna` and was closed immediately. No private chat text,
+  profile exemplars, cleaned real samples, deploy/live/production actions, or
+  profile JSON contents were read or sent. Verification: compileall and
+  `git diff --check` were clean, the focused attentive-response profile test
+  passed 1/1, the focused affection evaluation test passed 1/1,
+  `tests/test_style_profile.py` passed 299/299,
+  `tests/test_style_evaluation.py` passed 53/53, and full `.venv` pytest passed
+  539/539 with one upstream Starlette/TestClient warning. Local contrast probes
+  passed 1449/1449, reply checks passed 4706/4706, gap checks passed 124/124,
+  and total checks passed 4830/4830 with `pass_rate=1.0`. Eval generation
+  reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
+  45/45 with average style score `0.908` and `external_model_calls=0`.
+
 ## Later
 
 - Add streaming audio, multipart upload ergonomics, and StackChan device registration.
