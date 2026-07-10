@@ -6389,6 +6389,22 @@
   reported `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45
   with average style score `0.908` and `external_model_calls=0`.
 
+- In progress 2026-07-10: adding a synthetic-only `casual_ping_support`
+  lighthearted-share subtype for current first-person messages such as
+  `我刚刷到一个好好笑的小视频，想跟你讲`, `我刚看到个离谱的小事，忍不住想告诉你`,
+  and `我有个好笑的段子想和你分享`. The subtype is intentionally distinct from
+  generic soft talk: it expects the funny/absurd discovery itself and uses warm
+  curiosity rather than a vulnerability opener. Its controls exclude task/help,
+  photo/video inspection requests, translation/meta, quoted or third-person
+  wording, hypothetical/resolved-past turns, availability, affection,
+  companionship, burden/apology, and existing media/game, small-beauty,
+  embarrassment, or distress owners. Candidate and false-positive scouts were
+  launched with the requested `gpt-5.6-luna`/`xhigh` brief and closed
+  immediately without waiting; no private chat text, profile exemplars, cleaned
+  real samples, deploy/live/production actions, or profile JSON contents were
+  read or sent. The requested post-change review scout and verification remain
+  pending.
+
 ## Later
 
 - Add streaming audio, multipart upload ergonomics, and StackChan device registration.
