@@ -6208,6 +6208,32 @@
   generation reported `external_model_calls=0`, and mock `/v1/chat` style eval
   passed 45/45 with average style score `0.908` and `external_model_calls=0`.
 
+- Completed 2026-07-10: extended the existing
+  `affection_attention_bid_support` slice with a narrow `recall_bid` subtype
+  for affectionate present-turn wishes to be remembered or thought of.
+  Synthetic variants such as `我想让你记住我`, `我想被你记住`,
+  `你以后会想起我吗`, `我想让你想起我`, `你会不会想我呀`, and
+  `你要一直记得我呀` now reject thin receipts (`知道了`, `收到`), cold
+  refusals (`不会想你`), impatient pushes (`有事直说`), and warm replies
+  that pivot into blame such as `会想你的，但你别作`. Compact replies such as
+  `我会记着你呀`, `不会忘你的`, `会想你的`, `你在我心里呀`, `想你呀`, and
+  `我在意你呀` remain valid. Specific memory recall, passwords, addresses,
+  birthdays, task/help, translation/meta, third-person, hypothetical,
+  resolved-past, negated, and future-action requests such as
+  `我想让你主动来找我` stay outside this recall-bid subtype. Candidate and
+  false-positive scouts plus the review scout used `gpt-5.6-luna` and were
+  closed immediately without waiting for output. No private chat text, profile
+  exemplars, cleaned real samples, deploy/live/production actions, or profile
+  JSON contents were read or sent. Verification: compileall and `git diff --check`
+  were clean, the focused recall-bid profile test passed 1/1, the focused
+  affection evaluation test passed 1/1, `tests/test_style_profile.py` passed
+  297/297, `tests/test_style_evaluation.py` passed 53/53, and full `.venv`
+  pytest passed 517/517 with one upstream Starlette/TestClient warning. Local
+  contrast probes passed 1445/1445, reply checks passed 4670/4670, gap checks
+  passed 122/122, and total checks passed 4792/4792 with `pass_rate=1.0`. Eval
+  generation reported `external_model_calls=0`, and mock `/v1/chat` style eval
+  passed 45/45 with average style score `0.908` and `external_model_calls=0`.
+
 ## Later
 
 - Add streaming audio, multipart upload ergonomics, and StackChan device registration.
