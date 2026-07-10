@@ -5999,8 +5999,15 @@
   stay outside the subtype. Candidate and false-positive scouts were closed
   without waiting for output; no private chat text, profile exemplars, cleaned
   real samples, deploy/live/production actions, or profile JSON contents were
-  read or sent. Focused aimless profile/evaluation tests passed 1/1 each and
-  compileall passed; full validation metrics follow after completion.
+  read or sent. Verification: compileall and `git diff --check` were clean,
+  focused aimless profile/evaluation tests passed 1/1 each,
+  `tests/test_style_profile.py` passed 288/288,
+  `tests/test_style_evaluation.py` passed 53/53, full `.venv` pytest passed
+  471/471 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1427/1427, reply checks passed 4512/4512, gap checks passed 113/113,
+  and total checks passed 4625/4625 with `pass_rate=1.0`. Eval generation
+  reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
+  45/45 with average style score `0.908` and `external_model_calls=0`.
 
 ## Later
 
