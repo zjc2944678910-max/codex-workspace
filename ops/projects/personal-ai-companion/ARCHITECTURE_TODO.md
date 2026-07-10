@@ -5450,6 +5450,31 @@
   4226/4226 with `pass_rate=1.0`, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908`.
+- Completed 2026-07-10: hardened the existing `positive_event_support` slice
+  with a narrow `small_positive_share` subtype for the warm beat before a user
+  gives the details of a small happy thing. Synthetic probes such as
+  `我有个小开心想告诉你`, `我今天有个好消息想跟你分享`,
+  `我今天有个好消息想跟你分享一下`, and
+  `我刚刚想到一件开心的事想跟你说` now route into positive-event support.
+  Flat receipts (`知道了`, `哦`), cold dismissal (`那又怎样`), and warm-opened
+  harmful tails (`哇好棒，但我没兴趣`) are penalized, while curious receipts
+  such as `什么好事呀`, `快告诉我`, and `哇，什么开心事呀` remain safe.
+  Completed wins, ordinary soft-talk openings, task/social-post requests,
+  negative news, companionship overlays, meta/quoted, third-person,
+  hypothetical, and resolved-past controls stay out. The workspace candidate
+  and false-positive scouts were unavailable after the workspace credit limit;
+  the main thread performed the synthetic-only candidate/control audit instead.
+  Sub2API was also unavailable this round (502/503, no fallback accounts), and
+  no private chat text, profile exemplars, cleaned samples, deploy/live/
+  production actions, or profile JSON contents were read or sent. Verification:
+  `compileall` and `git diff --check` were clean,
+  `tests/test_style_profile.py` passed 279/279,
+  `tests/test_style_evaluation.py` passed 53/53, full `.venv` pytest passed
+  449/449 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1406/1406, reply checks passed 4382/4382, gap checks passed 104/104,
+  and total checks passed 4486/4486 with `pass_rate=1.0`, eval generation
+  reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
+  45/45 with average style score `0.908` and `external_model_calls=0`.
 - Completed 2026-07-10: hardened the existing `soft_talk_opening_support` slice
   for permission-checking and afraid-to-interrupt openers rather than adding a
   parallel gate. Synthetic probes such as `我有件事想跟你说，可以吗`,
