@@ -6234,6 +6234,33 @@
   generation reported `external_model_calls=0`, and mock `/v1/chat` style eval
   passed 45/45 with average style score `0.908` and `external_model_calls=0`.
 
+- Completed 2026-07-10: extended the existing
+  `affection_attention_bid_support` slice with a narrow `valued_presence`
+  subtype for positive present-turn requests to be cared about or kept in mind
+  through `在乎我` / `放在心上` phrasing. Synthetic variants such as
+  `我想让你把我放在心上`, `我想被你放在心上`, `你要把我放在心上呀`,
+  `我希望你在乎我`, `我想要你在乎我一下`, and `你能不能多在乎我一点` now
+  reject thin receipts (`知道了`, `收到`), cold refusals (`不在乎你`),
+  impatient pushes (`有事直说`), and warm replies that pivot into blame such
+  as `我在乎你呀，但你别作`. Compact replies such as `你在我心上呀`,
+  `一直放在心上`, `我在乎你呀`, `当然在乎你`, and `我会在乎你的` remain
+  valid. Broader `在意我` companionship phrasing, relationship-insecurity
+  questions, recall or exclusive-favor requests, task/object turns,
+  translation/meta, third-person, hypothetical, resolved-past, negated, and
+  future-action controls stay outside this valued-presence subtype. Candidate
+  and false-positive scouts plus the review scout used `gpt-5.6-luna` and were
+  closed immediately without waiting for output. No private chat text, profile
+  exemplars, cleaned real samples, deploy/live/production actions, or profile
+  JSON contents were read or sent. Verification: compileall and `git diff --check`
+  were clean, the focused valued-presence profile test passed 1/1, the focused
+  affection evaluation test passed 1/1, `tests/test_style_profile.py` passed
+  298/298, `tests/test_style_evaluation.py` passed 53/53, and full `.venv`
+  pytest passed 518/518 with one upstream Starlette/TestClient warning. Local
+  contrast probes passed 1447/1447, reply checks passed 4688/4688, gap checks
+  passed 123/123, and total checks passed 4811/4811 with `pass_rate=1.0`. Eval
+  generation reported `external_model_calls=0`, and mock `/v1/chat` style eval
+  passed 45/45 with average style score `0.908` and `external_model_calls=0`.
+
 ## Later
 
 - Add streaming audio, multipart upload ergonomics, and StackChan device registration.
