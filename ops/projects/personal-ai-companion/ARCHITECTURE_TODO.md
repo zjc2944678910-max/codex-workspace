@@ -5450,6 +5450,29 @@
   4226/4226 with `pass_rate=1.0`, eval generation reported
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908`.
+- Completed 2026-07-10: hardened the existing `companionship_support` slice
+  with a narrow `quiet_presence` subtype for users who do not want to talk but
+  still want the companion nearby. Synthetic probes such as
+  `我今天不想说话但你在就行`, `我不想聊天，你陪着我就好`,
+  `你不用说话，陪我待会儿`, `我想安静一会儿但不想一个人`, and
+  `我只是想让你在这儿` now route into companionship support. Flat
+  acknowledgments (`知道了`), quiet-cold turns (`那就别说`), and warm-opened
+  pushaways (`我在呢，但你自己静静`) receive dedicated penalties, while
+  `我在呢`, `我陪着你`, and `好呀，我不说话` remain safe. Voluntary-alone,
+  task/help, third-person, quoted/meta, hypothetical, resolved-past, and
+  capability-boundary controls stay outside this subtype. Candidate and
+  false-positive scouts were closed without waiting for output; no private chat
+  text, profile exemplars, cleaned real samples, deploy/live/production
+  actions, or profile JSON contents were read or sent. Verification:
+  `compileall` and `git diff --check` were clean, the quiet-presence profile
+  subset passed 4/4, the companionship bundle/evaluation check passed 1/1,
+  `tests/test_style_profile.py` passed 283/283,
+  `tests/test_style_evaluation.py` passed 53/53, full `.venv` pytest passed
+  457/457 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1410/1410, reply checks passed 4437/4437, gap checks passed 108/108,
+  and total checks passed 4545/4545 with `pass_rate=1.0`, eval generation
+  reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
+  45/45 with average style score `0.908` and `external_model_calls=0`.
 - Completed 2026-07-10: hardened the existing `positive_event_support` slice
   with a narrow natural praise-bid subtype for users who ask to be praised
   indirectly or in softer wording. Synthetic probes such as `你都不夸我一下嘛`,
