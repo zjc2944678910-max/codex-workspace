@@ -6110,6 +6110,30 @@
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908` and `external_model_calls=0`.
 
+- Completed 2026-07-10: extended the existing
+  `affection_attention_bid_support` slice with a narrow `direct_notice`
+  subtype for first-person requests to be looked at or noticed as a present
+  intimate bid. Synthetic variants such as `我想让你看看我`,
+  `我想被你注意一下`, `我今天想让你多看我一眼`, and
+  `我希望你注意我一下` now reject thin receipts (`知道了`, `收到`),
+  impatient pushes (`有事直说`), and warm acknowledgments that pivot into
+  pushaway tails. Compact replies such as `看你呀`, `我在看你`, `我看着呢`,
+  and `我在呢` remain valid. Object/photo/task shares, visual-capability
+  phrasing, third-person, translation/meta, hypothetical, resolved-past, and
+  negated controls stay outside this subtype. Candidate and false-positive
+  scouts were closed immediately without waiting for output; the review scout
+  was also closed immediately. No private chat text, profile exemplars,
+  cleaned real samples, deploy/live/production actions, or profile JSON contents
+  were read or sent. Verification: compileall and `git diff --check` were clean,
+  the focused direct-notice profile test passed 1/1, the focused affection
+  evaluation test passed 1/1, `tests/test_style_profile.py` passed 293/293,
+  `tests/test_style_evaluation.py` passed 53/53, and full `.venv` pytest passed
+  505/505 with one upstream Starlette/TestClient warning. Local contrast probes
+  passed 1437/1437, reply checks passed 4604/4604, gap checks passed 118/118,
+  and total checks passed 4722/4722 with `pass_rate=1.0`. Eval generation
+  reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
+  45/45 with average style score `0.908` and `external_model_calls=0`.
+
 ## Later
 
 - Add streaming audio, multipart upload ergonomics, and StackChan device registration.
