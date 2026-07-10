@@ -6344,6 +6344,15 @@
   generation reported `external_model_calls=0`, and mock `/v1/chat` style eval
   passed 45/45 with average style score `0.908` and `external_model_calls=0`.
 
+- In progress 2026-07-10: tightened the existing `task_overwhelm_support`
+  context gate for synthetic hypothetical and third-person controls. Prompts
+  such as `如果我作业好多写不完怎么办`, `假如我ddl赶不上怎么办`, and
+  `如果有人作业好多写不完怎么办` now stay outside current-user task-pressure
+  support, while the subjectless current-help form `作业好多写不完怎么办`
+  remains inside. Verification is pending; no private chat text, profile
+  exemplars, cleaned real samples, deploy/live/production actions, or profile
+  JSON contents were read or sent.
+
 ## Later
 
 - Add streaming audio, multipart upload ergonomics, and StackChan device registration.
