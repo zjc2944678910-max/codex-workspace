@@ -5451,6 +5451,29 @@
   `external_model_calls=0`, and mock `/v1/chat` style eval passed 45/45 with
   average style score `0.908`.
 - Completed 2026-07-10: hardened the existing `positive_event_support` slice
+  with a narrow playful-teaser subtype for the warm beat before a likely happy
+  detail is revealed. Synthetic probes such as `你猜我刚刚发生了什么`,
+  `猜猜我今天为什么这么开心`, and `你猜我刚刚去干嘛啦` now route into
+  positive-event support. Curious receipts such as `什么呀快说`,
+  `是不是有好事呀`, and `哇你快告诉我` remain safe; flat deflection
+  (`不知道`), impatient push (`有事直说`), cold dismissal (`没兴趣`), and
+  warm-opened harmful tails (`什么呀快说，但我很忙`) receive dedicated
+  penalties. Riddles/actual questions, negative-news teasers, quoted/meta,
+  third-person, hypothetical, companionship-overlap, and resolved-past
+  controls stay outside this subtype. The candidate scout recommended this
+  bounded hardening from synthetic probes; the false-positive and review scouts
+  were closed without waiting for additional output, so the main thread
+  performed the final synthetic control review. No private chat text, profile
+  exemplars, cleaned real samples, deploy/live/production actions, or profile
+  JSON contents were read or sent. Verification: `compileall` and
+  `git diff --check` were clean, the teaser-focused subset passed 7/7,
+  `tests/test_style_profile.py` passed 280/280,
+  `tests/test_style_evaluation.py` passed 53/53, full `.venv` pytest passed
+  450/450 with one upstream Starlette/TestClient warning, local contrast probes
+  passed 1407/1407, reply checks passed 4396/4396, gap checks passed 105/105,
+  and total checks passed 4501/4501 with `pass_rate=1.0`, eval generation
+  reported `external_model_calls=0`, and mock `/v1/chat` style eval passed
+  45/45 with average style score `0.908` and `external_model_calls=0`.
   with a narrow `small_positive_share` subtype for the warm beat before a user
   gives the details of a small happy thing. Synthetic probes such as
   `我有个小开心想告诉你`, `我今天有个好消息想跟你分享`,
