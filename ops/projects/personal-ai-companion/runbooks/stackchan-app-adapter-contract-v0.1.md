@@ -1,8 +1,9 @@
 # StackChan App Adapter Contract v0.1
 
 Status: L1 local design contract only. This document defines a future
-Bridge-to-StackChan app-adapter boundary; it neither enables nor validates a
-device capability.
+Bridge-to-StackChan app-adapter boundary; it neither enables nor validates the
+adapter path. Separate bounded hardware checks were later field-confirmed and
+are recorded as independent evidence, not as adapter acceptance.
 
 ## Route Lock
 
@@ -27,23 +28,23 @@ dated fact table overrides optimistic wording in historical reports or static
 source. In particular, a schema, fixture, mock, local unit test, or historical
 repair record is not a device acknowledgement or a physical observation.
 
-| Capability | Current primary status | Confirmed boundary | Not permitted to claim |
-| --- | --- | --- | --- |
-| Screen | `producer accepted` | One bounded neutral-expression producer request was accepted. | That the device polled, acknowledged, or displayed it; that the screen is repaired. |
-| Audio | `planned` | No current capability acceptance. | Playback, mute/stop behavior, or hardware acknowledgement. |
-| Motion | `planned` | No current capability acceptance. | Servo movement, safe range, neutral return, or hardware acknowledgement. |
-| Touch | `planned` | No current device-event acceptance. | Sensor input, bridge delivery, or an app reaction caused by hardware. |
-| Camera | `planned` | No current capability acceptance. | Capture, indication, retention/deletion, media transfer, or hardware acknowledgement. |
+| Capability | Independent device evidence | App-adapter path status |
+| --- | --- | --- |
+| Screen | `device-ack verified` and `field-confirmed` for one manual v0.1 Bridge/device LCD expression. | Unwired and unconfirmed from iOS App ingress through this adapter. |
+| Audio | `device-ack verified` and `field-confirmed` for one bounded public-safe playback, followed by stop/mute. | Unwired and unconfirmed through this adapter; no general volume policy or repeat reliability claim. |
+| Motion | `field-confirmed` for one low-speed X/Y direct-driver movement and return per axis. | Unwired and unconfirmed through v0.1 placeholder motion, v0.2 DTOs, or this adapter. |
+| Touch | `field-confirmed` for direct three-zone sensor sampling. | No device-to-Bridge event or App consumer path is wired or confirmed. |
+| Camera | `field-confirmed` for one direct local `160x120` frame, followed by deletion and deinitialization. | No App/Bridge capture path is wired or confirmed; whether a visible activity indicator activated is unverified. |
 
-`producer accepted` is producer-side evidence only. It is weaker than
-`device-ack verified`, which is weaker than `field-confirmed`. The current
-acknowledgement diagnostic saw no matching device poll or acknowledgement in
-its bounded passive window; it established no root cause.
+The earlier passive acknowledgement diagnostic remains valid for its bounded
+window, but its producer-only ceiling is superseded as a current hardware fact
+by the later field verification. The later session does not validate this App
+adapter: it used manual v0.1 Bridge/device paths or direct device-driver checks.
 
-All non-screen rows are future L3 work. They require a separately scoped task,
-an explicit `进入修复阶段` gate, a fresh safety and rollback plan, and new evidence.
-Nothing in this document authorizes a producer send, poll, acknowledgement,
-firmware change, service action, or hardware test.
+Any adapter implementation, repeat hardware check, or expanded physical path
+requires a separately scoped task, an explicit `进入修复阶段` gate, and a fresh
+safety and rollback plan. Nothing in this document authorizes a producer send,
+poll, acknowledgement, firmware change, service action, or hardware test.
 
 ## Contract Scope And Version Boundaries
 
@@ -57,7 +58,7 @@ without silently treating the two existing protocol families as equivalent.
 | `stackchan.command.v0.1` / `stackchan.event.v0.1` | A local command/event grammar and in-memory or optional durable queue semantics. | Current device capability or a transport rule for v0.2 DTOs. |
 | `stackchan.wire.v0.2` DTOs | Strict offline schemas for `expression`, `motion`, `action`, `speak`, `camera_capture`, and `status`, plus result schemas. | A wired route, queue, client, device acknowledgement, or field result. |
 | Static v0.2 lifecycle source | A local-memory reference lifecycle whose capabilities are explicitly reported as `declared`. | TTL enforcement, durable delivery, a current accepted integration, or hardware behavior. |
-| iOS previews, mocks, fixtures, and historical records | Local/mock or historical design evidence only. | A real StackChan screen, speaker, servo, sensor, or camera result. |
+| iOS previews, mocks, fixtures, and pre-field design records | Local/mock or historical design evidence only. | A real StackChan screen, speaker, servo, sensor, or camera result. |
 
 The future adapter MUST record the selected protocol version and queue mode on
 every lifecycle record. It MUST NOT inherit v0.1 delivery rules for a v0.2 DTO,
@@ -150,7 +151,7 @@ that implements this full contract.
 
 | State | Meaning | Required evidence / rule |
 | --- | --- | --- |
-| `producer_accepted` | The application producer accepted the bounded intent. | Does not prove the Bridge stored it, the device polled, or the device acted. This is the current screen ceiling. |
+| `producer_accepted` | The application producer accepted the bounded intent. | Does not prove the Bridge stored it, the device polled, or the device acted. It is one adapter lifecycle state, not the current standalone-screen evidence ceiling. |
 | `queued` / `pending` | The adapter accepted one canonical command and made it eligible for delivery. | Record `command_id`, idempotency identity, timing, capability, protocol version, and queue mode without sensitive body content. |
 | `polled` | The Bridge returned the command to the matching device identity. | Record poll time and attempt identity. It is not an acknowledgement. |
 | `leased` | A durable queue assigned an active lease to the matching device. | Record lease expiry and attempt. This state only applies when durable mode is selected. |
@@ -246,22 +247,23 @@ implementation rather than assumed equivalent.
 
 ## Capability Matrix
 
-The request shapes below are schema mappings or future adapter requirements,
-not commands that have been sent or accepted by hardware.
+The request shapes below remain schema mappings or future adapter requirements.
+The final column separately records independent device evidence; that evidence
+does not mean these candidate adapter requests were sent or accepted.
 
-| Capability | Direction and normalized request | Stop / rollback requirement | Idempotency and evidence requirement | Current status |
+| Capability | Direction and normalized request | Stop / rollback requirement | Idempotency and evidence requirement | Independent device / adapter-path status |
 | --- | --- | --- | --- | --- |
-| Screen | App -> Bridge -> device. Candidate v0.2 `expression` with `delivery.channel=display`, bounded name/duration; the accepted historical producer used a neutral expression. | Future control intent returns the display to `neutral`; a newer screen intent may supersede only an undelivered older one. No device-side rollback is currently confirmed. | Same canonical intent/key deduplicates. Record producer, poll, ack, result, and any physical observation separately. | `producer accepted` only. |
-| Audio | App -> Bridge -> device. Candidate v0.2 `speak` with `delivery.channel=speaker`; public-safe privacy, text, language, interrupt, and capped volume are schema constraints. | Future scoped audio stop/mute must halt the active utterance and report whether it was applied. Partial playback is not reversible. | At-most-once after delivery begins; never replay on lost ack. Audio evidence must not expose spoken private text. | `planned`, future L3 only. |
-| Motion | App -> Bridge -> device. Candidate v0.2 `motion` with high-level action, bounded repeat, and watchdog idle; raw PWM is not valid v0.2 input. | Future stop must halt active motion and then request a pre-calibrated neutral pose. The safety envelope, range, rate, and neutral calibration are not yet defined. | At-most-once after delivery begins; never replay on lost ack. Evidence requires safety interlock state and a matching result before any field observation can be considered. | `planned`, future L3 only. |
-| Touch | Device -> Bridge -> app. Candidate v0.1 `touch`/`button` event with region, gesture, event ID, device ID, and timestamp. There is no v0.2 touch command. | No physical stop command. The app may cancel or ignore its local reaction; touch must not trigger uncontrolled command fan-out. | Deduplicate by `event_id` in bounded retention; distinct event IDs remain distinct even if gesture text matches. Evidence is device-event receipt, not a simulated UI action. | `planned`, future L3 only. |
-| Camera | App -> Bridge -> device. Candidate v0.2 `camera_capture`: single, low resolution, owner-private, local-only, EXIF stripped, external upload forbidden. | Future cancel invalidates a pending capture; if capture has begun, safely discard any uncommitted output and record the terminal reason. Visible indication, consent, retention, and deletion must be specified in L3. | At-most-once capture attempt; never auto-retry after delivery begins. Result is metadata-only, with no bytes or URL. | `planned`, future L3 only. |
+| Screen | App -> Bridge -> device. Candidate v0.2 `expression` with `delivery.channel=display`, bounded name/duration. | Future control intent returns the display to `neutral`; a newer screen intent may supersede only an undelivered older one. | Same canonical intent/key deduplicates. Record producer, poll, ack, result, and observation separately. | Independent manual v0.1 path: `field-confirmed`; App-adapter path: unwired/unconfirmed. |
+| Audio | App -> Bridge -> device. Candidate v0.2 `speak` with `delivery.channel=speaker`; public-safe privacy, text, language, interrupt, and capped volume are schema constraints. | Future scoped audio stop/mute must halt the active utterance and report whether it was applied. Partial playback is not reversible. | At-most-once after delivery begins; never replay on lost ack. Audio evidence must not expose spoken private text. | Independent bounded v0.1 playback: `field-confirmed`; App-adapter path and general volume policy: unwired/unconfirmed. |
+| Motion | App -> Bridge -> device. Candidate v0.2 `motion` with high-level action, bounded repeat, and watchdog idle; raw PWM is not valid v0.2 input. | Future stop must halt active motion and then request a pre-calibrated neutral pose. | At-most-once after delivery begins; never replay on lost ack. Evidence requires safety interlock state and a matching result before an adapter claim. | Direct official-driver X/Y checks: `field-confirmed`; v0.1/v0.2/App-adapter motion: unwired/unconfirmed. |
+| Touch | Device -> Bridge -> app. Candidate v0.1 `touch`/`button` event with region, gesture, event ID, device ID, and timestamp. There is no v0.2 touch command. | No physical stop command. The app may cancel or ignore its local reaction; touch must not trigger uncontrolled command fan-out. | Deduplicate by `event_id` in bounded retention; distinct event IDs remain distinct even if gesture text matches. | Direct sensor sampling: `field-confirmed`; device-event/Bridge/App path: unwired/unconfirmed. |
+| Camera | App -> Bridge -> device. Candidate v0.2 `camera_capture`: single, low resolution, owner-private, local-only, EXIF stripped, external upload forbidden. | Future cancel invalidates a pending capture; safely discard uncommitted output and record the terminal reason. | At-most-once capture attempt; never auto-retry after delivery begins. Result is metadata-only. | Direct local single-frame check: `field-confirmed`; visible-indicator activation and App-adapter capture path: unconfirmed. |
 
 ### Screen
 
-The current accepted fact is strictly the producer-side neutral-expression
-request. It does not establish a queue record, a device poll, a matching ack,
-or field observation. A future screen L3 slice must:
+The later standalone screen check established a manual v0.1 enqueue, device
+poll, matching result, and owner-observed LCD output. It did not pass through
+the iOS App or this adapter. A future adapter screen slice must:
 
 1. serialize screen state per target device and reject or mark superseded an
    older undelivered expression after a newer intent is accepted;
@@ -279,7 +281,8 @@ of 20 percent. The golden fixture's 12 percent example is a fixture choice, not
 the universal contract maximum. A future L3 audio slice must define a scoped
 stop acknowledgement, no-replay behavior after physical delivery begins,
 privacy-safe diagnostics, and a mute/stop rollback that does not reveal text.
-Neither local audio code nor a historical v0.1 report proves current playback.
+The later standalone check proves one bounded v0.1 playback and stop/mute cycle;
+it does not prove this v0.2/App-adapter path or a reusable volume policy.
 
 ### Motion
 
@@ -292,11 +295,17 @@ rollback result before sending any motion. The existing v0.2 `action.stop` and
 `action.reset_pose` schema values are not proof that a device implements a
 scoped stop or neutral return.
 
+The direct-driver field check established one small X/Y movement and return per
+axis. It does not validate the v0.1 placeholder, v0.2 motion mapping, autonomous
+control, or a full calibrated envelope.
+
 ### Touch
 
 Touch is the only listed inbound capability. Local iOS touch reactions are
 mock-only state transitions and leave no bridge request, queue entry, device
-event, or hardware evidence. A future L3 touch slice must define event-ID
+event, or hardware evidence. The separate direct sensor check established
+three-zone press/release behavior, but no Bridge or App consumption. A future
+L3 adapter touch slice must define event-ID
 generation, bounded dedup retention, debounce, event privacy, app-consumer
 behavior, and explicit proof that no input automatically fans out to motion,
 audio, camera, or other state-changing work.
@@ -311,6 +320,10 @@ secure deletion, define bounded retention, and prove that raw media cannot
 appear in queue snapshots, results, logs, or external routes. A metadata-only
 result is still not a device or field confirmation without the matching L3
 evidence chain.
+
+The direct-device field check established one local `160x120` frame followed by
+temporary-file removal and camera deinitialization. It did not establish a
+visible indicator or this App/Bridge adapter path.
 
 ## Error And Outcome Registry
 
@@ -407,12 +420,13 @@ camera media.
 
 Add a documentation or acceptance check that rejects status language equating
 `local/mock verified`, `producer accepted`, or `device-ack verified` with
-`field-confirmed`. It must also reject any fixture, mock, or historical v0.1
-record used as proof that audio, motion, touch, or camera is hardware verified.
+`field-confirmed`. A fixture, mock, uncorrelated log, or earlier diagnostic alone
+must not be used as hardware proof; a later accepted field-evidence record may
+supersede an earlier bounded status without validating a different path.
 
 ## L3 Gate And Rollback Requirements
 
-Before implementing any row in the capability matrix, the assigned future task
+Before implementing any adapter-path row in the capability matrix, the assigned future task
 must be L3 and must receive the explicit phrase `进入修复阶段`. Its plan must name
 one capability, exact owned files/surfaces, selected protocol/version, queue
 mode, TTL/ack semantics, safety and privacy preconditions, rollback action,
@@ -426,13 +440,16 @@ state was changed while creating it.
 ## Evidence Sources
 
 - `ops/projects/personal-ai-companion/runbooks/continuous-program-authorization-and-task-lifecycle.md`
-  is the status authority and establishes the L3 gates for audio, motion,
-  touch, and camera.
+  is the current status authority and establishes the gates for any future or
+  repeated hardware work.
 - `ops/projects/personal-ai-companion/manifests/app-bridge-contract-v0.1.md`
   establishes the separate mock-only App-to-Bridge ingress, including app-ack
   versus device-ack and the local-network no-go boundary.
 - `ops/projects/personal-ai-companion/reports/stackchan-ack-diagnostic-20260710.md`
-  records the producer-accepted screen ceiling and missing matching ack.
+  records the earlier producer-only window and missing matching ack at that
+  time.
+- `ops/projects/personal-ai-companion/reports/stackchan-hardware-field-verification-20260711.md`
+  records the later bounded standalone hardware evidence and its path limits.
 - `ops/projects/personal-ai-companion/runbooks/stackchan-wire-contract-v0.2.md`
   establishes the offline DTO boundary.
 - `ops/projects/personal-ai-companion/runbooks/stackchan-command-protocol-v0.1.md`

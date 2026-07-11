@@ -10,13 +10,19 @@ or stop rules, the runbook wins.
 
 ### Current Corrections
 
-- StackChan L3-S1: one neutral-expression producer is **producer accepted**;
-  device ack and physical field observation are **unconfirmed**. Do not label
-  the screen repaired.
+- StackChan standalone hardware: the later bounded L3 session is
+  **field-confirmed** for `PAC Expression / happy`, audible playback, X/Y servo
+  movement and return, three-zone head touch, and one local `160x120` camera
+  frame. The final state was Bridge queue `0`, servos off, camera off, audio
+  muted, and serial closed. Whether a visible camera activity indicator
+  activated was not verified. This does not upgrade the iOS App or mock App
+  adapter to a real end-to-end path. See
+  [stackchan-hardware-field-verification-20260711.md](reports/stackchan-hardware-field-verification-20260711.md).
 - StackChan screen pages: `表情` / `聆听` / `状态` are **local/mock verified**
   in the iOS preview only. Their selection sends no mock bridge requests, and
-  they do not change the separate producer-accepted, ack-unconfirmed, or
-  field-unconfirmed real-screen status.
+  they did not produce the separate field evidence. The later real LCD result
+  is field-confirmed through a manual Bridge/device path, not through these
+  preview pages or the iOS App.
 - iOS: local/mock and unsigned Simulator evidence is **local/mock verified**;
   real integration remains blocked.
 - iOS typography and current visual QA: the local QA target is the unsigned,
@@ -24,8 +30,10 @@ or stop rules, the runbook wins.
   `iPhone 17e` / `iOS 26.5`, so it cannot alone accept or reject the target
   render. Current source makes the chat header icon-only, uses semantic
   `.body` for chat text, and caps Dynamic Type at `xSmall...xLarge`; these are
-  source facts, not a fresh target visual result. Device screen, gentle touch,
-  and the companion mark remain local mocks. The accepted touch state is local
+  source facts, not a fresh target visual result. The iOS device-screen preview,
+  gentle-touch reaction, and companion mark remain local mocks even though the
+  physical StackChan LCD and touch sensor were separately field-confirmed. The
+  accepted iOS touch state is local
   `DeviceTouchReactionState` plus `touchAcknowledgementCycle` (not
   `.rawValue`): its view task is static for 0.8 seconds with Reduce Motion and
   1.1 seconds otherwise, and source review found no bridge touch path. The
@@ -73,6 +81,10 @@ or stop rules, the runbook wins.
 
 - The authorization expires at `2026-07-11T11:22:52+08:00`; after expiry,
   no L3 action may start without renewed explicit authority.
+- The later standalone hardware verification used task-specific explicit repair
+  authority and sequential owner confirmations recorded in
+  `019f4fc2-69ac-7532-bc63-e35b1323ccd5`. That authority is historical,
+  consumed, and closed; it is not permission to repeat a check.
 - Synchronize the ops facts and queue before each implementation wave.
 - Only the explicitly selected queue item may run. Dependencies do not imply
   concurrency or authorization for dependent work.
@@ -84,15 +96,11 @@ or stop rules, the runbook wins.
 | Order | Task ID | Type | Dependency / manual gate | Owned surface |
 | --- | --- | --- | --- | --- |
 | 0 | `PAC-DOCS-SYNC` | L1 | Required before every implementation wave. | The assigned ops docs only. |
-| 1 | `PAC-STACKCHAN-ACK-DIAG` | L2 | L3-S1 producer accepted; read-only diagnostics and redacted evidence only. | StackChan display acknowledgement evidence. |
-| 2 | `PAC-STACKCHAN-AUDIO` | L3 | Fresh expiry check, explicit repair gate, and prior docs sync. | One bounded audio path. |
-| 3 | `PAC-STACKCHAN-MOTION` | L3 | Audio outcome reviewed; explicit physical safety envelope and rollback. | One servo/motion mapping only. |
-| 4 | `PAC-STACKCHAN-TOUCH` | L3 | Motion safety result and explicit input behavior decision. | One touch interaction path. |
-| 5 | `PAC-STACKCHAN-CAMERA` | L3 | Explicit camera/privacy consent and capture-retention policy. | One camera path. |
-| 6 | `PAC-IOS-MOCK-UX` | L1 | Docs sync; no live transport or credentials. | Mock-only iOS UI/tests. |
-| 7 | `PAC-IOS-REAL-INTEGRATION` | L3 | Completed mock UX, explicit signing/credential/LAN decision, rollback. | One real integration seam. |
-| 8 | `PAC-HEALTHKIT-SCOPE` | L3 | Explicit owner-selected scope and consent wording; no real data before gate. | One HealthKit authorization/collection slice. |
-| 9 | `PAC-STYLE-PERSONA` | L1 | Documented consent/revocation and approved material boundary. | One local style-policy/eval surface. |
+| 1 | `PAC-IOS-MOCK-UX-CLOSEOUT` | L1 | Docs sync; review/checkpoint the active mock-only iOS work. | Mock-only iOS UI/tests; no live transport or credentials. |
+| 2 | `PAC-IOS-REAL-INTEGRATION-PREFLIGHT` | L2 | Accepted mock UX; read-only mapping of LAN, protocol, credentials, signing, and rollback. | Evidence/design only; no real request or credential read. |
+| 3 | `PAC-IOS-STACKCHAN-SCREEN-E2E` | L3 | Completed preflight, renewed explicit authority, and a one-capability rollback packet. | One App-to-LCD path only; no automatic expansion to other hardware. |
+| 4 | `PAC-HEALTHKIT-SCOPE` | L3 | Explicit owner-selected scope and consent wording; no real data before gate. | One HealthKit authorization/collection slice. |
+| 5 | `PAC-STYLE-PERSONA` | L1 | Documented consent/revocation and approved material boundary. | One local style-policy/eval surface. |
 
 The detailed classification, dependencies, manual gates, and stop conditions are
 normative in the runbook; this table is intentionally not a concurrency plan.

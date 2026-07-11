@@ -1,5 +1,11 @@
 # iOS Touch-Reaction Mock Design Record
 
+> Later evidence note: this report's iOS mock boundary remains unchanged. A
+> separate direct-device session later field-confirmed the physical three-zone
+> touch sensor, but did not establish a device-to-Bridge event or iOS App
+> reaction. See
+> [stackchan-hardware-field-verification-20260711.md](stackchan-hardware-field-verification-20260711.md).
+
 **Status:** local/mock source/build/smoke accepted; visual QA pending
 
 ## Route Lock

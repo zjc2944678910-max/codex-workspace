@@ -1,5 +1,11 @@
 # StackChan Acknowledgement Diagnostic Evidence - 2026-07-10
 
+> Later evidence note (2026-07-11): this report remains the record of its
+> producer-only passive window. A later bounded session established a matching
+> screen result and field observation, plus separate hardware checks. The
+> current status is in
+> [stackchan-hardware-field-verification-20260711.md](stackchan-hardware-field-verification-20260711.md).
+
 ## Status
 
 The current StackChan display status remains `producer accepted`. L3-S1

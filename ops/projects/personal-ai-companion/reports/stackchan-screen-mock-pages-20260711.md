@@ -1,5 +1,10 @@
 # StackChan Screen Mock Pages Local Verification
 
+> Later evidence note: these pages remain local/mock only. A separate manual
+> Bridge/device session later field-confirmed the real LCD expression path; it
+> did not run through these preview pages or the iOS App. See
+> [stackchan-hardware-field-verification-20260711.md](stackchan-hardware-field-verification-20260711.md).
+
 **Status:** local/mock verified
 
 ## Route Lock

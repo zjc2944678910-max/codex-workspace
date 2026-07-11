@@ -39,7 +39,7 @@ node docs/workspace/codex-register-project.mjs --regen
 - Next useful work: Keep routing facts synced with the registry; add project-specific commands or runbooks when they become confirmed; promote durable conclusions out of scratch/session notes.
 - Model review guidance: Use Sub2API/Claude review for architecture, code review, writing, research, or UX polish when the task is non-tiny. Use [model-review-packets.md](../../../docs/workspace/model-review-packets.md) for packet shape.
 
-## Current Program Control State (2026-07-10)
+## Current Program Control State (2026-07-11)
 
 This section is the current ops-level fact index. It supersedes contradictory
 completion wording in older manifests, reports, and running logs; those older
@@ -49,7 +49,8 @@ runbook](runbooks/continuous-program-authorization-and-task-lifecycle.md).
 
 | Surface | Confirmed current fact | Not confirmed / not authorized |
 | --- | --- | --- |
-| StackChan | L3-S1 accepted one neutral-expression producer. | Device acknowledgement and physical field observation for that producer are unconfirmed. It must not be described as a repaired screen. |
+| StackChan hardware | Bounded standalone checks are `field-confirmed` for the LCD expression path, audible playback, X/Y servo movement and return, active three-zone head-touch transitions, and one local low-resolution camera frame. The completed session ended with queue depth `0`, servos powered off, camera off, audio muted, and serial closed. See [the field-verification report](reports/stackchan-hardware-field-verification-20260711.md). | Whether a visible camera activity indicator activated was not verified. Repeated/unattended reliability, a full motion envelope, continuous boot polling, and any repeat execution remain unconfirmed and unauthorized. |
+| StackChan App integration | The authenticated Bridge and bounded device-side/manual paths have real evidence. | `iOS App -> Bridge -> StackChan -> device` is not connected end to end. The current App-to-Bridge and App-adapter implementations remain mock/contract surfaces and must not inherit the standalone hardware result. |
 | iOS MVP | Mock-only SwiftUI/package evidence and an unsigned Simulator Host pass exist locally. | Real LAN transport, real credentials/Keychain, signing, entitlements, real-device behavior, and real StackChan integration are blocked. |
 | HealthKit | Mock permission states and design-time scope/rollback packets exist. | System consent, entitlement/signing, collection, and use of real health data are unconfirmed and outside the present program authority. |
 | Memory/privacy | A local memory design and implementation-readiness plan exist with conservative review/retention boundaries. | No current task may read/export private memory or make a live schema/data change without a separately authorized slice. |
@@ -59,7 +60,11 @@ The 12-hour authorization documented in the runbook expired at
 `2026-07-11T11:22:52+08:00`. Its task protocol, stop rules, and non-overlapping
 queue are in
 [continuous-program-authorization-and-task-lifecycle.md](runbooks/continuous-program-authorization-and-task-lifecycle.md).
-No new L3 work may start until the owner gives renewed explicit authorization.
+The later field-verification session used its own explicit repair entry and
+sequential owner confirmations; that task-specific authority was consumed and
+closed when the session returned the device to its recorded safe state. It does
+not renew the expired program authority. No new or repeated L3 work may start
+until the owner gives fresh explicit authorization for the named slice.
 
 ## Stable Docs
 
@@ -76,6 +81,7 @@ No new L3 work may start until the owner gives renewed explicit authorization.
 - `runbooks/stackchan-command-protocol-v0.1.md`
 - `runbooks/stackchan-app-adapter-contract-v0.1.md`
 - `runbooks/continuous-program-authorization-and-task-lifecycle.md`
+- `reports/stackchan-hardware-field-verification-20260711.md`
 - `DEPLOYMENT_LEDGER.md` when deployment history exists
 - `ARCHITECTURE_TODO.md` when architecture backlog exists
 - `manifests/`

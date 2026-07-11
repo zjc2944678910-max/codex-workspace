@@ -57,10 +57,18 @@ signals, devices, and boundaries.
   has removable device files for manual polling. It covers `boot` events,
   `status`, `expression`, safe placeholder `motion/action`, public-safe
   `speak` through bridge-generated local WAV playback, `ack`, and `error`
-  envelopes. It is not yet wired into boot auto-start, physical servo control,
-  durable queues, or redelivery.
-- Full voice, camera, continuous command polling, iOS app, HealthKit, NAS, and
-  VPS production integration remain future phases.
+  envelopes. A bounded 2026-07-11 session field-confirmed the manual
+  Bridge/device LCD and audio paths. It is not yet wired into boot-time
+  continuous polling or the iOS App.
+- Separate direct-device checks field-confirmed low-speed X/Y servo movement and
+  return, three-zone head-touch input, and one local low-resolution camera
+  frame. Those checks did not use the v0.1 `motion/action` placeholder, the
+  mock-only App adapter, or an iOS transport. Whether a visible camera activity
+  indicator activated was not verified. See
+  [the field-verification report](../reports/stackchan-hardware-field-verification-20260711.md).
+- End-to-end iOS control, continuous command polling, production voice/camera
+  workflows, HealthKit, NAS, and VPS production integration remain future
+  phases.
 
 ## Phase Map
 
@@ -161,9 +169,10 @@ Acceptance anchors:
 
 - Decide when the style-category thread has enough coverage to freeze a v1
   response-shape baseline.
-- Decide whether the next StackChan repair should prioritize continuous polling
-  auto-start, physical servo action mapping, richer voice selection, or durable
-  command queue/redelivery.
+- Decide the first bounded `App -> Bridge -> StackChan` integration seam. The
+  recommended first physical target is the already field-confirmed LCD path,
+  after a read-only transport/credential/signing preflight and renewed L3
+  authorization.
 - Decide the iOS MVP surface: text chat first, device control first, or health
   permission flow first.
 - Decide memory storage hardening before widening always-on use: schema

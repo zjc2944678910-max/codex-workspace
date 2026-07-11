@@ -1,7 +1,7 @@
 # Personal AI Companion Continuous Program Authorization And Task Lifecycle
 
-Date: 2026-07-10  
-Status: active program-control runbook
+Date: 2026-07-11
+Status: active program-control runbook, synchronized after bounded hardware field verification
 
 ## Scope And Source Of Truth
 
@@ -11,8 +11,9 @@ task-specific Route Locks, repair gates, or safety review.
 
 - Master task thread: `019f4c90-d7a0-7be0-a167-3a07838aa68c`
 - Inherited evidence: StackChan hardware audit, iOS mock implementation/QA,
-  StackChan preflight, HealthKit audit, and L3-S1 screen transaction as named
-  by the master assignment.
+  StackChan preflight, HealthKit audit, the earlier L3-S1 screen transaction,
+  and the later bounded hardware field verification in task
+  `019f4fc2-69ac-7532-bc63-e35b1323ccd5`.
 - Historical reports/manifests may retain prior claims. This runbook's dated
   fact table and explicit status vocabulary control current planning.
 
@@ -34,8 +35,12 @@ added only with evidence for that exact result.
 
 | Area | Current status | Confirmed evidence | Unconfirmed boundary |
 | --- | --- | --- | --- |
-| StackChan display | `producer accepted` | L3-S1 accepted one neutral-expression producer. | Device ack and field observation remain unconfirmed; never call it a screen repair. |
-| StackChan broader capability | `planned` | Earlier reports are historical protocol/repair evidence only. | Audio, motion/servo, touch, camera, boot behavior, and renewed live execution need their own slices. |
+| StackChan screen | `field-confirmed` | The manual Bridge/device path recorded enqueue, device poll, matching `result=ok`, and owner-observed `PAC Expression / happy`. | The iOS App and mock App adapter did not drive it; native avatar rendering, continuous boot polling, and repeated reliability remain unconfirmed. |
+| StackChan audio | `field-confirmed` | The owner heard the bounded public-safe phrase `测试成功`; the run recorded `result=ok`, used runtime volume `40/255`, then stopped and muted output. | This is not a general volume policy, microphone result, repeated-play reliability result, or iOS voice path. |
+| StackChan X/Y servos | `field-confirmed` | Each axis completed one low-speed movement of about `+5 degrees -> original position`, with owner observation; torque and power were disabled afterward. | The check used the direct official device driver, not the v0.1 placeholder or App adapter. A full calibrated motion envelope, endurance, and autonomous control remain unconfirmed. |
+| StackChan head touch | `field-confirmed` | Direct sampling observed press/release across all three zones and returned to `[0, 0, 0]`. | No device-to-Bridge event, App consumption, deduplication, or App reaction was verified. |
+| StackChan camera | `field-confirmed` | One local `160x120` JPEG frame was captured, inspected locally, removed from the temporary path, and the camera was deinitialized. | The owner did not see an indicator, so whether a visible activity indicator activated is unverified. No App/Bridge camera command, retention workflow, repeated capture, or external transfer was verified. |
+| StackChan App/adapter integration | `blocked` | The authenticated Bridge and bounded device/manual execution paths have real evidence. | The iOS App, `pac.app_bridge.v0.1`, and the future StackChan App adapter did not drive the accepted hardware checks. `App -> Bridge -> StackChan -> device` remains unverified and requires a separate design, gate, and rollback. |
 | iOS mock UX | `local/mock verified` | Mock-only package/smoke evidence and an unsigned local Simulator Host pass are recorded. | Signing, provisioning, real device, live LAN, Keychain, and StackChan integration remain unconfirmed. |
 | iOS real integration | `blocked` | Pre-live contracts preserve mock fallback. | Explicit owner decisions and a bounded L3 slice are required. |
 | HealthKit | `blocked` | Mock permission and design-time rollback/scope evidence exist. | System consent, entitlement/signing, and real health data collection are unconfirmed and prohibited here. |
@@ -64,6 +69,19 @@ This authorization does **not** pre-authorize:
 - identity/personality imitation based on unapproved private material; or
 - uncontrolled physical motion, camera capture, or audio outside a separately
   scoped safety slice.
+
+### Completed Task-Specific Hardware Authority
+
+The later hardware field-verification task is a completed historical execution,
+not an extension of the expired delegated program window.
+
+| Field | Value |
+| --- | --- |
+| Source task | `019f4fc2-69ac-7532-bc63-e35b1323ccd5` |
+| Entry and gates | The owner explicitly entered the repair phase in that task and then provided the sequential confirmations used for its bounded screen, audio, servo, touch, and camera checks. |
+| Executed scope | Only the checks and recovery actions recorded in [the field-verification report](../reports/stackchan-hardware-field-verification-20260711.md). |
+| Terminal state | Authority consumed and closed after the recorded queue-`0`, servos-off, camera-off, audio-muted, serial-closed safe state. |
+| Reuse | Prohibited. A repeat, expansion, or App end-to-end execution requires a fresh task-specific L3 gate and new explicit authorization. |
 
 ## Mandatory Task Protocol
 
@@ -124,22 +142,20 @@ its assigned bounded scope; it never gains broad live-repair authority.
 ## Non-Overlapping Next-Task Queue
 
 The listed order is dependency order, not permission to start all work at once.
-`PAC-DOCS-SYNC` must be completed before every implementation wave. Start the
-first eligible item only after the master selects it and confirms its gates.
+`PAC-DOCS-SYNC` must be completed before every implementation wave. The earlier
+standalone screen, audio, servo, touch, and camera slices are completed evidence
+and are no longer pending queue items. Repeating them is new L3 work, not a
+continuation of the completed session.
 
 | Order | Task ID | Level | Scope and dependencies | Manual gates / owned surface |
 | --- | --- | --- | --- | --- |
 | 0 | `PAC-DOCS-SYNC` | L1 | Precedes every implementation wave; reconcile current facts, ledger, and queue. | Documentation-only Route Lock; assigned ops docs only. |
-| 1 | `PAC-STACKCHAN-ACK-DIAG` | L2 | Requires L3-S1 producer evidence; read-only investigation of missing display acknowledgement. | No device write/restart; acknowledgement evidence only. |
-| 2 | `PAC-STACKCHAN-AUDIO` | L3 | Requires docs sync, review of diagnostics, fresh expiry check. | Explicit repair gate; one bounded audio route with mute/stop rollback. |
-| 3 | `PAC-STACKCHAN-MOTION` | L3 | Requires audio outcome review and an explicit physical safety envelope. | Explicit repair gate; one servo/motion mapping, neutral-position rollback, no uncontrolled motion. |
-| 4 | `PAC-STACKCHAN-TOUCH` | L3 | Requires motion safety outcome and a single input behavior specification. | Explicit repair gate; one touch event path, no command fan-out. |
-| 5 | `PAC-STACKCHAN-CAMERA` | L3 | Requires explicit capture consent, visible indication, retention/deletion policy. | Explicit repair gate; one camera path, no unbounded capture/export. |
-| 6 | `PAC-IOS-MOCK-UX` | L1 | Independent of live StackChan work but still follows docs sync. | Mock-only SwiftUI/package UI; no network, credential, signing, or system permission surface. |
-| 7 | `PAC-IOS-REAL-INTEGRATION` | L3 | Requires accepted mock UX and named decisions for LAN, credential storage, signing, and rollback. | Explicit repair gate; one real integration seam; preserve mock fallback. |
-| 8 | `PAC-HEALTHKIT-SCOPE` | L3 | Requires explicit owner-selected categories, consent copy, minimization, and revocation/rollback plan. | Explicit repair gate; one system authorization/collection slice; no medical inference expansion. |
-| 9 | `PAC-MEMORY-PRIVACY` | L1/L3 | L1 only for isolated code/test/docs with temporary data; L3 for existing data, schema, migration, or runtime state. | One named memory policy/migration surface; no raw private export. |
-| 10 | `PAC-STYLE-PERSONA` | L1 | Requires documented consent, revocation, approved-source boundary, and a synthetic evaluation plan. | One local rule/evaluation surface; no unapproved-person imitation. |
+| 1 | `PAC-IOS-MOCK-UX-CLOSEOUT` | L1 | Review and checkpoint the current mock-only iOS work before any real integration design. | SwiftUI/package and local tests only; no network, credential, signing, system permission, or hardware action. |
+| 2 | `PAC-IOS-REAL-INTEGRATION-PREFLIGHT` | L2 | Requires accepted mock UX and a read-only mapping of LAN transport, protocol translation, credentials, signing, and rollback. | Read-only evidence and design only; no Bridge/device request or credential read. |
+| 3 | `PAC-IOS-STACKCHAN-SCREEN-E2E` | L3 | Requires completed preflight, renewed explicit authorization, and a fresh one-capability safety/rollback packet. | One `App -> Bridge -> StackChan -> LCD` path; preserve mock fallback; no automatic expansion to audio, servo, touch, or camera. |
+| 4 | `PAC-HEALTHKIT-SCOPE` | L3 | Requires explicit owner-selected categories, consent copy, minimization, and revocation/rollback plan. | Explicit repair gate; one system authorization/collection slice; no medical inference expansion. |
+| 5 | `PAC-MEMORY-PRIVACY` | L1/L3 | L1 only for isolated code/test/docs with temporary data; L3 for existing data, schema, migration, or runtime state. | One named memory policy/migration surface; no raw private export. |
+| 6 | `PAC-STYLE-PERSONA` | L1 | Requires documented consent, revocation, approved-source boundary, and a synthetic evaluation plan. | One local rule/evaluation surface; no unapproved-person imitation. |
 
 ## Stop Rules
 
