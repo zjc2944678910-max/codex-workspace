@@ -19,22 +19,38 @@ or stop rules, the runbook wins.
   field-unconfirmed real-screen status.
 - iOS: local/mock and unsigned Simulator evidence is **local/mock verified**;
   real integration remains blocked.
+- iOS typography and current visual QA: the local QA target is the unsigned,
+  mock-only iPhone 16 Pro Max Simulator. The supplied screenshot visibly names
+  `iPhone 17e` / `iOS 26.5`, so it cannot alone accept or reject the target
+  render. Current source makes the chat header icon-only, uses semantic
+  `.body` for chat text, and caps Dynamic Type at `xSmall...xLarge`; these are
+  source facts, not a new visual result. Device screen and gentle-touch
+  reactions remain local mocks. The local Reduce Motion touch repair changed
+  only `DeviceControlView.swift` and is **local/mock source/build/smoke
+  accepted**: the delegated Swift build, action smoke, and mock-safety smoke
+  passed, and master source acceptance confirmed its cycle/cancellation guard
+  and no bridge path. It is not a visual result. The next visual check remains
+  blocked on manual Mac unlock; it must cover the target at default and
+  `xLarge`, including no visible `AI 伴侣` chat header and no Hover
+  Text/accessibility-overlay confusion. See
+  [ios-iphone16pm-typography-and-visual-qa-20260711.md](reports/ios-iphone16pm-typography-and-visual-qa-20260711.md).
 - HealthKit: mock/design evidence exists; system consent, real collection, and
   signing/entitlement behavior are unconfirmed.
 - Memory and style: local designs/implementation surfaces do not authorize raw
   private-data access, real data migration, or persona imitation from
   unapproved private material.
-- Memory retention snapshot adapter: `local/mock verified` for a synthetic,
-  payload-free inline-metadata mapping only. It explicitly carries legal and
-  owner holds plus the seven planner booleans; each supplied value must be a
-  real boolean and is copied verbatim. `audit_record_exists` remains an
-  audit-retention/redaction recommendation signal, not a resource-deletion
-  action. This is not a real inventory reader, store/DB integration, migration,
-  scheduler, retention executor, vault integration, or deletion result. The
-  source-of-truth design is complete, but real integration remains **blocked**:
-  no authoritative future producer or producer/projection admission boundary
-  exists. Complete snapshots constrain that future boundary only; the current
-  planner's direct DTO defaults remain unchanged.
+- Memory retention snapshot work is **local/mock verified** for synthetic,
+  payload-free metadata only. The inline adapter explicitly carries legal and
+  owner holds plus seven planner booleans. The new pure synthetic admission and
+  composition contract validates caller-owned schemas, capture authorities,
+  lifecycle, freshness, policy/times, nine strict booleans, and the current
+  one-way payload/resource rules. Trusted snapshots retain their captured time
+  and admitted freshness bound; composition requires `now_ms` and fails closed
+  with empty metadata for invalid, future, stale, or conflicting same-identity
+  snapshots. It is not a real inventory reader, producer, store/DB integration,
+  migration, scheduler, retention executor, vault integration, or deletion
+  result. The current raw planner direct-DTO behavior remains intentionally
+  test-compatible. Real producer/store/schema integration remains **blocked**.
 
 ### Queue Discipline
 
@@ -59,14 +75,34 @@ or stop rules, the runbook wins.
 | 6 | `PAC-IOS-MOCK-UX` | L1 | Docs sync; no live transport or credentials. | Mock-only iOS UI/tests. |
 | 7 | `PAC-IOS-REAL-INTEGRATION` | L3 | Completed mock UX, explicit signing/credential/LAN decision, rollback. | One real integration seam. |
 | 8 | `PAC-HEALTHKIT-SCOPE` | L3 | Explicit owner-selected scope and consent wording; no real data before gate. | One HealthKit authorization/collection slice. |
-| 9 | `PAC-MEMORY-RETENTION-SNAPSHOT-ADMISSION-DESIGN` | L1 (local design only) | Define the future producer/projection admission boundary for trusted snapshots; no code, store, schema, or real-data work. | Any real inventory, storage integration, retention execution, or deletion remains an independent L3 manual gate. |
-| 10 | `PAC-STYLE-PERSONA` | L1 | Documented consent/revocation and approved material boundary. | One local style-policy/eval surface. |
+| 9 | `PAC-STYLE-PERSONA` | L1 | Documented consent/revocation and approved material boundary. | One local style-policy/eval surface. |
 
 The detailed classification, dependencies, manual gates, and stop conditions are
 normative in the runbook; this table is intentionally not a concurrency plan.
 
+Memory retention has no selected follow-up item. If the owner later elects to
+authorize real integration, the recommended distinct manual gate is
+`PAC-MEMORY-RETENTION-PRODUCER-L3-PREFLIGHT`; it is **not scheduled**. Before
+that L3 preflight can start, fresh explicit owner authorization must name the
+target data, allowed store/schema reads and writes, backup/rollback treatment,
+time window, and stop owner. The preflight does not itself authorize a producer,
+store/schema change, planner invocation against real data, retention execution,
+or deletion.
+
 ## Near Term
 
+- Pending 2026-07-11: current iPhone typography/device-preview visual QA is
+  not accepted. `PAC-IOS-IPHONE16PM-MOCK-VISUAL-QA` is the next L1 task only
+  after manual Mac unlock. It is limited to the unsigned iPhone 16 Pro Max
+  Simulator mock at default and `xLarge` text settings; it must compare the
+  chat header, semantic body text, composer, local virtual-screen/touch preview,
+  and potential system Hover Text/accessibility overlays. It must neither treat
+  the supplied iPhone 17e screenshot as target acceptance nor access a real
+  iPhone, StackChan, HealthKit, LAN, credential, signing, or device capability.
+  The local Reduce Motion touch repair is source/build/smoke accepted; target
+  visual acceptance remains pending.
+  See
+  [ios-iphone16pm-typography-and-visual-qa-20260711.md](reports/ios-iphone16pm-typography-and-visual-qa-20260711.md).
 - Completed 2026-07-11: implemented and statically accepted the local iOS
   StackChan screen preview pages `表情`, `聆听`, and `状态`. The preview
   permanently says `本地预览 · 仅模拟`; `聆听` is visual-only and does not enable
@@ -85,15 +121,23 @@ normative in the runbook; this table is intentionally not a concurrency plan.
   The exactly-one next task is `PAC-STACKCHAN-SCREEN-MOCK-PAGES-VISUAL-QA`
   (L1 local Simulator/mock-only after manual unlock; no bridge/device). See
   [stackchan-screen-mock-pages-20260711.md](reports/stackchan-screen-mock-pages-20260711.md).
-- Completed 2026-07-11: completed
-  `PAC-MEMORY-RETENTION-SNAPSHOT-SOURCE-OF-TRUTH-DESIGN` as an L1 conceptual
-  local design. Its complete-snapshot rule applies only to a future trusted
-  producer/projection admission boundary; it does not change the current
-  planner's direct-DTO behavior or defaults. No authoritative producer or
-  admission boundary exists, and no store/schema/data work occurred, so real
-  integration remains blocked. The sole next memory task is
-  `PAC-MEMORY-RETENTION-SNAPSHOT-ADMISSION-DESIGN` (L1 design-only). See
-  [memory-retention-snapshot-source-of-truth-design-20260711.md](reports/memory-retention-snapshot-source-of-truth-design-20260711.md).
+- Completed 2026-07-11: completed the source-of-truth design and its bounded
+  L1 synthetic admission/composition follow-through. The new pure
+  `retention_admission.py` and isolated synthetic tests validate explicit
+  caller-owned schema/authority/lifecycle/freshness constraints, policy and
+  timestamp coherence, nine strict booleans, and current one-way location
+  coherence. `TrustedRetentionSnapshot` retains `captured_at_ms` and its
+  admitted `max_freshness_ms`; composition now requires `now_ms` and rejects
+  invalid, future, stale, conflicting-revision, or same-revision contradictory
+  metadata with empty output. The implementation intentionally adds no global
+  authority/cross-identity invariant or bidirectional location rule. Verification
+  recorded `195 passed`, `compileall`, and `ruff` success; independent read-only
+  review found no blocking synthetic contract defect. This is **local/mock
+  verified** only: the raw planner direct-DTO path remains test-compatible, no
+  real producer exists, and no store/schema/data/retention action occurred. See
+  [memory-retention-snapshot-admission-design-20260711.md](reports/memory-retention-snapshot-admission-design-20260711.md)
+  and
+  [memory-retention-admission-implementation-20260711.md](reports/memory-retention-admission-implementation-20260711.md).
 - Completed 2026-07-11: completed the local/synthetic retention snapshot
   adapter follow-through. `InlineRetentionMetadataView` now explicitly carries
   `legal_hold`, `owner_hold`, and all seven planner booleans without
@@ -104,8 +148,8 @@ normative in the runbook; this table is intentionally not a concurrency plan.
   passed plus `compileall` passed. This is **local/mock verified** only: it did
   not read content/provenance, access a store/DB, create a migration, schedule
   or execute retention, touch a vault, or process real private data. It does
-  not make real storage safe because no authoritative future producer or
-  producer/projection admission boundary can produce an accepted unified
+  not make real storage safe because no authoritative real producer or
+  producer/store/schema integration can produce or use an accepted unified
   hold/planner-boolean/policy/expiry snapshot. See
   [memory-retention-inventory-bridge-20260711.md](reports/memory-retention-inventory-bridge-20260711.md),
   [memory-retention-hold-snapshot-design-20260711.md](reports/memory-retention-hold-snapshot-design-20260711.md),
