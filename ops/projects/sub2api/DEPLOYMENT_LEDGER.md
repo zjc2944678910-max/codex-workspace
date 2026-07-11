@@ -1,5 +1,61 @@
 # Sub2API Deployment Ledger
 
+## 2026-07-11: Imported 58 OpenAI OAuth Accounts Into Codex-Dedicated Instance
+
+Live host: `107.175.180.163`
+
+### Changes
+
+- Imported exactly 58 user-supplied Sub2API account export JSON files into the
+  Codex-dedicated `sub2api-codex` instance through the application endpoint
+  `POST /api/v1/admin/accounts/import/codex-session`.
+- Used `update_existing=false`, idempotency protection, import batch marker
+  `oauth58_20260711`, and bound all new accounts to `openai-default` (group id
+  `5`).
+- Did not write the shared `sub2api` instance, restart services, or change
+  nginx, Cloudflare, API keys, images, or runtime configuration.
+- Removed the server-side raw JSON inputs, generated request payload, admin
+  login response, and token-fingerprint scratch files after verification.
+
+### Evidence On VPS
+
+```text
+/root/codex-repair-sub2api-codex-import-oauth58-20260711T175803+0800
+```
+
+### Verification
+
+- Source validation: 58/58 JSON files valid; transfer SHA-256 hashes matched;
+  58 unique access tokens; 0 access-token collisions with existing OpenAI
+  OAuth accounts.
+- Import API result: total 58, created 58, updated 0, skipped 0, failed 0.
+- Account count changed from 12 (max id 212) to 70 (max id 271); imported ids
+  are 214 through 271.
+- All 58 imported accounts are active, schedulable OpenAI OAuth accounts with
+  exactly one membership in `openai-default`, and all have automatic pause on
+  expiry enabled.
+- The accounts have no refresh tokens. Their JWT-derived expiry range is
+  `2026-07-21 11:52:22+08` through `2026-07-21 11:52:58+08`; they cannot renew
+  automatically and will stop scheduling at expiry.
+- `sub2api-codex`, its PostgreSQL, and its Redis containers remained healthy;
+  `http://127.0.0.1:8081/health` returned `{"status":"ok"}`.
+- The shared `sub2api` instance remained unchanged at 10 non-deleted accounts
+  with max id 93.
+- The admin UI showed `70` total accounts, newest id `271`, group
+  `openai-default`, and expiry auto-pause state.
+
+Rollback through the application API:
+
+```bash
+/root/codex-repair-sub2api-codex-import-oauth58-20260711T175803+0800/rollback/rollback-oauth58-via-api.sh
+```
+
+Full pre-import database dump:
+
+```text
+/root/codex-repair-sub2api-codex-import-oauth58-20260711T175803+0800/backup/sub2api-codex-before-oauth58-import.dump
+```
+
 ## 2026-07-10: Codex 5.6 Model Exposure For Codex-Dedicated Instance
 
 Live host: `107.175.180.163`
