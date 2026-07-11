@@ -13,8 +13,8 @@ HealthKit data, credentials, key material, a running service, NAS, or a device.
 
 - Current product checkout: `codex/initial-private-publish` at `121334c`
 - Clean successor worktree: `codex/pac-mock-foundations` at `3019a8c`
-- Synthetic ingest-seam worktree: `codex/pac-memory-ingest-seam` at `32b9d96`,
-  a clean successor of `4a3a7df` and `3019a8c`
+- Synthetic ingest-seam worktree: `codex/pac-memory-ingest-seam` at `934cec1`,
+  a clean successor of `32b9d96`, `4a3a7df`, and `3019a8c`
 - Dirty product-polish worktree: `codex/pac-ios-product-polish` at `3019a8c`
 - Focused current-checkout verification: `435 passed, 1 warning` in the
   project `.venv`; the warning is the known Starlette/httpx TestClient
@@ -29,13 +29,18 @@ HealthKit data, credentials, key material, a running service, NAS, or a device.
   0.81s` for the seam file; `444 passed, 1 warning in 7.79s` for related
   memory/privacy/API tests; and `980 passed, 1 warning in 59.06s` for the full
   Python suite.
+- Compact-Chinese-copula repair verification at `934cec1`: `24 passed, 1
+  warning in 0.74s` for the seam file; `447 passed, 1 warning in 7.49s` for
+  related memory/privacy/API tests; and `983 passed, 1 warning in 56.80s` for
+  the full Python suite.
 - System `/opt/anaconda3/bin/ruff` checked every touched Python file and reported
   `All checks passed!`; `git diff --check` also passed before the product commit.
 
-The ingest-seam tests used explicit synthetic strings and `:memory:` SQLite.
-They did not touch Swift, a file-backed database, a real `memory.db`, private
-data, retention execution, or an external runtime. The warning in both new test
-runs is the same known Starlette/httpx TestClient deprecation.
+The ingest-seam tests used explicit synthetic strings plus `:memory:` and
+temporary-directory SQLite. They did not touch Swift, a persistent project
+database, a real `memory.db`, private data, retention execution, or an external
+runtime. The warning in the new test runs is the same known Starlette/httpx
+TestClient deprecation.
 
 The first focused API collection attempt used an unsuitable system Python that
 did not have FastAPI. The project `.venv` rerun passed; this was an environment
@@ -83,7 +88,8 @@ capability.
 
 Product commit `4a3a7df` is a clean successor of `3019a8c` on
 `codex/pac-memory-ingest-seam`. Product repair commit `32b9d96` is its clean
-successor. Together they add a local, explicit
+successor, and compact-Chinese-copula repair commit `934cec1` is the current
+clean branch tip. Together they add a local, explicit
 `POST /v1/memory/review-turn` path with these verified synthetic behaviors:
 
 - deterministic Chinese/English preference normalization for a deliberately
@@ -92,8 +98,9 @@ successor. Together they add a local, explicit
   negative/courtesy/object/remember-save forms, while preserving the existing
   English opt-out behavior;
 - targeted mixed Chinese/English `PIN`, token, password, and API-key value
-  handling, including full-width forms, without blocking the verified
-  token/password discussion phrases;
+  handling, including full-width forms and compact Chinese `是/为` assignments,
+  while keeping English `is` word/space-delimited and without blocking the
+  verified token/password discussion phrases;
 - verified opt-out, credential-like, sensitive-identity, ambiguous, and
   overlong handling that creates no candidate, review, conversation, or session
   payload rows and does not return or audit the raw tested values;
@@ -171,7 +178,7 @@ layered statuses above.
 
 ## Recommended Next Order
 
-1. Review and converge `3019a8c` plus the clean `32b9d96` successor into the
+1. Review and converge `3019a8c` plus the clean `934cec1` successor into the
    selected product branch, preserving their synthetic/mock boundary.
 2. Review and commit the dirty iOS product-polish slice separately; do not mix
    it with backend memory acceptance.
