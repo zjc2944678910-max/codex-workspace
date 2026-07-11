@@ -105,14 +105,21 @@ Additional mandatory constraints:
 
 ## Completion Callback To The Master
 
-Each future task sends exactly one terminal compact callback using
-`codex_app__send_message_to_thread` to master thread
-`019f4c90-d7a0-7be0-a167-3a07838aa68c`.
+Local L0/L1 task slices default to bounded internal subagents. Each subagent
+returns exactly one terminal compact report to the master through the
+collaboration channel when its assigned slice finishes. Do not create a
+separate task thread solely to deliver this completion callback.
 
 Required payload fields: `status`, `task_id`, `owned_surface`, `verification`,
 `blockers`, and `best_next_task`. Do not send progress callbacks or repeated
-status polling. Do not create task-owned recurring automation. The parent
-master owns the single-use automation fallback.
+status updates. Do not create a per-task automation or heartbeat. The master
+waits for the terminal return, then performs one read-only acceptance pass; it
+does not repeatedly poll task status.
+
+This coordination rule does not change any safety boundary: Route Locks remain
+mandatory, L2 remains read-only, and L3 still requires its explicit manual
+repair authority and task-specific gates. An internal subagent receives only
+its assigned bounded scope; it never gains broad live-repair authority.
 
 ## Non-Overlapping Next-Task Queue
 

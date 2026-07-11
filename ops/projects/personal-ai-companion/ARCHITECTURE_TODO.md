@@ -20,6 +20,17 @@ or stop rules, the runbook wins.
 - Memory and style: local designs/implementation surfaces do not authorize raw
   private-data access, real data migration, or persona imitation from
   unapproved private material.
+- Memory retention snapshot adapter: `local/mock verified` for a synthetic,
+  payload-free inline-metadata mapping only. It explicitly carries legal and
+  owner holds plus the seven planner booleans; each supplied value must be a
+  real boolean and is copied verbatim. `audit_record_exists` remains an
+  audit-retention/redaction recommendation signal, not a resource-deletion
+  action. This is not a real inventory reader, store/DB integration, migration,
+  scheduler, retention executor, vault integration, or deletion result. The
+  source-of-truth design is complete, but real integration remains **blocked**:
+  no authoritative future producer or producer/projection admission boundary
+  exists. Complete snapshots constrain that future boundary only; the current
+  planner's direct DTO defaults remain unchanged.
 
 ### Queue Discipline
 
@@ -44,7 +55,7 @@ or stop rules, the runbook wins.
 | 6 | `PAC-IOS-MOCK-UX` | L1 | Docs sync; no live transport or credentials. | Mock-only iOS UI/tests. |
 | 7 | `PAC-IOS-REAL-INTEGRATION` | L3 | Completed mock UX, explicit signing/credential/LAN decision, rollback. | One real integration seam. |
 | 8 | `PAC-HEALTHKIT-SCOPE` | L3 | Explicit owner-selected scope and consent wording; no real data before gate. | One HealthKit authorization/collection slice. |
-| 9 | `PAC-MEMORY-PRIVACY` | L1 or L3 | L1 for isolated temp/test-only code; L3 for data/schema/runtime changes. | One named memory policy or migration surface. |
+| 9 | `PAC-MEMORY-RETENTION-SNAPSHOT-ADMISSION-DESIGN` | L1 (local design only) | Define the future producer/projection admission boundary for trusted snapshots; no code, store, schema, or real-data work. | Any real inventory, storage integration, retention execution, or deletion remains an independent L3 manual gate. |
 | 10 | `PAC-STYLE-PERSONA` | L1 | Documented consent/revocation and approved material boundary. | One local style-policy/eval surface. |
 
 The detailed classification, dependencies, manual gates, and stop conditions are
@@ -52,6 +63,32 @@ normative in the runbook; this table is intentionally not a concurrency plan.
 
 ## Near Term
 
+- Completed 2026-07-11: completed
+  `PAC-MEMORY-RETENTION-SNAPSHOT-SOURCE-OF-TRUTH-DESIGN` as an L1 conceptual
+  local design. Its complete-snapshot rule applies only to a future trusted
+  producer/projection admission boundary; it does not change the current
+  planner's direct-DTO behavior or defaults. No authoritative producer or
+  admission boundary exists, and no store/schema/data work occurred, so real
+  integration remains blocked. The sole next memory task is
+  `PAC-MEMORY-RETENTION-SNAPSHOT-ADMISSION-DESIGN` (L1 design-only). See
+  [memory-retention-snapshot-source-of-truth-design-20260711.md](reports/memory-retention-snapshot-source-of-truth-design-20260711.md).
+- Completed 2026-07-11: completed the local/synthetic retention snapshot
+  adapter follow-through. `InlineRetentionMetadataView` now explicitly carries
+  `legal_hold`, `owner_hold`, and all seven planner booleans without
+  defaults; the adapter requires `type(flag) is bool`, forwards every flag
+  verbatim, and rejects a non-`None` `deleted_at_ms` before snapshot creation.
+  Existing lifecycle coverage preserves mixed true/false flags for both
+  `candidate` and `promoted`. Synthetic verification recorded 87 focused tests
+  passed plus `compileall` passed. This is **local/mock verified** only: it did
+  not read content/provenance, access a store/DB, create a migration, schedule
+  or execute retention, touch a vault, or process real private data. It does
+  not make real storage safe because no authoritative future producer or
+  producer/projection admission boundary can produce an accepted unified
+  hold/planner-boolean/policy/expiry snapshot. See
+  [memory-retention-inventory-bridge-20260711.md](reports/memory-retention-inventory-bridge-20260711.md),
+  [memory-retention-hold-snapshot-design-20260711.md](reports/memory-retention-hold-snapshot-design-20260711.md),
+  and
+  [memory-retention-snapshot-adapter-fix-20260711.md](reports/memory-retention-snapshot-adapter-fix-20260711.md).
 - Completed 2026-07-08: documented memory-layer v0.1 implementation readiness
   under `manifests/memory-layer-v0.1-implementation-readiness.md`, including
   current-code gaps, L1-safe implementation phases, L3-only migration/repair
