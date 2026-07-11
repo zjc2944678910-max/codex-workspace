@@ -44,6 +44,12 @@ This contract does not:
 - prove that a current runtime, API, cache, database, or model implements this
   contract.
 
+The owner-attested future visual-likeness slice is recorded separately in
+[Visual Likeness Consent Boundary](visual-likeness-consent-boundary-v0.1.md).
+That record does not widen APMS scope: an APMS may never contain, derive from,
+or authorize a likeness asset. It also does not authorize voice, writing style,
+private chats, provider upload, real-device display, or asset intake.
+
 The terms **MUST**, **MUST NOT**, **SHOULD**, and **MAY** are normative.
 
 ## Compatibility Anchors
@@ -57,6 +63,9 @@ The terms **MUST**, **MUST NOT**, **SHOULD**, and **MAY** are normative.
 - [Companion Avatar and Persona Boundary](../reports/companion-avatar-and-persona-boundary-20260711.md)
   establishes the current non-human identity boundary and separate future
   identity/voice intake.
+- [Visual Likeness Consent Boundary](visual-likeness-consent-boundary-v0.1.md)
+  records the owner-attested future visual slice and its separate revocation
+  and retention boundary; it is not APMS consent.
 - [Product Blueprint](product-blueprint-v0.1.md) establishes that style is
   consent-scoped and revocable, not a grant to imitate a real person.
 

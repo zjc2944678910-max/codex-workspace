@@ -55,9 +55,11 @@ runbook](runbooks/continuous-program-authorization-and-task-lifecycle.md).
 | Memory/privacy | A local memory design and implementation-readiness plan exist with conservative review/retention boundaries. | No current task may read/export private memory or make a live schema/data change without a separately authorized slice. |
 | Style/persona | Local style mechanisms and synthetic evaluation surfaces are historical implementation evidence. The owner has attested consent for a future visual-likeness slice; no identifying material or consent text is stored here. | Voice, writing style, private chats, provider upload, real-device display, revocation handling, and private-data use remain separate gates. |
 
-The active 12-hour authorization, task protocol, stop rules, and non-overlapping
+The 12-hour authorization documented in the runbook expired at
+`2026-07-11T11:22:52+08:00`. Its task protocol, stop rules, and non-overlapping
 queue are in
 [continuous-program-authorization-and-task-lifecycle.md](runbooks/continuous-program-authorization-and-task-lifecycle.md).
+No new L3 work may start until the owner gives renewed explicit authorization.
 
 ## Stable Docs
 
@@ -66,10 +68,13 @@ queue are in
 - `manifests/architecture-decisions-2026-07-04.md`
 - `manifests/memory-layer-v0.1.md`
 - `manifests/memory-layer-v0.1-implementation-readiness.md`
+- `manifests/persona-memory-contract-v0.1.md`
+- `manifests/app-bridge-contract-v0.1.md`
 - `manifests/visual-likeness-consent-boundary-v0.1.md`
 - `runbooks/mvp-build-order.md`
 - `runbooks/stackchan-local-bridge.md`
 - `runbooks/stackchan-command-protocol-v0.1.md`
+- `runbooks/stackchan-app-adapter-contract-v0.1.md`
 - `runbooks/continuous-program-authorization-and-task-lifecycle.md`
 - `DEPLOYMENT_LEDGER.md` when deployment history exists
 - `ARCHITECTURE_TODO.md` when architecture backlog exists

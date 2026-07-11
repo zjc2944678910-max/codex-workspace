@@ -53,6 +53,7 @@ without silently treating the two existing protocol families as equivalent.
 
 | Surface | What local evidence establishes | What it does not establish |
 | --- | --- | --- |
+| `pac.app_bridge.v0.1` | A separate App-to-Bridge, offline-mock envelope with app acknowledgement, safe fallback, and no local-network dispatch. | A device command, device acknowledgement, or a transport mapping to this adapter. |
 | `stackchan.command.v0.1` / `stackchan.event.v0.1` | A local command/event grammar and in-memory or optional durable queue semantics. | Current device capability or a transport rule for v0.2 DTOs. |
 | `stackchan.wire.v0.2` DTOs | Strict offline schemas for `expression`, `motion`, `action`, `speak`, `camera_capture`, and `status`, plus result schemas. | A wired route, queue, client, device acknowledgement, or field result. |
 | Static v0.2 lifecycle source | A local-memory reference lifecycle whose capabilities are explicitly reported as `declared`. | TTL enforcement, durable delivery, a current accepted integration, or hardware behavior. |
@@ -61,6 +62,13 @@ without silently treating the two existing protocol families as equivalent.
 The future adapter MUST record the selected protocol version and queue mode on
 every lifecycle record. It MUST NOT inherit v0.1 delivery rules for a v0.2 DTO,
 or infer that a v0.2 schema type has a physical implementation.
+
+A future L3 mapping must first preserve the App-to-Bridge contract's
+mock-only/no-network gate until that gate is separately replaced. Its app
+acknowledgement remains distinct from a device poll/ack/result; the two may be
+correlated later but must never be treated as the same evidence. The App
+contract's ingress TTL is also a separate record from any selected device queue
+TTL until a future mapping explicitly defines their relationship.
 
 ## Common Correlation Contract
 
@@ -420,6 +428,9 @@ state was changed while creating it.
 - `ops/projects/personal-ai-companion/runbooks/continuous-program-authorization-and-task-lifecycle.md`
   is the status authority and establishes the L3 gates for audio, motion,
   touch, and camera.
+- `ops/projects/personal-ai-companion/manifests/app-bridge-contract-v0.1.md`
+  establishes the separate mock-only App-to-Bridge ingress, including app-ack
+  versus device-ack and the local-network no-go boundary.
 - `ops/projects/personal-ai-companion/reports/stackchan-ack-diagnostic-20260710.md`
   records the producer-accepted screen ceiling and missing matching ack.
 - `ops/projects/personal-ai-companion/runbooks/stackchan-wire-contract-v0.2.md`
