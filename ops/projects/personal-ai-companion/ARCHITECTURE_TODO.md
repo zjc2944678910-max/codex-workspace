@@ -56,25 +56,28 @@ or stop rules, the runbook wins.
   [companion-mark-local-mock-20260711.md](reports/companion-mark-local-mock-20260711.md).
 - HealthKit: mock/design evidence exists; system consent, real collection, and
   signing/entitlement behavior are unconfirmed.
-- Memory/privacy: current product checkout `121334c` is **local MVP core
-  verified**, not design-only. The chat-integrated path covers bounded context,
-  candidate review/promotion, scoped recall, privacy projection, owner admin,
-  consent and class policy; vault/key and retention components remain isolated
-  safety primitives or synthetic contracts. Focused verification passed `435`
-  tests. No real/private database or data path was inspected. See
+- Memory/privacy: product branch `codex/initial-private-publish` was locally
+  fast-forwarded from `121334c` to current checkout `934cec1`. The checkout is
+  **local MVP core verified**, not design-only. The chat-integrated path covers
+  bounded context, candidate review/promotion, scoped recall, privacy
+  projection, owner admin, consent and class policy; vault/key and retention
+  components remain isolated safety primitives or synthetic contracts.
+  Post-merge verification passed `983` full Python tests, built the Swift App
+  target, and passed AppFlow smoke. No real/private database or data path was
+  inspected. See
   [memory-layer-current-status-20260711.md](reports/memory-layer-current-status-20260711.md).
-- Memory integration boundary: successor commit `3019a8c` adds a synthetic
-  Approved Persona Memory Summary contract. Clean branch-only successor
-  `934cec1`, through `32b9d96` and `4a3a7df`, adds the explicit synthetic
-  review-turn seam and its privacy/state repairs. The bounded seam applies NFKC
-  before compositional opt-out and targeted mixed-script credential checks,
-  including compact Chinese `是/为` assignments while keeping English `is`
+- Memory integration boundary: current checkout `934cec1` includes the
+  synthetic Approved Persona Memory Summary and App/bridge contracts from
+  `3019a8c`, plus the explicit synthetic review-turn seam and privacy/state
+  repairs through `4a3a7df` and `32b9d96`. The bounded seam applies NFKC before
+  compositional opt-out and targeted mixed-script credential checks, including
+  compact Chinese `是/为` assignments while keeping English `is`
   word/space-delimited. It writes no payload row for verified skip cases, never
   silently promotes, withholds raw sensitive health detail, flags canonical
   duplicates/conflicts, and enforces one-way candidate-to-promoted/rejected
-  transitions with atom/review/audit transaction alignment. It passed `24`
-  seam, `447` related memory/privacy/API, and `983` full Python tests. These
-  commits are not in the current checkout. Ordinary
+  transitions with atom/review/audit transaction alignment. Focused branch
+  evidence is `24` seam and `447` related memory/privacy/API tests. The
+  fast-forward is local, not pushed, and not live integration. Ordinary
   `/v1/chat` extraction stays disabled; the rule set is bounded rather than a
   broad natural-language classifier. The dirty iOS product-polish worktree
   remains uncommitted and excluded from current product status. None of these
@@ -117,9 +120,9 @@ or stop rules, the runbook wins.
 | Order | Task ID | Type | Dependency / manual gate | Owned surface |
 | --- | --- | --- | --- | --- |
 | 0 | `PAC-DOCS-SYNC` | L1 | Required before every implementation wave. | The assigned ops docs only. |
-| 1 | `PAC-MOCK-FOUNDATIONS-CONVERGENCE` | L1 | Docs sync; review clean successor commit `3019a8c` and select the product branch that will own it. | Mock App bridge, synthetic App adapter, synthetic persona-memory summary, and their tests only. |
+| 1 | `PAC-MOCK-FOUNDATIONS-CONVERGENCE` (`completed`, current checkout) | L1 | `codex/initial-private-publish` locally fast-forwarded through `3019a8c` to `934cec1`; not pushed. | Mock App bridge, synthetic App adapter, synthetic persona-memory summary, and their tests only. |
 | 2 | `PAC-IOS-MOCK-UX-CLOSEOUT` | L1 | Foundation convergence; review/checkpoint the active mock-only iOS work separately. | Mock-only iOS UI/history/tests; no live transport, private data, or credentials. |
-| 3 | `PAC-MEMORY-LOCAL-INGEST-SEAM` (`completed`, branch-only) | L1 | Product commit `934cec1` through `32b9d96` and `4a3a7df`; explicit synthetic fixtures and `:memory:`/temporary SQLite only. | Explicit turn-to-review-candidate normalization, bounded opt-out/credential privacy guards, owner-confirmed one-way review transitions, deterministic duplicate/conflict signals, and focused/full tests; no ordinary-chat auto-extraction or real data. |
+| 3 | `PAC-MEMORY-LOCAL-INGEST-SEAM` (`completed`, current checkout) | L1 | Current product commit `934cec1` through `32b9d96` and `4a3a7df`; explicit synthetic fixtures and `:memory:`/temporary SQLite only. | Explicit turn-to-review-candidate normalization, bounded opt-out/credential privacy guards, owner-confirmed one-way review transitions, deterministic duplicate/conflict signals, and focused/full tests; no ordinary-chat auto-extraction or real data. |
 | 4 | `PAC-IOS-REAL-INTEGRATION-PREFLIGHT` | L2 | Accepted mock UX; read-only mapping of LAN, protocol, credentials, signing, and rollback. | Evidence/design only; no real request or credential read. |
 | 5 | `PAC-IOS-STACKCHAN-SCREEN-E2E` | L3 | Completed preflight, renewed explicit authority, and a one-capability rollback packet. | One App-to-LCD path only; no automatic expansion to other hardware. |
 | 6 | `PAC-HEALTHKIT-SCOPE` | L3 | Explicit owner-selected scope and consent wording; no real data before gate. | One HealthKit authorization/collection slice. |

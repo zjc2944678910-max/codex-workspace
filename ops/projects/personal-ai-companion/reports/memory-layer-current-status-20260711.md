@@ -2,8 +2,8 @@
 
 Date: 2026-07-11
 
-Status: `local MVP core verified`; branch-only synthetic ingest seam verified;
-real/private-data integration not started
+Status: `local MVP core verified`; current-checkout synthetic ingest seam
+verified; real/private-data integration not started
 
 ## Evidence Boundary
 
@@ -11,36 +11,41 @@ This report records the current local implementation and verification state. It
 does not inspect or modify a real `memory.db`, private chats, profile material,
 HealthKit data, credentials, key material, a running service, NAS, or a device.
 
-- Current product checkout: `codex/initial-private-publish` at `121334c`
-- Clean successor worktree: `codex/pac-mock-foundations` at `3019a8c`
-- Synthetic ingest-seam worktree: `codex/pac-memory-ingest-seam` at `934cec1`,
-  a clean successor of `32b9d96`, `4a3a7df`, and `3019a8c`
+- Current product checkout: `codex/initial-private-publish` at `934cec1`,
+  locally fast-forwarded from `121334c`; not pushed
+- Clean foundations worktree: `codex/pac-mock-foundations` at `3019a8c`
+- Source ingest-seam worktree: `codex/pac-memory-ingest-seam` at the same
+  `934cec1`, a clean successor of `32b9d96`, `4a3a7df`, and `3019a8c`
 - Dirty product-polish worktree: `codex/pac-ios-product-polish` at `3019a8c`
-- Focused current-checkout verification: `435 passed, 1 warning` in the
+- Pre-fast-forward `121334c` focused verification: `435 passed, 1 warning` in the
   project `.venv`; the warning is the known Starlette/httpx TestClient
   deprecation.
-- Full current-checkout verification from the same review wave: `897 passed`.
+- Pre-fast-forward `121334c` full verification: `897 passed`.
 - Full clean successor-worktree verification: `958 passed`.
 - Successor-only Approved Persona Memory Summary focused verification:
   `17 passed`.
 - Pre-repair ingest-seam verification at `4a3a7df`: `59 passed, 1 warning`
   focused and `975 passed, 1 warning` full.
-- Repaired ingest-seam verification at `32b9d96`: `21 passed, 1 warning in
-  0.81s` for the seam file; `444 passed, 1 warning in 7.79s` for related
-  memory/privacy/API tests; and `980 passed, 1 warning in 59.06s` for the full
-  Python suite.
-- Compact-Chinese-copula repair verification at `934cec1`: `24 passed, 1
-  warning in 0.74s` for the seam file; `447 passed, 1 warning in 7.49s` for
-  related memory/privacy/API tests; and `983 passed, 1 warning in 56.80s` for
-  the full Python suite.
+- Repaired ingest-seam verification at `32b9d96`: seam file passed
+  `21 passed, 1 warning in 0.81s`; related memory/privacy/API tests passed
+  `444 passed, 1 warning in 7.79s`; the full Python suite passed
+  `980 passed, 1 warning in 59.06s`.
+- Compact-Chinese-copula repair verification at `934cec1`: seam file passed
+  `24 passed, 1 warning in 0.74s`; related memory/privacy/API tests passed
+  `447 passed, 1 warning in 7.49s`; the full Python suite passed
+  `983 passed, 1 warning in 56.80s`.
+- Post-fast-forward verification in the current product checkout:
+  `983 passed, 1 warning in 57.72s`; Swift target `PersonalAICompanionApp` built
+  successfully and `PersonalAICompanionAppFlowSmoke` passed.
 - System `/opt/anaconda3/bin/ruff` checked every touched Python file and reported
   `All checks passed!`; `git diff --check` also passed before the product commit.
 
 The ingest-seam tests used explicit synthetic strings plus `:memory:` and
-temporary-directory SQLite. They did not touch Swift, a persistent project
-database, a real `memory.db`, private data, retention execution, or an external
-runtime. The warning in the new test runs is the same known Starlette/httpx
-TestClient deprecation.
+temporary-directory SQLite. The post-fast-forward Swift checks compiled and ran
+mock-only package code. No verification touched a persistent project database,
+a real `memory.db`, private data, a real device, retention execution, or an
+external runtime. The warning in the new test runs is the same known
+Starlette/httpx TestClient deprecation.
 
 The first focused API collection attempt used an unsuitable system Python that
 did not have FastAPI. The project `.venv` rerun passed; this was an environment
@@ -77,19 +82,19 @@ The current checkout also contains and tests:
 These are local source and synthetic/temp-database results. They do not prove a
 deployed or privately populated memory service.
 
-## Branch-Only And Uncommitted Work
+## Current-Checkout Additions And Excluded Uncommitted Work
 
-Commit `3019a8c` is a direct successor of `121334c`, but it is not in the
-current product checkout. Its memory-related addition is the synthetic-only
-Approved Persona Memory Summary policy. The same commit also adds strict
-App-to-Bridge DTO and offline mock-dispatch contracts. These may be described
-as branch-only and locally verified, not as current-checkout or live-integration
-capability.
+Commit `3019a8c` is a direct successor of the pre-fast-forward `121334c` and is
+now included in the current product checkout. Its memory-related addition is the
+synthetic-only Approved Persona Memory Summary policy. The same commit also adds
+strict App-to-Bridge DTO and offline mock-dispatch contracts. These are locally
+verified current-checkout contracts, not live-integration capability.
 
 Product commit `4a3a7df` is a clean successor of `3019a8c` on
 `codex/pac-memory-ingest-seam`. Product repair commit `32b9d96` is its clean
-successor, and compact-Chinese-copula repair commit `934cec1` is the current
-clean branch tip. Together they add a local, explicit
+successor, and compact-Chinese-copula repair commit `934cec1` is now both the
+source branch tip and the local `codex/initial-private-publish` checkout tip.
+Together they add a local, explicit
 `POST /v1/memory/review-turn` path with these verified synthetic behaviors:
 
 - deterministic Chinese/English preference normalization for a deliberately
@@ -143,7 +148,7 @@ real-use long-term memory system:
   vault schema.
 - Retrieval uses token overlap and recency. There is no embedding generation,
   vector store, or semantic ranking path.
-- The branch-only ingest seam has narrow deterministic normalization, exact
+- The current-checkout ingest seam has narrow deterministic normalization, exact
   canonical duplicate handling, bounded opt-out/credential rules, and conflict
   flagging only when explicitly called. There is still no automatic extraction
   from ordinary chat, broad fact parser, exhaustive multilingual privacy
@@ -166,8 +171,8 @@ Use layered status instead of one percentage:
 | Local memory contracts and core chat loop | `verified MVP` |
 | Privacy, consent, review, and owner controls | `locally verified` |
 | Vault and retention safety primitives | `locally verified, not store-wired` |
-| Persona summary and App bridge memory contract | `branch-only, synthetic verified` |
-| Explicit conversation-turn review seam and one-way review state | `branch-only, synthetic verified` |
+| Persona summary and App bridge memory contract | `local current checkout, synthetic verified` |
+| Explicit conversation-turn review seam and one-way review state | `local current checkout, synthetic verified` |
 | iOS history controls | `uncommitted, smoke verified` |
 | Real/private-data long-term operation | `not started / not verified` |
 
@@ -178,8 +183,9 @@ layered statuses above.
 
 ## Recommended Next Order
 
-1. Review and converge `3019a8c` plus the clean `934cec1` successor into the
-   selected product branch, preserving their synthetic/mock boundary.
+1. Keep the local `934cec1` fast-forward and its synthetic/mock boundary intact;
+   pushing or publishing the product branch remains a separate unperformed
+   decision.
 2. Review and commit the dirty iOS product-polish slice separately; do not mix
    it with backend memory acceptance.
 3. Extend only the synthetic privacy corpus with additional paraphrase,
