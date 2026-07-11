@@ -40,7 +40,7 @@ added only with evidence for that exact result.
 | iOS real integration | `blocked` | Pre-live contracts preserve mock fallback. | Explicit owner decisions and a bounded L3 slice are required. |
 | HealthKit | `blocked` | Mock permission and design-time rollback/scope evidence exist. | System consent, entitlement/signing, and real health data collection are unconfirmed and prohibited here. |
 | Memory/privacy | `local/mock verified` | Local design and readiness documentation exist. | Raw private-data inspection/export, runtime data/schema change, and real migration require a separate authorized scope. |
-| Style/persona | `local/mock verified` | Local synthetic style mechanisms/evaluations are historical evidence. | No real-person imitation from unapproved private material; consent/revocation and private-data boundaries remain required. |
+| Style/persona | `local/mock verified` | Local synthetic style mechanisms/evaluations are historical evidence. The owner has attested consent for a future visual-likeness slice; no identifying material is tracked. | Voice, writing style, private chats, provider upload, real-device display, revocation handling, and private-data boundaries remain separate gates. |
 
 ## Time-Bounded Authorization Ledger
 

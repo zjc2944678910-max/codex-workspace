@@ -51,6 +51,11 @@ or stop rules, the runbook wins.
 - Memory and style: local designs/implementation surfaces do not authorize raw
   private-data access, real data migration, or persona imitation from
   unapproved private material.
+- Visual likeness: the owner has attested consent for a future visual-likeness
+  slice. The anonymous boundary record authorizes no asset intake yet and does
+  not extend to voice, writing style, private chats, provider upload, real
+  device display, hardware output, or private-data use. See
+  [visual-likeness-consent-boundary-v0.1.md](manifests/visual-likeness-consent-boundary-v0.1.md).
 - Memory retention snapshot work is **local/mock verified** for synthetic,
   payload-free metadata only. The inline adapter explicitly carries legal and
   owner holds plus seven planner booleans. The new pure synthetic admission and

@@ -53,7 +53,7 @@ runbook](runbooks/continuous-program-authorization-and-task-lifecycle.md).
 | iOS MVP | Mock-only SwiftUI/package evidence and an unsigned Simulator Host pass exist locally. | Real LAN transport, real credentials/Keychain, signing, entitlements, real-device behavior, and real StackChan integration are blocked. |
 | HealthKit | Mock permission states and design-time scope/rollback packets exist. | System consent, entitlement/signing, collection, and use of real health data are unconfirmed and outside the present program authority. |
 | Memory/privacy | A local memory design and implementation-readiness plan exist with conservative review/retention boundaries. | No current task may read/export private memory or make a live schema/data change without a separately authorized slice. |
-| Style/persona | Local style mechanisms and synthetic evaluation surfaces are historical implementation evidence. | No identity/personality imitation based on unapproved private material is authorized; consent, revocation, and private-data handling remain separate gates. |
+| Style/persona | Local style mechanisms and synthetic evaluation surfaces are historical implementation evidence. The owner has attested consent for a future visual-likeness slice; no identifying material or consent text is stored here. | Voice, writing style, private chats, provider upload, real-device display, revocation handling, and private-data use remain separate gates. |
 
 The active 12-hour authorization, task protocol, stop rules, and non-overlapping
 queue are in
@@ -66,6 +66,7 @@ queue are in
 - `manifests/architecture-decisions-2026-07-04.md`
 - `manifests/memory-layer-v0.1.md`
 - `manifests/memory-layer-v0.1-implementation-readiness.md`
+- `manifests/visual-likeness-consent-boundary-v0.1.md`
 - `runbooks/mvp-build-order.md`
 - `runbooks/stackchan-local-bridge.md`
 - `runbooks/stackchan-command-protocol-v0.1.md`

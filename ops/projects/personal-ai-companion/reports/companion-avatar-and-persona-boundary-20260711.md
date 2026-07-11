@@ -47,11 +47,13 @@ any hardware result.
 
 ## Identity And Voice Boundary
 
-No evidence establishes a real-person avatar, a partner identity, permission
-to imitate a person, consent to use likeness or voice, or a voice model. Do
-not use a real person's photo, illustration derived from a person, name, voice,
-speech pattern, or biographical detail merely because an affectionate companion
-is desired.
+The owner has since attested consent for a future visual-likeness slice; see
+`manifests/visual-likeness-consent-boundary-v0.1.md`. That anonymous
+attestation does not change this record's local mock scope. No likeness asset,
+partner identity, consent text, voice model, or voice/biographical material is
+present in this task surface. Do not use a real person's photo, illustration
+derived from a person, name, voice, speech pattern, or biographical detail
+outside a separately scoped intake task.
 
 Any later real-person direction requires the separate
 `PAC-COMPANION-IDENTITY-VOICE-INTAKE` intake-only task. Before later work can
