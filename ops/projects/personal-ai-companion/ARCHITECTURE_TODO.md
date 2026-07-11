@@ -24,16 +24,28 @@ or stop rules, the runbook wins.
   `iPhone 17e` / `iOS 26.5`, so it cannot alone accept or reject the target
   render. Current source makes the chat header icon-only, uses semantic
   `.body` for chat text, and caps Dynamic Type at `xSmall...xLarge`; these are
-  source facts, not a new visual result. Device screen and gentle-touch
-  reactions remain local mocks. The local Reduce Motion touch repair changed
-  only `DeviceControlView.swift` and is **local/mock source/build/smoke
-  accepted**: the delegated Swift build, action smoke, and mock-safety smoke
-  passed, and master source acceptance confirmed its cycle/cancellation guard
-  and no bridge path. It is not a visual result. The next visual check remains
-  blocked on manual Mac unlock; it must cover the target at default and
-  `xLarge`, including no visible `AI 伴侣` chat header and no Hover
+  source facts, not a fresh target visual result. Device screen, gentle touch,
+  and the companion mark remain local mocks. The accepted touch state is local
+  `DeviceTouchReactionState` plus `touchAcknowledgementCycle` (not
+  `.rawValue`): its view task is static for 0.8 seconds with Reduce Motion and
+  1.1 seconds otherwise, and source review found no bridge touch path. The
+  delegated `swift build --target PersonalAICompanionApp`,
+  `PersonalAICompanionRootTabStateSmoke`,
+  `PersonalAICompanionAppSupportActionSmoke`, and
+  `PersonalAICompanionMockSafetySmoke` checks passed. `CompanionPresenceMark`
+  is a 20 pt pure-SwiftUI, two-glint non-human mark in the chat header and
+  drawer; its accessibility label is `本地陪伴标记，非真人头像`. It adds no
+  asset, person likeness, voice, network, bridge, or hardware behavior. These
+  are **local/mock source/build/smoke accepted** facts only, not visual,
+  physical-touch, real-iPhone, real-StackChan, or third-party-app parity
+  evidence. The only immediate visual task remains blocked on manual Mac
+  unlock; it must cover the target at default and `xLarge`, including no
+  visible `AI 伴侣` chat header, the companion mark, touch preview, and no Hover
   Text/accessibility-overlay confusion. See
-  [ios-iphone16pm-typography-and-visual-qa-20260711.md](reports/ios-iphone16pm-typography-and-visual-qa-20260711.md).
+  [ios-iphone16pm-typography-and-visual-qa-20260711.md](reports/ios-iphone16pm-typography-and-visual-qa-20260711.md),
+  [ios-touch-reaction-mock-design-20260711.md](reports/ios-touch-reaction-mock-design-20260711.md),
+  and
+  [companion-mark-local-mock-20260711.md](reports/companion-mark-local-mock-20260711.md).
 - HealthKit: mock/design evidence exists; system consent, real collection, and
   signing/entitlement behavior are unconfirmed.
 - Memory and style: local designs/implementation surfaces do not authorize raw
@@ -95,14 +107,18 @@ or deletion.
   not accepted. `PAC-IOS-IPHONE16PM-MOCK-VISUAL-QA` is the next L1 task only
   after manual Mac unlock. It is limited to the unsigned iPhone 16 Pro Max
   Simulator mock at default and `xLarge` text settings; it must compare the
-  chat header, semantic body text, composer, local virtual-screen/touch preview,
-  and potential system Hover Text/accessibility overlays. It must neither treat
-  the supplied iPhone 17e screenshot as target acceptance nor access a real
-  iPhone, StackChan, HealthKit, LAN, credential, signing, or device capability.
-  The local Reduce Motion touch repair is source/build/smoke accepted; target
-  visual acceptance remains pending.
+  chat header and non-human companion mark, semantic body text, composer, local
+  virtual-screen/touch preview, and potential system Hover Text/accessibility
+  overlays. It must neither treat the supplied iPhone 17e screenshot as target
+  acceptance nor access a real iPhone, StackChan, HealthKit, LAN, credential,
+  signing, or device capability. The touch reaction and companion mark are
+  source/build/smoke accepted local mocks; target visual acceptance remains
+  pending.
   See
-  [ios-iphone16pm-typography-and-visual-qa-20260711.md](reports/ios-iphone16pm-typography-and-visual-qa-20260711.md).
+  [ios-iphone16pm-typography-and-visual-qa-20260711.md](reports/ios-iphone16pm-typography-and-visual-qa-20260711.md),
+  [ios-touch-reaction-mock-design-20260711.md](reports/ios-touch-reaction-mock-design-20260711.md),
+  and
+  [companion-mark-local-mock-20260711.md](reports/companion-mark-local-mock-20260711.md).
 - Completed 2026-07-11: implemented and statically accepted the local iOS
   StackChan screen preview pages `表情`, `聆听`, and `状态`. The preview
   permanently says `本地预览 · 仅模拟`; `聆听` is visual-only and does not enable
@@ -118,8 +134,9 @@ or deletion.
   verified** only:
   it does not change the real StackChan producer/ack/field status. Visual QA is
   still unconfirmed because the Mac was locked with no live Simulator window.
-  The exactly-one next task is `PAC-STACKCHAN-SCREEN-MOCK-PAGES-VISUAL-QA`
-  (L1 local Simulator/mock-only after manual unlock; no bridge/device). See
+  Its visual review is consolidated into the sole immediate
+  `PAC-IOS-IPHONE16PM-MOCK-VISUAL-QA` task (L1 local Simulator/mock-only after
+  manual unlock; no bridge/device). See
   [stackchan-screen-mock-pages-20260711.md](reports/stackchan-screen-mock-pages-20260711.md).
 - Completed 2026-07-11: completed the source-of-truth design and its bounded
   L1 synthetic admission/composition follow-through. The new pure
