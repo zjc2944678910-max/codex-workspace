@@ -13,6 +13,10 @@ or stop rules, the runbook wins.
 - StackChan L3-S1: one neutral-expression producer is **producer accepted**;
   device ack and physical field observation are **unconfirmed**. Do not label
   the screen repaired.
+- StackChan screen pages: `表情` / `聆听` / `状态` are **local/mock verified**
+  in the iOS preview only. Their selection sends no mock bridge requests, and
+  they do not change the separate producer-accepted, ack-unconfirmed, or
+  field-unconfirmed real-screen status.
 - iOS: local/mock and unsigned Simulator evidence is **local/mock verified**;
   real integration remains blocked.
 - HealthKit: mock/design evidence exists; system consent, real collection, and
@@ -63,6 +67,24 @@ normative in the runbook; this table is intentionally not a concurrency plan.
 
 ## Near Term
 
+- Completed 2026-07-11: implemented and statically accepted the local iOS
+  StackChan screen preview pages `表情`, `聆听`, and `状态`. The preview
+  permanently says `本地预览 · 仅模拟`; `聆听` is visual-only and does not enable
+  a microphone. `swift build --target PersonalAICompanionApp`,
+  `PersonalAICompanionAppSupportActionSmoke`, and
+  `PersonalAICompanionMockSafetySmoke` passed. The action smoke confirms the
+  default and all three page selections leave
+  `MockLANBridgeClient.sentRequests` unchanged, while existing mock expression,
+  motion, and camera request-order semantics remain covered. Static source
+  inspection confirmed selected-state Binding, the
+  `selectScreenPreviewPage` setter, Reduce Motion-gated `.id` plus
+  `.transition(.opacity)`, and accessibility labels. This is **local/mock
+  verified** only:
+  it does not change the real StackChan producer/ack/field status. Visual QA is
+  still unconfirmed because the Mac was locked with no live Simulator window.
+  The exactly-one next task is `PAC-STACKCHAN-SCREEN-MOCK-PAGES-VISUAL-QA`
+  (L1 local Simulator/mock-only after manual unlock; no bridge/device). See
+  [stackchan-screen-mock-pages-20260711.md](reports/stackchan-screen-mock-pages-20260711.md).
 - Completed 2026-07-11: completed
   `PAC-MEMORY-RETENTION-SNAPSHOT-SOURCE-OF-TRUTH-DESIGN` as an L1 conceptual
   local design. Its complete-snapshot rule applies only to a future trusted

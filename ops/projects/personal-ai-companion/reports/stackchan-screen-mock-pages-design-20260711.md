@@ -1,6 +1,6 @@
 # StackChan Screen Mock Pages Design Record
 
-**Status:** planned
+**Status:** local/mock verified
 
 ## Route Lock
 
@@ -45,9 +45,9 @@ Every page permanently and clearly displays the marker: `本地预览 · 仅模�
 - The preview is a compact control surface, not a decorative hero or card
   layout.
 
-## Proposed Local Implementation Scope
+## Completed Local Implementation Scope
 
-The future implementation owns exactly these files:
+The local mock implementation changed exactly these files:
 
 - `ios/PersonalAICompanion/Sources/PersonalAICompanionAppSupport/ViewModels/DeviceControlViewModel.swift`
 - `ios/PersonalAICompanion/Sources/PersonalAICompanionApp/Views/DeviceControlView.swift`
@@ -55,23 +55,50 @@ The future implementation owns exactly these files:
 - `ios/PersonalAICompanion/Sources/PersonalAICompanionAppSupportActionSmoke/ActionSmokeSnapshots.swift`
 - `ios/PersonalAICompanion/Sources/PersonalAICompanionAppSupportActionSmoke/ActionSmokeExpectedValues.swift`
 
-## Required Future Verification
+## Confirmed Local Verification
 
-- Build the relevant local Swift target.
-- Run `AppSupportActionSmoke` and `MockSafetySmoke`.
-- Perform visual and gesture QA only after the user manually unlocks the Mac;
-  that QA remains Simulator/mock-only.
+- `swift build --target PersonalAICompanionApp` passed.
+- `swift run PersonalAICompanionAppSupportActionSmoke` passed.
+- `swift run PersonalAICompanionMockSafetySmoke` passed.
+- The action smoke covers the default page and each of `表情`, `聆听`, and
+  `状态`; all four states leave `MockLANBridgeClient.sentRequests` unchanged.
+  Existing mock expression, motion, and camera request-order semantics remain
+  covered independently.
+
+## Confirmed Local Behavior
+
+- The preview now contains three controlled local pages: `表情`, `聆听`, and
+  `状态`.
+- `本地预览 · 仅模拟` is permanently visible. The preview has no avatar and
+  makes no real-screen claim.
+- Selection is held in local view-model state. It does not issue a bridge
+  request.
+- `聆听` is visual-only and explicitly says that it does not enable the
+  microphone.
+- Static source inspection confirmed the page `Binding` reads selected state
+  and writes through `selectScreenPreviewPage`; `.id` plus
+  `.transition(.opacity)` are protected by a Reduce Motion gate. Accessibility
+  labels are present for the relevant controls.
+- Earlier external-review concerns were summary-level observations only. They
+  were not confirmed by the inspected source.
+
+## Visual QA Still Required
+
+The host Mac was locked and no live Simulator window was available. Therefore
+this record does not claim visual QA, iPhone 16 Pro Max coverage, or gesture
+verification. Those remain local Simulator/mock-only work after manual unlock.
 
 ## Status Boundary
 
-This planned design changes no device fact. The existing StackChan display
-status remains `producer accepted`; device acknowledgement and field observation
-remain unconfirmed. This design neither sends an expression nor establishes
-producer acceptance, device acknowledgement, or a field-confirmed screen result.
+This local/mock verification changes no real device fact. The existing StackChan
+display status remains `producer accepted`; device acknowledgement and field
+observation remain unconfirmed. This local mock does not send an expression and
+does not establish producer acceptance, device acknowledgement, or a
+field-confirmed screen result.
 
 ## Exactly One Next Task
 
-`PAC-STACKCHAN-SCREEN-MOCK-PAGES` is the sole next task. It is an L1,
-local-only implementation of the planned mock pages. It must not access a
-bridge, device, network, credential, microphone, speaker, servo, camera, touch
-hardware, firmware, configuration, signing, HealthKit, or real data.
+`PAC-STACKCHAN-SCREEN-MOCK-PAGES-VISUAL-QA` is the sole next task. It is an L1,
+local Simulator/mock-only visual QA task after manual unlock. It must not access
+a bridge, device, network, credential, microphone, speaker, servo, camera,
+touch hardware, firmware, configuration, signing, HealthKit, or real data.
