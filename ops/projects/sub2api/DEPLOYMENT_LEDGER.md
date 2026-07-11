@@ -1,5 +1,72 @@
 # Sub2API Deployment Ledger
 
+## 2026-07-11: Antigravity Gateway Fix On Codex-Dedicated Instance
+
+Live host: `107.175.180.163`  
+Scope: only `sub2api-codex` (`/opt/sub2api-codex`, public `codex-sub.nodezjc12348888.xyz`).  
+Shared `sub2api` / nginx / Cloudflare / DB account rows were not modified in this switch.
+
+### Incident (earlier same day)
+
+- A prior Antigravity image switch used a world-unreadable entrypoint mode
+  (`711` / equivalent after build), so root→`su-exec sub2api` re-exec failed with
+  `can't open '/app/docker-entrypoint.sh': Permission denied`, crash-looped the
+  container, and Cloudflare returned 502 on the Codex site.
+- Site was restored by rolling compose back to
+  `sub2api:codex-usekey-gpt56-20260710T025152Z` (healthy 200).
+
+### Changes
+
+- Rebuilt image `sub2api:codex-antigravity-fix-20260711T145314Z` from build tree
+  `/opt/sub2api-codex-antigravity-build-20260711T210708+0800` with:
+  - Antigravity Chat Completions / Responses dispatch to
+    `antigravityGatewayService` (not the generic Anthropic path)
+  - existing GPT-5.6-related patches retained from the codex-usekey base line
+  - Dockerfile/`docker-entrypoint.sh` mode fixed to `755` so non-root re-exec works
+- Switched only `/opt/sub2api-codex/docker-compose.yml` app image to the new tag;
+  postgres/redis images and shared instance untouched.
+- Offline checks before switch: entrypoint mode 755, container starts healthy.
+- Switch path kept previous image available for immediate rollback.
+
+### Evidence On VPS
+
+```text
+/root/codex-repair-sub2api-codex-antigravity-20260711T204034+0800
+  evidence/antigravity-smoke-20260711T231411+0800
+  evidence/antigravity-smoke-rerun-20260711T231505+0800
+  rollback/rollback-image-to-usekey-gpt56.sh
+  secrets/codex_antigravity.key   # not committed; VPS-only
+```
+
+### Verification
+
+- Container: `sub2api:codex-antigravity-fix-20260711T145314Z` healthy;
+  `/app/docker-entrypoint.sh` is `-rwxr-xr-x`.
+- Local + public health: `{"status":"ok"}` HTTP 200 on
+  `127.0.0.1:8081` and `https://codex-sub.nodezjc12348888.xyz`.
+- Shared site still healthy: `https://sub.nodezjc12348888.xyz/health` 200.
+- With `codex_antigravity` key (models list HTTP 200, 35 models):
+  - chat `claude-opus-4-6-thinking` → 200, content `ok`
+  - chat `gemini-3.1-pro-high` → 200, content `ok`
+  - chat `gemini-3-flash` → 200, content `ok`
+  - responses `claude-opus-4-6-thinking` → 200, status `completed`, text `ok`
+  - public chat via Cloudflare → 200, content `ok`
+- Expected non-goals / residual:
+  - `gemini-3.5-flash-high` not in this group’s model set (404 model_not_found)
+  - GPT models not exposed on the Antigravity-scoped key (by design for that key)
+
+### Rollback
+
+```bash
+/root/codex-repair-sub2api-codex-antigravity-20260711T204034+0800/rollback/rollback-image-to-usekey-gpt56.sh
+```
+
+Previous healthy image retained:
+
+```text
+sub2api:codex-usekey-gpt56-20260710T025152Z
+```
+
 ## 2026-07-11: Imported 58 OpenAI OAuth Accounts Into Codex-Dedicated Instance
 
 Live host: `107.175.180.163`
