@@ -53,7 +53,7 @@ runbook](runbooks/continuous-program-authorization-and-task-lifecycle.md).
 | StackChan App integration | The authenticated Bridge and bounded device-side/manual paths have real evidence. | `iOS App -> Bridge -> StackChan -> device` is not connected end to end. The current App-to-Bridge and App-adapter implementations remain mock/contract surfaces and must not inherit the standalone hardware result. |
 | iOS MVP | Mock-only SwiftUI/package evidence and an unsigned Simulator Host pass exist locally. | Real LAN transport, real credentials/Keychain, signing, entitlements, real-device behavior, and real StackChan integration are blocked. |
 | HealthKit | Mock permission states and design-time scope/rollback packets exist. | System consent, entitlement/signing, collection, and use of real health data are unconfirmed and outside the present program authority. |
-| Memory/privacy | A local memory design and implementation-readiness plan exist with conservative review/retention boundaries. | No current task may read/export private memory or make a live schema/data change without a separately authorized slice. |
+| Memory/privacy | Product checkout `121334c` has a locally verified memory MVP: chat-integrated short-term context, reviewed candidate-to-promoted atoms, scoped recall/privacy projection, owner-confirmed admin/consent/class-policy flows, protected migration checks, isolated vault primitives, and synthetic retention admission/planning. Focused current-checkout verification passed `435` tests; see [the current memory-layer status](reports/memory-layer-current-status-20260711.md). | No real/private database or data path was inspected or validated. Vault-at-rest store wiring, an authoritative retention producer/executor, hard deletion, semantic/vector retrieval, automatic normalization/conflict handling, runtime authentication/admin UI, NAS/HealthKit/cloud authorization remain unimplemented or unconfirmed. Commit `3019a8c` adds a synthetic persona-memory summary contract but is not in the current checkout; dirty iOS product-polish work is excluded. |
 | Style/persona | Local style mechanisms and synthetic evaluation surfaces are historical implementation evidence. The owner has attested consent for a future visual-likeness slice; no identifying material or consent text is stored here. | Voice, writing style, private chats, provider upload, real-device display, revocation handling, and private-data use remain separate gates. |
 
 The 12-hour authorization documented in the runbook expired at
@@ -81,6 +81,7 @@ until the owner gives fresh explicit authorization for the named slice.
 - `runbooks/stackchan-command-protocol-v0.1.md`
 - `runbooks/stackchan-app-adapter-contract-v0.1.md`
 - `runbooks/continuous-program-authorization-and-task-lifecycle.md`
+- `reports/memory-layer-current-status-20260711.md`
 - `reports/stackchan-hardware-field-verification-20260711.md`
 - `DEPLOYMENT_LEDGER.md` when deployment history exists
 - `ARCHITECTURE_TODO.md` when architecture backlog exists

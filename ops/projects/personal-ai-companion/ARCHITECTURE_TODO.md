@@ -1,6 +1,6 @@
 # Personal AI Companion Architecture TODO
 
-## Active Program Queue And Authority (2026-07-10)
+## Active Program Queue And Authority (2026-07-11)
 
 This running log may contain historical completed-work claims. The current
 program control source is
@@ -56,9 +56,19 @@ or stop rules, the runbook wins.
   [companion-mark-local-mock-20260711.md](reports/companion-mark-local-mock-20260711.md).
 - HealthKit: mock/design evidence exists; system consent, real collection, and
   signing/entitlement behavior are unconfirmed.
-- Memory and style: local designs/implementation surfaces do not authorize raw
-  private-data access, real data migration, or persona imitation from
-  unapproved private material.
+- Memory/privacy: current product checkout `121334c` is **local MVP core
+  verified**, not design-only. The chat-integrated path covers bounded context,
+  candidate review/promotion, scoped recall, privacy projection, owner admin,
+  consent and class policy; vault/key and retention components remain isolated
+  safety primitives or synthetic contracts. Focused verification passed `435`
+  tests. No real/private database or data path was inspected. See
+  [memory-layer-current-status-20260711.md](reports/memory-layer-current-status-20260711.md).
+- Memory integration boundary: successor commit `3019a8c` adds a synthetic
+  Approved Persona Memory Summary contract and passed its focused tests, but it
+  is not in the current checkout. The dirty iOS product-polish worktree remains
+  uncommitted and is excluded from current product status. Neither line
+  authorizes raw private-data access, real data migration, or persona imitation
+  from unapproved private material.
 - Visual likeness: the owner has attested consent for a future visual-likeness
   slice. The anonymous boundary record authorizes no asset intake yet and does
   not extend to voice, writing style, private chats, provider upload, real
@@ -96,23 +106,27 @@ or stop rules, the runbook wins.
 | Order | Task ID | Type | Dependency / manual gate | Owned surface |
 | --- | --- | --- | --- | --- |
 | 0 | `PAC-DOCS-SYNC` | L1 | Required before every implementation wave. | The assigned ops docs only. |
-| 1 | `PAC-IOS-MOCK-UX-CLOSEOUT` | L1 | Docs sync; review/checkpoint the active mock-only iOS work. | Mock-only iOS UI/tests; no live transport or credentials. |
-| 2 | `PAC-IOS-REAL-INTEGRATION-PREFLIGHT` | L2 | Accepted mock UX; read-only mapping of LAN, protocol, credentials, signing, and rollback. | Evidence/design only; no real request or credential read. |
-| 3 | `PAC-IOS-STACKCHAN-SCREEN-E2E` | L3 | Completed preflight, renewed explicit authority, and a one-capability rollback packet. | One App-to-LCD path only; no automatic expansion to other hardware. |
-| 4 | `PAC-HEALTHKIT-SCOPE` | L3 | Explicit owner-selected scope and consent wording; no real data before gate. | One HealthKit authorization/collection slice. |
-| 5 | `PAC-STYLE-PERSONA` | L1 | Documented consent/revocation and approved material boundary. | One local style-policy/eval surface. |
+| 1 | `PAC-MOCK-FOUNDATIONS-CONVERGENCE` | L1 | Docs sync; review clean successor commit `3019a8c` and select the product branch that will own it. | Mock App bridge, synthetic App adapter, synthetic persona-memory summary, and their tests only. |
+| 2 | `PAC-IOS-MOCK-UX-CLOSEOUT` | L1 | Foundation convergence; review/checkpoint the active mock-only iOS work separately. | Mock-only iOS UI/history/tests; no live transport, private data, or credentials. |
+| 3 | `PAC-MEMORY-LOCAL-INGEST-SEAM` | L1 | Converged backend baseline; explicit synthetic fixtures and temp DB only. | Conversation-to-review-candidate extraction/normalization and focused tests; no silent promotion or real data. |
+| 4 | `PAC-IOS-REAL-INTEGRATION-PREFLIGHT` | L2 | Accepted mock UX; read-only mapping of LAN, protocol, credentials, signing, and rollback. | Evidence/design only; no real request or credential read. |
+| 5 | `PAC-IOS-STACKCHAN-SCREEN-E2E` | L3 | Completed preflight, renewed explicit authority, and a one-capability rollback packet. | One App-to-LCD path only; no automatic expansion to other hardware. |
+| 6 | `PAC-HEALTHKIT-SCOPE` | L3 | Explicit owner-selected scope and consent wording; no real data before gate. | One HealthKit authorization/collection slice. |
+| 7 | `PAC-STYLE-PERSONA` | L1 | Documented consent/revocation and approved material boundary. | One local style-policy/eval surface. |
 
 The detailed classification, dependencies, manual gates, and stop conditions are
 normative in the runbook; this table is intentionally not a concurrency plan.
 
-Memory retention has no selected follow-up item. If the owner later elects to
-authorize real integration, the recommended distinct manual gate is
-`PAC-MEMORY-RETENTION-PRODUCER-L3-PREFLIGHT`; it is **not scheduled**. Before
-that L3 preflight can start, fresh explicit owner authorization must name the
-target data, allowed store/schema reads and writes, backup/rollback treatment,
-time window, and stop owner. The preflight does not itself authorize a producer,
-store/schema change, planner invocation against real data, retention execution,
-or deletion.
+Memory retention has no selected real-data follow-up item. The local ingest
+seam above may use synthetic fixtures and a temp database, but it must not read
+or migrate existing private data and must not execute retention. If the owner
+later elects to authorize real integration, the recommended distinct manual
+gate is `PAC-MEMORY-RETENTION-PRODUCER-L3-PREFLIGHT`; it is **not scheduled**.
+Before that L3 preflight can start, fresh explicit owner authorization must name
+the target data, allowed store/schema reads and writes, backup/rollback
+treatment, time window, and stop owner. The preflight does not itself authorize
+a producer, store/schema change, planner invocation against real data,
+retention execution, or deletion.
 
 ## Near Term
 
