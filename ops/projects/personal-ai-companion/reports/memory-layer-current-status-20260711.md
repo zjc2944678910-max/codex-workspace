@@ -13,8 +13,8 @@ HealthKit data, credentials, key material, a running service, NAS, or a device.
 
 - Current product checkout: `codex/initial-private-publish` at `121334c`
 - Clean successor worktree: `codex/pac-mock-foundations` at `3019a8c`
-- Synthetic ingest-seam worktree: `codex/pac-memory-ingest-seam` at `4a3a7df`,
-  a clean direct successor of `3019a8c`
+- Synthetic ingest-seam worktree: `codex/pac-memory-ingest-seam` at `32b9d96`,
+  a clean successor of `4a3a7df` and `3019a8c`
 - Dirty product-polish worktree: `codex/pac-ios-product-polish` at `3019a8c`
 - Focused current-checkout verification: `435 passed, 1 warning` in the
   project `.venv`; the warning is the known Starlette/httpx TestClient
@@ -23,11 +23,14 @@ HealthKit data, credentials, key material, a running service, NAS, or a device.
 - Full clean successor-worktree verification: `958 passed`.
 - Successor-only Approved Persona Memory Summary focused verification:
   `17 passed`.
-- Ingest-seam focused verification: `59 passed, 1 warning`.
-- Ingest-seam full Python verification: `975 passed, 1 warning in 54.34s`.
-- Ingest-seam `compileall` verification passed. The shared project `.venv` does
-  not include `ruff`; system `/opt/anaconda3/bin/ruff` checked all touched
-  Python files and reported `All checks passed!`.
+- Pre-repair ingest-seam verification at `4a3a7df`: `59 passed, 1 warning`
+  focused and `975 passed, 1 warning` full.
+- Repaired ingest-seam verification at `32b9d96`: `21 passed, 1 warning in
+  0.81s` for the seam file; `444 passed, 1 warning in 7.79s` for related
+  memory/privacy/API tests; and `980 passed, 1 warning in 59.06s` for the full
+  Python suite.
+- System `/opt/anaconda3/bin/ruff` checked every touched Python file and reported
+  `All checks passed!`; `git diff --check` also passed before the product commit.
 
 The ingest-seam tests used explicit synthetic strings and `:memory:` SQLite.
 They did not touch Swift, a file-backed database, a real `memory.db`, private
@@ -79,27 +82,45 @@ as branch-only and locally verified, not as current-checkout or live-integration
 capability.
 
 Product commit `4a3a7df` is a clean successor of `3019a8c` on
-`codex/pac-memory-ingest-seam`. It adds a local, explicit
+`codex/pac-memory-ingest-seam`. Product repair commit `32b9d96` is its clean
+successor. Together they add a local, explicit
 `POST /v1/memory/review-turn` path with these verified synthetic behaviors:
 
 - deterministic Chinese/English preference normalization for a deliberately
   narrow rule set;
-- explicit opt-out, credential-like, sensitive-identity, ambiguous, and
-  overlong turn handling that creates no candidate, review, conversation, or
-  session payload rows;
+- NFKC-normalized, compositional Chinese opt-out handling for the verified
+  negative/courtesy/object/remember-save forms, while preserving the existing
+  English opt-out behavior;
+- targeted mixed Chinese/English `PIN`, token, password, and API-key value
+  handling, including full-width forms, without blocking the verified
+  token/password discussion phrases;
+- verified opt-out, credential-like, sensitive-identity, ambiguous, and
+  overlong handling that creates no candidate, review, conversation, or session
+  payload rows and does not return or audit the raw tested values;
 - strict health review through a fixed non-raw placeholder, `health_private`
   scope, active `health_read` consent, P1 owner review, and a
   `sensitive_fact` disclosure block for prompt and speaker paths;
 - owner-only candidate creation, atomic candidate/review persistence, source
   event/session provenance, event replay idempotency, canonical duplicate
   handling, and deterministic P1 conflict flags;
-- no recall before explicit owner-confirmed promotion, review-status closure on
-  promote/reject, owner-private recall after promotion, and partner-viewer
-  denial.
+- no recall before explicit owner-confirmed promotion, owner-private recall
+  after promotion, and partner-viewer denial;
+- a minimal one-way review state machine: candidate can enter promoted or
+  rejected once; repeat/reverse operations and operations after deleted return
+  stable `ok=false` domain results instead of changing state or producing a 500;
+  successful atom/review/audit updates share one SQLite transaction, delete
+  aligns every linked review, and a forced audit failure rolls back atom and
+  review together.
 
 The endpoint is opt-in. Ordinary `/v1/chat` behavior is unchanged and does not
 automatically extract or promote memory. Conflict detection creates a review
 signal; it does not choose a winner or supersede an existing fact.
+
+The privacy matcher is a bounded deterministic guard, not a claim of broad
+natural-language credential or consent classification. Untested languages,
+novel paraphrases, deliberate obfuscation, and Unicode confusables outside NFKC
+remain unconfirmed. The compare-and-set status guard is implemented, but
+multi-process contention was not stress-tested in this slice.
 
 The dirty `pac-ios-product-polish` worktree adds local JSON chat-history
 persistence, restore, delete, and export UI behavior. It builds and its AppFlow
@@ -116,9 +137,10 @@ real-use long-term memory system:
 - Retrieval uses token overlap and recency. There is no embedding generation,
   vector store, or semantic ranking path.
 - The branch-only ingest seam has narrow deterministic normalization, exact
-  canonical duplicate handling, and conflict flagging only when explicitly
-  called. There is still no automatic extraction from ordinary chat, broad fact
-  parser, semantic deduplication, or automatic conflict resolution.
+  canonical duplicate handling, bounded opt-out/credential rules, and conflict
+  flagging only when explicitly called. There is still no automatic extraction
+  from ordinary chat, broad fact parser, exhaustive multilingual privacy
+  classifier, semantic deduplication, or automatic conflict resolution.
 - Delete is a soft-delete operation. There is no grace-period hard-delete,
   secure-delete, or retention executor.
 - Retention has synthetic metadata admission and dry-run planning, but no
@@ -138,7 +160,7 @@ Use layered status instead of one percentage:
 | Privacy, consent, review, and owner controls | `locally verified` |
 | Vault and retention safety primitives | `locally verified, not store-wired` |
 | Persona summary and App bridge memory contract | `branch-only, synthetic verified` |
-| Explicit conversation-turn review seam | `branch-only, synthetic verified` |
+| Explicit conversation-turn review seam and one-way review state | `branch-only, synthetic verified` |
 | iOS history controls | `uncommitted, smoke verified` |
 | Real/private-data long-term operation | `not started / not verified` |
 
@@ -149,13 +171,13 @@ layered statuses above.
 
 ## Recommended Next Order
 
-1. Review and converge `3019a8c` plus the clean `4a3a7df` successor into the
+1. Review and converge `3019a8c` plus the clean `32b9d96` successor into the
    selected product branch, preserving their synthetic/mock boundary.
 2. Review and commit the dirty iOS product-polish slice separately; do not mix
    it with backend memory acceptance.
-3. Add a separate synthetic-only review state-machine slice that prevents
-   invalid re-promotion/rejection transitions and requires an explicit owner
-   decision for conflicting candidates; do not auto-supersede facts.
+3. Extend only the synthetic privacy corpus with additional paraphrase,
+   confusable, property/fuzz, and multi-connection contention tests; keep every
+   new matcher bounded and do not auto-supersede conflicting facts.
 4. Define the authoritative retention producer boundary and connect it only to
    dry-run planning with synthetic/temp-store evidence.
 5. Prepare a separate L3 preflight before any real database, schema, key,
