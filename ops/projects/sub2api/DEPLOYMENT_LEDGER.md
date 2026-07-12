@@ -1,5 +1,73 @@
 # Sub2API Deployment Ledger
 
+## 2026-07-12: Imported 10 OpenAI OAuth Accounts Into Codex-Dedicated Instance
+
+Live host: `107.175.180.163`
+Scope: only `sub2api-codex` (`/opt/sub2api-codex`, database
+`sub2api_codex`, local API `127.0.0.1:8081`). The shared `sub2api` instance,
+its database, proxy configuration, API keys, images, and runtime configuration
+were not modified.
+
+### Changes
+
+- Imported exactly 10 user-supplied account-data exports through the application
+  endpoint `POST /api/v1/admin/accounts/data`.
+- Used batch marker `accountdata10_20260712T183122`, idempotency protection, no
+  proxy payload, and `skip_default_group_bind=false` to bind the accounts to
+  `openai-default` (group id `5`).
+- No service restart, deployment, image rebuild, shared-instance database write,
+  or configuration change was performed.
+
+### Evidence On VPS
+
+```text
+/root/codex-repair-sub2api-codex-import-accountdata10-20260712T183122+0800
+```
+
+This contains the pre-import PostgreSQL dump, import result, non-secret
+verification reports, cleanup manifest, and a root-only scoped rollback script.
+
+### Verification
+
+- Import API result: 10 accounts created, 0 account failures, and no proxy
+  created, reused, or failed.
+- Non-deleted account count changed from 70 (max id 274) to 80 (max id 284);
+  imported account ids are 275 through 284.
+- All 10 imported accounts are active, schedulable `openai/oauth` accounts with
+  no proxy association, automatic pause on expiry enabled, and exactly one
+  membership in `openai-default`.
+- `sub2api-codex`, PostgreSQL, and Redis were healthy; the local health endpoint
+  returned `{"status":"ok"}` with HTTP 200.
+- The pre-import dump catalog was validated with `pg_restore -l` inside the
+  PostgreSQL container.
+
+### Rollback
+
+The following script only acts on the fixed imported id set after it confirms
+the batch marker. It retrieves administrator credentials from the running
+container environment and calls the application delete API one account at a
+time; it does not use a broad SQL delete.
+
+```bash
+/root/codex-repair-sub2api-codex-import-accountdata10-20260712T183122+0800/rollback/rollback-accountdata10-via-api.sh
+```
+
+The full pre-import database backup is retained at:
+
+```text
+/root/codex-repair-sub2api-codex-import-accountdata10-20260712T183122+0800/backup/sub2api-codex-before-accountdata10-import.dump
+```
+
+### Residual Risk
+
+- The imported OAuth records have no refresh tokens. They will automatically
+  stop scheduling at their recorded expiry times (UTC range
+  `2026-07-22T09:00:01Z` through `2026-07-22T09:03:37Z`) unless refreshed by a
+  future authorized operation.
+- The cleanup manifest retains raw account exports, generated request payloads,
+  the temporary admin login response, and fingerprint scratch files pending
+  explicit deletion authorization. None of those materials are committed here.
+
 ## 2026-07-11: Antigravity Gateway Fix On Codex-Dedicated Instance
 
 Live host: `107.175.180.163`  

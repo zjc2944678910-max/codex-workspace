@@ -38,6 +38,8 @@ belongs to this surface.
 - `README.md`
 - `DEPLOYMENT_LEDGER.md`
 - `reports/`
+- `runbooks/codex-account-data-import.md` - isolated Codex relay account-data
+  import, verification, rollback, and sensitive-material lifecycle
 - `runbooks/oauth-account-routing-and-opencode.md`
 
 ## Live Access
