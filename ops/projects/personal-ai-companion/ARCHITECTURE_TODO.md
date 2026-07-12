@@ -1,12 +1,35 @@
 # Personal AI Companion Architecture TODO
 
-## Active Program Queue And Authority (2026-07-11)
+## Active Program Queue And Authority (2026-07-13)
 
 This running log may contain historical completed-work claims. The current
 program control source is
 [continuous-program-authorization-and-task-lifecycle.md](runbooks/continuous-program-authorization-and-task-lifecycle.md).
 When this file conflicts with that runbook's dated facts, authorization ledger,
 or stop rules, the runbook wins.
+
+The current cross-thread source-of-truth snapshot is
+[product-cloud-current-status-20260713.md](reports/product-cloud-current-status-20260713.md).
+The long `Near Term` section below remains a chronological implementation log;
+its older `pending` labels are not the current queue when they conflict with
+this section, the project README, or the new status report.
+
+### 2026-07-13 Mainline Snapshot
+
+- Clean committed baseline: `codex/initial-private-publish` at `934cec1`, with
+  the verified memory review/promotion seam and no local changes.
+- Uncommitted product source: dirty `codex/pac-ios-product-polish` worktree
+  based at `3019a8c`. It contains the Xiaoxin UI, chat history, device-cover,
+  HealthKit, cloud-auth, icon, and native Google work. All three source tasks
+  are idle; the worktree now needs a separate bounded closeout review.
+- Last recorded live baseline: the 2026-07-13 repair deployed native Google as
+  `xiaoxin-cloud-api:20260713T0137-native-google`, retained Authentik fallback,
+  and then disabled unverified built-in email registration/login. Health,
+  storage, database, tunnel, capability, disabled-route, and Simulator-button
+  checks have rollback anchors in `DEPLOYMENT_LEDGER.md`.
+- Remaining acceptance: an owner-driven native Google exchange, account
+  continuity, refresh rotation, and logout are not yet verified. This is a
+  manual acceptance gap, not an active implementation task.
 
 ### Current Corrections
 
@@ -23,39 +46,32 @@ or stop rules, the runbook wins.
   they did not produce the separate field evidence. The later real LCD result
   is field-confirmed through a manual Bridge/device path, not through these
   preview pages or the iOS App.
-- iOS: local/mock and unsigned Simulator evidence is **local/mock verified**;
-  real integration remains blocked.
-- iOS typography and current visual QA: the local QA target is the unsigned,
-  mock-only iPhone 16 Pro Max Simulator. The supplied screenshot visibly names
-  `iPhone 17e` / `iOS 26.5`, so it cannot alone accept or reject the target
-  render. Current source makes the chat header icon-only, uses semantic
-  `.body` for chat text, and caps Dynamic Type at `xSmall...xLarge`; these are
-  source facts, not a fresh target visual result. The iOS device-screen preview,
-  gentle-touch reaction, and companion mark remain local mocks even though the
-  physical StackChan LCD and touch sensor were separately field-confirmed. The
-  accepted iOS touch state is local
-  `DeviceTouchReactionState` plus `touchAcknowledgementCycle` (not
-  `.rawValue`): its view task is static for 0.8 seconds with Reduce Motion and
-  1.1 seconds otherwise, and source review found no bridge touch path. The
-  delegated `swift build --target PersonalAICompanionApp`,
-  `PersonalAICompanionRootTabStateSmoke`,
-  `PersonalAICompanionAppSupportActionSmoke`, and
-  `PersonalAICompanionMockSafetySmoke` checks passed. `CompanionPresenceMark`
-  is a 20 pt pure-SwiftUI, two-glint non-human mark in the chat header and
-  drawer; its accessibility label is `本地陪伴标记，非真人头像`. It adds no
-  asset, person likeness, voice, network, bridge, or hardware behavior. These
-  are **local/mock source/build/smoke accepted** facts only, not visual,
-  physical-touch, real-iPhone, real-StackChan, or third-party-app parity
-  evidence. The only immediate visual task remains blocked on manual Mac
-  unlock; it must cover the target at default and `xLarge`, including no
-  visible `AI 伴侣` chat header, the companion mark, touch preview, and no Hover
-  Text/accessibility-overlay confusion. See
-  [ios-iphone16pm-typography-and-visual-qa-20260711.md](reports/ios-iphone16pm-typography-and-visual-qa-20260711.md),
-  [ios-touch-reaction-mock-design-20260711.md](reports/ios-touch-reaction-mock-design-20260711.md),
-  and
-  [companion-mark-local-mock-20260711.md](reports/companion-mark-local-mock-20260711.md).
-- HealthKit: mock/design evidence exists; system consent, real collection, and
-  signing/entitlement behavior are unconfirmed.
+- iOS product/UI: the three-task line superseded the earlier mock-visual queue.
+  The dirty worktree has Xiaoxin branding/icon, local chat-history controls,
+  device-cover persistence and metadata removal, identity UI, and repeated
+  iPhone 16 Pro Max Simulator/build/smoke/visual evidence. This is local source
+  evidence only and remains uncommitted; real-device signing, App Store release,
+  and App-to-StackChan end-to-end behavior are not accepted.
+- HealthKit: the dirty worktree now has a real read-only provider, host
+  entitlement/privacy declarations, 15 UI categories, and a one-action Apple
+  authorization sequence. Recorded iOS 26.5 Simulator discovery was 215
+  standard plus 3 per-object types, while chat receives only five bounded local
+  summary families. No real health data was accepted here, no real-device or
+  regional Health Records result exists, and the broad request surface needs a
+  minimum-permission/App Store review before release.
+- Xiaoxin cloud/auth: the current recorded image is
+  `xiaoxin-cloud-api:20260713T0137-native-google`. Native Google is preferred,
+  Authentik PKCE remains available as fallback, and SMS OTP remains disabled.
+  Built-in email registration/login is also disabled because the original path
+  did not verify mailbox ownership before issuing tokens; the retained email
+  credential and data were not deleted.
+- Native Google Sign-In: Google iOS client `小芯 iOS` exists for Bundle ID
+  `xyz.nodezjc12348888.xiaoxin`. The App uses GoogleSignIn `9.2.0`; the backend
+  enforces one-time nonce/replay protection, JWKS rotation refresh, signature,
+  `aud`, `azp`, `iss`, time, and verified-email checks. Deployment verification
+  passed 57 cloud tests, Ruff, Swift smoke, Simulator build, public capability
+  probes, and direct navigation to `accounts.google.com`. A real native token
+  exchange, refresh, and logout remain pending owner input.
 - Memory/privacy: product branch `codex/initial-private-publish` was locally
   fast-forwarded from `121334c` to current checkout `934cec1`. The checkout is
   **local MVP core verified**, not design-only. The chat-integrated path covers
@@ -103,12 +119,16 @@ or stop rules, the runbook wins.
 
 ### Queue Discipline
 
-- The authorization expires at `2026-07-11T11:22:52+08:00`; after expiry,
-  no L3 action may start without renewed explicit authority.
+- The program authorization that expired at `2026-07-11T11:22:52+08:00` is
+  historical. No new L3 action may rely on it.
 - The later standalone hardware verification used task-specific explicit repair
   authority and sequential owner confirmations recorded in
   `019f4fc2-69ac-7532-bc63-e35b1323ccd5`. That authority is historical,
   consumed, and closed; it is not permission to repeat a check.
+- The 2026-07-12 Xiaoxin deployment/auth repair and the 2026-07-13 native Google
+  plus email-disable repairs used task-specific L3 authorization. Their
+  deployment facts and rollback anchors are historical; those authorizations
+  are consumed and do not authorize a new live operation.
 - Synchronize the ops facts and queue before each implementation wave.
 - Only the explicitly selected queue item may run. Dependencies do not imply
   concurrency or authorization for dependent work.
@@ -120,13 +140,13 @@ or stop rules, the runbook wins.
 | Order | Task ID | Type | Dependency / manual gate | Owned surface |
 | --- | --- | --- | --- | --- |
 | 0 | `PAC-DOCS-SYNC` | L1 | Required before every implementation wave. | The assigned ops docs only. |
-| 1 | `PAC-MOCK-FOUNDATIONS-CONVERGENCE` (`completed`, current checkout) | L1 | `codex/initial-private-publish` locally fast-forwarded through `3019a8c` to `934cec1`; not pushed. | Mock App bridge, synthetic App adapter, synthetic persona-memory summary, and their tests only. |
-| 2 | `PAC-IOS-MOCK-UX-CLOSEOUT` | L1 | Foundation convergence; review/checkpoint the active mock-only iOS work separately. | Mock-only iOS UI/history/tests; no live transport, private data, or credentials. |
-| 3 | `PAC-MEMORY-LOCAL-INGEST-SEAM` (`completed`, current checkout) | L1 | Current product commit `934cec1` through `32b9d96` and `4a3a7df`; explicit synthetic fixtures and `:memory:`/temporary SQLite only. | Explicit turn-to-review-candidate normalization, bounded opt-out/credential privacy guards, owner-confirmed one-way review transitions, deterministic duplicate/conflict signals, and focused/full tests; no ordinary-chat auto-extraction or real data. |
-| 4 | `PAC-IOS-REAL-INTEGRATION-PREFLIGHT` | L2 | Accepted mock UX; read-only mapping of LAN, protocol, credentials, signing, and rollback. | Evidence/design only; no real request or credential read. |
-| 5 | `PAC-IOS-STACKCHAN-SCREEN-E2E` | L3 | Completed preflight, renewed explicit authority, and a one-capability rollback packet. | One App-to-LCD path only; no automatic expansion to other hardware. |
-| 6 | `PAC-HEALTHKIT-SCOPE` | L3 | Explicit owner-selected scope and consent wording; no real data before gate. | One HealthKit authorization/collection slice. |
-| 7 | `PAC-STYLE-PERSONA` | L1 | Documented consent/revocation and approved material boundary. | One local style-policy/eval surface. |
+| 1 | `PAC-MEMORY-LOCAL-INGEST-SEAM` (`completed`, current checkout) | L1 | Clean product commit `934cec1`; synthetic fixtures and temporary SQLite only. | Committed memory candidate/review/privacy state machine; no ordinary-chat extraction or real data. |
+| 2 | `PAC-NATIVE-GOOGLE-DIRECT` (`completed deployment`) | L3 historical | Task `019f53e3-4888-7dd1-9dbe-7e7e69354cc6` is complete; its authorization is consumed. | Native Google deployed with Authentik fallback; built-in email and SMS disabled. |
+| 3 | `PAC-NATIVE-GOOGLE-OWNER-ACCEPTANCE` | Manual/L2 | Owner completes the Google screen; subsequent checks remain read-only unless a defect requires a new repair gate. | Verify native exchange, account continuity, refresh rotation, and logout. |
+| 4 | `PAC-PRODUCT-POLISH-CLOSEOUT` | L1 | All source tasks are idle. Review sensitive/generated artifacts first. | Split and checkpoint the dirty iOS/UI/HealthKit/cloud source into bounded commits, then converge onto `934cec1`. |
+| 5 | `PAC-HEALTHKIT-RELEASE-SCOPE` | L1/L2 | Requires order 4 and an explicit product decision on minimum read scope; real-data testing remains separately gated. | Local scope reduction, privacy text, signed-build preflight, and App Store risk review only. |
+| 6 | `PAC-IOS-STACKCHAN-E2E-PREFLIGHT` | L2 | Requires a clean converged product baseline. | Read-only protocol/credential/signing/rollback design; no device action. |
+| 7 | `PAC-IOS-STACKCHAN-SCREEN-E2E` | L3 | Completed preflight plus fresh named authorization and rollback packet. | One App-to-LCD path only; no automatic expansion to other hardware. |
 
 The detailed classification, dependencies, manual gates, and stop conditions are
 normative in the runbook; this table is intentionally not a concurrency plan.
@@ -144,7 +164,12 @@ retention execution, or deletion.
 
 ## Near Term
 
-- Pending 2026-07-11: current iPhone typography/device-preview visual QA is
+The entries below are retained as historical implementation evidence. Current
+priority and status are the dated queue above; do not resume an older `pending`
+item directly from this log.
+
+- Historical 2026-07-11, superseded by the current queue: the iPhone
+  typography/device-preview visual QA was
   not accepted. `PAC-IOS-IPHONE16PM-MOCK-VISUAL-QA` is the next L1 task only
   after manual Mac unlock. It is limited to the unsigned iPhone 16 Pro Max
   Simulator mock at default and `xLarge` text settings; it must compare the
@@ -6630,7 +6655,8 @@ retention execution, or deletion.
 
 - Add streaming audio, multipart upload ergonomics, and StackChan device registration.
 - Add Memory Admin UI/API.
-- Add iOS app permission flows for HealthKit/EventKit/AlarmKit/App Intents.
+- Review and narrow the uncommitted HealthKit read scope for release; add
+  EventKit/AlarmKit/App Intents only as separately gated capabilities.
 - Add NAS memory/vector persistence plan.
 - Add chat-log import and consented style profile pipeline.
 

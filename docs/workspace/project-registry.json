@@ -300,7 +300,7 @@
       "slug": "personal-ai-companion",
       "name": "Personal AI Companion",
       "kind": "product",
-      "risk_profile": "local",
+      "risk_profile": "live_product",
       "surfaces": [
         "projects/products/personal-ai-companion"
       ],
@@ -319,6 +319,8 @@
         "stackchan-companion",
         "personal-ai-companion",
         "ai-companion",
+        "xiaoxin",
+        "小芯",
         "长期记忆助手",
         "桌面AI伴侣"
       ],
@@ -335,11 +337,22 @@
         "stackchan-ai",
         "stackchan-companion",
         "ai-companion",
+        "Xiaoxin",
+        "xiaoxin",
+        "小芯",
+        "xiaoxin.nodezjc12348888.xyz",
+        "auth.nodezjc12348888.xyz",
         "长期记忆助手",
         "桌面AI伴侣"
       ],
-      "live_host_aliases": [],
-      "service_names": [],
+      "live_host_aliases": [
+        "xiaoxin.nodezjc12348888.xyz",
+        "auth.nodezjc12348888.xyz"
+      ],
+      "service_names": [
+        "xiaoxin-cloud-api",
+        "xiaoxin-vps-tunnel.service"
+      ],
       "gitnexus_indexed": false
     },
     {
