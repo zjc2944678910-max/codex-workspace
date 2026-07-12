@@ -2,7 +2,9 @@
 
 - Date: 2026-07-13
 - Product name: `小芯` (`Xiaoxin`)
-- Status: all three tasks complete; native Google deployed, built-in email disabled, and owner-driven real-account acceptance pending
+- Status: all three source tasks complete; native Google login is owner-confirmed,
+  product source is converged/pushed at `e15e553`, and the first StackChan E2E
+  slice is statically preflighted but not implemented or executed
 
 ## Scope And Evidence
 
@@ -14,22 +16,25 @@ tasks:
 3. `019f53e3-4888-7dd1-9dbe-7e7e69354cc6`
 
 All three tasks are complete. The third task deployed native Google Sign-In and
-then disabled built-in email registration/login; completing a real native
-Google account exchange is now a separate owner-driven acceptance step. Thread
-statements were cross-checked against local Git state, the dirty product-polish
-worktree, the project deployment ledger, live NAS/container state, public
-endpoints, Google Cloud OAuth configuration, and Simulator evidence. No Google
-credential or private account data was entered during this documentation pass.
+then disabled built-in email registration/login. The owner subsequently
+completed a real native Google exchange and confirmed direct App entry after
+relaunch. Account continuity, forced refresh, remote logout, and re-login remain
+separate manual acceptance gaps. The original report cross-checked its live
+claims against the project deployment ledger, dated NAS/container and public
+endpoint evidence, Google Cloud OAuth configuration, and Simulator evidence.
+This closeout update rechecked local Git, tests, builds, and ops documents only;
+it did not inspect live state or enter Google credentials or private account
+data.
 
 ## Current Truth
 
 | Surface | Current fact | Boundary |
 | --- | --- | --- |
-| Canonical product checkout | `codex/initial-private-publish` is clean at `934cec1`; it contains the merged local memory-review seam. | It does not contain the later Xiaoxin iOS, HealthKit, cloud-auth, or branding work. |
-| Product-polish worktree | `codex/pac-ios-product-polish` is based at `3019a8c` and has a large uncommitted change set containing the iOS/product/cloud work below. | All three tasks are idle, but the worktree still needs a bounded secrets/generated-artifact review and split commits before convergence; do not merge, clean, reset, archive, or commit it wholesale. |
-| Live cloud baseline | The 2026-07-13 repair deployed `xiaoxin-cloud-api:20260713T0137-native-google`. Public API/database/storage, native Google capability and nonce issuance, dedicated JWKS proxying, and Authentik fallback were freshly verified. A follow-up repair disabled unverified email registration/login; both email routes now return 503 and the App button is gray and disabled. OTP remains disabled. | A real native Google account exchange, refresh, and logout remain pending. The retained email credential was not deleted. See [the deployment ledger](../DEPLOYMENT_LEDGER.md) for exact images, backups, verification, and rollback. |
-| Workspace documentation | The deployment ledger exists as a new workspace file and records the initial auth deployment, dedicated Authentik Google-flow repair, native Google deployment, and email-disable follow-up. | At capture time it had not yet been committed to the workspace repository. |
-| Native Google migration | Google iOS client `小芯 iOS` now exists for `xyz.nodezjc12348888.xiaoxin`; the App uses GoogleSignIn `9.2.0`; the backend verifies signature, audience, authorized party, issuer, time claims, nonce, and verified email. Native Google is deployed as the preferred path, with Authentik retained as rollback. Local verification passed 57 cloud tests, Ruff, Swift smoke, and the final Simulator build. The installed App opens `accounts.google.com` with `继续前往小芯` directly and does not render Authentik first. | No credentials were entered. Native token exchange, refresh, and logout are not accepted until the owner completes the Google screen. Built-in email auth is intentionally unavailable pending mailbox verification. |
+| Canonical product checkout | `codex/initial-private-publish` is clean and pushed at `e15e553`. It includes the verified memory seam through `934cec1`, Cloud commit `b9a5d7b`, and iOS commit `e15e553`. | This is committed product source, not proof that every commit is deployed or that current live health matches dated evidence. |
+| Product-polish worktree | `codex/pac-ios-product-polish` is clean at `12663dd` and retained as a rollback/source anchor. The converged branch was built from `934cec1` and fast-forwarded into the canonical branch without a merge commit. | The source branch is not the canonical deployment branch and should not be merged again. |
+| Live cloud baseline | The 2026-07-13 repair deployed `xiaoxin-cloud-api:20260713T0137-native-google`. Public API/database/storage, native Google capability and nonce issuance, dedicated JWKS proxying, and Authentik fallback were freshly verified. A follow-up repair disabled unverified email registration/login; both email routes returned 503 and the App button was gray and disabled. OTP remains disabled. | The owner completed a native Google exchange and direct App entry after relaunch, but account/data continuity, forced refresh, remote logout, and re-login remain pending. The retained email credential was not deleted. See [the deployment ledger](../DEPLOYMENT_LEDGER.md). |
+| Workspace documentation | Deployment and architecture facts through the native-Google/email-disable line were committed and pushed in `dc35f3a`; the current closeout and E2E preflight reconciliation is the next workspace documentation commit. | This docs pass makes no live change and does not update the deployment ledger. |
+| Native Google migration | Google iOS client `小芯 iOS` exists for `xyz.nodezjc12348888.xiaoxin`; the App pins GoogleSignIn `9.2.0`; the backend verifies signature, audience, authorized party, issuer, time claims, nonce, and verified email. Native Google is preferred with Authentik rollback. The owner completed a real exchange and confirmed direct App entry after relaunch. | Direct entry does not prove original-account/data continuity or that an expired access token was refreshed. Remote logout and subsequent re-login were not directly observed. Built-in email auth remains unavailable pending mailbox verification. |
 
 ## Task Lineage
 
@@ -37,7 +42,7 @@ credential or private account data was entered during this documentation pass.
 
 Task `019f4fc6-509f-7503-afca-66460a81e1bb` moved the unsigned local iOS host
 from a contract-style mock toward a usable product shell. Durable outcomes in
-the dirty worktree include:
+the final `e15e553` product commit include:
 
 - a cleaner chat surface and ChatGPT-inspired push drawer;
 - local chat-history persistence with view, delete, export, and new-chat
@@ -50,8 +55,8 @@ the dirty worktree include:
 - repeated Swift build, smoke, simulator, screenshot, and `git diff --check`
   evidence.
 
-These changes were explicitly left uncommitted and unpushed on
-`codex/pac-ios-product-polish`.
+These changes were later reviewed, committed in the bounded iOS slice, and
+converged onto the canonical branch.
 
 ### 2. HealthKit Expansion And Visual Closeout
 
@@ -62,11 +67,9 @@ most durable addition is the real read-only HealthKit adapter:
   keep mock providers;
 - one App action starts the complete system authorization sequence, while the
   UI states clearly that Apple still makes the owner approve individual items;
-- the recorded iOS 26.5 Simulator registry found 215 ordinary and 3 per-object
-  request types across 15 product-facing categories;
-- invalid correlation and medication-dose authorization paths were filtered;
-- interruption of a per-object flow is represented as partial/retryable, not
-  as full authorization;
+- the final host requests only steps, active energy, heart rate, sleep, and
+  workouts through one Apple authorization action;
+- Health Records entitlement and clinical-purpose declarations were removed;
 - chat context receives only local summaries for steps, active energy, average
   heart rate, sleep duration, and workout count/duration;
 - raw ECG, clinical, medication, reproductive, and symptom records are not
@@ -74,10 +77,9 @@ most durable addition is the real read-only HealthKit adapter:
 - the recorded closeout passed 44/44 smoke checks, Swift build, Simulator Host
   build/install/launch, entitlement checks, and privacy-description checks.
 
-No real-device authorization, signed distribution, regional Health Records,
-or real health-data collection was accepted. Requesting roughly 218 readable
-types while consuming five summary families is also an App Store
-minimum-permission risk that needs a product decision before release.
+No real-device authorization, signed distribution, or real health-data
+collection was accepted. Apple still controls each per-type owner decision and
+the callback cannot prove every requested read was granted.
 
 ### 3. Xiaoxin Identity And Cloud Line
 
@@ -112,19 +114,22 @@ Google iOS client `小芯 iOS` was created for formal Bundle ID
 client. The App now prefers the official native SDK and retains Authentik as an
 automatic fallback. The backend uses one-time server nonces, refreshes JWKS on
 unknown key rotation, validates signature plus `aud`, `azp`, `iss`, `iat`,
-`exp`, nonce, and `email_verified`, and merges accounts by verified email.
+`exp`, nonce, and `email_verified`. Verified external identities may preserve
+continuity by verified email; a password-only account is not treated as proof of
+mailbox ownership and is never auto-merged by matching email.
 
 The NAS cannot reach Google's JWKS endpoint directly. A dedicated,
 credential-free proxy setting now routes only JWKS downloads through the
 existing VPS HTTP proxy; HTTPX environment proxy inheritance is disabled so the
 legacy OIDC client is not rerouted. Candidate and running-container proxy probes
 passed. Public readiness reports native Google and Authentik OIDC available.
-The new App and old Bundle ID coexist on the Simulator, and tapping Google
-reaches the Google email screen directly. A follow-up repair disabled built-in
-email registration/login because it did not verify mailbox ownership before
-issuing tokens; its App button is now gray and non-clickable. The owner must
-still complete the Google screen before native token issuance, refresh rotation,
-and logout can be accepted.
+The formal Xiaoxin App reaches the Google email screen directly. A follow-up
+repair disabled built-in email registration/login because it did not verify
+mailbox ownership before issuing tokens; its App button is now gray and
+non-clickable. The owner later completed the Google screen, received a Xiaoxin
+session, and confirmed
+direct entry after relaunch. Account/data continuity, forced refresh rotation,
+remote logout, and re-login remain unaccepted.
 
 ## Durable Product Decisions
 
@@ -133,34 +138,52 @@ and logout can be accepted.
   rollback, and built-in email plus paid SMS OTP are disabled.
 - Google migration: native SDK is the target, with the current Authentik path
   retained temporarily as rollback/fallback.
-- Account continuity: merge by verified email; do not create a second account
-  for an existing verified identity.
-- HealthKit: read-only, owner-controlled, local aggregation; raw sensitive
-  health records do not become chat content.
+- Account continuity: verified external identities may preserve continuity by
+  verified email. Password-only credentials do not prove mailbox ownership and
+  are never auto-merged by matching email.
+- HealthKit: read-only, owner-controlled, and limited to steps, active energy,
+  heart rate, sleep, and workouts; raw sensitive health records do not become
+  chat content.
 - Local chat history: inspectable, deletable, and exportable by the owner.
 - Memory: ordinary `/v1/chat` automatic extraction remains disabled; the
   committed memory path is still the explicit candidate/review/promotion seam
   described in `memory-layer-current-status-20260711.md`.
-- StackChan: the iOS-to-device path is still not end-to-end despite separate
-  standalone hardware evidence.
+- StackChan: the iOS-to-device path is still not end to end despite separate
+  standalone hardware evidence. The selected first slice is v0.1 LCD
+  `happy -> ack -> neutral -> ack` only.
 
-## Convergence Debt
+## Convergence Closeout
 
-The principal project risk is now source-of-truth divergence:
+The prior source-of-truth divergence is closed:
 
-1. `934cec1` is the clean, tested memory baseline.
-2. The product UI, HealthKit, cloud server, auth, icon, and native Google work
-   live in one large dirty worktree based on the older `3019a8c` commit.
-3. Some code derived from that worktree has been deployed, but the product repo
-   does not yet contain a corresponding committed revision.
-4. The native Google deployment is represented only in the dirty worktree and
-   dated NAS backup/image evidence; real-account acceptance is still pending.
+1. `e883a91` excludes local build, QA, GitNexus, and evidence artifacts.
+2. `b9a5d7b` commits the Cloud auth/storage API and deployment template.
+3. `e15e553` commits the iOS product, identity, five-type HealthKit adapter, and
+   multi-account logout-revocation recovery.
+4. The three commits were cherry-picked onto memory baseline `934cec1`, then
+   fast-forwarded and pushed as `codex/initial-private-publish` at `e15e553`.
 
-The three tasks are now idle. Closeout should be a separate L1 convergence pass:
-review secrets and generated artifacts, split the work into bounded commits,
-rerun Python/Swift/Xcode verification, then rebase or merge onto `934cec1`.
-Any deployment or live configuration follow-up remains L3 and needs fresh
-task-specific authorization.
+Final convergence verification passed `1041` Python tests, Cloud Ruff, lock and
+Compose checks, all `44/44` Swift smoke products, Core typecheck, App target
+build, plist/entitlement lint, sensitive-artifact scans, and an iPhone 17 Pro
+Simulator Host build. Full-repo Ruff still reports the same 22 pre-existing
+findings as `934cec1`; the closeout introduced no new Ruff finding.
+
+## StackChan E2E Preflight
+
+The static L2 preflight is complete. It selected the already field-evidenced
+v0.1 LCD expression path for the first future App-driven slice:
+
+```text
+happy -> correlated ack -> neutral -> correlated ack
+```
+
+`neutral` is the mandatory safety terminal state. The App-facing Bridge client,
+pairing credential, enqueue/result adapter, completion correlation, Bridge
+changes, and field execution do not yet exist. Those actions are L3 and require
+fresh exact `进入修复阶段`; the slice must not expand to audio, motion, camera,
+touch, memory, health data, background polling, or firmware changes. See [the
+preflight report](app-bridge-stackchan-e2e-preflight-20260713.md).
 
 ## References
 
@@ -168,3 +191,4 @@ task-specific authorization.
 - [Architecture TODO](../ARCHITECTURE_TODO.md)
 - [Deployment ledger](../DEPLOYMENT_LEDGER.md)
 - [Memory-layer current status](memory-layer-current-status-20260711.md)
+- [App-Bridge-StackChan E2E preflight](app-bridge-stackchan-e2e-preflight-20260713.md)

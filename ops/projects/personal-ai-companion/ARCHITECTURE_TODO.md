@@ -16,20 +16,24 @@ this section, the project README, or the new status report.
 
 ### 2026-07-13 Mainline Snapshot
 
-- Clean committed baseline: `codex/initial-private-publish` at `934cec1`, with
-  the verified memory review/promotion seam and no local changes.
-- Uncommitted product source: dirty `codex/pac-ios-product-polish` worktree
-  based at `3019a8c`. It contains the Xiaoxin UI, chat history, device-cover,
-  HealthKit, cloud-auth, icon, and native Google work. All three source tasks
-  are idle; the worktree now needs a separate bounded closeout review.
+- Clean committed baseline: `codex/initial-private-publish` is pushed at
+  `e15e553`. It retains the verified memory review/promotion seam through
+  `934cec1` and adds bounded repository-hygiene (`e883a91`), cloud
+  (`b9a5d7b`), and iOS (`e15e553`) commits.
+- Product closeout: `codex/pac-ios-product-polish` is clean at `12663dd` and is
+  retained as a source rollback anchor. The converged branch was created from
+  `934cec1`, passed final verification, and fast-forwarded into the canonical
+  branch without a merge commit.
 - Last recorded live baseline: the 2026-07-13 repair deployed native Google as
   `xiaoxin-cloud-api:20260713T0137-native-google`, retained Authentik fallback,
   and then disabled unverified built-in email registration/login. Health,
   storage, database, tunnel, capability, disabled-route, and Simulator-button
   checks have rollback anchors in `DEPLOYMENT_LEDGER.md`.
-- Remaining acceptance: an owner-driven native Google exchange, account
-  continuity, refresh rotation, and logout are not yet verified. This is a
-  manual acceptance gap, not an active implementation task.
+- Remaining authentication acceptance: the owner completed a real native
+  Google exchange and confirmed direct App entry after relaunch. Account/data
+  continuity, a forced expired-token refresh, remote logout, and re-login are
+  not yet verified. This is a manual acceptance gap, not an active
+  implementation task.
 
 ### Current Corrections
 
@@ -47,18 +51,17 @@ this section, the project README, or the new status report.
   is field-confirmed through a manual Bridge/device path, not through these
   preview pages or the iOS App.
 - iOS product/UI: the three-task line superseded the earlier mock-visual queue.
-  The dirty worktree has Xiaoxin branding/icon, local chat-history controls,
-  device-cover persistence and metadata removal, identity UI, and repeated
-  iPhone 16 Pro Max Simulator/build/smoke/visual evidence. This is local source
-  evidence only and remains uncommitted; real-device signing, App Store release,
-  and App-to-StackChan end-to-end behavior are not accepted.
-- HealthKit: the dirty worktree now has a real read-only provider, host
-  entitlement/privacy declarations, 15 UI categories, and a one-action Apple
-  authorization sequence. Recorded iOS 26.5 Simulator discovery was 215
-  standard plus 3 per-object types, while chat receives only five bounded local
-  summary families. No real health data was accepted here, no real-device or
-  regional Health Records result exists, and the broad request surface needs a
-  minimum-permission/App Store review before release.
+  The committed branch at `e15e553` has Xiaoxin branding/icon, user-scoped
+  chat-history and device-cover storage, identity UI, native Google with
+  Authentik rollback, and a multi-account logout-revocation retry queue. Final
+  convergence passed `1041` Python tests, all `44/44` Swift smoke products,
+  Core/App builds, and an iPhone 17 Pro Simulator Host build. Real-device
+  signing, App Store release, and App-to-StackChan E2E are not accepted.
+- HealthKit: the committed host requests read-only access only for steps,
+  active energy, heart rate, sleep, and workouts. Chat receives those same five
+  bounded local summary families. Health Records entitlement and clinical
+  purpose text were removed. No real health data, signed-device result, or
+  distribution evidence was accepted.
 - Xiaoxin cloud/auth: the current recorded image is
   `xiaoxin-cloud-api:20260713T0137-native-google`. Native Google is preferred,
   Authentik PKCE remains available as fallback, and SMS OTP remains disabled.
@@ -70,19 +73,21 @@ this section, the project README, or the new status report.
   enforces one-time nonce/replay protection, JWKS rotation refresh, signature,
   `aud`, `azp`, `iss`, time, and verified-email checks. Deployment verification
   passed 57 cloud tests, Ruff, Swift smoke, Simulator build, public capability
-  probes, and direct navigation to `accounts.google.com`. A real native token
-  exchange, refresh, and logout remain pending owner input.
-- Memory/privacy: product branch `codex/initial-private-publish` was locally
-  fast-forwarded from `121334c` to current checkout `934cec1`. The checkout is
+  probes, and direct navigation to `accounts.google.com`. The owner later
+  completed a real native exchange and confirmed direct entry after relaunch;
+  account continuity, forced refresh, logout, and re-login remain pending.
+- Memory/privacy: product branch `codex/initial-private-publish` is pushed at
+  `e15e553` and retains the memory implementation through `934cec1`. The
+  checkout is
   **local MVP core verified**, not design-only. The chat-integrated path covers
   bounded context, candidate review/promotion, scoped recall, privacy
   projection, owner admin, consent and class policy; vault/key and retention
   components remain isolated safety primitives or synthetic contracts.
-  Post-merge verification passed `983` full Python tests, built the Swift App
-  target, and passed AppFlow smoke. No real/private database or data path was
-  inspected. See
+  Combined convergence verification passed `1041` full Python tests, built the
+  Swift App target, and passed AppFlow smoke. No real/private database or data
+  path was inspected. See
   [memory-layer-current-status-20260711.md](reports/memory-layer-current-status-20260711.md).
-- Memory integration boundary: current checkout `934cec1` includes the
+- Memory integration boundary: current checkout `e15e553` includes the
   synthetic Approved Persona Memory Summary and App/bridge contracts from
   `3019a8c`, plus the explicit synthetic review-turn seam and privacy/state
   repairs through `4a3a7df` and `32b9d96`. The bounded seam applies NFKC before
@@ -92,11 +97,10 @@ this section, the project README, or the new status report.
   silently promotes, withholds raw sensitive health detail, flags canonical
   duplicates/conflicts, and enforces one-way candidate-to-promoted/rejected
   transitions with atom/review/audit transaction alignment. Focused branch
-  evidence is `24` seam and `447` related memory/privacy/API tests. The
-  fast-forward is local, not pushed, and not live integration. Ordinary
+  evidence is `24` seam and `447` related memory/privacy/API tests. The branch
+  is pushed, but this is not live memory integration. Ordinary
   `/v1/chat` extraction stays disabled; the rule set is bounded rather than a
-  broad natural-language classifier. The dirty iOS product-polish worktree
-  remains uncommitted and excluded from current product status. None of these
+  broad natural-language classifier. None of these
   lines authorizes raw private-data access, real data migration, retention
   execution, or persona imitation from unapproved private material.
 - Visual likeness: the owner has attested consent for a future visual-likeness
@@ -140,13 +144,13 @@ this section, the project README, or the new status report.
 | Order | Task ID | Type | Dependency / manual gate | Owned surface |
 | --- | --- | --- | --- | --- |
 | 0 | `PAC-DOCS-SYNC` | L1 | Required before every implementation wave. | The assigned ops docs only. |
-| 1 | `PAC-MEMORY-LOCAL-INGEST-SEAM` (`completed`, current checkout) | L1 | Clean product commit `934cec1`; synthetic fixtures and temporary SQLite only. | Committed memory candidate/review/privacy state machine; no ordinary-chat extraction or real data. |
+| 1 | `PAC-MEMORY-LOCAL-INGEST-SEAM` (`completed`, current checkout) | L1 | Memory slice anchored at `934cec1` and retained in current `e15e553`; synthetic fixtures and temporary SQLite only. | Committed memory candidate/review/privacy state machine; no ordinary-chat extraction or real data. |
 | 2 | `PAC-NATIVE-GOOGLE-DIRECT` (`completed deployment`) | L3 historical | Task `019f53e3-4888-7dd1-9dbe-7e7e69354cc6` is complete; its authorization is consumed. | Native Google deployed with Authentik fallback; built-in email and SMS disabled. |
-| 3 | `PAC-NATIVE-GOOGLE-OWNER-ACCEPTANCE` | Manual/L2 | Owner completes the Google screen; subsequent checks remain read-only unless a defect requires a new repair gate. | Verify native exchange, account continuity, refresh rotation, and logout. |
-| 4 | `PAC-PRODUCT-POLISH-CLOSEOUT` | L1 | All source tasks are idle. Review sensitive/generated artifacts first. | Split and checkpoint the dirty iOS/UI/HealthKit/cloud source into bounded commits, then converge onto `934cec1`. |
-| 5 | `PAC-HEALTHKIT-RELEASE-SCOPE` | L1/L2 | Requires order 4 and an explicit product decision on minimum read scope; real-data testing remains separately gated. | Local scope reduction, privacy text, signed-build preflight, and App Store risk review only. |
-| 6 | `PAC-IOS-STACKCHAN-E2E-PREFLIGHT` | L2 | Requires a clean converged product baseline. | Read-only protocol/credential/signing/rollback design; no device action. |
-| 7 | `PAC-IOS-STACKCHAN-SCREEN-E2E` | L3 | Completed preflight plus fresh named authorization and rollback packet. | One App-to-LCD path only; no automatic expansion to other hardware. |
+| 3 | `PAC-NATIVE-GOOGLE-OWNER-ACCEPTANCE` (`partially completed`) | Manual/L2 | Native exchange and direct App entry after relaunch are owner-confirmed; subsequent checks remain read-only unless a defect requires a new repair gate. | Account/data continuity, forced refresh, remote logout, and re-login remain unconfirmed. |
+| 4 | `PAC-PRODUCT-POLISH-CLOSEOUT` (`completed`) | L1 | Converged and pushed at `e15e553`; source rollback branch retained at `12663dd`. | Repository hygiene, Cloud, and iOS slices are independently committed and verified. |
+| 5 | `PAC-HEALTHKIT-RELEASE-SCOPE` (`partially completed`) | L1/L2 | Minimum read scope is now five types and clinical/Health Records declarations are removed; real-data and distribution testing remain separately gated. | Signed-device preflight and App Store/privacy review remain; no real health-data access is authorized. |
+| 6 | `PAC-IOS-STACKCHAN-E2E-PREFLIGHT` (`completed`) | L2 | Static review completed without live access; clean convergence is now an execution prerequisite for order 7, not a prerequisite for this completed design review. | Selected v0.1 LCD `happy -> ack -> neutral -> ack`; no device action. See [the preflight report](reports/app-bridge-stackchan-e2e-preflight-20260713.md). |
+| 7 | `PAC-IOS-STACKCHAN-SCREEN-E2E` | L3 | Completed preflight, clean `e15e553` baseline, fresh exact `进入修复阶段`, and rollback packet. | One v0.1 App-to-LCD `happy -> neutral` path only; no automatic expansion to audio, motion, camera, or touch. |
 
 The detailed classification, dependencies, manual gates, and stop conditions are
 normative in the runbook; this table is intentionally not a concurrency plan.
@@ -6655,7 +6659,7 @@ item directly from this log.
 
 - Add streaming audio, multipart upload ergonomics, and StackChan device registration.
 - Add Memory Admin UI/API.
-- Review and narrow the uncommitted HealthKit read scope for release; add
+- Complete signed-device/App Store review for the committed five-type HealthKit scope; add
   EventKit/AlarmKit/App Intents only as separately gated capabilities.
 - Add NAS memory/vector persistence plan.
 - Add chat-log import and consented style profile pipeline.

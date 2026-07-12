@@ -1,8 +1,10 @@
 # StackChan Wire Contract v0.2 Offline Acceptance Runbook
 
-Status: offline contract acceptance only. This runbook neither starts nor
+Status: offline DTO and local lifecycle-source acceptance only. Local v0.2
+handler routes now exist in product source, but this runbook neither starts nor
 contacts a bridge, LAN endpoint, StackChan device, firmware, database,
-Keychain, token, or environment file.
+Keychain, token, or environment file and does not claim those routes are
+deployed.
 
 ## Purpose And Scope
 
@@ -10,10 +12,12 @@ Keychain, token, or environment file.
 producer and StackChan client. It is a successor contract, not evidence that
 the deployed `stackchan.command.v0.1` bridge path transports v0.2 payloads.
 
-This runbook accepts only local schema compatibility between the canonical
-fixture and the Python and Swift DTO implementations. It does not authorize
-route registration, queue writes, HTTP requests, socket use, iOS transport
-enablement, device control, camera capture, media transfer, or field testing.
+This runbook accepts local schema compatibility between the canonical fixture
+and the Python and Swift DTO implementations. Separate local source and tests
+also cover an in-memory v0.2 enqueue/poll/ack/result lifecycle in
+`scripts/stackchan_bridge.py`. That source fact does not authorize deploying or
+starting it, writing a queue, making an HTTP request, enabling iOS transport,
+controlling a device, transferring media, or field testing.
 
 ## Evidence Sources
 
@@ -26,6 +30,8 @@ enablement, device control, camera capture, media transfer, or field testing.
 | Swift DTO | `projects/products/personal-ai-companion/ios/PersonalAICompanion/Sources/PersonalAICompanionCore/Models/StackChanWireContract.swift` | Strict Codable DTO validation and canonical JSON implementation. |
 | Swift smoke | `projects/products/personal-ai-companion/ios/PersonalAICompanion/Sources/PersonalAICompanionWireContractSmoke/main.swift` | Reads the same fixture, compares command/result canonical JSON, and requires invalid payloads to fail. |
 | Swift package entry | `projects/products/personal-ai-companion/ios/PersonalAICompanion/Package.swift` | Registers only the local `PersonalAICompanionWireContractSmoke` executable target. |
+| Local lifecycle source | `projects/products/personal-ai-companion/scripts/stackchan_bridge.py` | Defines authenticated v0.2 capability, enqueue, poll, ack, result-record, and result-read handlers backed by local memory. No accepted deployment or device client is implied. |
+| Local lifecycle tests | `projects/products/personal-ai-companion/tests/test_stackchan_v02_bridge_lifecycle.py` | Exercises route authentication, correlation, capacity, poll/ack/result ordering, and protocol separation in process. It does not test a live listener or device. |
 
 ## Contract Coverage
 
@@ -59,11 +65,11 @@ and a timestamp outside the JSON safe-integer range.
 | --- | --- | --- |
 | `defined` | Schema, constraints, and fixture are present in source. | Confirmed for the fixture plus Python and Swift DTOs. |
 | `mock` | A local preview/test double exercises intent without a transport or device. | No v0.2 transport mock is accepted here. The Swift command-preview types are not proof of v0.2 transport. |
-| `offline-tested` | The exact local commands below exit successfully against the unmodified golden fixture. | Pending when this runbook is created; this documentation task does not run product tests. |
-| `wired` | A concrete production path serializes, sends, receives, and consumes v0.2 DTOs. | Not evidenced. No v0.2 bridge route, queue, socket, or iOS transport is claimed. |
+| `offline-tested` | The exact local DTO and lifecycle tests exit successfully against synthetic fixtures and in-process handlers. | Confirmed locally; no live listener or device is contacted. |
+| `wired` | A concrete production path serializes, sends, receives, and consumes v0.2 DTOs. | Not evidenced. Handler routes exist in source, but no accepted deployment, v0.2 device client, iOS transport, or field path is claimed. |
 | `field-confirmed` | A real device executes the wired path and records bounded, reviewable evidence. | Not evidenced. No LAN or device operation is part of this runbook. |
 
-`defined` and a future `offline-tested` result do not imply `wired` or
+`defined` and the confirmed `offline-tested` result do not imply `wired` or
 `field-confirmed`. In particular, the existing v0.1 bridge/device evidence is
 not transferable to v0.2 without a separately approved integration change and
 fresh field evidence.
@@ -84,7 +90,9 @@ Run the Python assertion suite from the product root:
 
 ```bash
 cd /Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/personal-ai-companion
-.venv/bin/python -m pytest -q tests/test_stackchan_wire_contract.py
+.venv/bin/python -m pytest -q \
+  tests/test_stackchan_wire_contract.py \
+  tests/test_stackchan_v02_bridge_lifecycle.py
 ```
 
 Run the Swift fixture smoke from the Swift package root:
@@ -94,9 +102,10 @@ cd /Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/perso
 swift run PersonalAICompanionWireContractSmoke
 ```
 
-These commands are local schema tests only. They are intentionally listed for
-the next offline acceptance execution and were not run while creating this
-runbook.
+These commands are local schema tests only. They were rerun on 2026-07-13: the
+Python wire/lifecycle set passed `13` tests and
+`PersonalAICompanionWireContractSmoke` exited zero with
+`StackChan wire v0.2 smoke passed`. This confirms only `offline-tested` status.
 
 ## Pass And Failure Rules
 
@@ -135,7 +144,7 @@ device integration.
 ## Next-Stage Repair Gate
 
 The following are outside offline acceptance and require the user to explicitly
-say `进入修复阶段` before any execution: registering v0.2 bridge routes,
+say `进入修复阶段` before any execution: deploying or enabling v0.2 bridge routes,
 serializing v0.2 DTOs into a queue, enabling iOS/LAN transport, changing
 authentication or endpoint configuration, writing device/firmware files,
 starting or restarting a service, performing camera/media transfer, or sending

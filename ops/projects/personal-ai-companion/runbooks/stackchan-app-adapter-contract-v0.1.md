@@ -71,6 +71,36 @@ correlated later but must never be treated as the same evidence. The App
 contract's ingress TTL is also a separate record from any selected device queue
 TTL until a future mapping explicitly defines their relationship.
 
+## Selected First Field Slice
+
+The 2026-07-13 L2 preflight selected the existing
+`stackchan.command.v0.1` LCD expression path for the first future E2E. This is a
+version selection and mapping decision only; no implementation or execution is
+authorized. See
+[`app-bridge-stackchan-e2e-preflight-20260713.md`](../reports/app-bridge-stackchan-e2e-preflight-20260713.md).
+
+The bounded mapping is:
+
+- iOS `.expression(.happy)` becomes v0.1 `type=expression`, `body.name=happy`,
+  `body.duration_ms=1500`, `delivery.mode=display`, and `requires_ack=true`.
+- App `command_id`, App `idempotency_key`, Bridge `bridge_request_id`, and
+  device v0.1 `command_id` remain distinct and are linked by one adapter record.
+- App acceptance is only `queued`; only the matching device id and device
+  command id in a valid v0.1 ack can create the App terminal result.
+- A bounded completion/tombstone store and App result query are mandatory,
+  because the current v0.1 queue removes an acknowledged command.
+- Ack loss does not trigger automatic device replay.
+- A second v0.1 `expression=neutral` command, correlated ack, and owner-observed
+  neutral screen are mandatory rollback/terminal evidence. The last-recorded
+  manual client source does not restore the screen from `duration_ms` by itself;
+  device-resident source must be confirmed separately before execution.
+- The slice excludes v0.2, audio, motion, camera, touch, memory, health data,
+  background polling, and firmware changes.
+
+Any code, configuration, credential pairing, Bridge request, device-client
+execution, or hardware action remains L3 and requires fresh named authorization
+with the exact phrase `进入修复阶段`.
+
 ## Common Correlation Contract
 
 The following fields form the minimum future adapter record. Existing v0.1 and
@@ -253,7 +283,7 @@ does not mean these candidate adapter requests were sent or accepted.
 
 | Capability | Direction and normalized request | Stop / rollback requirement | Idempotency and evidence requirement | Independent device / adapter-path status |
 | --- | --- | --- | --- | --- |
-| Screen | App -> Bridge -> device. Candidate v0.2 `expression` with `delivery.channel=display`, bounded name/duration. | Future control intent returns the display to `neutral`; a newer screen intent may supersede only an undelivered older one. | Same canonical intent/key deduplicates. Record producer, poll, ack, result, and observation separately. | Independent manual v0.1 path: `field-confirmed`; App-adapter path: unwired/unconfirmed. |
+| Screen | App -> Bridge -> device. Selected first slice is v0.1 `expression` with bounded name and duration; v0.2 remains a later protocol candidate. | Future control intent returns the display to `neutral`; a newer screen intent may supersede only an undelivered older one. | Same canonical intent/key deduplicates. Record producer, poll, ack, result, and observation separately. | Independent manual v0.1 path: `field-confirmed`; App-adapter path: unwired/unconfirmed. |
 | Audio | App -> Bridge -> device. Candidate v0.2 `speak` with `delivery.channel=speaker`; public-safe privacy, text, language, interrupt, and capped volume are schema constraints. | Future scoped audio stop/mute must halt the active utterance and report whether it was applied. Partial playback is not reversible. | At-most-once after delivery begins; never replay on lost ack. Audio evidence must not expose spoken private text. | Independent bounded v0.1 playback: `field-confirmed`; App-adapter path and general volume policy: unwired/unconfirmed. |
 | Motion | App -> Bridge -> device. Candidate v0.2 `motion` with high-level action, bounded repeat, and watchdog idle; raw PWM is not valid v0.2 input. | Future stop must halt active motion and then request a pre-calibrated neutral pose. | At-most-once after delivery begins; never replay on lost ack. Evidence requires safety interlock state and a matching result before an adapter claim. | Direct official-driver X/Y checks: `field-confirmed`; v0.1/v0.2/App-adapter motion: unwired/unconfirmed. |
 | Touch | Device -> Bridge -> app. Candidate v0.1 `touch`/`button` event with region, gesture, event ID, device ID, and timestamp. There is no v0.2 touch command. | No physical stop command. The app may cancel or ignore its local reaction; touch must not trigger uncontrolled command fan-out. | Deduplicate by `event_id` in bounded retention; distinct event IDs remain distinct even if gesture text matches. | Direct sensor sampling: `field-confirmed`; device-event/Bridge/App path: unwired/unconfirmed. |

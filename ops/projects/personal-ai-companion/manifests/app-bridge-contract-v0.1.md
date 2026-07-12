@@ -1,6 +1,7 @@
 # App-to-Bridge Contract v0.1
 
-Status: defined, mock-only, and documentation-only.
+Status: defined and locally implemented in Python as an offline mock. Swift is
+still a typed mock seam; no live transport or App-to-device adapter exists.
 
 Protocol version: `pac.app_bridge.v0.1`.
 
@@ -26,14 +27,17 @@ the user explicitly says `进入修复阶段`; this document is not that approva
 | App to Bridge | `pac.app_bridge.v0.1` | This document. It normalizes iOS intent and mock results. |
 | Bridge to StackChan device | `stackchan.command.v0.1` | Separate historical command/event protocol. Its device acknowledgement is not this contract's app acknowledgement. |
 | Offline DTO acceptance | `stackchan.wire.v0.2` | Separate strict DTO/canonical-JSON contract. It is not an iOS or LAN transport. |
-| Current iOS seam | `LANBridgeClient`, `MockLANBridgeClient`, `AppBridgeClientFactory` | Source mapping only. Current calls remain `send -> request_id -> pollResult`. |
+| Current iOS seam | `LANBridgeClient`, `MockLANBridgeClient`, `AppBridgeClientFactory` | Current calls remain Swift-local `send -> request_id -> pollResult`; they do not invoke the Python dispatcher. |
+| Current Python contract | `src/personal_ai_companion/app_bridge/contract.py`, `mock.py` | Immutable DTO validation and deterministic `OfflineMockDispatcher`; no route or device dependency. |
+| Current fixtures/tests | `fixtures/app-bridge/v0.1/`, `tests/test_app_bridge_contract.py` | Fixed canonical fixtures cover ack/result, timeout, expiry, dedupe/conflict, fallback, and live-transport rejection. |
 
 No field in this document proves interoperability with either StackChan
 contract. A future adapter must be separately specified and gated.
 
 ## Non-Negotiable Invariants
 
-1. `MockLANBridgeClient` remains the v0.1 default and only dispatcher.
+1. `MockLANBridgeClient` remains the iOS default and only iOS dispatcher. The
+   separate Python `OfflineMockDispatcher` is local-only and has no route.
 2. Every current `AppIntegrationModeID` resolves to `offline_mock` execution.
 3. `live_candidate` is an integration-readiness label, not permission to use a
    local network transport.
@@ -60,10 +64,10 @@ The following IDs are deliberately distinct.
 | `result_id` | Not defined by this contract | A future bridge/device result identifier, if needed. | Do not substitute `BridgeRequestID` or the v0.2 `result_id`. |
 
 `command_id`, `idempotency_key`, and `bridge_request_id` MUST NOT be copied
-into one another or treated as aliases. The current mock creates a
-`bridge_request_id`; it does not yet provide idempotency, TTL, capability, or
-app-ack behavior. Those behaviors are v0.1 mock semantics to be added only in
-a future local implementation slice.
+into one another or treated as aliases. The Python offline implementation now
+enforces the v0.1 idempotency, TTL, capability, app-ack, result, and identity
+tombstone rules. The Swift mock still exposes its earlier typed request-id/poll
+shape and is not yet a cross-language implementation of this envelope.
 
 Time is represented as integer UTC epoch milliseconds. `ttl_ms` is canonical;
 `expires_at_ms` MUST equal `created_at_ms + ttl_ms`. The accepted range is
@@ -383,31 +387,29 @@ This is a design mapping only. It does not require or authorize a Swift edit.
 The existing explicit `LANBridgeClient` injection seam remains test/future-gated
 only. It is not an exception to the v0.1 mock-only rule.
 
-## Python Mapping Recommendation
+## Current Python Mapping
 
-This is a design mapping only. It does not require or authorize a Python edit.
+The local product source implements the previously recommended Python slice:
 
-1. Define immutable command, acknowledgement, result, and error DTOs for
-   `pac.app_bridge.v0.1` in a separate local module from the existing
-   StackChan device protocol.
-2. Validate protocol version, canonical UUIDs, TTL arithmetic, capability,
-   integration mode, execution mode, and immutable idempotency fingerprints
-   before dispatch.
-3. Use a deterministic in-memory mock dispatcher that returns the documented
-   acknowledgement and terminal envelope. It may model a fixture timeout, but
-   it must not open a route, queue, socket, endpoint, or device connection.
-4. Keep an in-memory dedupe map through TTL only. Store safe envelope state,
-   not raw errors, credentials, user data, or media.
-5. Do not adapt to `stackchan.command.v0.1` or `stackchan.wire.v0.2` in this
-   version. A future L3 bridge adapter would need its own ID mapping, privacy
-   review, mock fallback evidence, and rollback plan.
+1. `contract.py` defines immutable command, acknowledgement, result, error, and
+   public-error shapes separately from the StackChan device protocols.
+2. Validation covers protocol version, exact fields, canonical UUIDs, TTL
+   arithmetic, capabilities, modes, and immutable idempotency fingerprints.
+3. `OfflineMockDispatcher` returns deterministic acknowledgement and terminal
+   envelopes without opening a route, queue, socket, endpoint, or device path.
+4. In-memory idempotency replay records expire by TTL. Separate command-identity
+   tombstones prevent unsafe ID reuse for the lifetime of the dispatcher; they
+   are not currently TTL-pruned. Retained state excludes credentials, user data,
+   and media.
+5. The implementation deliberately does not adapt to
+   `stackchan.command.v0.1` or `stackchan.wire.v0.2`. That remains a future L3
+   bridge slice with separate ID mapping, privacy review, and rollback.
 
-## Mock Fixture Plan
+## Mock Fixture Corpus
 
-The proposed fixture corpus is a future local-only test asset, not a task to
-create now. A suitable path is
-`fixtures/app-bridge/v0.1/`, consumed verbatim by Swift and Python contract
-tests.
+The fixed local-only fixture corpus now exists at
+`fixtures/app-bridge/v0.1/` and is consumed by the Python contract tests. Swift
+does not yet consume this exact App-bridge corpus.
 
 | Fixture | Expected assertion |
 | --- | --- |
@@ -455,7 +457,7 @@ user, health, media, or device data.
 
 - [x] Documents `command_id`, capability, modes, TTL, idempotency, ack/result/error, timeout, fallback, and user-visible errors.
 - [x] Keeps App-to-Bridge, Bridge-to-device, and offline DTO contracts distinct.
-- [x] Defines deterministic mock fixture coverage without creating fixtures or code.
-- [x] Maps the contract to current Swift and recommends a separate Python adapter shape.
+- [x] Implements deterministic Python DTO, mock dispatcher, fixtures, and local tests.
+- [x] Maps the contract to the current Swift seam without claiming Swift/Python parity.
 - [x] States that v0.1 permits mock only and that all live transport remains behind a future explicit L3 gate.
 - [x] Contains no endpoint, credential, real data, network command, device action, or deployment instruction.
