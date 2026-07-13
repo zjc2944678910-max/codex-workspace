@@ -3,6 +3,12 @@
 ## Current Recorded Baseline
 
 - Latest completed automated live verification in this ledger: 2026-07-13.
+- The bounded App-to-StackChan LCD v0.1 field sequence is complete: the owner
+  observed `happy` after its correlated acknowledgement, then observed
+  safety-terminal `neutral` after its separate correlated acknowledgement.
+  Final Bridge queue depth was `0`. Durable source is pushed at product commit
+  `1439dee`; this is not evidence for repeated reliability or any non-LCD
+  capability.
 - Latest verified Xiaoxin API image:
   `xiaoxin-cloud-api:20260713T0137-native-google`.
 - `xiaoxin-cloud-api:20260712T2352-google-state` remains the immediate API
@@ -18,6 +24,54 @@
 - Built-in email registration and password login are currently disabled because
   the initial flow did not verify mailbox ownership before issuing tokens. The
   retained email account and its data were not deleted.
+
+## 2026-07-13: StackChan LCD Bridge Replacement And Bounded E2E Acceptance
+
+Task level: `L3 repair execution`, followed by `L1 engineering closeout`.
+Authorization: the owner explicitly entered repair mode for the bounded live
+slice. The later closeout reused existing evidence and made no Bridge, device,
+LAN-service, credential, or deployment request.
+
+### Live Change And Field-Confirmed Result
+
+- Replaced the stale private Bridge listener only after confirming the existing
+  v0.1 queue was empty. The replacement retained the existing private listener,
+  owner-only boundary, allowlist, token-file reference, and queue configuration.
+- Verified the replacement listener reported `stackchan.command.v0.1`, exposed
+  the authenticated LCD command/result routes, and initially had queue depth
+  `0`.
+- The owner then completed exactly one App-driven `happy` transaction and
+  confirmed its correlated ACK and visible screen change.
+- The owner completed exactly one App-driven `neutral` transaction and
+  confirmed its separate correlated ACK and visible screen change.
+- The final safety state was `neutral`; final Bridge queue depth was `0`.
+
+### Durable Source And Local Verification
+
+- Product commit `1439dee` on `codex/initial-private-publish` contains the
+  bounded App client and injection seam, Keychain credential provider,
+  fail-closed Host configuration, authenticated `/app/v0.1/lcd/commands` and
+  `/app/v0.1/lcd/results/{bridge_request_id}` routes, ACK correlation,
+  idempotency/TTL handling, Simulator-only UI test target, and focused tests.
+- Independent clean-index closeout passed `36` focused E2E/Bridge tests and
+  `1079` full Python tests, targeted Ruff, Python compileall, App target build,
+  four Swift smoke products, and Simulator `build-for-testing` for
+  `StackChanLCDE2EUI`.
+- The pre-change Bridge source remains as a SHA-256-verified local rollback
+  anchor in excluded product-worktree rollback material. It is not product
+  source and was not committed during closeout.
+
+### Boundary And Residual Risk
+
+- The real v0.1 live allowlist remains exactly `happy` and `neutral`.
+- The 12 App expression families and their four-frame animations are local
+  preview assets only; they were not sent to the device as a 12-state protocol.
+- This acceptance does not cover audio, motion, camera, touch, memory,
+  HealthKit, automatic/background polling, firmware, other hardware, repeated
+  reliability, unattended operation, real-device signing, App Store release,
+  or broader production deployment.
+- Any repeat live command, Bridge replacement, reliability run, or capability
+  expansion is a new task and requires a fresh risk gate and rollback review.
 
 ## 2026-07-13: Native Google Sign-In Dual-Track Deployment
 

@@ -31,11 +31,12 @@ node docs/workspace/codex-register-project.mjs --regen
 ## Ops Quality Baseline
 
 - Current status: Mixed local/live product. The remote canonical product branch
-  `codex/initial-private-publish` is pushed at `199638a`. It retains the Xiaoxin
-  iOS, five-type HealthKit, cloud-auth, branding, and owner-scoped storage work
-  from the `e15e553` convergence, then adds the synthetic-verified memory quality
-  and runtime-metadata phases. The local canonical checkout retains unrelated
-  uncommitted StackChan E2E work and was not modified by the memory fast-forward.
+  `codex/initial-private-publish` is pushed at `1439dee`. It retains the Xiaoxin
+  iOS, five-type HealthKit, cloud-auth, branding, owner-scoped storage, and
+  synthetic-verified memory phases, then adds the bounded v0.1 StackChan LCD
+  E2E source and tests. The owner field-confirmed one `happy` transaction and
+  one safety-terminal `neutral` transaction with separate correlated
+  acknowledgements; the final Bridge queue depth was `0`.
   The owner completed a real native Google exchange and confirmed direct App
   entry after relaunch. Dated deployment evidence is not proof of current live
   health.
@@ -45,10 +46,11 @@ node docs/workspace/codex-register-project.mjs --regen
   - `node docs/workspace/workspace-health.mjs --repo "$PWD" --limit 12`
   - Project-specific commands belong in `## Key Commands` or project runbooks once confirmed.
 - Next useful work: Independently verify account continuity, forced token
-  refresh, remote logout, and re-login. The static App-to-StackChan preflight is
-  complete; implementing or executing its v0.1 LCD `happy -> neutral` slice is
-  L3 and still requires fresh exact authorization. Keep every live change and
-  rollback anchor in `DEPLOYMENT_LEDGER.md`.
+  refresh, remote logout, and re-login. The bounded App-to-StackChan v0.1 LCD
+  slice is accepted and closed; any repeat field execution, reliability run,
+  live allowlist expansion, or additional hardware capability is a new task
+  with a fresh risk gate. Keep every live change and rollback anchor in
+  `DEPLOYMENT_LEDGER.md`.
 - Model review guidance: Use Sub2API/Claude review for architecture, code review, writing, research, or UX polish when the task is non-tiny. For live surfaces, provide only bounded, redacted, read-only evidence. Use [model-review-packets.md](../../../docs/workspace/model-review-packets.md) for packet shape.
 
 ## Current Program Control State (2026-07-13)
@@ -62,11 +64,11 @@ runbook](runbooks/continuous-program-authorization-and-task-lifecycle.md).
 | Surface | Confirmed current fact | Not confirmed / not authorized |
 | --- | --- | --- |
 | StackChan hardware | Bounded standalone checks are `field-confirmed` for the LCD expression path, audible playback, X/Y servo movement and return, active three-zone head-touch transitions, and one local low-resolution camera frame. The completed session ended with queue depth `0`, servos powered off, camera off, audio muted, and serial closed. See [the field-verification report](reports/stackchan-hardware-field-verification-20260711.md). | Whether a visible camera activity indicator activated was not verified. Repeated/unattended reliability, a full motion envelope, continuous boot polling, and any repeat execution remain unconfirmed and unauthorized. |
-| StackChan App integration | The authenticated Bridge and bounded device-side/manual paths have real evidence. The 2026-07-13 static preflight selected the existing v0.1 LCD path for a future `happy -> ack -> neutral -> ack` slice. See [the preflight report](reports/app-bridge-stackchan-e2e-preflight-20260713.md). | `iOS App -> Bridge -> StackChan -> device` is not connected end to end. The App-facing adapter, credentials, result correlation, Bridge changes, and field execution remain L3 and unauthorized without fresh `进入修复阶段`. |
-| iOS product | Remote product branch `codex/initial-private-publish` is pushed at `199638a`. The iOS/cloud product content remains the accepted `e15e553` convergence: Xiaoxin branding/icon, user-scoped local chat history and device covers, the identity gate, native Google plus Authentik rollback, and the reviewed logout-revocation queue. Its recorded evidence remains all `44/44` Swift smoke products, Core typecheck, App target build, and the iPhone 17 Pro Simulator Host build; the later memory-only source fast-forward passed `1072` Python tests. See [the 2026-07-13 mainline report](reports/product-cloud-current-status-20260713.md). | Real-device signing, App Store distribution, and App-to-StackChan end-to-end behavior remain unconfirmed. Legacy unscoped chat/cover files are preserved but deliberately not auto-migrated or loaded. The local canonical checkout has separate uncommitted StackChan E2E work. |
+| StackChan App integration | On 2026-07-13 the owner observed the App-driven v0.1 sequence `happy -> correlated ACK -> neutral -> correlated ACK`; the final screen was `neutral` and Bridge queue depth was `0`. Durable source is pushed at product commit `1439dee` and contains the App client, Keychain-backed credential seam, authenticated `/app/v0.1/lcd` command/result routes, ACK correlation, TTL/idempotency handling, Host injection, and Simulator-only UI build target. See [the acceptance report](reports/app-bridge-stackchan-e2e-acceptance-20260713.md). | This accepts one bounded sequence, not repeated/unattended reliability or a production deployment expansion. The real v0.1 live allowlist remains only `happy` and `neutral`; audio, motion, camera, touch, memory, HealthKit, background polling, firmware, and other hardware remain outside this slice. |
+| iOS product | Remote product branch `codex/initial-private-publish` is pushed at `1439dee`. It retains the accepted Xiaoxin product, cloud/auth, HealthKit, memory, and 12-expression local-preview work, then integrates the bounded LCD E2E source. Independent closeout passed `1079` Python tests, App target build, four Swift smoke products, and `StackChanLCDE2EUI` Simulator `build-for-testing`. | Real-device signing and App Store distribution remain unconfirmed. The 12 expressions are App-local preview assets only; they are not a 12-expression live-device protocol. Legacy unscoped chat/cover files remain deliberately unmigrated. |
 | HealthKit | The committed iOS host requests read-only access only for steps, active energy, heart rate, sleep, and workouts. Chat receives the same five bounded local trend-summary families. Health Records entitlement and clinical-purpose claims are absent; build and `44/44` smoke evidence passed. | Apple still requires per-item owner consent; the callback cannot prove every item was granted. No real-device, signed distribution, or real health-data read was accepted here. |
 | Xiaoxin cloud/auth | The 2026-07-13 task-specific L3 repair deployed native Google nonce/ID-token exchange as image `xiaoxin-cloud-api:20260713T0137-native-google`. A follow-up L3 repair disabled built-in email registration/login because mailbox ownership was not verified before token issuance. The owner later completed a real native Google exchange and confirmed direct App entry after relaunch. Source is now committed at `b9a5d7b` and converged at `e15e553`. SMS OTP remains disabled. See [the deployment ledger](DEPLOYMENT_LEDGER.md). | Account/data continuity, a forced expired-token refresh, remote logout, and re-login were not directly verified by the owner. The retained email credential is not deleted, but new password sessions are unavailable. Signed real-device/App Store behavior remains unconfirmed. |
-| Memory/privacy | Product branch `codex/initial-private-publish` is pushed at `199638a`. It contains the earlier explicit review/promotion and privacy seam plus Phase 2 canonical recall selection and Phase 3 nullable `fact_key`/`expires_at_ms` persistence, metadata-first disclosure, expiry filtering without deletion, and expiry-independent source-event replay. Independent acceptance passed `419` memory tests and `1072` full Python tests. See [the Phase 3 acceptance report](reports/memory-runtime-metadata-phase-3-20260713.md); the older [memory-layer status](reports/memory-layer-current-status-20260711.md) is retained as a historical baseline. | This is committed product source, not live memory integration or evidence of a real-database migration. No real/private database or data path was inspected. Automatic ordinary-chat extraction, semantic/vector retrieval, broad automatic conflict resolution, vault-at-rest store wiring, authoritative retention execution, hard deletion, memory runtime auth/admin UI, and real NAS/HealthKit/cloud memory authorization remain unimplemented or unconfirmed. |
+| Memory/privacy | Product branch `codex/initial-private-publish` is pushed at `1439dee` and retains the memory lineage through `199638a`. It contains the earlier explicit review/promotion and privacy seam plus Phase 2 canonical recall selection and Phase 3 nullable `fact_key`/`expires_at_ms` persistence, metadata-first disclosure, expiry filtering without deletion, and expiry-independent source-event replay. Independent Phase 3 acceptance passed `419` memory tests and `1072` full Python tests. See [the Phase 3 acceptance report](reports/memory-runtime-metadata-phase-3-20260713.md); the older [memory-layer status](reports/memory-layer-current-status-20260711.md) is retained as a historical baseline. | This is committed product source, not live memory integration or evidence of a real-database migration. No real/private database or data path was inspected. Automatic ordinary-chat extraction, semantic/vector retrieval, broad automatic conflict resolution, vault-at-rest store wiring, authoritative retention execution, hard deletion, memory runtime auth/admin UI, and real NAS/HealthKit/cloud memory authorization remain unimplemented or unconfirmed. |
 | Style/persona | Local style mechanisms and synthetic evaluation surfaces are historical implementation evidence. The owner has attested consent for a future visual-likeness slice; no identifying material or consent text is stored here. | Voice, writing style, private chats, provider upload, real-device display, revocation handling, and private-data use remain separate gates. |
 
 The 12-hour authorization documented in the runbook expired at
@@ -101,6 +103,7 @@ for that named slice.
 - `reports/memory-runtime-metadata-phase-3-20260713.md`
 - `reports/product-cloud-current-status-20260713.md`
 - `reports/app-bridge-stackchan-e2e-preflight-20260713.md`
+- `reports/app-bridge-stackchan-e2e-acceptance-20260713.md`
 - `reports/stackchan-hardware-field-verification-20260711.md`
 - `DEPLOYMENT_LEDGER.md`
 - `ARCHITECTURE_TODO.md` when architecture backlog exists
@@ -156,9 +159,9 @@ Use the benben vNext ideas as patterns, not as a service clone:
 - `ToolGate`: require explicit owner confirmation for state-changing actions.
 
 That local-first sequence was the original build order. The memory source through
-Phase 3 is committed and pushed at canonical `199638a`, while Xiaoxin cloud/auth
-has separate dated live deployment evidence; all further live work still
-requires the current L2/L3 gates above.
+Phase 3 was accepted at `199638a` and is retained in current canonical
+`1439dee`, while Xiaoxin cloud/auth has separate dated live deployment evidence;
+all further live work still requires the current L2/L3 gates above.
 
 ## Subdirectories
 

@@ -20,10 +20,10 @@ or the project README.
 ### 2026-07-13 Mainline Snapshot
 
 - Clean remote committed baseline: `codex/initial-private-publish` is pushed at
-  `199638a`. It retains the repository-hygiene (`e883a91`), cloud (`b9a5d7b`),
-  and iOS (`e15e553`) convergence, then adds memory quality Phase 2 and runtime
-  metadata Phase 3. The local canonical checkout has separate uncommitted
-  StackChan E2E work and was not modified by the memory fast-forward.
+  `1439dee`. It retains the repository-hygiene (`e883a91`), cloud (`b9a5d7b`),
+  iOS (`e15e553`), memory quality/runtime-metadata, and 12-expression
+  local-preview commits, then integrates the bounded v0.1 StackChan LCD E2E
+  source and tests.
 - Product closeout: `codex/pac-ios-product-polish` is clean at `12663dd` and is
   retained as a source rollback anchor. The converged branch was created from
   `934cec1`, passed final verification, and fast-forwarded into the canonical
@@ -51,16 +51,24 @@ or the project README.
   [stackchan-hardware-field-verification-20260711.md](reports/stackchan-hardware-field-verification-20260711.md).
 - StackChan screen pages: `表情` / `聆听` / `状态` are **local/mock verified**
   in the iOS preview only. Their selection sends no mock bridge requests, and
-  they did not produce the separate field evidence. The later real LCD result
-  is field-confirmed through a manual Bridge/device path, not through these
-  preview pages or the iOS App.
+  the 12 expression families and four-frame animations remain local App assets.
+  They do not expand the real v0.1 device allowlist beyond `happy` and
+  `neutral`.
+- StackChan App E2E: the owner field-confirmed one App-driven `happy` command
+  with its correlated ACK, followed by one App-driven `neutral` command with
+  its correlated ACK. The owner observed both screen changes; final state was
+  `neutral` with Bridge queue depth `0`. Product commit `1439dee` durably
+  integrates the bounded client, Bridge routes/correlation, Host injection,
+  tests, and fail-closed credential/config seams. This does not establish
+  repeated or unattended reliability.
 - iOS product/UI: the three-task line superseded the earlier mock-visual queue.
-  The committed branch at `e15e553` has Xiaoxin branding/icon, user-scoped
+  The committed branch through `1439dee` has Xiaoxin branding/icon, user-scoped
   chat-history and device-cover storage, identity UI, native Google with
   Authentik rollback, and a multi-account logout-revocation retry queue. Final
-  convergence passed `1041` Python tests, all `44/44` Swift smoke products,
-  Core/App builds, and an iPhone 17 Pro Simulator Host build. Real-device
-  signing, App Store release, and App-to-StackChan E2E are not accepted.
+  product convergence remains accepted; the later LCD E2E closeout passed
+  `1079` Python tests, App target build, four related Swift smoke products, and
+  `StackChanLCDE2EUI` Simulator `build-for-testing`. Real-device signing and App
+  Store release remain unconfirmed.
 - HealthKit: the committed host requests read-only access only for steps,
   active energy, heart rate, sleep, and workouts. Chat receives those same five
   bounded local summary families. Health Records entitlement and clinical
@@ -81,8 +89,9 @@ or the project README.
   completed a real native exchange and confirmed direct entry after relaunch;
   account continuity, forced refresh, logout, and re-login remain pending.
 - Memory/privacy: product branch `codex/initial-private-publish` is pushed at
-  `199638a` and retains the review/promotion seam through `934cec1`, then adds
-  canonical recall selection and persisted runtime metadata. The committed
+  `1439dee` and retains the review/promotion seam through `934cec1`, then adds
+  canonical recall selection and persisted runtime metadata through `199638a`.
+  The committed
   branch is
   **local MVP core verified**, not design-only. The chat-integrated path covers
   bounded context, candidate review/promotion, scoped recall, privacy
@@ -126,7 +135,7 @@ or the project README.
   ordinary `/v1/chat` extraction, vector recall, retention executor, vault
   wiring, deployment, or live operation occurred. See
   [memory-runtime-metadata-phase-3-20260713.md](reports/memory-runtime-metadata-phase-3-20260713.md).
-- Memory integration boundary: canonical committed source at `199638a`
+- Memory integration boundary: canonical committed source at `1439dee`
   includes the synthetic Approved Persona Memory Summary and App/bridge contracts from
   `3019a8c`, plus the explicit synthetic review-turn seam and privacy/state
   repairs through `4a3a7df` and `32b9d96`. The bounded seam applies NFKC before
@@ -185,7 +194,7 @@ or the project README.
 | Order | Task ID | Type | Dependency / manual gate | Owned surface |
 | --- | --- | --- | --- | --- |
 | 0 | `PAC-DOCS-SYNC` | L1 | Required before every implementation wave. | The assigned ops docs only. |
-| 1 | `PAC-MEMORY-LOCAL-INGEST-SEAM` (`completed`, canonical) | L1 | Memory slice anchored at `934cec1` and retained in canonical `199638a`; synthetic fixtures and temporary SQLite only. | Committed memory candidate/review/privacy state machine; no ordinary-chat extraction or real data. |
+| 1 | `PAC-MEMORY-LOCAL-INGEST-SEAM` (`completed`, canonical) | L1 | Memory slice anchored at `934cec1` and retained in current canonical `1439dee`; synthetic fixtures and temporary SQLite only. | Committed memory candidate/review/privacy state machine; no ordinary-chat extraction or real data. |
 | 1a | `PAC-MEMORY-RECALL-QUALITY-PHASE-2` (`completed`, canonical) | L1 | Product commits `e764b2f` and `6feb142`; isolated synthetic/temp-store acceptance only. | Canonical winner selection and bounded recall-quality inspection; no real data or retention execution. |
 | 1b | `PAC-MEMORY-RUNTIME-METADATA-PHASE-3` (`completed`, canonical) | L1 after L3-authorized local implementation | Product commits `f758875`, `1d38c3d`, and `199638a`; `419` memory and `1072` full tests. | Persisted runtime identity/expiry and metadata-first recall; no real database, automatic producer, scheduler, or deletion. |
 | 2 | `PAC-NATIVE-GOOGLE-DIRECT` (`completed deployment`) | L3 historical | Task `019f53e3-4888-7dd1-9dbe-7e7e69354cc6` is complete; its authorization is consumed. | Native Google deployed with Authentik fallback; built-in email and SMS disabled. |
@@ -193,7 +202,7 @@ or the project README.
 | 4 | `PAC-PRODUCT-POLISH-CLOSEOUT` (`completed`) | L1 | Converged and pushed at `e15e553`; source rollback branch retained at `12663dd`. | Repository hygiene, Cloud, and iOS slices are independently committed and verified. |
 | 5 | `PAC-HEALTHKIT-RELEASE-SCOPE` (`partially completed`) | L1/L2 | Minimum read scope is now five types and clinical/Health Records declarations are removed; real-data and distribution testing remain separately gated. | Signed-device preflight and App Store/privacy review remain; no real health-data access is authorized. |
 | 6 | `PAC-IOS-STACKCHAN-E2E-PREFLIGHT` (`completed`) | L2 | Static review completed without live access; clean convergence is now an execution prerequisite for order 7, not a prerequisite for this completed design review. | Selected v0.1 LCD `happy -> ack -> neutral -> ack`; no device action. See [the preflight report](reports/app-bridge-stackchan-e2e-preflight-20260713.md). |
-| 7 | `PAC-IOS-STACKCHAN-SCREEN-E2E` | L3 | Completed preflight, reconciliation of canonical `199638a` with the separate StackChan WIP, fresh exact `进入修复阶段`, and rollback packet. | One v0.1 App-to-LCD `happy -> neutral` path only; no automatic expansion to audio, motion, camera, or touch. |
+| 7 | `PAC-IOS-STACKCHAN-SCREEN-E2E` (`completed`) | L3 historical + L1 closeout | Field sequence owner-confirmed; durable product source pushed at `1439dee`; acceptance recorded without repeating live commands. | One v0.1 App-to-LCD `happy -> ACK -> neutral -> ACK` path only; final `neutral`, queue `0`. No expansion to audio, motion, camera, touch, memory, HealthKit, polling, firmware, or other hardware. See [the acceptance report](reports/app-bridge-stackchan-e2e-acceptance-20260713.md). |
 
 The detailed classification, dependencies, manual gates, and stop conditions are
 normative in the runbook; this table is intentionally not a concurrency plan.
