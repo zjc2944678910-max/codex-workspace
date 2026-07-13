@@ -96,6 +96,18 @@ this section, the project README, or the new status report.
   This is not a real-data or retention integration; current `MemoryAtom` has no
   expiry producer. See
   [memory-recall-quality-phase-2-20260713.md](reports/memory-recall-quality-phase-2-20260713.md).
+- Memory runtime metadata phase 3: isolated product commit `f758875` on
+  `codex/pac-memory-runtime-metadata-phase-3` adds an additive v3 migration
+  for nullable `fact_key` and `expires_at_ms`, preserves legacy NULL behavior,
+  persists only existing-rule fact identity, and filters expiry at recall
+  without deletion. Durable identity wins before query wording; NULL identity
+  retains the bounded legacy parser fallback. The store now filters requested
+  statuses in SQL before payload rows are loaded. Verification used only
+  synthetic `:memory:`/temporary SQLite: `410` memory tests and `1062` full
+  tests passed. This is not a real producer or real-database migration: no
+  private data, ordinary `/v1/chat` extraction, vector recall, retention
+  executor, vault wiring, deployment, or live operation occurred. See
+  [memory-runtime-metadata-phase-3-20260713.md](reports/memory-runtime-metadata-phase-3-20260713.md).
 - Memory integration boundary: current checkout `e15e553` includes the
   synthetic Approved Persona Memory Summary and App/bridge contracts from
   `3019a8c`, plus the explicit synthetic review-turn seam and privacy/state
