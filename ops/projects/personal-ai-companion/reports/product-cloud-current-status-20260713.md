@@ -3,8 +3,13 @@
 - Date: 2026-07-13
 - Product name: `小芯` (`Xiaoxin`)
 - Status: all three source tasks complete; native Google login is owner-confirmed,
-  product source is converged/pushed at `e15e553`, and the first StackChan E2E
-  slice is statically preflighted but not implemented or executed
+  the iOS/cloud convergence remains anchored at `e15e553`, canonical product
+  source is pushed at `199638a` after a source-only memory fast-forward, and the
+  first StackChan E2E slice is statically preflighted but not accepted end to end
+
+This is the dated iOS/cloud closeout snapshot, with a later source-only memory
+addendum. Use the project [README](../README.md) and deployment ledger for
+current cross-thread and live routing facts.
 
 ## Scope And Evidence
 
@@ -26,14 +31,14 @@ This closeout update rechecked local Git, tests, builds, and ops documents only;
 it did not inspect live state or enter Google credentials or private account
 data.
 
-## Current Truth
+## Recorded Closeout Truth With Source Addendum
 
-| Surface | Current fact | Boundary |
+| Surface | Recorded fact | Boundary |
 | --- | --- | --- |
-| Canonical product checkout | `codex/initial-private-publish` is clean and pushed at `e15e553`. It includes the verified memory seam through `934cec1`, Cloud commit `b9a5d7b`, and iOS commit `e15e553`. | This is committed product source, not proof that every commit is deployed or that current live health matches dated evidence. |
+| Canonical product source | Remote `codex/initial-private-publish` is pushed at `199638a`. It includes Cloud commit `b9a5d7b`, iOS commit `e15e553`, the earlier memory seam, Phase 2 recall quality, and Phase 3 runtime metadata. The local canonical checkout retains separate uncommitted StackChan E2E work and was not modified by the fast-forward. | This is committed product source. The memory-only advance was not deployed and is not proof that current live health matches dated evidence. |
 | Product-polish worktree | `codex/pac-ios-product-polish` is clean at `12663dd` and retained as a rollback/source anchor. The converged branch was built from `934cec1` and fast-forwarded into the canonical branch without a merge commit. | The source branch is not the canonical deployment branch and should not be merged again. |
 | Live cloud baseline | The 2026-07-13 repair deployed `xiaoxin-cloud-api:20260713T0137-native-google`. Public API/database/storage, native Google capability and nonce issuance, dedicated JWKS proxying, and Authentik fallback were freshly verified. A follow-up repair disabled unverified email registration/login; both email routes returned 503 and the App button was gray and disabled. OTP remains disabled. | The owner completed a native Google exchange and direct App entry after relaunch, but account/data continuity, forced refresh, remote logout, and re-login remain pending. The retained email credential was not deleted. See [the deployment ledger](../DEPLOYMENT_LEDGER.md). |
-| Workspace documentation | Deployment and architecture facts through the native-Google/email-disable line were committed and pushed in `dc35f3a`; the current closeout and E2E preflight reconciliation is the next workspace documentation commit. | This docs pass makes no live change and does not update the deployment ledger. |
+| Workspace documentation | Deployment and architecture facts through the native-Google/email-disable line were committed in `dc35f3a`; the later workspace docs record product closeout, E2E preflight, and memory Phase 2/3 acceptance separately. | The memory docs pass makes no live change and does not update the deployment ledger. |
 | Native Google migration | Google iOS client `小芯 iOS` exists for `xyz.nodezjc12348888.xiaoxin`; the App pins GoogleSignIn `9.2.0`; the backend verifies signature, audience, authorized party, issuer, time claims, nonce, and verified email. Native Google is preferred with Authentik rollback. The owner completed a real exchange and confirmed direct App entry after relaunch. | Direct entry does not prove original-account/data continuity or that an expired access token was refreshed. Remote logout and subsequent re-login were not directly observed. Built-in email auth remains unavailable pending mailbox verification. |
 
 ## Task Lineage
@@ -146,8 +151,9 @@ remote logout, and re-login remain unaccepted.
   chat content.
 - Local chat history: inspectable, deletable, and exportable by the owner.
 - Memory: ordinary `/v1/chat` automatic extraction remains disabled; the
-  committed memory path is still the explicit candidate/review/promotion seam
-  described in `memory-layer-current-status-20260711.md`.
+  committed memory path is still the explicit candidate/review/promotion seam,
+  now with canonical recall selection and persisted runtime metadata described
+  in `memory-runtime-metadata-phase-3-20260713.md`.
 - StackChan: the iOS-to-device path is still not end to end despite separate
   standalone hardware evidence. The selected first slice is v0.1 LCD
   `happy -> ack -> neutral -> ack` only.
@@ -168,6 +174,12 @@ Compose checks, all `44/44` Swift smoke products, Core typecheck, App target
 build, plist/entitlement lint, sensitive-artifact scans, and an iPhone 17 Pro
 Simulator Host build. Full-repo Ruff still reports the same 22 pre-existing
 findings as `934cec1`; the closeout introduced no new Ruff finding.
+
+After that iOS/cloud convergence, the cumulative memory Phase 2/3 line was
+independently accepted and fast-forwarded into the same canonical branch at
+`199638a`. Its source-only verification passed `419` memory tests and `1072`
+full Python tests. No live image, service, private database, or deployment state
+changed as part of that fast-forward.
 
 ## StackChan E2E Preflight
 
@@ -190,5 +202,6 @@ preflight report](app-bridge-stackchan-e2e-preflight-20260713.md).
 - [Project README](../README.md)
 - [Architecture TODO](../ARCHITECTURE_TODO.md)
 - [Deployment ledger](../DEPLOYMENT_LEDGER.md)
-- [Memory-layer current status](memory-layer-current-status-20260711.md)
+- [Historical memory-layer baseline](memory-layer-current-status-20260711.md)
+- [Memory Runtime Metadata Phase 3](memory-runtime-metadata-phase-3-20260713.md)
 - [App-Bridge-StackChan E2E preflight](app-bridge-stackchan-e2e-preflight-20260713.md)

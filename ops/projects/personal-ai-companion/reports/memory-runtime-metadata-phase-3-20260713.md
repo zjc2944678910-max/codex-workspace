@@ -2,10 +2,13 @@
 
 Date: 2026-07-13
 
+Status: accepted; source branch pushed; canonical product branch fast-forwarded
+and pushed to `199638a`; ops integration pending this report's acceptance commit
+
 ## Scope And Authority
 
 This was an L3-authorized local source and synthetic-database implementation
-only. Product work was isolated on
+only. Product work was isolated and accepted on
 `codex/pac-memory-runtime-metadata-phase-3` from baseline
 `6feb14252eee46f30912034652ef8efb5c4742e5`. The product results are initial
 implementation `f758875565bab57fa8bbf614b0da9f6cf82f6801` and local repair
@@ -15,6 +18,9 @@ repair `199638ab929c5f30008f203d31e2c8db502b4279`.
 The authorization did not include the canonical checkout, any existing or real
 database, private chats/profile/health data, vault material, live/NAS/cloud
 systems, service restarts, deployment, retention execution, or deletion.
+The later fast-forward was a separate L1 Git integration of already accepted
+source. It did not expand the original L3 authority or authorize any excluded
+data/runtime action.
 
 ## Implemented
 
@@ -111,8 +117,16 @@ systems, service restarts, deployment, retention execution, or deletion.
 
 ## Rollback
 
-- Product rollback anchor: `6feb14252eee46f30912034652ef8efb5c4742e5`.
+- Phase 3-only product rollback anchor:
+  `6feb14252eee46f30912034652ef8efb5c4742e5`.
+- Entire Phase 2+3 integration rollback anchor:
+  `e15e553e2aed5739de37f7f6a05e954c06a80b1b`.
 - Ops rollback anchor: `2e45b62f9a6343f6788015a999849debff41e8fa`.
-- No merge or push was performed. Rollback is deleting the isolated Phase 3
-  branches/worktrees or resetting them to their stated anchors; it requires no
-  database action.
+- The source branch `codex/pac-memory-runtime-metadata-phase-3` was pushed as a
+  rollback/evidence anchor, and remote canonical
+  `codex/initial-private-publish` was fast-forwarded from `e15e553` to
+  `199638a`. No deployment or database action was performed.
+- A shared-branch rollback should revert the Phase 2/3 product commits rather
+  than rewrite remote history. The isolated worktrees may still be removed
+  after integration; no database rollback is required because no real database
+  was opened or migrated.

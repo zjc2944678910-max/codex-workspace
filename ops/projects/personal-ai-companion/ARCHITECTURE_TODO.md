@@ -8,18 +8,22 @@ program control source is
 When this file conflicts with that runbook's dated facts, authorization ledger,
 or stop rules, the runbook wins.
 
-The current cross-thread source-of-truth snapshot is
-[product-cloud-current-status-20260713.md](reports/product-cloud-current-status-20260713.md).
-The long `Near Term` section below remains a chronological implementation log;
-its older `pending` labels are not the current queue when they conflict with
-this section, the project README, or the new status report.
+The project [README](README.md) is the current cross-thread fact index. Use
+[memory-runtime-metadata-phase-3-20260713.md](reports/memory-runtime-metadata-phase-3-20260713.md)
+for the current memory boundary; the dated
+[product/cloud report](reports/product-cloud-current-status-20260713.md) remains
+the iOS/cloud closeout snapshot plus a source-only memory addendum. The long
+`Near Term` section below remains a chronological implementation log; its older
+`pending` labels are not the current queue when they conflict with this section
+or the project README.
 
 ### 2026-07-13 Mainline Snapshot
 
-- Clean committed baseline: `codex/initial-private-publish` is pushed at
-  `e15e553`. It retains the verified memory review/promotion seam through
-  `934cec1` and adds bounded repository-hygiene (`e883a91`), cloud
-  (`b9a5d7b`), and iOS (`e15e553`) commits.
+- Clean remote committed baseline: `codex/initial-private-publish` is pushed at
+  `199638a`. It retains the repository-hygiene (`e883a91`), cloud (`b9a5d7b`),
+  and iOS (`e15e553`) convergence, then adds memory quality Phase 2 and runtime
+  metadata Phase 3. The local canonical checkout has separate uncommitted
+  StackChan E2E work and was not modified by the memory fast-forward.
 - Product closeout: `codex/pac-ios-product-polish` is clean at `12663dd` and is
   retained as a source rollback anchor. The converged branch was created from
   `934cec1`, passed final verification, and fast-forwarded into the canonical
@@ -77,28 +81,32 @@ this section, the project README, or the new status report.
   completed a real native exchange and confirmed direct entry after relaunch;
   account continuity, forced refresh, logout, and re-login remain pending.
 - Memory/privacy: product branch `codex/initial-private-publish` is pushed at
-  `e15e553` and retains the memory implementation through `934cec1`. The
-  checkout is
+  `199638a` and retains the review/promotion seam through `934cec1`, then adds
+  canonical recall selection and persisted runtime metadata. The committed
+  branch is
   **local MVP core verified**, not design-only. The chat-integrated path covers
   bounded context, candidate review/promotion, scoped recall, privacy
   projection, owner admin, consent and class policy; vault/key and retention
   components remain isolated safety primitives or synthetic contracts.
-  Combined convergence verification passed `1041` full Python tests, built the
-  Swift App target, and passed AppFlow smoke. No real/private database or data
-  path was inspected. See
-  [memory-layer-current-status-20260711.md](reports/memory-layer-current-status-20260711.md).
+  Phase 3 acceptance passed `419` memory tests and `1072` full Python tests.
+  The earlier iOS convergence built the Swift App target and passed AppFlow
+  smoke. No real/private database or data path was inspected. See
+  [memory-runtime-metadata-phase-3-20260713.md](reports/memory-runtime-metadata-phase-3-20260713.md).
 - Memory recall quality phase 2: product commits `e764b2f` and `6feb142` on
   `codex/pac-memory-quality-phase-2` add a pure local recall-selection and
   explanation seam plus synthetic coverage for relevance, irrelevant
   suppression, duplicate/conflict handling, scope isolation, expired metadata,
   forbidden projection, current canonical value selection, and the existing
   `blocked_count` visibility boundary. It passed `1050` local Python tests.
-  This is not a real-data or retention integration; current `MemoryAtom` has no
-  expiry producer. See
+  This is not a real-data or retention integration. At the Phase 2 snapshot,
+  `MemoryAtom` had no runtime expiry producer; Phase 3 supersedes only that
+  source-level limitation with explicit validated metadata input. See
   [memory-recall-quality-phase-2-20260713.md](reports/memory-recall-quality-phase-2-20260713.md).
-- Memory runtime metadata phase 3: isolated product commits `f758875`, privacy
-  repair `1d38c3d`, and source-event replay repair `199638a` on
-  `codex/pac-memory-runtime-metadata-phase-3` add an additive v3 migration for
+- Memory runtime metadata phase 3: product commits `f758875`, privacy repair
+  `1d38c3d`, and source-event replay repair `199638a` were independently
+  accepted, pushed on `codex/pac-memory-runtime-metadata-phase-3`, and
+  fast-forwarded into canonical `codex/initial-private-publish` at `199638a`.
+  They add an additive v3 migration for
   nullable `fact_key` and `expires_at_ms`, preserve legacy NULL behavior,
   persist only existing-rule fact identity, and filter expiry at recall without
   deletion. Recall is metadata-first: disclosure and policy evaluate before
@@ -118,8 +126,8 @@ this section, the project README, or the new status report.
   ordinary `/v1/chat` extraction, vector recall, retention executor, vault
   wiring, deployment, or live operation occurred. See
   [memory-runtime-metadata-phase-3-20260713.md](reports/memory-runtime-metadata-phase-3-20260713.md).
-- Memory integration boundary: current checkout `e15e553` includes the
-  synthetic Approved Persona Memory Summary and App/bridge contracts from
+- Memory integration boundary: canonical committed source at `199638a`
+  includes the synthetic Approved Persona Memory Summary and App/bridge contracts from
   `3019a8c`, plus the explicit synthetic review-turn seam and privacy/state
   repairs through `4a3a7df` and `32b9d96`. The bounded seam applies NFKC before
   compositional opt-out and targeted mixed-script credential checks, including
@@ -127,9 +135,11 @@ this section, the project README, or the new status report.
   word/space-delimited. It writes no payload row for verified skip cases, never
   silently promotes, withholds raw sensitive health detail, flags canonical
   duplicates/conflicts, and enforces one-way candidate-to-promoted/rejected
-  transitions with atom/review/audit transaction alignment. Focused branch
-  evidence is `24` seam and `447` related memory/privacy/API tests. The branch
-  is pushed, but this is not live memory integration. Ordinary
+  transitions with atom/review/audit transaction alignment. It now also carries
+  canonical recall selection, persisted fact identity/expiry, metadata-first
+  recall, and expiry-independent source-event replay. Current focused evidence
+  is `419` memory tests and `1072` full Python tests. The branch is pushed, but
+  this is not live memory integration. Ordinary
   `/v1/chat` extraction stays disabled; the rule set is bounded rather than a
   broad natural-language classifier. None of these
   lines authorizes raw private-data access, real data migration, retention
@@ -175,20 +185,23 @@ this section, the project README, or the new status report.
 | Order | Task ID | Type | Dependency / manual gate | Owned surface |
 | --- | --- | --- | --- | --- |
 | 0 | `PAC-DOCS-SYNC` | L1 | Required before every implementation wave. | The assigned ops docs only. |
-| 1 | `PAC-MEMORY-LOCAL-INGEST-SEAM` (`completed`, current checkout) | L1 | Memory slice anchored at `934cec1` and retained in current `e15e553`; synthetic fixtures and temporary SQLite only. | Committed memory candidate/review/privacy state machine; no ordinary-chat extraction or real data. |
+| 1 | `PAC-MEMORY-LOCAL-INGEST-SEAM` (`completed`, canonical) | L1 | Memory slice anchored at `934cec1` and retained in canonical `199638a`; synthetic fixtures and temporary SQLite only. | Committed memory candidate/review/privacy state machine; no ordinary-chat extraction or real data. |
+| 1a | `PAC-MEMORY-RECALL-QUALITY-PHASE-2` (`completed`, canonical) | L1 | Product commits `e764b2f` and `6feb142`; isolated synthetic/temp-store acceptance only. | Canonical winner selection and bounded recall-quality inspection; no real data or retention execution. |
+| 1b | `PAC-MEMORY-RUNTIME-METADATA-PHASE-3` (`completed`, canonical) | L1 after L3-authorized local implementation | Product commits `f758875`, `1d38c3d`, and `199638a`; `419` memory and `1072` full tests. | Persisted runtime identity/expiry and metadata-first recall; no real database, automatic producer, scheduler, or deletion. |
 | 2 | `PAC-NATIVE-GOOGLE-DIRECT` (`completed deployment`) | L3 historical | Task `019f53e3-4888-7dd1-9dbe-7e7e69354cc6` is complete; its authorization is consumed. | Native Google deployed with Authentik fallback; built-in email and SMS disabled. |
 | 3 | `PAC-NATIVE-GOOGLE-OWNER-ACCEPTANCE` (`partially completed`) | Manual/L2 | Native exchange and direct App entry after relaunch are owner-confirmed; subsequent checks remain read-only unless a defect requires a new repair gate. | Account/data continuity, forced refresh, remote logout, and re-login remain unconfirmed. |
 | 4 | `PAC-PRODUCT-POLISH-CLOSEOUT` (`completed`) | L1 | Converged and pushed at `e15e553`; source rollback branch retained at `12663dd`. | Repository hygiene, Cloud, and iOS slices are independently committed and verified. |
 | 5 | `PAC-HEALTHKIT-RELEASE-SCOPE` (`partially completed`) | L1/L2 | Minimum read scope is now five types and clinical/Health Records declarations are removed; real-data and distribution testing remain separately gated. | Signed-device preflight and App Store/privacy review remain; no real health-data access is authorized. |
 | 6 | `PAC-IOS-STACKCHAN-E2E-PREFLIGHT` (`completed`) | L2 | Static review completed without live access; clean convergence is now an execution prerequisite for order 7, not a prerequisite for this completed design review. | Selected v0.1 LCD `happy -> ack -> neutral -> ack`; no device action. See [the preflight report](reports/app-bridge-stackchan-e2e-preflight-20260713.md). |
-| 7 | `PAC-IOS-STACKCHAN-SCREEN-E2E` | L3 | Completed preflight, clean `e15e553` baseline, fresh exact `进入修复阶段`, and rollback packet. | One v0.1 App-to-LCD `happy -> neutral` path only; no automatic expansion to audio, motion, camera, or touch. |
+| 7 | `PAC-IOS-STACKCHAN-SCREEN-E2E` | L3 | Completed preflight, reconciliation of canonical `199638a` with the separate StackChan WIP, fresh exact `进入修复阶段`, and rollback packet. | One v0.1 App-to-LCD `happy -> neutral` path only; no automatic expansion to audio, motion, camera, or touch. |
 
 The detailed classification, dependencies, manual gates, and stop conditions are
 normative in the runbook; this table is intentionally not a concurrency plan.
 
-Memory retention has no selected real-data follow-up item. The completed local
-ingest seam used synthetic fixtures and `:memory:`/temporary SQLite; it did not
-read or migrate existing private data and did not execute retention. If the owner
+Memory retention has no selected real-data follow-up item. The completed memory
+Phases 1-3 used synthetic fixtures and `:memory:`/temporary SQLite; they did not
+read or migrate existing private data, add an automatic expiry producer or
+scheduler, or execute retention/deletion. If the owner
 later elects to authorize real integration, the recommended distinct manual
 gate is `PAC-MEMORY-RETENTION-PRODUCER-L3-PREFLIGHT`; it is **not scheduled**.
 Before that L3 preflight can start, fresh explicit owner authorization must name

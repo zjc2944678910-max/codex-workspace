@@ -5,6 +5,13 @@ Date: 2026-07-11
 Status: `local MVP core verified`; current-checkout synthetic ingest seam
 verified; real/private-data integration not started
 
+Superseded current-state note (2026-07-13): this report is retained as the
+historical ingest-seam baseline. Remote canonical product source is now pushed
+at `199638a` after Memory Quality Phase 2 and Runtime Metadata Phase 3. Use
+[memory-runtime-metadata-phase-3-20260713.md](memory-runtime-metadata-phase-3-20260713.md)
+for the current memory source/verification boundary. No live memory deployment
+or real-database migration followed from that source fast-forward.
+
 ## Evidence Boundary
 
 This report records the current local implementation and verification state. It
@@ -181,7 +188,7 @@ while readiness for durable daily use with real private data is materially
 lower. This estimate is not an acceptance metric and must not replace the
 layered statuses above.
 
-## Recommended Next Order
+## Historical Recommended Next Order (Superseded)
 
 1. Keep the local `934cec1` fast-forward and its synthetic/mock boundary intact;
    pushing or publishing the product branch remains a separate unperformed
@@ -199,8 +206,9 @@ layered statuses above.
 
 ## Drift Rule
 
-Current entry documents should link to this report. Historical dated plans and
-implementation records should retain their original scope and wording. Update
-this report, the ops README, and the top current-state section of
-`ARCHITECTURE_TODO.md` together whenever the selected product checkout, focused
-test result, or integration boundary changes.
+Current entry documents must not use this historical report as the current
+memory source. They should link to
+[memory-runtime-metadata-phase-3-20260713.md](memory-runtime-metadata-phase-3-20260713.md).
+The body above retains its 2026-07-11 scope and wording as evidence; update the
+ops README, Phase 3 report, and the top current-state section of
+`ARCHITECTURE_TODO.md` together when the current integration boundary changes.
