@@ -7,20 +7,20 @@
   observed `happy` after its correlated acknowledgement, then observed
   safety-terminal `neutral` after its separate correlated acknowledgement.
   Final Bridge queue depth was `0`. Durable source is pushed at product commit
-  `1439dee`; this is not evidence for repeated reliability or any non-LCD
+  `9dbfafc`; this is not evidence for repeated reliability or any non-LCD
   capability.
 - Latest verified Xiaoxin API image:
   `xiaoxin-cloud-api:20260713T0137-native-google`.
 - `xiaoxin-cloud-api:20260712T2352-google-state` remains the immediate API
   rollback image. The earlier email and direct-flow images remain historical
   anchors.
-- The deployed source lineage is still held in the dirty
-  `codex/pac-ios-product-polish` worktree based at `3019a8c`; it is not yet a
-  committed product revision.
-- Native Google Sign-In is deployed and passed automated API, proxy, iOS build,
-  and direct-to-Google navigation checks. A real native Google account exchange,
-  verified-email account merge, refresh, and logout remain pending owner input
-  and must not be reported as accepted yet.
+- The durable product lineage is committed and pushed on
+  `codex/initial-private-publish` at `9dbfafc`.
+- Native Google Sign-In is deployed. The owner field-confirmed a real native
+  Google exchange and confirmed that an App restart entered directly through
+  the restored session. Original-account and historical-data continuity, a
+  forced expired-token refresh path, remote invalidation/logout, and the full
+  logout/re-login matrix remain independently unconfirmed.
 - Built-in email registration and password login are currently disabled because
   the initial flow did not verify mailbox ownership before issuing tokens. The
   retained email account and its data were not deleted.
@@ -48,18 +48,31 @@ LAN-service, credential, or deployment request.
 
 ### Durable Source And Local Verification
 
-- Product commit `1439dee` on `codex/initial-private-publish` contains the
+- Product commit `9dbfafc` on `codex/initial-private-publish` contains the
   bounded App client and injection seam, Keychain credential provider,
   fail-closed Host configuration, authenticated `/app/v0.1/lcd/commands` and
   `/app/v0.1/lcd/results/{bridge_request_id}` routes, ACK correlation,
   idempotency/TTL handling, Simulator-only UI test target, and focused tests.
-- Independent clean-index closeout passed `36` focused E2E/Bridge tests and
-  `1079` full Python tests, targeted Ruff, Python compileall, App target build,
+- Independent local closeout passed `37` focused E2E/Bridge tests and
+  `1080` full Python tests, targeted Ruff, Python compileall, App target build,
   four Swift smoke products, and Simulator `build-for-testing` for
   `StackChanLCDE2EUI`.
 - The pre-change Bridge source remains as a SHA-256-verified local rollback
   anchor in excluded product-worktree rollback material. It is not product
   source and was not committed during closeout.
+
+### 2026-07-14 Local ACK Route Hardening
+
+- A local independent review reproduced that a `/stackchan/events` ACK with
+  mismatched top-level and body command IDs could bypass LCD verification and
+  be accepted as a generic event.
+- Product commit `9dbfafc` validates every ACK event before routing decisions.
+  The malformed event now returns HTTP `409` with
+  `command_correlation_mismatch`; the queued command and pending LCD result are
+  unchanged.
+- A real loopback HTTP regression covers the route. This was source/test work
+  only: no Bridge, device, LAN service, credential, database, or deployment was
+  accessed or changed.
 
 ### Boundary And Residual Risk
 
@@ -156,10 +169,11 @@ rollback, not as the first recovery action.
 
 ### Residual Risk
 
-- No Google credentials were entered during automated acceptance. Native
-  authorization-code completion, Xiaoxin token issuance, verified-email account
-  continuity, refresh rotation, and logout still require the owner's real
-  account confirmation.
+- No Google credentials were entered during automated acceptance. Subsequently,
+  the owner confirmed a real native exchange and direct App entry after restart.
+  Original-account and historical-data continuity, forced refresh rotation,
+  remote invalidation/logout, and the complete logout/re-login matrix remain
+  independently unconfirmed.
 - Native Google login depends on the existing NAS-to-VPS proxy listener at
   `172.20.0.1:18989` for key refresh. Cached keys reduce request frequency but
   do not remove that dependency during Google key rotation.

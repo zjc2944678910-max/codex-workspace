@@ -33,8 +33,10 @@ repeat reliability, unattended behavior, or any broader capability.
 
 ## Durable Source Integration
 
-Product branch `codex/initial-private-publish` is pushed at commit `1439dee`.
-The commit contains:
+Product branch `codex/initial-private-publish` is pushed at commit `9dbfafc`.
+The initial integration landed at `1439dee`; the later commit adds the final
+HTTP ACK-route hardening and current iOS contract documentation. The current
+branch contains:
 
 - App Bridge injection and LCD result lookup UI;
 - live ViewModel allowlisting limited to `happy` and `neutral`;
@@ -55,11 +57,14 @@ endpoint and the owner pairs a credential.
 
 ## Review Findings And Fixes
 
-The L1 closeout review found and fixed three source-level defects before
-acceptance:
+The L1 closeout review and 2026-07-14 follow-up found and fixed these
+source-level defects before final engineering acceptance:
 
 - inconsistent top-level/body ACK command IDs now fail closed with a correlation
-  error;
+  error. The follow-up caught that `/stackchan/events` could previously bypass
+  that adapter error and accept the malformed ACK as a generic event; commit
+  `9dbfafc` validates every ACK before dispatch, returns HTTP `409`, and preserves
+  the pending result and leased queue item;
 - pending and completed idempotent replays now preserve accepted/done semantics
   across the Bridge and Swift client;
 - the field LAN address was removed from the durable plist and the Host now
@@ -71,11 +76,13 @@ local simulations.
 
 ## Independent Local Verification
 
-All verification used an exported clean Git index and did not run a real-device
+The original closeout used an exported clean Git index; the 2026-07-14
+follow-up used the bounded local product branch. Neither phase ran a real-device
 test:
 
-- focused E2E/Bridge Python tests: `36 passed`;
-- complete locked Python environment: `1079 passed`, with one existing
+- focused E2E/Bridge Python tests: `37 passed`, including a real loopback HTTP
+  route regression for mismatched ACK fields;
+- complete locked Python environment: `1080 passed`, with one existing
   FastAPI/Starlette TestClient deprecation warning;
 - Ruff on all changed Python files: passed;
 - Python `compileall` for `src` and `scripts`: passed;
@@ -95,6 +102,15 @@ test:
 Full-repository Ruff is not clean for 22 pre-existing findings in unrelated
 style/import/wire-contract files. Those files were not changed or included in
 this bounded product commit.
+
+## Authentication Status Boundary
+
+The owner separately confirmed a real native Google exchange and confirmed that
+restarting the App returned directly through the restored session. This report
+does not convert that observation into broader authentication acceptance:
+original-account and historical-data continuity, forced expired-token refresh,
+remote invalidation/logout, and the complete logout/re-login matrix remain
+independently unconfirmed.
 
 ## Local Preview Versus Live Protocol
 
