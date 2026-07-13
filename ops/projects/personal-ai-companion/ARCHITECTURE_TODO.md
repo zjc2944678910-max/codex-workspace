@@ -87,6 +87,14 @@ this section, the project README, or the new status report.
   Swift App target, and passed AppFlow smoke. No real/private database or data
   path was inspected. See
   [memory-layer-current-status-20260711.md](reports/memory-layer-current-status-20260711.md).
+- Memory recall quality phase 2: product commit `e764b2f` on
+  `codex/pac-memory-quality-phase-2` adds a pure local recall-selection and
+  explanation seam plus synthetic quality coverage for relevance, irrelevant
+  suppression, duplicate/conflict handling, scope isolation, expired metadata,
+  and forbidden projection. It passed `1044` local Python tests. This is not a
+  real-data or retention integration; current `MemoryAtom` has no expiry
+  producer. See
+  [memory-recall-quality-phase-2-20260713.md](reports/memory-recall-quality-phase-2-20260713.md).
 - Memory integration boundary: current checkout `e15e553` includes the
   synthetic Approved Persona Memory Summary and App/bridge contracts from
   `3019a8c`, plus the explicit synthetic review-turn seam and privacy/state
