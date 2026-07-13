@@ -2,8 +2,9 @@
 
 Date: 2026-07-13
 
-Status: accepted; source branch pushed; canonical product branch fast-forwarded
-and pushed to `199638a`; ops integration pending this report's acceptance commit
+Status: accepted; product source branch and canonical branch are pushed at
+`199638a`; ops acceptance commit `3ca15bd` is pushed to its source branch and
+workspace `main`
 
 ## Scope And Authority
 
