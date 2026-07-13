@@ -96,25 +96,27 @@ this section, the project README, or the new status report.
   This is not a real-data or retention integration; current `MemoryAtom` has no
   expiry producer. See
   [memory-recall-quality-phase-2-20260713.md](reports/memory-recall-quality-phase-2-20260713.md).
-- Memory runtime metadata phase 3: isolated product commits `f758875` and
-  repair `1d38c3d` on `codex/pac-memory-runtime-metadata-phase-3` add an
-  additive v3 migration for nullable `fact_key` and `expires_at_ms`, preserve
-  legacy NULL behavior, persist only existing-rule fact identity, and filter
-  expiry at recall without deletion. Recall is metadata-first: disclosure and
-  policy evaluate before payload content is loaded, validated by synthetic
-  SQLite authorizer/trace coverage for an unknown private viewer. Durable
-  identity wins before query wording; NULL identity retains the bounded legacy
-  parser fallback, while a malformed/different non-NULL key never falls back to
-  content inference. Expired review entries do not block replacement. The
-  owner-gated ingest API now explicitly accepts valid `expires_at_ms`, defaults
-  missing input to NULL, and rejects invalid values with HTTP 400. To avoid a
-  denied-content or metadata leak, privacy-denied recall reports
-  `blocked_count=0`; ModelRouter's later authorized-payload projection count is
-  separate. Verification used only synthetic `:memory:`/temporary SQLite:
-  `416` memory tests and `1069` full tests passed. This is not a real producer
-  or real-database migration: no private data, ordinary `/v1/chat` extraction,
-  vector recall, retention executor, vault wiring, deployment, or live
-  operation occurred. See
+- Memory runtime metadata phase 3: isolated product commits `f758875`, privacy
+  repair `1d38c3d`, and source-event replay repair `199638a` on
+  `codex/pac-memory-runtime-metadata-phase-3` add an additive v3 migration for
+  nullable `fact_key` and `expires_at_ms`, preserve legacy NULL behavior,
+  persist only existing-rule fact identity, and filter expiry at recall without
+  deletion. Recall is metadata-first: disclosure and policy evaluate before
+  payload content is loaded, validated by synthetic SQLite authorizer/trace
+  coverage for an unknown private viewer. Durable identity wins before query
+  wording; NULL identity retains the bounded legacy parser fallback, while a
+  malformed/different non-NULL key never falls back to content inference.
+  Source-event replay remains expiry-independent and fail-closed, while only
+  the active review candidate set excludes expired atoms so replacements remain
+  possible. The owner-gated ingest API explicitly accepts valid
+  `expires_at_ms`, defaults missing input to NULL, and rejects invalid values
+  with HTTP 400. To avoid a denied-content or metadata leak, privacy-denied
+  recall reports `blocked_count=0`; ModelRouter's later authorized-payload
+  projection count is separate. Verification used only synthetic
+  `:memory:`/temporary SQLite: `419` memory tests and `1072` full tests passed.
+  This is not a real producer or real-database migration: no private data,
+  ordinary `/v1/chat` extraction, vector recall, retention executor, vault
+  wiring, deployment, or live operation occurred. See
   [memory-runtime-metadata-phase-3-20260713.md](reports/memory-runtime-metadata-phase-3-20260713.md).
 - Memory integration boundary: current checkout `e15e553` includes the
   synthetic Approved Persona Memory Summary and App/bridge contracts from

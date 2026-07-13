@@ -9,7 +9,8 @@ only. Product work was isolated on
 `codex/pac-memory-runtime-metadata-phase-3` from baseline
 `6feb14252eee46f30912034652ef8efb5c4742e5`. The product results are initial
 implementation `f758875565bab57fa8bbf614b0da9f6cf82f6801` and local repair
-`1d38c3d1053c47f5fd33b22cf1a43f799b30f0ad`.
+`1d38c3d1053c47f5fd33b22cf1a43f799b30f0ad`, followed by source-event replay
+repair `199638ab929c5f30008f203d31e2c8db502b4279`.
 
 The authorization did not include the canonical checkout, any existing or real
 database, private chats/profile/health data, vault material, live/NAS/cloud
@@ -38,9 +39,13 @@ systems, service restarts, deployment, retention execution, or deletion.
 - Recall uses durable `fact_key` before query scoring. Only a NULL key uses the
   pre-existing bounded parser fallback. The old value therefore cannot become
   current merely because query wording names it.
-- Recall passes one reference timestamp to review/replay and recall paths. The
-  store filters expired or malformed non-NULL expiry metadata in SQL; inspection
-  remains a second fail-closed guard. NULL remains non-expiring metadata.
+- Source-event replay is expiry-independent: a matching event ID remains a
+  durable idempotency record even after its atom expires, returning the original
+  duplicate or the fail-closed `source_event_candidate_conflict` without a new
+  row. Only the active review duplicate/conflict set and recall receive the
+  reference timestamp and filter expired or malformed non-NULL expiry metadata.
+  Inspection remains a second fail-closed guard. NULL remains non-expiring
+  metadata.
 - Recall is metadata-first: the initial SQL query selects only atom identity,
   disclosure/class metadata, expiry, fact identity, confidence, and timestamp.
   Class policy plus `MemoryDisclosure` run before a second query loads content
@@ -70,18 +75,26 @@ systems, service restarts, deployment, retention execution, or deletion.
 - Expired newest values fall back to a live prior fact without deleting the
   expired atom; expired-only recall returns no memory and does not increase the
   existing `blocked_count` contract.
+- Expired source-event replay coverage proves that the same event with the same
+  candidate remains a duplicate, the same event with changed content remains
+  fail-closed, and a different event can create a replacement through the
+  expiry-filtered active candidate set. Each case preserves the expired atom
+  and prevents source-event row growth for the replayed ID.
 - Existing and expanded memory tests cover duplicate/conflict behavior,
   scope/privacy/never-quote projection, protected-store fail-closed behavior,
   migration history, metadata-first authorizer/read order, and API-compatible
   additive response fields.
-- Commands run in the isolated worktree: focused repair suite `101 passed`,
-  `tests/test_memory_*.py` `416 passed`, full pytest `1069 passed`, changed
-  scope Ruff, `compileall`, and `git diff --check`. The test process emitted
-  one existing Starlette TestClient deprecation warning.
-- GitNexus staged and compare checks found exactly the expected eight repair
-  product files. The shared memory contract is correctly reported CRITICAL in
-  graph reach; manual metadata/read-order, serialization, disclosure, identity,
-  expiry, and API review plus the full suite were completed before commit.
+- Commands run in the isolated worktree: focused source-event regressions
+  `3 passed`, complete review-turn file `32 passed`, `tests/test_memory_*.py`
+  `419 passed`, and full pytest `1072 passed`; changed scope Ruff,
+  `compileall`, and `git diff --check` also passed. The test process emitted one
+  existing Starlette TestClient deprecation warning.
+- GitNexus staged and compare checks found exactly the expected three
+  source-event repair product files. The shared memory contract is correctly
+  reported CRITICAL in graph reach (60 changed symbols; 63 staged and 55 compare
+  affected); manual metadata/read-order, serialization, disclosure, identity,
+  expiry, replay, and API review plus the full suite were completed before
+  commit.
 
 ## Unconfirmed And L3-Excluded
 
