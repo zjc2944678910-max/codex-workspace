@@ -9,6 +9,7 @@ Status: implemented and synthetic-verified; real-data/runtime-retention integrat
 - Product branch: `codex/pac-memory-quality-phase-2`
 - Product baseline: `e15e553`
 - Product implementation commit: `e764b2f`
+- Product canonical-winner repair commit: `6feb142`
 - Product worktree:
   `/Users/zhangjincheng/Documents/GitHub/codex-workspace/scratch/projects/personal-ai-companion/worktrees/pac-memory-quality-phase-2`
 
@@ -25,15 +26,24 @@ external data transfer.
   caller-supplied, already-authorized candidates and returns selected atom IDs,
   payload-free explanations, and stable metrics. It performs no Store, network,
   filesystem, promotion, delete, or retention action.
-- The inspection contract deterministically ranks by query-token overlap,
-  candidate precision, confidence, recency, and atom ID. It rejects unmatched
-  candidates, expired caller-supplied metadata, canonical duplicates, and
-  lower-ranked conflicting canonical preference facts without mutating either
+- For each non-expired canonical preference group with the same scope, privacy
+  class, and fact key, the inspection contract first chooses the current value
+  by `updated_at_ms`, then confidence, then atom ID. Only surviving facts are
+  ranked by query-token overlap and precision. A query naming an old value
+  cannot revive that superseded value.
+- The inspection rejects unmatched survivors, expired caller-supplied metadata,
+  canonical duplicates, and superseded canonical facts without mutating either
   record.
 - `MemoryService.recall()` retains its existing class-policy and
   `PrivacyKernel` disclosure checks before converting an allowed memory into a
-  recall-quality candidate. The API-visible `RecallResult` shape did not
-  change. Existing audit behavior is unchanged.
+  recall-quality candidate. It resolves canonical winners against the complete
+  eligible set, then applies relevance to the survivors. The API-visible
+  `RecallResult` shape and existing audit behavior did not change.
+- `blocked_count` retains the prior query-order visibility boundary: it counts
+  disclosure-blocked query hits only until the original disclosure-eligible
+  query sequence fills `limit`, not after a conflict filter changes final
+  returned IDs. This avoids expanding unknown identity observations of later
+  private matches.
 - `MemoryStore.search_memories()` reuses the same token/rank calculation, so
   recall and owner-admin search share deterministic lexical ordering.
 
@@ -51,15 +61,19 @@ evaluation with one selected relevant match and stable exclusion metrics:
 | Irrelevant candidate | `query_no_overlap` |
 | Duplicate | `duplicate_of:<atom_id>` |
 | Canonical preference conflict | `conflict_superseded_by:<atom_id>` |
+| Current canonical winner | EN and ZH old-short-to-new-long values choose the newer value before relevance |
+| Old-value query | Cannot revive a superseded value; it returns the current value if relevant or no fact if not |
 | Caller-supplied expired metadata | `expired` |
+| Expired newer fact | Does not displace the latest non-expired canonical value |
 | Scope isolation | Unknown identity receives only `group_safe_shared` candidate |
 | Sensitive / forbidden projection | `sensitive_fact`, `never_quote`, and private scope candidates are not returned |
+| `blocked_count` boundary | Stops at the baseline disclosure-eligible query limit; later private matches are not added |
 
 Verification in the isolated worktree:
 
-- focused new/service/turn-review tests: `54 passed, 1 warning`;
-- all `tests/test_memory_*.py`: `446 passed, 1 warning`;
-- full Python suite: `1044 passed, 1 warning`;
+- focused new/service/turn-review tests: `60 passed, 1 warning`;
+- all `tests/test_memory_*.py`: `398 passed, 1 warning`;
+- full Python suite: `1050 passed, 1 warning`;
 - changed-scope Ruff and `compileall`: passed;
 - `git diff --check`: passed.
 
