@@ -177,9 +177,12 @@ rollback, not as the first recovery action.
 - Native Google login depends on the existing NAS-to-VPS proxy listener at
   `172.20.0.1:18989` for key refresh. Cached keys reduce request frequency but
   do not remove that dependency during Google key rotation.
-- The deployed source still comes from the large dirty product-polish worktree;
-  it is not represented by a reviewed product commit or signed real-device/App
-  Store build.
+- At the 2026-07-13 deployment, the source came from the dirty product-polish
+  worktree. That source lineage was later committed at `b9a5d7b` and is retained
+  in the current canonical product lineage at `9dbfafc`. Exact byte-for-byte or
+  build-provenance correspondence between the running image and a specific
+  commit remains unconfirmed without independent evidence. A signed real-device
+  or App Store build also remains unconfirmed.
 
 ## 2026-07-13: Unverified Email Authentication Disabled
 
