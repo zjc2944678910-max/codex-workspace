@@ -1,6 +1,6 @@
 # Personal AI Companion Architecture TODO
 
-## Active Program Queue And Authority (2026-07-13)
+## Active Program Queue And Authority (2026-07-14)
 
 This running log may contain historical completed-work claims. The current
 program control source is
@@ -17,10 +17,10 @@ the iOS/cloud closeout snapshot plus a source-only memory addendum. The long
 `pending` labels are not the current queue when they conflict with this section
 or the project README.
 
-### 2026-07-13 Mainline Snapshot
+### 2026-07-14 Mainline Snapshot
 
 - Clean remote committed baseline: `codex/initial-private-publish` is pushed at
-  `9dbfafc`. It retains the repository-hygiene (`e883a91`), cloud (`b9a5d7b`),
+  `b536b24`. It retains the repository-hygiene (`e883a91`), cloud (`b9a5d7b`),
   iOS (`e15e553`), memory quality/runtime-metadata, and 12-expression
   local-preview commits, then integrates the bounded v0.1 StackChan LCD E2E
   source and tests.
@@ -33,12 +33,14 @@ or the project README.
   and then disabled unverified built-in email registration/login. Health,
   storage, database, tunnel, capability, disabled-route, and Simulator-button
   checks have rollback anchors in `DEPLOYMENT_LEDGER.md`.
-- Remaining authentication acceptance: the owner completed a real native
-  Google exchange and confirmed direct App entry after relaunch through the
-  restored session. Original-account and historical-data continuity, a forced
-  expired-token refresh, remote invalidation/logout, and the full logout/re-login
-  matrix are not yet independently verified. This is a manual acceptance gap,
-  not an active implementation task.
+- Authentication acceptance checkpoint: a 2026-07-14 relaunch after the live
+  300-second access TTL rotated the same native-Google refresh family exactly
+  once and restored the authenticated App with its local history visible.
+  Read-only live aggregates also proved that native Google and the earlier
+  Authentik identity are separate users with different normalized-email
+  fingerprints. Original-account continuity is therefore blocked, not
+  accepted; remote logout and re-login await the owner's action-time
+  confirmation. No code, config, schema, account, or data repair was made.
 
 ### Current Corrections
 
@@ -90,12 +92,15 @@ or the project README.
   `aud`, `azp`, `iss`, time, and verified-email checks. Deployment verification
   passed 57 cloud tests, Ruff, Swift smoke, Simulator build, public capability
   probes, and direct navigation to `accounts.google.com`. The owner later
-  completed a real native exchange and confirmed direct entry after relaunch
-  through the restored session; original-account/historical-data continuity,
-  forced refresh, remote invalidation/logout, and the complete logout/re-login
-  matrix remain pending.
+  completed a real native exchange. The later 2026-07-14 pass confirmed one
+  real automatic refresh rotation and direct restored entry, but found that the
+  native and legacy external identities are not attached to the same user and
+  do not share a normalized-email fingerprint. The owner must identify the
+  intended account before logout/re-login. Cross-email identity or data repair
+  remains prohibited without proof of both identities and a separate backup,
+  rollback, and verification card.
 - Memory/privacy: product branch `codex/initial-private-publish` is pushed at
-  `9dbfafc` and retains the review/promotion seam through `934cec1`, then adds
+  `b536b24` and retains the review/promotion seam through `934cec1`, then adds
   canonical recall selection and persisted runtime metadata through `199638a`.
   The committed
   branch is
@@ -204,7 +209,7 @@ or the project README.
 | 1a | `PAC-MEMORY-RECALL-QUALITY-PHASE-2` (`completed`, canonical) | L1 | Product commits `e764b2f` and `6feb142`; isolated synthetic/temp-store acceptance only. | Canonical winner selection and bounded recall-quality inspection; no real data or retention execution. |
 | 1b | `PAC-MEMORY-RUNTIME-METADATA-PHASE-3` (`completed`, canonical) | L1 after L3-authorized local implementation | Product commits `f758875`, `1d38c3d`, and `199638a`; `419` memory and `1072` full tests. | Persisted runtime identity/expiry and metadata-first recall; no real database, automatic producer, scheduler, or deletion. |
 | 2 | `PAC-NATIVE-GOOGLE-DIRECT` (`completed deployment`) | L3 historical | Task `019f53e3-4888-7dd1-9dbe-7e7e69354cc6` is complete; its authorization is consumed. | Native Google deployed with Authentik fallback; built-in email and SMS disabled. |
-| 3 | `PAC-NATIVE-GOOGLE-OWNER-ACCEPTANCE` (`partially completed`) | Manual/L2 | Native exchange and restored direct App entry after relaunch are owner-confirmed; subsequent checks remain read-only unless a defect requires a new repair gate. | Original-account/historical-data continuity, forced refresh, remote invalidation/logout, and the complete logout/re-login matrix remain unconfirmed. |
+| 3 | `PAC-NATIVE-GOOGLE-OWNER-ACCEPTANCE` (`blocked on owner checkpoint`) | Manual/L2 with bounded L3 authorization | Native exchange, restored direct App entry, and one real expired-session refresh rotation are confirmed. The owner must state whether the currently shown Google account is the intended original account and explicitly confirm App logout before the next UI action. | Native Google and Authentik currently map to separate users with different normalized-email fingerprints. Historical-data continuity, live old-token rejection after logout, and same-account re-login remain unconfirmed; no cross-email merge is authorized. |
 | 4 | `PAC-PRODUCT-POLISH-CLOSEOUT` (`completed`) | L1 | Converged and pushed at `e15e553`; source rollback branch retained at `12663dd`. | Repository hygiene, Cloud, and iOS slices are independently committed and verified. |
 | 5 | `PAC-HEALTHKIT-RELEASE-SCOPE` (`partially completed`) | L1/L2 | Minimum read scope is now five types and clinical/Health Records declarations are removed; real-data and distribution testing remain separately gated. | Signed-device preflight and App Store/privacy review remain; no real health-data access is authorized. |
 | 6 | `PAC-IOS-STACKCHAN-E2E-PREFLIGHT` (`completed`) | L2 | Static review completed without live access; clean convergence is now an execution prerequisite for order 7, not a prerequisite for this completed design review. | Selected v0.1 LCD `happy -> ack -> neutral -> ack`; no device action. See [the preflight report](reports/app-bridge-stackchan-e2e-preflight-20260713.md). |

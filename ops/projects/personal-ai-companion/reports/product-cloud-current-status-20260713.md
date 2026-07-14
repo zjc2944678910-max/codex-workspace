@@ -8,8 +8,11 @@
   first StackChan E2E slice is statically preflighted but not accepted end to end
 
 This is the dated iOS/cloud closeout snapshot, with a later source-only memory
-addendum. Use the project [README](../README.md) and deployment ledger for
-current cross-thread and live routing facts.
+addendum. The 2026-07-14
+[native Google owner-acceptance report](native-google-owner-acceptance-20260714.md)
+supersedes this report's statements that forced refresh was unconfirmed. Use
+the project [README](../README.md) and deployment ledger for current
+cross-thread and live routing facts.
 
 ## Scope And Evidence
 
@@ -23,8 +26,10 @@ tasks:
 All three tasks are complete. The third task deployed native Google Sign-In and
 then disabled built-in email registration/login. The owner subsequently
 completed a real native Google exchange and confirmed direct App entry after
-relaunch. Account continuity, forced refresh, remote logout, and re-login remain
-separate manual acceptance gaps. The original report cross-checked its live
+relaunch. A later pass confirmed real refresh rotation but found native Google
+and Authentik attached to separate users with different normalized-email
+fingerprints. Account continuity, remote logout, and re-login remain manual
+acceptance gaps. The original report cross-checked its live
 claims against the project deployment ledger, dated NAS/container and public
 endpoint evidence, Google Cloud OAuth configuration, and Simulator evidence.
 This closeout update rechecked local Git, tests, builds, and ops documents only;
@@ -37,9 +42,9 @@ data.
 | --- | --- | --- |
 | Canonical product source | Remote `codex/initial-private-publish` is pushed at `199638a`. It includes Cloud commit `b9a5d7b`, iOS commit `e15e553`, the earlier memory seam, Phase 2 recall quality, and Phase 3 runtime metadata. The local canonical checkout retains separate uncommitted StackChan E2E work and was not modified by the fast-forward. | This is committed product source. The memory-only advance was not deployed and is not proof that current live health matches dated evidence. |
 | Product-polish worktree | `codex/pac-ios-product-polish` is clean at `12663dd` and retained as a rollback/source anchor. The converged branch was built from `934cec1` and fast-forwarded into the canonical branch without a merge commit. | The source branch is not the canonical deployment branch and should not be merged again. |
-| Live cloud baseline | The 2026-07-13 repair deployed `xiaoxin-cloud-api:20260713T0137-native-google`. Public API/database/storage, native Google capability and nonce issuance, dedicated JWKS proxying, and Authentik fallback were freshly verified. A follow-up repair disabled unverified email registration/login; both email routes returned 503 and the App button was gray and disabled. OTP remains disabled. | The owner completed a native Google exchange and direct App entry after relaunch, but account/data continuity, forced refresh, remote logout, and re-login remain pending. The retained email credential was not deleted. See [the deployment ledger](../DEPLOYMENT_LEDGER.md). |
+| Live cloud baseline | The 2026-07-13 repair deployed `xiaoxin-cloud-api:20260713T0137-native-google`. On 2026-07-14 public health/readiness still passed, Google and Authentik remained available, email/OTP remained disabled, and one expired-session App relaunch rotated exactly one live refresh family while preserving one current unused token. | Native Google and Authentik are attached to separate users with different normalized-email fingerprints. Account/data continuity is blocked; remote logout and re-login remain pending. The retained email credential was not deleted. See [the deployment ledger](../DEPLOYMENT_LEDGER.md). |
 | Workspace documentation | Deployment and architecture facts through the native-Google/email-disable line were committed in `dc35f3a`; the later workspace docs record product closeout, E2E preflight, and memory Phase 2/3 acceptance separately. | The memory docs pass makes no live change and does not update the deployment ledger. |
-| Native Google migration | Google iOS client `小芯 iOS` exists for `xyz.nodezjc12348888.xiaoxin`; the App pins GoogleSignIn `9.2.0`; the backend verifies signature, audience, authorized party, issuer, time claims, nonce, and verified email. Native Google is preferred with Authentik rollback. The owner completed a real exchange and confirmed direct App entry after relaunch. | Direct entry does not prove original-account/data continuity or that an expired access token was refreshed. Remote logout and subsequent re-login were not directly observed. Built-in email auth remains unavailable pending mailbox verification. |
+| Native Google migration | Google iOS client `小芯 iOS` exists for `xyz.nodezjc12348888.xiaoxin`; the App pins GoogleSignIn `9.2.0`; the backend verifies signature, audience, authorized party, issuer, time claims, nonce, and verified email. Native Google is preferred with Authentik rollback. The owner completed a real exchange; the later pass confirmed direct expired-session refresh and restoration. | Direct restoration does not prove original-account/data continuity. The current native identity is not bound to the legacy Authentik user. Remote logout and subsequent re-login were not directly observed. Built-in email auth remains unavailable pending mailbox verification. |
 
 ## Task Lineage
 
@@ -133,8 +138,9 @@ repair disabled built-in email registration/login because it did not verify
 mailbox ownership before issuing tokens; its App button is now gray and
 non-clickable. The owner later completed the Google screen, received a Xiaoxin
 session, and confirmed
-direct entry after relaunch. Account/data continuity, forced refresh rotation,
-remote logout, and re-login remain unaccepted.
+direct entry after relaunch. The 2026-07-14 acceptance pass later confirmed one
+real refresh rotation, but account/data continuity, remote logout, and re-login
+remain unaccepted because the native and legacy identities are separate users.
 
 ## Durable Product Decisions
 

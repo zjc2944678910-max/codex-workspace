@@ -2,7 +2,7 @@
 
 ## Current Recorded Baseline
 
-- Latest completed automated live verification in this ledger: 2026-07-13.
+- Latest completed automated live verification in this ledger: 2026-07-14.
 - The bounded App-to-StackChan LCD v0.1 field sequence is complete: the owner
   observed `happy` after its correlated acknowledgement, then observed
   safety-terminal `neutral` after its separate correlated acknowledgement.
@@ -15,15 +15,67 @@
   rollback image. The earlier email and direct-flow images remain historical
   anchors.
 - The durable product lineage is committed and pushed on
-  `codex/initial-private-publish` at `9dbfafc`.
-- Native Google Sign-In is deployed. The owner field-confirmed a real native
-  Google exchange and confirmed that an App restart entered directly through
-  the restored session. Original-account and historical-data continuity, a
-  forced expired-token refresh path, remote invalidation/logout, and the full
-  logout/re-login matrix remain independently unconfirmed.
+  `codex/initial-private-publish` at `b536b24`.
+- Native Google Sign-In is deployed. A 2026-07-14 acceptance pass confirmed one
+  real expired-session refresh rotation in the same live family and direct App
+  restoration with local history still visible. The pass also confirmed that
+  native Google and the earlier Authentik identity are separate users with
+  different normalized-email fingerprints. Original-account continuity is
+  blocked; remote logout and re-login await owner confirmation.
 - Built-in email registration and password login are currently disabled because
   the initial flow did not verify mailbox ownership before issuing tokens. The
   retained email account and its data were not deleted.
+
+## 2026-07-14: Native Google Owner Acceptance Checkpoint
+
+Task level: `L3 repair execution` with an L2-first evidence pass.
+Authorization: the parent task explicitly entered repair mode for the Xiaoxin
+native-Google lifecycle slice. No production repair was justified or applied.
+
+### Read-Only Baseline
+
+- Public health and readiness passed. The running image remained
+  `xiaoxin-cloud-api:20260713T0137-native-google`; native Google and Authentik
+  were available, while built-in email and OTP remained disabled.
+- Sanitized database aggregates showed three user records: one password-only
+  record and two distinct one-provider OIDC records. No user had both the
+  native-Google and Authentik identities. Their normalized-email fingerprints
+  differed. No email, subject, token, object content, or complete identifier was
+  read or recorded.
+- All three owners had zero cloud-storage objects, so live historical cloud-data
+  continuity could not be proven by an object round trip. Local App history was
+  visible after session restoration, but that does not prove continuity with
+  the earlier Authentik owner.
+
+### Authorized Live Acceptance Action
+
+- Target: launch the already installed App with an existing native-Google
+  session older than the public 300-second access-token TTL.
+- Reason: verify automatic refresh and rotation without exporting credentials.
+- Risk: consume and rotate exactly one refresh token in the current family.
+- Rollback: do not restore the old token; retain the newly rotated current token
+  and stop on any owner/family drift or HTTP failure.
+- Verification: compare only sanitized family version/used/unused counts before
+  and after launch, then inspect the authenticated UI state.
+- Result: the same family advanced from 10 to 11 token versions, used versions
+  advanced from 9 to 10, and unused current versions remained exactly 1. No
+  other family changed. The App restored directly and displayed its local
+  history.
+
+### Stop Condition And Residual Risk
+
+- The current native-Google account cannot be declared the original account
+  because it is not attached to the earlier Authentik user. Different verified
+  email fingerprints also prevent the existing safe auto-link rule from
+  joining them.
+- No database link, identity move, account merge, storage move, code change,
+  config change, service restart, or deployment was performed.
+- App logout would delete the local session and revoke the active live family.
+  That UI action awaits explicit action-time owner confirmation. Re-login then
+  requires the owner to select the intended Google account in Google's UI.
+- See
+  [native-google-owner-acceptance-20260714.md](reports/native-google-owner-acceptance-20260714.md)
+  for the evidence matrix and exact remaining checkpoint.
 
 ## 2026-07-13: StackChan LCD Bridge Replacement And Bounded E2E Acceptance
 
