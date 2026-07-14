@@ -5,6 +5,14 @@ Date: 2026-07-14
 Status: independent L1 readiness design and source audit complete; production
 memory integration is not ready as one bundled change
 
+Superseded implementation note (2026-07-14): the recommended 4A admission
+contract and 4B candidate-write wiring subsequently landed through `089214f`,
+`e0fed08`, and `78103de` and are retained in canonical `main` at `b8462a9`.
+The writer remains default-off and requires a trusted owner resolver, so the
+production vault, vector, retention, hard-delete, owner-binding, migration,
+recovery, and observability gaps documented below remain current. The original
+`b536b24` findings and ordering are preserved as the pre-implementation audit.
+
 ## Decision
 
 Do not authorize "Memory Phase 4" as a single production implementation.

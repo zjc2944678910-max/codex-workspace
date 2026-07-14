@@ -5,12 +5,14 @@ Date: 2026-07-11
 Status: `local MVP core verified`; current-checkout synthetic ingest seam
 verified; real/private-data integration not started
 
-Superseded current-state note (2026-07-13): this report is retained as the
-historical ingest-seam baseline. Remote canonical product source is now pushed
-at `199638a` after Memory Quality Phase 2 and Runtime Metadata Phase 3. Use
-[memory-runtime-metadata-phase-3-20260713.md](memory-runtime-metadata-phase-3-20260713.md)
-for the current memory source/verification boundary. No live memory deployment
-or real-database migration followed from that source fast-forward.
+Superseded current-state note (updated 2026-07-14): this report is retained as
+the historical ingest-seam baseline. Product `main` is now canonical at
+`b8462a9`; it includes Memory Quality Phase 2, Runtime Metadata Phase 3, and the
+default-off Phase 4A/4B opt-in candidate writer. Use the project
+[README](../README.md) for current facts and
+[memory-phase-4-readiness-20260714.md](memory-phase-4-readiness-20260714.md) for
+the remaining production boundary. No live memory deployment or real-database
+migration followed from those source changes.
 
 ## Evidence Boundary
 

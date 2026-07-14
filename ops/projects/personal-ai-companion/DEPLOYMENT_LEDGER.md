@@ -14,9 +14,10 @@
 - `xiaoxin-cloud-api:20260712T2352-google-state` remains the immediate API
   rollback image. The earlier email and direct-flow images remain historical
   anchors.
-- The durable canonical product lineage is committed and pushed on
-  `codex/initial-private-publish` at `78103de`. The bounded iOS logout repair is
-  pushed separately on `codex/pac-google-logout-revocation-fix` at `b8462a9`.
+- The durable canonical product lineage is committed and pushed on the GitHub
+  default branch `main` at `b8462a9`. Compatibility refs
+  `codex/initial-private-publish` and `codex/pac-google-logout-revocation-fix`
+  currently point to the same commit pending repository cleanup.
 - Native Google Sign-In is deployed. The 2026-07-14 lifecycle pass confirmed a
   real refresh rotation, the intended Google account, same-owner Google and
   Authentik binding, local logout cleanup, and target-only orphan-family
@@ -298,8 +299,9 @@ rollback, not as the first recovery action.
   `172.20.0.1:18989` for key refresh. Cached keys reduce request frequency but
   do not remove that dependency during Google key rotation.
 - At the 2026-07-13 deployment, the source came from the dirty product-polish
-  worktree. That source lineage was later committed at `b9a5d7b` and is retained
-  in the current canonical product lineage at `9dbfafc`. Exact byte-for-byte or
+  worktree. That source lineage was later committed at `b9a5d7b`, was present by
+  StackChan landing commit `9dbfafc`, and remains in current canonical
+  `b8462a9`. Exact byte-for-byte or
   build-provenance correspondence between the running image and a specific
   commit remains unconfirmed without independent evidence. A signed real-device
   or App Store build also remains unconfirmed.

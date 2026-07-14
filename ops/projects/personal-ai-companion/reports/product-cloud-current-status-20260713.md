@@ -2,13 +2,15 @@
 
 - Date: 2026-07-13
 - Product name: `小芯` (`Xiaoxin`)
-- Status: all three source tasks complete; native Google login is owner-confirmed,
+- Historical status: all three source tasks complete; native Google login is owner-confirmed,
   the iOS/cloud convergence remains anchored at `e15e553`, canonical product
   source is pushed at `199638a` after a source-only memory fast-forward, and the
   first StackChan E2E slice is statically preflighted but not accepted end to end
 
 This is the dated iOS/cloud closeout snapshot, with a later source-only memory
-addendum. The 2026-07-14
+addendum. It is not the current product-state source: canonical is now `main` at
+`b8462a9`, after StackChan, Memory Phase 4A/4B, and logout-revocation repair
+landed. The 2026-07-14
 [native Google owner-acceptance report](native-google-owner-acceptance-20260714.md)
 supersedes this report's statements that forced refresh was unconfirmed. Use
 the project [README](../README.md) and deployment ledger for current

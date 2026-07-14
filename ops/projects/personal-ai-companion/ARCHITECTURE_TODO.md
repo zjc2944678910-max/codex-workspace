@@ -19,11 +19,13 @@ or the project README.
 
 ### 2026-07-14 Mainline Snapshot
 
-- Clean remote committed baseline: `codex/initial-private-publish` is pushed at
-  `b536b24`. It retains the repository-hygiene (`e883a91`), cloud (`b9a5d7b`),
-  iOS (`e15e553`), memory quality/runtime-metadata, and 12-expression
-  local-preview commits, then integrates the bounded v0.1 StackChan LCD E2E
-  source and tests.
+- Clean remote committed baseline: the product default branch `main` is pushed
+  at `b8462a9`; compatibility refs `codex/initial-private-publish` and
+  `codex/pac-google-logout-revocation-fix` currently point to the same commit.
+  It retains repository hygiene (`e883a91`), cloud (`b9a5d7b`), iOS
+  (`e15e553`), memory quality/runtime metadata, bounded StackChan LCD v0.1 E2E,
+  default-off Memory Phase 4A/4B source through `78103de`, and the iOS logout
+  pending-revocation repair.
 - Product closeout: `codex/pac-ios-product-polish` is clean at `12663dd` and is
   retained as a source rollback anchor. The converged branch was created from
   `934cec1`, passed final verification, and fast-forwarded into the canonical
@@ -39,10 +41,10 @@ or the project README.
   account, and sanitized live evidence showed native Google and Authentik bound
   to the same owner. App logout cleared local Keychain state but returned `401`;
   iOS incorrectly removed the unresolved pending marker while the new family
-  remained active. Repair commit `b8462a9` is pushed on
-  `codex/pac-google-logout-revocation-fix`, and the single orphan family was
-  revoked under a verified database backup without changing other families or
-  owner data. Same-account re-login and historical-data recovery remain pending.
+  remained active. Repair commit `b8462a9` is now canonical on `main`, and the
+  single orphan family was revoked under a verified database backup without
+  changing other families or owner data. Same-account re-login and
+  historical-data recovery remain pending.
 
 ### Current Corrections
 
@@ -69,7 +71,8 @@ or the project README.
   queue/result state remains unchanged. This does not establish
   repeated or unattended reliability.
 - iOS product/UI: the three-task line superseded the earlier mock-visual queue.
-  The committed branch through `9dbfafc` has Xiaoxin branding/icon, user-scoped
+  StackChan feature landing `9dbfafc`, retained in current canonical
+  `b8462a9`, has Xiaoxin branding/icon, user-scoped
   chat-history and device-cover storage, identity UI, native Google with
   Authentik rollback, and a multi-account logout-revocation retry queue. Final
   product convergence remains accepted; the later LCD E2E closeout passed
@@ -102,16 +105,17 @@ or the project README.
   active. Commit `b8462a9` retains pending markers for every non-`204` response,
   including `401` and unexpected `202`. The one orphan family was separately
   revoked under backup; no cross-owner merge or data move occurred.
-- Memory/privacy: product branch `codex/initial-private-publish` is pushed at
-  `b536b24` and retains the review/promotion seam through `934cec1`, then adds
-  canonical recall selection and persisted runtime metadata through `199638a`.
-  The committed
-  branch is
+- Memory/privacy: product `main` is pushed at `b8462a9` and retains the
+  review/promotion seam through `934cec1`, canonical recall selection and
+  persisted runtime metadata through `199638a`, and default-off explicit opt-in
+  admission/candidate-write source through `78103de`. The committed branch is
   **local MVP core verified**, not design-only. The chat-integrated path covers
   bounded context, candidate review/promotion, scoped recall, privacy
   projection, owner admin, consent and class policy; vault/key and retention
   components remain isolated safety primitives or synthetic contracts.
-  Phase 3 acceptance passed `419` memory tests and `1072` full Python tests.
+  Phase 3 acceptance passed `419` memory tests and `1072` full Python tests;
+  current full verification passes `1161` tests. Phase 4B fails closed without a
+  trusted owner resolver and is not enabled by default.
   The earlier iOS convergence built the Swift App target and passed AppFlow
   smoke. No real/private database or data path was inspected. See
   [memory-runtime-metadata-phase-3-20260713.md](reports/memory-runtime-metadata-phase-3-20260713.md).
@@ -149,8 +153,9 @@ or the project README.
   ordinary `/v1/chat` extraction, vector recall, retention executor, vault
   wiring, deployment, or live operation occurred. See
   [memory-runtime-metadata-phase-3-20260713.md](reports/memory-runtime-metadata-phase-3-20260713.md).
-- Memory integration boundary: canonical committed source at `9dbfafc`
-  includes the synthetic Approved Persona Memory Summary and App/bridge contracts from
+- Memory integration boundary: source present by feature landing `9dbfafc` and
+  retained in current canonical `b8462a9` includes the synthetic Approved
+  Persona Memory Summary and App/bridge contracts from
   `3019a8c`, plus the explicit synthetic review-turn seam and privacy/state
   repairs through `4a3a7df` and `32b9d96`. The bounded seam applies NFKC before
   compositional opt-out and targeted mixed-script credential checks, including
@@ -161,10 +166,11 @@ or the project README.
   transitions with atom/review/audit transaction alignment. It now also carries
   canonical recall selection, persisted fact identity/expiry, metadata-first
   recall, and expiry-independent source-event replay. Current focused evidence
-  is `419` memory tests and `1072` full Python tests. The branch is pushed, but
-  this is not live memory integration. Ordinary
-  `/v1/chat` extraction stays disabled; the rule set is bounded rather than a
-  broad natural-language classifier. None of these
+  is `419` memory tests and `1072` full Python tests. Later Phase 4A/4B source
+  adds an explicit opt-in candidate writer to `/v1/chat`, but it is default-off
+  and requires a trusted owner resolver. This is not live memory integration or
+  automatic extraction; the rule set is bounded rather than a broad
+  natural-language classifier. None of these
   lines authorizes raw private-data access, real data migration, retention
   execution, or persona imitation from unapproved private material.
 - Visual likeness: the owner has attested consent for a future visual-likeness
@@ -208,9 +214,11 @@ or the project README.
 | Order | Task ID | Type | Dependency / manual gate | Owned surface |
 | --- | --- | --- | --- | --- |
 | 0 | `PAC-DOCS-SYNC` | L1 | Required before every implementation wave. | The assigned ops docs only. |
-| 1 | `PAC-MEMORY-LOCAL-INGEST-SEAM` (`completed`, canonical) | L1 | Memory slice anchored at `934cec1` and retained in current canonical `9dbfafc`; synthetic fixtures and temporary SQLite only. | Committed memory candidate/review/privacy state machine; no ordinary-chat extraction or real data. |
+| 1 | `PAC-MEMORY-LOCAL-INGEST-SEAM` (`completed`, canonical) | L1 | Memory slice anchored at `934cec1` and retained in current canonical `b8462a9`; synthetic fixtures and temporary SQLite only. | Committed memory candidate/review/privacy state machine; no automatic ordinary-chat extraction or real data. |
 | 1a | `PAC-MEMORY-RECALL-QUALITY-PHASE-2` (`completed`, canonical) | L1 | Product commits `e764b2f` and `6feb142`; isolated synthetic/temp-store acceptance only. | Canonical winner selection and bounded recall-quality inspection; no real data or retention execution. |
 | 1b | `PAC-MEMORY-RUNTIME-METADATA-PHASE-3` (`completed`, canonical) | L1 after L3-authorized local implementation | Product commits `f758875`, `1d38c3d`, and `199638a`; `419` memory and `1072` full tests. | Persisted runtime identity/expiry and metadata-first recall; no real database, automatic producer, scheduler, or deletion. |
+| 1c | `PAC-MEMORY-PHASE-4A-OPT-IN-ADMISSION` (`completed`, canonical) | L1 | Product commits `089214f` and `e0fed08`; pure bounded admission with synthetic tests. | Explicit structured opt-in classification only; no store or live action. |
+| 1d | `PAC-MEMORY-PHASE-4B-CANDIDATE-WRITE` (`completed source`, default off) | L1 | Product commit `78103de`; temp-store tests and trusted-owner fail-closed gate. | Writer is disabled by default; production owner binding, live enablement, migration, vault, vector, retention, and hard delete remain absent. |
 | 2 | `PAC-NATIVE-GOOGLE-DIRECT` (`completed deployment`) | L3 historical | Task `019f53e3-4888-7dd1-9dbe-7e7e69354cc6` is complete; its authorization is consumed. | Native Google deployed with Authentik fallback; built-in email and SMS disabled. |
 | 3 | `PAC-NATIVE-GOOGLE-OWNER-ACCEPTANCE` (`repair complete; re-login pending`) | Manual/L2 with bounded L3 repair completed | Expected-account selection, same-owner Google/Authentik binding, real refresh rotation, local logout cleanup, iOS pending-marker repair, and target-only orphan-family revocation are confirmed. Product repair is pushed at `b8462a9`; the live backup and evidence are recorded in the acceptance report. | Direct live replay of deleted old tokens and same-account re-login/historical-data recovery remain unconfirmed. No further live action is authorized by the consumed repair card. |
 | 4 | `PAC-PRODUCT-POLISH-CLOSEOUT` (`completed`) | L1 | Converged and pushed at `e15e553`; source rollback branch retained at `12663dd`. | Repository hygiene, Cloud, and iOS slices are independently committed and verified. |
@@ -221,10 +229,10 @@ or the project README.
 The detailed classification, dependencies, manual gates, and stop conditions are
 normative in the runbook; this table is intentionally not a concurrency plan.
 
-Memory retention has no selected real-data follow-up item. The completed memory
-Phases 1-3 used synthetic fixtures and `:memory:`/temporary SQLite; they did not
-read or migrate existing private data, add an automatic expiry producer or
-scheduler, or execute retention/deletion. If the owner
+Memory retention has no selected real-data follow-up item. Memory Phases 1-4B
+used synthetic fixtures and `:memory:`/temporary SQLite; they did not read or
+migrate existing private data, enable automatic extraction, add an automatic
+expiry producer or scheduler, or execute retention/deletion. If the owner
 later elects to authorize real integration, the recommended distinct manual
 gate is `PAC-MEMORY-RETENTION-PRODUCER-L3-PREFLIGHT`; it is **not scheduled**.
 Before that L3 preflight can start, fresh explicit owner authorization must name
