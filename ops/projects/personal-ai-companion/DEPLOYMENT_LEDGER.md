@@ -15,9 +15,9 @@
   rollback image. The earlier email and direct-flow images remain historical
   anchors.
 - The durable canonical product lineage is committed and pushed on the GitHub
-  default branch `main` at `b8462a9`. Compatibility refs
+  default branch `main` at `b8462a9`. Redundant compatibility refs
   `codex/initial-private-publish` and `codex/pac-google-logout-revocation-fix`
-  currently point to the same commit pending repository cleanup.
+  were retired after the fast-forward promotion.
 - Native Google Sign-In is deployed. The 2026-07-14 lifecycle pass confirmed a
   real refresh rotation, the intended Google account, same-owner Google and
   Authentik binding, local logout cleanup, and target-only orphan-family

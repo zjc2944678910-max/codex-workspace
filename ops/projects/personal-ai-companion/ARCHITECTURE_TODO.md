@@ -20,8 +20,8 @@ or the project README.
 ### 2026-07-14 Mainline Snapshot
 
 - Clean remote committed baseline: the product default branch `main` is pushed
-  at `b8462a9`; compatibility refs `codex/initial-private-publish` and
-  `codex/pac-google-logout-revocation-fix` currently point to the same commit.
+  at `b8462a9`; redundant compatibility refs `codex/initial-private-publish`
+  and `codex/pac-google-logout-revocation-fix` were retired after promotion.
   It retains repository hygiene (`e883a91`), cloud (`b9a5d7b`), iOS
   (`e15e553`), memory quality/runtime metadata, bounded StackChan LCD v0.1 E2E,
   default-off Memory Phase 4A/4B source through `78103de`, and the iOS logout

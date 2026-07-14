@@ -31,10 +31,10 @@ node docs/workspace/codex-register-project.mjs --regen
 ## Ops Quality Baseline
 
 - Current status: Mixed local/live product. The product source of truth and
-  GitHub default branch are `main` at `b8462a9`; compatibility refs
+  GitHub default branch are `main` at `b8462a9`; redundant compatibility refs
   `codex/initial-private-publish` and `codex/pac-google-logout-revocation-fix`
-  currently point to the same commit pending repository cleanup. The canonical
-  source retains the Xiaoxin iOS, five-type HealthKit, cloud auth, branding,
+  were retired after the fast-forward promotion. The canonical source retains
+  the Xiaoxin iOS, five-type HealthKit, cloud auth, branding,
   owner-scoped storage, bounded StackChan LCD v0.1 E2E, synthetic-verified
   memory phases, and the default-off Phase 4A/4B opt-in candidate writer.
   The owner field-confirmed one `happy` transaction and one safety-terminal
