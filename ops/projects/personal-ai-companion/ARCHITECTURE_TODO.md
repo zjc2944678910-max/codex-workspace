@@ -34,13 +34,15 @@ or the project README.
   storage, database, tunnel, capability, disabled-route, and Simulator-button
   checks have rollback anchors in `DEPLOYMENT_LEDGER.md`.
 - Authentication acceptance checkpoint: a 2026-07-14 relaunch after the live
-  300-second access TTL rotated the same native-Google refresh family exactly
-  once and restored the authenticated App with its local history visible.
-  Read-only live aggregates also proved that native Google and the earlier
-  Authentik identity are separate users with different normalized-email
-  fingerprints. Original-account continuity is therefore blocked, not
-  accepted; remote logout and re-login await the owner's action-time
-  confirmation. No code, config, schema, account, or data repair was made.
+  300-second access TTL rotated the same refresh family exactly once. The owner
+  later confirmed the selected Google account was the intended original
+  account, and sanitized live evidence showed native Google and Authentik bound
+  to the same owner. App logout cleared local Keychain state but returned `401`;
+  iOS incorrectly removed the unresolved pending marker while the new family
+  remained active. Repair commit `b8462a9` is pushed on
+  `codex/pac-google-logout-revocation-fix`, and the single orphan family was
+  revoked under a verified database backup without changing other families or
+  owner data. Same-account re-login and historical-data recovery remain pending.
 
 ### Current Corrections
 
@@ -93,12 +95,13 @@ or the project README.
   passed 57 cloud tests, Ruff, Swift smoke, Simulator build, public capability
   probes, and direct navigation to `accounts.google.com`. The owner later
   completed a real native exchange. The later 2026-07-14 pass confirmed one
-  real automatic refresh rotation and direct restored entry, but found that the
-  native and legacy external identities are not attached to the same user and
-  do not share a normalized-email fingerprint. The owner must identify the
-  intended account before logout/re-login. Cross-email identity or data repair
-  remains prohibited without proof of both identities and a separate backup,
-  rollback, and verification card.
+  real automatic refresh rotation, and the owner confirmed the next selected
+  Google account was the intended original account. That exchange bound Google
+  and Authentik to the same owner. A reproduced logout `401` exposed a client
+  defect: unresolved pending revocation was cleared while the family remained
+  active. Commit `b8462a9` retains pending markers for every non-`204` response,
+  including `401` and unexpected `202`. The one orphan family was separately
+  revoked under backup; no cross-owner merge or data move occurred.
 - Memory/privacy: product branch `codex/initial-private-publish` is pushed at
   `b536b24` and retains the review/promotion seam through `934cec1`, then adds
   canonical recall selection and persisted runtime metadata through `199638a`.
@@ -209,7 +212,7 @@ or the project README.
 | 1a | `PAC-MEMORY-RECALL-QUALITY-PHASE-2` (`completed`, canonical) | L1 | Product commits `e764b2f` and `6feb142`; isolated synthetic/temp-store acceptance only. | Canonical winner selection and bounded recall-quality inspection; no real data or retention execution. |
 | 1b | `PAC-MEMORY-RUNTIME-METADATA-PHASE-3` (`completed`, canonical) | L1 after L3-authorized local implementation | Product commits `f758875`, `1d38c3d`, and `199638a`; `419` memory and `1072` full tests. | Persisted runtime identity/expiry and metadata-first recall; no real database, automatic producer, scheduler, or deletion. |
 | 2 | `PAC-NATIVE-GOOGLE-DIRECT` (`completed deployment`) | L3 historical | Task `019f53e3-4888-7dd1-9dbe-7e7e69354cc6` is complete; its authorization is consumed. | Native Google deployed with Authentik fallback; built-in email and SMS disabled. |
-| 3 | `PAC-NATIVE-GOOGLE-OWNER-ACCEPTANCE` (`blocked on owner checkpoint`) | Manual/L2 with bounded L3 authorization | Native exchange, restored direct App entry, and one real expired-session refresh rotation are confirmed. The owner must state whether the currently shown Google account is the intended original account and explicitly confirm App logout before the next UI action. | Native Google and Authentik currently map to separate users with different normalized-email fingerprints. Historical-data continuity, live old-token rejection after logout, and same-account re-login remain unconfirmed; no cross-email merge is authorized. |
+| 3 | `PAC-NATIVE-GOOGLE-OWNER-ACCEPTANCE` (`repair complete; re-login pending`) | Manual/L2 with bounded L3 repair completed | Expected-account selection, same-owner Google/Authentik binding, real refresh rotation, local logout cleanup, iOS pending-marker repair, and target-only orphan-family revocation are confirmed. Product repair is pushed at `b8462a9`; the live backup and evidence are recorded in the acceptance report. | Direct live replay of deleted old tokens and same-account re-login/historical-data recovery remain unconfirmed. No further live action is authorized by the consumed repair card. |
 | 4 | `PAC-PRODUCT-POLISH-CLOSEOUT` (`completed`) | L1 | Converged and pushed at `e15e553`; source rollback branch retained at `12663dd`. | Repository hygiene, Cloud, and iOS slices are independently committed and verified. |
 | 5 | `PAC-HEALTHKIT-RELEASE-SCOPE` (`partially completed`) | L1/L2 | Minimum read scope is now five types and clinical/Health Records declarations are removed; real-data and distribution testing remain separately gated. | Signed-device preflight and App Store/privacy review remain; no real health-data access is authorized. |
 | 6 | `PAC-IOS-STACKCHAN-E2E-PREFLIGHT` (`completed`) | L2 | Static review completed without live access; clean convergence is now an execution prerequisite for order 7, not a prerequisite for this completed design review. | Selected v0.1 LCD `happy -> ack -> neutral -> ack`; no device action. See [the preflight report](reports/app-bridge-stackchan-e2e-preflight-20260713.md). |

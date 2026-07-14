@@ -31,29 +31,32 @@ node docs/workspace/codex-register-project.mjs --regen
 ## Ops Quality Baseline
 
 - Current status: Mixed local/live product. The remote canonical product branch
-  `codex/initial-private-publish` is pushed at `b536b24`. It retains the Xiaoxin
+  `codex/initial-private-publish` is pushed at `78103de`. It retains the Xiaoxin
   iOS, five-type HealthKit, cloud-auth, branding, owner-scoped storage, and
   synthetic-verified memory phases, then adds the bounded v0.1 StackChan LCD
   E2E source and tests. The owner field-confirmed one `happy` transaction and
   one safety-terminal `neutral` transaction with separate correlated
   acknowledgements; the final Bridge queue depth was `0`.
   The 2026-07-14 owner-acceptance pass confirmed a real expired-session refresh
-  and refresh-token rotation in the same live family. It also found that native
-  Google and the earlier Authentik identity currently belong to separate users
-  with different normalized-email fingerprints, so original-account continuity
-  is blocked rather than accepted. Remote logout and re-login still require the
-  owner's action-time confirmation. See the
+  and refresh-token rotation. The owner then confirmed the selected Google
+  account was the intended original account; sanitized live evidence showed the
+  resulting owner has both native-Google and Authentik identities. App logout
+  cleared local state, but its remote call returned `401` and exposed an iOS
+  defect that discarded the unresolved pending marker. Product repair commit
+  `b8462a9` is pushed on `codex/pac-google-logout-revocation-fix`, and the single
+  orphan family was revoked under a verified database backup. Same-account
+  re-login and historical-data recovery remain owner-observed checkpoints. See
+  the
   [acceptance report](reports/native-google-owner-acceptance-20260714.md).
 - Risk gate: Local docs and isolated code remain L0/L1. Any NAS, VPS, Cloudflare, Google Cloud, public endpoint, live authentication, database, tunnel, or deployed-image inspection is L2 read-only; any state change is L3 and requires the exact phrase `进入修复阶段` for that named repair slice.
 - Common commands:
   - `node docs/workspace/find-project.mjs personal-ai-companion`
   - `node docs/workspace/workspace-health.mjs --repo "$PWD" --limit 12`
   - Project-specific commands belong in `## Key Commands` or project runbooks once confirmed.
-- Next useful work: The owner must first confirm whether the Google account now
-  shown in the App is the intended original account, then explicitly confirm
-  the App logout action. Do not merge the two external identities or move data
-  unless ownership of both sides is independently proven and a separate repair
-  card preserves account/data identity. The bounded App-to-StackChan v0.1 LCD
+- Next useful work: The owner may perform one same-account Google re-login to
+  finish the remaining lifecycle checkpoint; Codex must not enter or inspect
+  credentials. No identity merge or data move is needed or authorized. The
+  bounded App-to-StackChan v0.1 LCD
   slice is accepted and closed; any repeat field execution, reliability run,
   live allowlist expansion, or additional hardware capability is a new task
   with a fresh risk gate. Keep every live change and rollback anchor in
@@ -72,9 +75,9 @@ runbook](runbooks/continuous-program-authorization-and-task-lifecycle.md).
 | --- | --- | --- |
 | StackChan hardware | Bounded standalone checks are `field-confirmed` for the LCD expression path, audible playback, X/Y servo movement and return, active three-zone head-touch transitions, and one local low-resolution camera frame. The completed session ended with queue depth `0`, servos powered off, camera off, audio muted, and serial closed. See [the field-verification report](reports/stackchan-hardware-field-verification-20260711.md). | Whether a visible camera activity indicator activated was not verified. Repeated/unattended reliability, a full motion envelope, continuous boot polling, and any repeat execution remain unconfirmed and unauthorized. |
 | StackChan App integration | On 2026-07-13 the owner observed the App-driven v0.1 sequence `happy -> correlated ACK -> neutral -> correlated ACK`; the final screen was `neutral` and Bridge queue depth was `0`. Durable source is pushed at product commit `9dbfafc`; malformed ACK-like events are now rejected by the real `/stackchan/events` HTTP route with queue/result state unchanged. The source also contains the App client, Keychain-backed credential seam, authenticated command/result routes, TTL/idempotency handling, Host injection, and Simulator-only UI build target. See [the acceptance report](reports/app-bridge-stackchan-e2e-acceptance-20260713.md). | This accepts one bounded sequence, not repeated/unattended reliability or a production deployment expansion. The real v0.1 live allowlist remains only `happy` and `neutral`; audio, motion, camera, touch, memory, HealthKit, background polling, firmware, and other hardware remain outside this slice. |
-| iOS product | Remote product branch `codex/initial-private-publish` is pushed at `b536b24`. It retains the accepted Xiaoxin product, cloud/auth, HealthKit, memory, and 12-expression local-preview work, then integrates and hardens the bounded LCD E2E source. Independent closeout passed `1080` Python tests, App target build, four Swift smoke products, IntegrationDesign smoke, and `StackChanLCDE2EUI` Simulator `build-for-testing`. | Real-device signing and App Store distribution remain unconfirmed. The 12 expressions are App-local preview assets only; they are not a 12-expression live-device protocol. Legacy unscoped chat/cover files remain deliberately unmigrated. |
+| iOS product | Remote canonical branch `codex/initial-private-publish` is pushed at `78103de`. Repair branch `codex/pac-google-logout-revocation-fix` is pushed at `b8462a9`; logout now accepts only HTTP `204` as remote-revocation success and retains pending markers for `401`, `202`, and temporary failures. Final verification passed `1161` Python tests, AppFlow smoke, Ruff, Swift App build, and the Simulator Host build. The repaired Host is installed on `PAC-Identity-Gate-QA`. | The repair branch is not yet merged into canonical. Real-device signing and App Store distribution remain unconfirmed. The 12 expressions are App-local preview assets only; they are not a 12-expression live-device protocol. |
 | HealthKit | The committed iOS host requests read-only access only for steps, active energy, heart rate, sleep, and workouts. Chat receives the same five bounded local trend-summary families. Health Records entitlement and clinical-purpose claims are absent; build and `44/44` smoke evidence passed. | Apple still requires per-item owner consent; the callback cannot prove every item was granted. No real-device, signed distribution, or real health-data read was accepted here. |
-| Xiaoxin cloud/auth | The running image remains `xiaoxin-cloud-api:20260713T0137-native-google`; 2026-07-14 health/readiness checks passed with Google and Authentik available and email/OTP disabled. Relaunching the existing App session after the 300-second access TTL rotated exactly one live refresh family from 10 to 11 token versions, with one unused current token before and after, and restored the signed-in App with its local history visible. | The live identity aggregate has three users: one password-only user and two separate one-provider OIDC users. Native Google and the earlier Authentik identity have different normalized-email fingerprints, so original-account/historical-data continuity is not accepted and no cross-email merge is authorized. Remote logout, proof that old live tokens are rejected, and re-login remain pending owner action. The retained email credential is not deleted. See [the acceptance report](reports/native-google-owner-acceptance-20260714.md). |
+| Xiaoxin cloud/auth | The running image remains `xiaoxin-cloud-api:20260713T0137-native-google`; health/readiness/capabilities pass with Google and Authentik available and email/OTP disabled. The owner confirmed the selected Google account was the intended original account, and sanitized live evidence showed both external identities on owner `d07f...`. Automatic refresh/rotation was confirmed earlier. Logout cleared Simulator Keychain state but returned `401`; the resulting single orphan family `b18f...` was revoked at `2026-07-14T14:22:57+08:00` under a verified backup. All other families and account/data counts remained unchanged. | Direct replay of the securely deleted old access/refresh credentials was not performed; rejection is supported by the inactive live family plus automated tests, not a live token replay. Same-account re-login and historical-data recovery remain unconfirmed. The retained email credential was not deleted. See [the acceptance report](reports/native-google-owner-acceptance-20260714.md). |
 | Memory/privacy | Product branch `codex/initial-private-publish` is pushed at `b536b24` and retains the memory lineage through `199638a`. It contains the earlier explicit review/promotion and privacy seam plus Phase 2 canonical recall selection and Phase 3 nullable `fact_key`/`expires_at_ms` persistence, metadata-first disclosure, expiry filtering without deletion, and expiry-independent source-event replay. Independent Phase 3 acceptance passed `419` memory tests and `1072` full Python tests. See [the Phase 3 acceptance report](reports/memory-runtime-metadata-phase-3-20260713.md); the older [memory-layer status](reports/memory-layer-current-status-20260711.md) is retained as a historical baseline. | This is committed product source, not live memory integration or evidence of a real-database migration. No real/private database or data path was inspected. Automatic ordinary-chat extraction, semantic/vector retrieval, broad automatic conflict resolution, vault-at-rest store wiring, authoritative retention execution, hard deletion, memory runtime auth/admin UI, and real NAS/HealthKit/cloud memory authorization remain unimplemented or unconfirmed. |
 | Style/persona | Local style mechanisms and synthetic evaluation surfaces are historical implementation evidence. The owner has attested consent for a future visual-likeness slice; no identifying material or consent text is stored here. | Voice, writing style, private chats, provider upload, real-device display, revocation handling, and private-data use remain separate gates. |
 

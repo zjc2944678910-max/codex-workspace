@@ -14,23 +14,91 @@
 - `xiaoxin-cloud-api:20260712T2352-google-state` remains the immediate API
   rollback image. The earlier email and direct-flow images remain historical
   anchors.
-- The durable product lineage is committed and pushed on
-  `codex/initial-private-publish` at `b536b24`.
-- Native Google Sign-In is deployed. A 2026-07-14 acceptance pass confirmed one
-  real expired-session refresh rotation in the same live family and direct App
-  restoration with local history still visible. The pass also confirmed that
-  native Google and the earlier Authentik identity are separate users with
-  different normalized-email fingerprints. Original-account continuity is
-  blocked; remote logout and re-login await owner confirmation.
+- The durable canonical product lineage is committed and pushed on
+  `codex/initial-private-publish` at `78103de`. The bounded iOS logout repair is
+  pushed separately on `codex/pac-google-logout-revocation-fix` at `b8462a9`.
+- Native Google Sign-In is deployed. The 2026-07-14 lifecycle pass confirmed a
+  real refresh rotation, the intended Google account, same-owner Google and
+  Authentik binding, local logout cleanup, and target-only orphan-family
+  revocation. Same-account re-login and direct live replay of deleted old token
+  values remain unconfirmed.
 - Built-in email registration and password login are currently disabled because
   the initial flow did not verify mailbox ownership before issuing tokens. The
   retained email account and its data were not deleted.
 
-## 2026-07-14: Native Google Owner Acceptance Checkpoint
+## 2026-07-14: Native Google Logout Repair And Orphan-Family Revocation
+
+Task level: `L3 repair execution` after L2 evidence.
+Authorization: the owner explicitly said `进入修复阶段` for the iOS
+`401`/pending-marker defect and the single family created by this acceptance
+run. No deployment, restart, config change, schema change, account merge, or
+account/data deletion was authorized or performed.
+
+### Confirmed Defect And Code Repair
+
+- The App logout UI cleared the local session, but `/v1/auth/logout` returned
+  `401 invalid_refresh_token`; the newly created family remained active.
+  Keychain then showed `session=0` and `pending=0`.
+- Confirmed client defect: `revokePendingSession` treated `401` as resolved and
+  removed the pending marker even though no server revocation occurred.
+- Exact credential mutation or mismatch point is unconfirmed because the local
+  value was securely deleted and neither request bodies nor token digests were
+  logged or re-read.
+- Product commit `b8462a9` maps `invalid_refresh_token` distinctly, retains the
+  pending marker after every error or non-`204` 2xx response, accepts only HTTP
+  `204` as logout success, and adds exchange-to-persist-to-view-model-to-signout,
+  `401`, `202`, crash-recovery, and server logout coverage.
+- Verification passed: focused Google/token tests `20`, full Python `1161`,
+  targeted Ruff, AppFlow smoke, Swift App target build, and Simulator Host
+  build. GitNexus `detect_changes` reported only the three intended product
+  files at high auth-flow risk. The repaired Host was installed on
+  `PAC-Identity-Gate-QA`; fresh UI was signed out and Keychain remained `0/0`.
+
+### Live Backup And Transaction
+
+- The first dump attempt at
+  `/var/backups/xiaoxin-auth/20260714T141835+0800/pac-google-orphan-family-revoke`
+  failed before a usable dump because of an invalid `pg_dump` argument. It did
+  not modify the database and is not a rollback anchor.
+- Verified backup:
+  `/var/backups/xiaoxin-auth/20260714T141922+0800/pac-google-orphan-family-revoke`.
+  It contains a PostgreSQL custom-format dump plus sanitized before/after family
+  and aggregate snapshots. `pg_restore --list` and `SHA256SUMS` passed; dump
+  SHA-256 is
+  `d59e335d49d727ce6ccb91f744fe92b588cf26f0ea196437158c83e88935aaeb`.
+- The transaction located exactly one active family using owner ref
+  `d07f3d8eda88`, family ref `b18f957e7597`, exact creation time
+  `2026-07-14T13:30:00+08:00`, native-Google identity membership, and token
+  counts `1 total / 0 used / 1 unused`. It locked the candidate and required
+  `UPDATE rowcount=1`; otherwise the transaction would have rolled back.
+- The target became revoked at `2026-07-14T14:22:57+08:00`. All other family
+  snapshot rows were byte-identical. Counts changed only from `4 active / 2
+  revoked` to `3 active / 3 revoked`; users `3`, identities `3`, storage objects
+  `0`, and retained email credentials `1` were unchanged.
+- Public health, readiness, and capabilities remained healthy. Google and
+  Authentik stayed available; built-in email and OTP stayed disabled.
+
+### Rollback State And Limits
+
+- Database rollback was not invoked. The family revocation is intentionally
+  irreversible; normal recovery is a user-controlled same-account Google
+  re-login. The full dump is a disaster-recovery anchor, not a routine way to
+  re-enable one family.
+- The pre-install QA `.app` is retained under excluded scratch material. The
+  final repaired build is installed and signed out; no Simulator data reset was
+  performed.
+- Direct requests using the deleted old access/refresh values were not replayed.
+  Live rejection is supported by the inactive family and server contract, and
+  automated tests directly prove both token classes are rejected after family
+  revocation; direct live token replay remains unconfirmed.
+
+## 2026-07-14: Native Google Owner Acceptance Checkpoint (Historical)
 
 Task level: `L3 repair execution` with an L2-first evidence pass.
 Authorization: the parent task explicitly entered repair mode for the Xiaoxin
-native-Google lifecycle slice. No production repair was justified or applied.
+native-Google lifecycle slice. At this historical checkpoint no production
+repair had yet been justified or applied; the later section above supersedes
+its current-state conclusions.
 
 ### Read-Only Baseline
 
