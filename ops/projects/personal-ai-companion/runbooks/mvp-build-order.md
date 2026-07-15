@@ -3,7 +3,7 @@
 Use this runbook when starting implementation so the project does not drift
 into firmware work, model training, or live/NAS repair too early.
 
-Current baseline (2026-07-15): product `main@b6209a7` contains a source-gated
+Current baseline (2026-07-15): product `main@4a8b52e` contains a source-gated
 authenticated iOS-to-cloud chat path that is off by default. When enabled with
 its trusted dependencies, non-temporary turns persist atomically, temporary
 turns skip persistence, and expired bounded context is pruned at startup and
@@ -11,8 +11,10 @@ periodically. That authenticated route explicitly disables memory-candidate
 writes. The same baseline contains the accepted transport-free integration
 contracts plus the local encrypted custom-provider registry and bounded 9B
 runtime integration. It has an owner-authenticated redacted Provider API,
-default-off iOS status/selection, and an injected-executor synthetic `normal`
-route, but no default network transport or live optional-integration vertical.
+default-off backend/local iOS status/selection wiring, and an injected-executor
+synthetic `normal` route, but no default network transport or live
+  optional-integration vertical. The current iOS MVP navigation does not expose
+  custom-provider selection or MCP controls.
 Product `2dc2948` also accepts the local/mock MCP gateway for exactly
 `server.local.context/context.today`, with strict allowlisting, bounded
 execution, idempotency/concurrency limits, and metadata-only audit. It adds no
@@ -49,6 +51,13 @@ and [acceptance report](../reports/health-source-abstraction-v0.1-acceptance-202
 The Python
 `pac.health_source.v0.1` DTO remains authoritative for numeric windows,
 cryptographic content hashes, freshness, and multi-source conflict composition.
+The owner-summary follow-up is accepted at product `4a8b52e`: `36` focused
+intake tests, `60` combined health tests, and `1475` full Python tests passed
+with the existing warning. It remains transport-free and does not read a file,
+open a network connection, invoke a Shortcut, transmit to cloud chat, or expose
+an iOS UI. The next local candidate is
+`PAC-HEALTH-MANUAL-EXPORT-NORMALIZATION`, limited to synthetic mapping fixtures;
+the Personal Team device gate remains optional/deferred.
 
 ## Route Lock Template
 
@@ -333,15 +342,32 @@ chat, memory, or another health source.
 The first fallback entries are owner-run Shortcut/webhook and manual Apple
 Health export, followed by selected third-party adapters. They are represented
 as planned inert adapters that fail closed with a typed unavailable result.
-Implementing intake is a later task and requires its own privacy, parsing,
-transport, and owner-approval review.
+The owner-summary contract is accepted separately as a transport-free
+fixture/test boundary; it does not enable intake. Manual-export parsing or any
+later file, network, or owner-approval work requires a separate task and review.
 
-## Current Continuation 6: Personal Team Device Acceptance
+## Accepted Continuation 6: Owner Summary Contract (`completed 2026-07-15`)
+
+The product `4a8b52e` implementation keeps fixed owner-Shortcut source
+attribution, canonical five-family projections, deterministic conversion to the
+existing Python health snapshot, and non-echoing validation errors. It adds no
+file import, HTTP, webhook route, Shortcut invocation, cloud-chat transmission,
+or iOS UI. See the owner-summary manifest and acceptance report.
+
+## Planned Continuation 7: Manual Export Normalization
+
+Define only a synthetic mapping from a documented manual Apple Health export
+shape to the five canonical families. Reuse existing snapshot validation,
+content hashing, freshness, deduplication, and conflict boundaries. Do not read
+a real export file or add a parser, network route, cloud transmission, or iOS
+UI in this slice.
+
+## Optional Continuation 8: Personal Team Device Acceptance
 
 Run this only after the backend contracts and mock paths are stable, and only
 if the owner chooses to pursue a short-lived Personal Team device check. It is
-not required for the order 12 fallback seam and does not require paid
-membership.
+optional/deferred, is not required for the order 12, owner-summary, or
+manual-export fallback seams, and does not require paid membership.
 
 - Verify owner-device installation and re-provision/reinstall recovery.
 - Request only the existing five HealthKit read families if the owner chooses

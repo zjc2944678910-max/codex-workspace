@@ -10,7 +10,7 @@ retained as evidence for the pre-execution decision and gates. The later
 [acceptance report](app-bridge-stackchan-e2e-acceptance-20260713.md) records one
 completed, bounded App-driven LCD sequence. Product commits and branch state
 described below are evidence for that window; use the project
-[README](../README.md) and product `main@72258a1` for current facts. The blocked
+[README](../README.md) and current product `main@4a8b52e` for current facts. The blocked
 wording below is historical and does not authorize repeating the field action.
 
 ## Route Lock

@@ -11,7 +11,7 @@ product `main@b8462a9` included Memory Quality Phase 2, Runtime Metadata Phase 3
 and the default-off Phase 4A/4B opt-in candidate writer. That commit and the old
 compatibility branches below are evidence for their recorded windows, not the
 current product authority. Use the project [README](../README.md) and product
-`main@72258a1` for current facts, and
+`main@4a8b52e` for current facts, and
 [memory-phase-4-readiness-20260714.md](memory-phase-4-readiness-20260714.md) for
 the remaining production boundary. No live memory deployment or real-database
 migration followed from those source changes.

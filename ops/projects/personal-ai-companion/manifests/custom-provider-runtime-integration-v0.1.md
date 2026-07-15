@@ -112,7 +112,7 @@ superseded by the 2026-07-15 MCP gateway acceptance:
 > read-only information tool with timeout, output bounds, metadata-only audit,
 > and failure isolation.
 
-The current queue records that bounded task as complete at product `2dc2948`;
+The historical queue recorded that bounded task as complete at product `2dc2948`;
 the next task was `PAC-IOS-SUPPORTED-APP-ACTION`, now accepted at product
 `7547d8a` as a separate fixed public system-share handoff. Any real custom-provider
 executor/health prober, main Chat integration, sensitive privacy class, or

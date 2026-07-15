@@ -2,14 +2,16 @@
 
 - Status: local source verification passed; no live-health claim
 - Task level: L1 local verification
-- Product baseline: `main@72258a127459a7aba3cd46f57cddf730d010b4fc`
+- Historical product baseline: `main@72258a127459a7aba3cd46f57cddf730d010b4fc`
 - Remote comparison: local `main` and `origin/main` matched before the run
 - Product checkout: `projects/products/personal-ai-companion`
 
 ## Scope And Boundary
 
-This report makes the `1197`-test statement in the current PAC control docs
-traceable to one command, product commit, date, and result. The run exercised
+This report preserves the historical `1197`-test statement from its original
+PAC control-doc window. That result is traceable to one command, product
+commit, date, and result, but it is not the current baseline: product
+`main@4a8b52e` now passes `1475` tests. The run exercised
 the checked-out Python test suite only. It did not inspect credentials, private
 chat content, real health samples, a real device, a database outside test
 fixtures, or any NAS/VPS/cloud runtime. It did not deploy, restart, migrate, or

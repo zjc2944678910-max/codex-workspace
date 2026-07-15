@@ -8,7 +8,7 @@ memory integration is not ready as one bundled change
 Dated historical readiness note (updated 2026-07-15): the recommended 4A
 admission contract and 4B candidate-write wiring subsequently landed through
 `089214f`, `e0fed08`, and `78103de` and are retained in product
-`main@72258a1`. The old 4A first-slice recommendation and authorization text
+`main@4a8b52e`; `72258a1` is retained only as the historical audit anchor. The old 4A first-slice recommendation and authorization text
 below are completed and superseded; they are not the current next task. The
 writer remains default-off and requires a trusted owner resolver, so the
 production vault, vector, retention, hard-delete, owner-binding, migration,

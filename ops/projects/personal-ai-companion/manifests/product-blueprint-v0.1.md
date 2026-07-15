@@ -38,6 +38,11 @@ signals, devices, and boundaries.
   only for narrow relay or remote-access roles that do not require raw private
   data exposure.
 
+The provider and MCP controls above are target architecture, not current MVP
+surface. The current iOS navigation exposes private chat, device/health status,
+and the fixed supported share action; it does not expose custom-provider
+selection or MCP invocation controls.
+
 ## Component Boundaries
 
 | Component | Owns | Does Not Own |
@@ -45,7 +50,7 @@ signals, devices, and boundaries.
 | `personal-ai-companion` API | interaction envelopes, model routing, provider registry, MCP gateway, memory gates, usage ledger | raw phone access, direct public exposure |
 | Style profile layer | bounded response-shape rules, diagnostics, rewrite guidance | pretending to be a real person without consent, raw chat truth |
 | StackChan | embodied display/voice/action front end, local device status, simple launchers | secrets, memory database, primary model inference |
-| iOS app | chat UI, device controls, health-source status, provider/profile selection, MCP tool status and confirmations, supported phone-action launchers, owner settings | provider secrets, arbitrary MCP execution, unpermissioned phone data, arbitrary app/message reading or background control |
+| iOS app | current chat UI, device controls, health-source status, supported phone-action launchers, owner settings; future provider/MCP UI remains planned | provider secrets, custom-provider selection and MCP invocation in the current MVP, arbitrary MCP execution, unpermissioned phone data, arbitrary app/message reading or background control |
 | Provider registry + MCP gateway | encrypted server-side provider credentials, capability discovery, allowlisted MCP connections/tools, timeout/audit policy | silently enabling tools, exposing saved credentials to iOS, bypassing `ToolGate` |
 | Health-source adapters | normalize owner-approved health inputs into the five canonical summary families | clinical diagnosis, hidden collection, treating inferred mood as fact |
 | Memory service | session context, candidate memories, promoted atoms, deletion/explain flows | irreversible hidden learning, unreviewed sensitive memory promotion |
@@ -54,7 +59,7 @@ signals, devices, and boundaries.
 
 ## Current Confirmed State
 
-- Product `main@b6209a7` contains a source-gated authenticated chat path that is
+- Product `main@4a8b52e` contains a source-gated authenticated chat path that is
   off by default. When enabled with its trusted dependencies, non-temporary
   turns persist atomically, temporary turns skip persistence, and expired
   bounded context is pruned at startup and periodically. That authenticated
@@ -97,7 +102,7 @@ signals, devices, and boundaries.
   path was later field-accepted for the sequence
   `happy -> correlated ACK -> neutral -> correlated ACK`, retained through
   product commit `9dbfafc` and current
-  `main@2dc2948`. This does not establish continuous boot polling, unattended
+  `main@4a8b52e`. This does not establish continuous boot polling, unattended
   reliability, or App integration for audio, motion, touch, or camera.
 - Separate direct-device checks field-confirmed low-speed X/Y servo movement and
   return, three-zone head-touch input, and one local low-resolution camera
@@ -112,11 +117,13 @@ signals, devices, and boundaries.
   context. Real-device authorization, real health-data acceptance, and
   off-device health-summary transmission remain unconfirmed.
 - The bounded custom-provider registry/runtime, authenticated owner API,
-  synthetic route, and default-off redacted iOS status/selection slice are
-  accepted. A real provider executor/health prober and main Chat integration
+  synthetic route, and default-off backend/local iOS status/selection slice are
+  accepted; the current iOS MVP navigation does not expose provider selection.
+  A real provider executor/health prober and main Chat integration
   remain future work. The first local/mock MCP gateway tool is accepted, while
   remote MCP transport, state-changing tools, arbitrary discovery, iOS-side
-  execution, and automatic main-Chat invocation remain future work. General
+  execution, MCP controls in the current MVP, and automatic main-Chat invocation
+  remain future work. General
   health-source fallbacks, continuous StackChan command
   polling, production voice/camera workflows, and NAS/VPS production
   integration also remain future phases.
@@ -182,9 +189,10 @@ Acceptance anchors:
 - Run MCP primarily through the backend relay. Allowlist servers and tools,
   default to read-only tools, apply timeouts and audit logs, and require
   `ToolGate` confirmation for every state-changing call.
-- Let iOS show MCP connection/tool status, choose an allowed tool, collect
-  arguments, and present confirmation. Do not run arbitrary untrusted MCP
-  servers directly on the phone.
+- In a future UI phase, let iOS show MCP connection/tool status, choose an
+  allowed tool, collect arguments, and present confirmation. The current MVP
+  does not expose those controls. Do not run arbitrary untrusted MCP servers
+  directly on the phone.
 
 Acceptance anchors:
 
@@ -207,7 +215,10 @@ Acceptance anchors:
   without changing the existing summary API.
 - Add owner-triggered fallback adapters in this order: Shortcuts/webhook,
   manual Apple Health export, then selected wearable/provider APIs. The first
-  two are currently typed unavailable/inert seams; no intake is enabled.
+  two are currently typed unavailable/inert seams; the fixture-only
+  owner-authored Shortcut/webhook summary contract is accepted locally at
+  product `4a8b52e`, but no file/network intake is enabled. Manual export
+  normalization remains a separate next task.
 - Normalize every source only into the existing five families: steps, active
   energy, heart rate, sleep, and workouts.
 - Separate short-term session context, long-term memory atoms, and health
@@ -281,7 +292,7 @@ Acceptance anchors:
 - Treat the bounded custom-provider runtime integration accepted at product
   `295687f` as a local/synthetic owner-only slice. It adds explicit
   KEK/resource lifecycle, injected execution, authenticated redacted APIs, and
-  default-off iOS selection/status without authorizing a real provider, default
+  default-off backend/local iOS selection/status without authorizing a real provider, default
   network transport, health-probe authority, main Chat routing, or sensitive
   privacy classes.
 - Treat the local/mock MCP gateway accepted at product `2dc2948` as complete for
@@ -295,14 +306,15 @@ Acceptance anchors:
   from this handoff. Any App Intent, Shortcut, URL scheme, reminder, dynamic
   sharing, or state-changing action needs a new scope and acceptance.
 - Treat the order 12 health-source seam accepted at product `b6209a7` as the
-  current local boundary. HealthKit is optional code only; planned fallback
-  adapters are inert and disabled by default. The formal Host's legacy
-  HealthKit injection does not prove authorization or sample access. See the
-  [order 12 manifest](health-source-abstraction-v0.1.md) and [acceptance
-  report](../reports/health-source-abstraction-v0.1-acceptance-20260715.md).
-- Implement and review the first health fallback (user-run Shortcut/webhook or
-  manual Apple Health export) only as a separate privacy, parsing, and intake
-  task; both must map only to the five canonical families.
+  current local boundary. Product `4a8b52e` adds the fixture-only owner-summary
+  contract. HealthKit is optional code only; planned fallback adapters remain
+  inert and disabled by default. The formal Host's legacy HealthKit injection
+  does not prove authorization or sample access. See the [order 12 manifest](health-source-abstraction-v0.1.md),
+  [owner-summary manifest](health-owner-summary-contract-v0.1.md), and
+  [acceptance report](../reports/health-source-abstraction-v0.1-acceptance-20260715.md).
+- Implement and review manual Apple Health export normalization only as a
+  separate privacy, parsing, and intake task; it must map only to the five
+  canonical families.
 - Run a separate optional Personal Team signed-device acceptance when the owner
   is ready; paid distribution is not a prerequisite for the fallback path.
 - Decide when the synthetic style categories have enough coverage to freeze a

@@ -14,7 +14,8 @@
 Historical snapshot note (updated 2026-07-15): this report preserves the
 2026-07-13/14 audit against the commits and compatibility branch named above;
 they are evidence for that audit window, not the current product authority. Use
-the project [README](../README.md) and product `main@72258a1` for current facts.
+the project [README](../README.md) and current product `main@4a8b52e` for
+current facts.
 The five-family, trend-only local chat projection exists, but no transmission of
 a health summary through the source-gated authenticated cloud-chat path has been
 accepted. Local HealthKit authorization and off-device health-summary

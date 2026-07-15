@@ -2,8 +2,9 @@
 
 Historical snapshot note (updated 2026-07-15): this report remains the accepted
 evidence for one bounded LCD sequence. The product branch and commits named
-below describe the landing state at that time; the accepted source is retained
-in product `main@72258a1`. Use the project [README](../README.md) for current
+below describe the landing state at that time; the accepted source was recorded
+in product `main@72258a1` and is retained in current product `main@4a8b52e`. Use
+the project [README](../README.md) for current
 facts. The task-specific field authority was consumed and does not authorize a
 repeat or capability expansion.
 

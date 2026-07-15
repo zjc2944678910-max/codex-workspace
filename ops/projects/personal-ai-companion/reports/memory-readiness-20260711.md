@@ -10,7 +10,7 @@ source map and next-task decision made on 2026-07-11. The retention-inventory
 bridge and later synthetic snapshot/admission work were subsequently completed,
 so the `Exactly One Safe Next Implementation Task` section below is superseded
 and must not be treated as the current queue. Use the project
-[README](../README.md), product `main@72258a1`, and the dated
+[README](../README.md), current product `main@4a8b52e`, and the dated
 [Phase 4 readiness update](memory-phase-4-readiness-20260714.md) for current facts
 and remaining production boundaries.
 

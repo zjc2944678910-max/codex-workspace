@@ -36,7 +36,9 @@ distribution or HealthKit is required for the personal MVP:
   Shortcuts/webhooks, manual Apple Health exports, and selected third-party
   wearable/provider APIs into only five canonical families: steps, active
   energy, heart rate, sleep, and workouts. The first non-HealthKit entries are
-  owner-triggered and remain inert until a separate intake review.
+  owner-triggered and remain inert until a separate intake review. The planned
+  next local slice is a fixture-only compact owner-authored Shortcut/webhook
+  summary contract; it does not enable file, network, or Shortcut intake.
 - Introduce a backend custom-provider registry for OpenAI-compatible endpoints,
   Gemini, Claude, Sub2API, and Ollama/NAS profiles. Store credentials encrypted
   on the backend; iOS may select profiles and view capabilities but may not read
@@ -46,7 +48,8 @@ distribution or HealthKit is required for the personal MVP:
 - Run MCP primarily in the backend relay. Connections and tools are allowlisted,
   read-only by default, time-bounded, and audited. `ToolGate` confirmation is
   mandatory for state-changing tools. iOS owns status, selection, argument, and
-  confirmation UI, not arbitrary MCP server execution.
+  confirmation UI in the future target architecture, not in the current MVP;
+  current iOS navigation exposes no MCP controls or invocation.
 - Phone-app actions may use App Intents, Shortcuts, URL schemes, universal
   links, and share sheets only when the target app supports them. Arbitrary
   background control, cross-app data reading, and unsupported automation remain
@@ -61,6 +64,11 @@ distribution or HealthKit is required for the personal MVP:
 Reference facts are recorded in Apple's
 [membership comparison](https://developer.apple.com/support/compare-memberships/)
 and [iOS capability matrix](https://developer.apple.com/help/account/reference/supported-capabilities-ios/).
+
+The same current-surface rule applies to custom providers: the backend/local
+registry and redacted status/selection contracts are accepted, but the current
+iOS MVP does not expose custom-provider selection UI. This is a surface decision,
+not a claim that the backend contracts are unavailable.
 
 ## Product Shape
 
@@ -77,6 +85,9 @@ Target components:
   where supported.
 - Long-term memory with review, provenance, privacy gates, and deletion.
 - Optional style profile from uploaded chat logs only when consent is recorded.
+
+The provider/MCP controls in this target shape remain future UI work; the
+current iOS MVP does not expose custom-provider selection or MCP invocation.
 
 ## Feasibility Decisions
 
@@ -263,9 +274,9 @@ Swift mock provider and Python phone contract test cover local handoff-only
 semantics; they do not establish Swift/Python payload or fixture parity. App
 Intents, Shortcuts, URL schemes, reminders, dynamic sharing, state-changing
 actions, notification reading, arbitrary cross-app control, and real-device
-execution remain separate future gates. Order 12 is now recorded as the
-additive health-source boundary; the next queue item is the optional
-`PAC-PERSONAL-TEAM-DEVICE-ACCEPTANCE` manual gate.
+  execution remain separate future gates. Order 12 is now recorded as the
+  additive health-source boundary; the owner-summary contract is a separate
+  fixture-only follow-up, and Personal Team remains optional/deferred.
 
 ### 2026-07-15 Health Source Abstraction Amendment
 
@@ -281,17 +292,21 @@ authorization or sample read is accepted.
 
 See the [order 12 manifest](health-source-abstraction-v0.1.md) and
 [acceptance report](../reports/health-source-abstraction-v0.1-acceptance-20260715.md).
-The next candidate remains the optional `PAC-PERSONAL-TEAM-DEVICE-ACCEPTANCE`
-manual gate; it is not required for the fallback path.
+The owner-summary contract is accepted at product `4a8b52e`; see
+[its manifest](health-owner-summary-contract-v0.1.md) and acceptance report.
+The next candidate is synthetic manual-export normalization; the optional
+`PAC-PERSONAL-TEAM-DEVICE-ACCEPTANCE` manual gate remains deferred and is not
+required for the fallback path.
 
 Phase 5:
 
 - Additive order 12 health-source boundary is accepted locally: the iOS
   catalog/adapter metadata and inert owner-triggered fallback seams preserve
   the five canonical families without starting intake.
-- Implement a non-HealthKit health adapter only after a new privacy/parsing/
-  transport review; the current Shortcut/webhook and manual-export entries are
-  typed unavailable seams.
+- The owner-summary contract is accepted as a transport-free Python fixture
+  boundary at product `4a8b52e`; it does not enable intake or iOS UI.
+- Implement manual-export normalization only after a new privacy/parsing review;
+  the current manual-export adapter remains a typed unavailable seam.
 - Run separate optional Personal Team device acceptance; do not block the
   fallback path on paid program membership.
 

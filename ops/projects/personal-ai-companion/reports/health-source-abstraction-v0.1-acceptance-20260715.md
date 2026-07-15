@@ -85,9 +85,13 @@ access, or real health data.
 ## Rollback And Next Task
 
 Rollback is a source revert of product commit `b6209a74`; no external rollback
-is needed. The next candidate is the optional owner-present
-`PAC-PERSONAL-TEAM-DEVICE-ACCEPTANCE` manual gate, but it is not required for
-the fallback path and must not be started as a signing or real-data action
+is needed. This report is the historical acceptance anchor for order 12. The
+owner-summary contract is accepted separately at product `4a8b52e`; see its
+manifest and acceptance report. The next planned local task is synthetic
+manual-export normalization. Neither task reads files, opens network/HTTP
+transport, invokes a Shortcut, transmits health data, or exposes iOS UI. The
+optional owner-present `PAC-PERSONAL-TEAM-DEVICE-ACCEPTANCE` manual gate is
+deferred, independent, and must not be started as a signing or real-data action
 without its own scope and authorization.
 
 ## Acceptance Judgment
@@ -95,4 +99,5 @@ without its own scope and authorization.
 The order 12 slice is complete for local/mock/Simulator-first acceptance. It
 provides a stable, attributed health-source boundary and documents the
 non-HealthKit fallback direction without claiming real collection or
-transmission.
+transmission. The owner-summary contract and manual-export normalization remain
+separate acceptance records.
