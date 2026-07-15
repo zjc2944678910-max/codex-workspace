@@ -150,7 +150,8 @@ and [supported iOS capabilities](https://developer.apple.com/help/account/refere
 - `POST /stackchan/events` is the device event/ACK correlation ingress used by
   that LCD slice.
 - `personal_ai_companion.integrations` is the accepted, transport-free v0.1
-  provider/MCP/phone-action/health-source schema package.
+  provider/MCP/phone-action/health-source schema package, including the
+  owner-authored `OwnerHealthSummaryIntake` contract.
 - `personal_ai_companion.integrations.mcp_gateway` is the accepted local-only
   MCP runtime for `server.local.context/context.today`; when a caller-injected
   gateway and trusted owner resolver are present, the Cloud app exposes
@@ -163,9 +164,10 @@ and [supported iOS capabilities](https://developer.apple.com/help/account/refere
 - `personal_ai_companion.providers` now includes the accepted local registry,
   explicit runtime-resource lifecycle, and injected-executor adapter. The Cloud
   composition root can expose owner-authenticated redacted management/selection
-  plus conditional `normal` runtime routes, and iOS can show/select redacted
-  profiles behind an explicit off-by-default flag. This is not a default network
-  client, real-provider acceptance, health-probe authority, or main Chat route.
+  plus conditional `normal` runtime routes. A future owner UI may show/select
+  redacted profiles behind an explicit off-by-default flag; the current iOS MVP
+  does not surface that UI. This is not a default network client, real-provider
+  acceptance, health-probe authority, or main Chat route.
 - The latest documented default companion cloud route is
   `claude-opus-4-6-thinking`; the private local-first Mac route uses
   `huihui_ai/qwen3.5-abliterated:9b`. These are source/config decisions, not
