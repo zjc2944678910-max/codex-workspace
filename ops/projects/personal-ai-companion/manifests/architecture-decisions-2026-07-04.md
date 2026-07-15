@@ -1,7 +1,7 @@
 # Personal AI Companion Architecture Decisions
 
-Date: 2026-07-04
-Status: initial project memory
+Date: 2026-07-04; amended 2026-07-15
+Status: initial project memory with current direction amendment
 Source: conversation planning notes; no raw private chat logs were read or stored.
 
 ## Decision Summary
@@ -15,16 +15,56 @@ The first useful build is not model fine-tuning or firmware hacking. The first
 useful build is a local relay plus memory-service that can speak OpenAI-style
 chat APIs, route models, and manage long-term memory safely.
 
+## 2026-07-15 Direction Amendment
+
+The following decisions supersede any earlier implication that paid iOS
+distribution or HealthKit is required for the personal MVP:
+
+- The intended deployment is single-owner and personal-use. Keep owner
+  authentication, privacy scoping, and audit logs, but do not design billing,
+  organizations, public onboarding, or multi-tenant administration.
+- Do not require paid Apple Developer Program membership now. Use Xcode
+  Personal Team for owner-device testing and accept periodic re-provisioning;
+  TestFlight and App Store distribution are deferred.
+- Apple's current capability matrix lists basic HealthKit for free Apple
+  Developer accounts, but it remains an optional, unconfirmed device adapter.
+  No chat, memory, provider, MCP, or StackChan feature may depend on HealthKit
+  being available.
+- Introduce a `HealthSource` boundary. Normalize HealthKit, owner-run
+  Shortcuts/webhooks, manual Apple Health exports, and selected third-party
+  wearable/provider APIs into only five canonical families: steps, active
+  energy, heart rate, sleep, and workouts.
+- Introduce a backend custom-provider registry for OpenAI-compatible endpoints,
+  Gemini, Claude, Sub2API, and Ollama/NAS profiles. Store credentials encrypted
+  on the backend; iOS may select profiles and view capabilities but may not read
+  saved secrets. A fallback may call only an owner-allowlisted provider that is
+  compatible with the request privacy class; otherwise provider failure returns
+  an error without invoking another provider.
+- Run MCP primarily in the backend relay. Connections and tools are allowlisted,
+  read-only by default, time-bounded, and audited. `ToolGate` confirmation is
+  mandatory for state-changing tools. iOS owns status, selection, argument, and
+  confirmation UI, not arbitrary MCP server execution.
+- Phone-app actions may use App Intents, Shortcuts, URL schemes, universal
+  links, and share sheets only when the target app supports them. Arbitrary
+  background control, cross-app data reading, and unsupported automation remain
+  outside the product boundary.
+
+Reference facts are recorded in Apple's
+[membership comparison](https://developer.apple.com/support/compare-memberships/)
+and [iOS capability matrix](https://developer.apple.com/help/account/reference/supported-capabilities-ios/).
+
 ## Product Shape
 
 Target components:
 
 - StackChan/CoreS3 class desktop robot as an embodied voice/display front end.
 - User-owned relay server as the control plane.
-- Gemini and Claude routes through the user's gateway for cloud inference.
+- Gemini and Claude routes through the user's gateway for cloud inference, with
+  an owner-configurable provider registry planned for additional endpoints.
 - Optional NAS local model for private/offline/lightweight tasks.
-- iOS app for chat, voice, HealthKit summaries, reminders/calendar, AlarmKit,
-  and Shortcuts/App Intents where supported.
+- iOS app for chat, voice, optional multi-source health summaries,
+  reminders/calendar, AlarmKit, provider/MCP controls, and Shortcuts/App Intents
+  where supported.
 - Long-term memory with review, provenance, privacy gates, and deletion.
 - Optional style profile from uploaded chat logs only when consent is recorded.
 
@@ -36,17 +76,23 @@ Confirmed feasible:
   the seller firmware cannot configure a custom OpenAI-compatible base URL.
 - A server relay can expose `/v1/chat` and route to Gemini, Claude, and later
   NAS local models.
+- MCP and custom API providers do not depend on Apple program membership when
+  their runtime and credentials remain in the backend relay.
 - NAS local models are useful for privacy/offline summarization and fallback,
   not as the primary high-quality emotional dialogue engine.
 - Long-term memory should be implemented as a service, not by hoping the model
   "learns" invisibly.
 - iOS can integrate through permission-scoped APIs such as HealthKit, EventKit,
-  AlarmKit, Shortcuts, and App Intents.
+  AlarmKit, Shortcuts, and App Intents. Personal Team provisioning is suitable
+  for owner-device development but expires periodically and does not provide
+  TestFlight or App Store distribution.
 
 Hard limits:
 
 - iOS cannot read arbitrary phone data, WeChat, QQ, other app notifications, or
   all system information.
+- iOS cannot make an unsupported app expose automation or permit a backend MCP
+  tool to bypass iOS permissions and foreground/user-confirmation rules.
 - Chat logs should be imported manually by the user, cleaned, and scoped.
 - Girlfriend-style modeling requires explicit consent and should be presented
   as a consented style/profile, not as the real person.
@@ -144,11 +190,29 @@ Phase 2:
 
 Phase 3:
 
-- Add iOS companion app with chat, HealthKit summaries, EventKit reminders,
-  AlarmKit where available, and Shortcuts/App Intents.
+- Add iOS companion app with chat, optional `HealthSource` summaries, EventKit
+  reminders, AlarmKit where available, and Shortcuts/App Intents.
 - Add NAS local model route for private/offline summaries.
 
 Phase 4:
+
+- Define provider-profile, MCP capability/tool-call, phone-action, and
+  normalized health-source contracts.
+- Add the custom-provider registry and iOS profile/capability settings without
+  returning stored secrets to the phone.
+- Add one allowlisted, read-only backend MCP vertical with timeout and audit
+  coverage.
+
+Phase 5:
+
+- Add one supported phone-app action through a mock/Simulator-first App
+  Intent/Shortcut or URL/universal-link/share-sheet path.
+- Add a non-HealthKit health adapter while preserving the same five canonical
+  summary families.
+- Run separate Personal Team device acceptance; do not block these backend
+  integrations on paid program membership.
+
+Phase 6:
 
 - Add chat-log import pipeline with consent records, cleaning, candidate
   extraction, and style profile generation.
@@ -162,6 +226,10 @@ Phase 4:
 - Do not import raw chat logs directly into prompts as long-term truth.
 - Do not create a live service that can perform side effects without owner
   confirmation.
+- Do not run arbitrary MCP servers on iOS or expose stored provider credentials
+  to the app.
+- Do not make paid distribution or any one health-data source a prerequisite
+  for the personal MVP.
 
 ## Acceptance Anchors
 
@@ -175,3 +243,7 @@ The first MVP is acceptable when:
 - The owner can inspect and delete a promoted memory.
 - Usage logging identifies provider/model/session/device without exposing
   secrets or private raw prompts.
+- The owner can disable a provider, MCP server/tool, phone action, or health
+  source independently without breaking the default chat path.
+- Every state-changing tool or phone action presents an owner-visible preview
+  and requires explicit confirmation before execution.
