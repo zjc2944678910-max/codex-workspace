@@ -308,7 +308,7 @@
         {
           "path": "projects/products/personal-ai-companion",
           "role": "main",
-          "gitnexus_status": "not_indexed"
+          "gitnexus_status": "indexed"
         }
       ],
       "ops_surface": "ops/projects/personal-ai-companion",

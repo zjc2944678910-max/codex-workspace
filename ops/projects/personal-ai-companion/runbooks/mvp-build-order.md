@@ -3,7 +3,7 @@
 Use this runbook when starting implementation so the project does not drift
 into firmware work, model training, or live/NAS repair too early.
 
-Current baseline (2026-07-15): product `main@bff7398` contains a source-gated
+Current baseline (2026-07-15): product `main@c0cd301` contains a source-gated
 authenticated iOS-to-cloud chat path that is off by default. When enabled with
 its trusted dependencies, non-temporary turns persist atomically, temporary
 turns skip persistence, and expired bounded context is pruned at startup and
@@ -65,9 +65,14 @@ focused tests, `158` combined health tests, and `1573` full Python tests passed.
 It requires literal `true` single-request transfer consent, complete qualitative
 five-family content, and a five-minute maximum lifetime while stripping source
 and adapter identity. It adds no transport, model call, consent persistence,
-authenticated-chat wiring, Swift source, or iOS UI. The next local candidate is
-`PAC-HEALTH-ANALYSIS-CONTRACT`; the Personal Team device gate remains
-optional/deferred.
+authenticated-chat wiring, Swift source, or iOS UI. Product `c0cd301` adds the
+local model-agnostic analysis contract: `65` focused, `223` combined health,
+and `1638` full Python tests passed. It binds a validated 12C envelope to one
+request fingerprint and emits only controlled explanation codes, explicit
+qualitative uncertainty, and categorical chart metadata. It adds no free-form
+narrative, numeric health values, provider/model execution, network/API route,
+persistence, chat wiring, Swift source, or iOS UI. No later local implementation
+slice is selected; the Personal Team device gate remains optional/deferred.
 
 ## Route Lock Template
 
@@ -389,13 +394,18 @@ and [acceptance report](../reports/health-off-device-consent-contract-v0.1-accep
 It does not transmit data, add an API route, call a provider/model, persist
 consent, modify authenticated chat, change Swift source, or expose iOS UI.
 
-## Planned Continuation 9: Health Analysis Contract
+## Accepted Continuation 9: Health Analysis Contract (`completed 2026-07-15`)
 
-Define a model-agnostic, non-diagnostic synthetic request/response schema for
-five-family explanations, explicit uncertainty, and chart-ready metadata. It
-may consume the accepted off-device envelope only as a validated DTO; it must
-not open a network connection, call a provider/model, persist health data,
-modify authenticated chat, use real health data, or expose iOS UI.
+Product `c0cd301` accepts a model-agnostic, non-diagnostic synthetic
+request/response schema. The request consumes a valid off-device envelope only
+during its authorization window; the response binds to its fingerprint, ID,
+window, digest, and exact five-family projections. Explanation and uncertainty
+remain controlled codes, and chart metadata is categorical only. See the
+[manifest](../manifests/health-analysis-contract-v0.1.md) and [acceptance
+report](../reports/health-analysis-contract-v0.1-acceptance-20260715.md).
+No provider/model execution, free-form narrative, network/API route,
+persistence, authenticated-chat wiring, real health data, Swift source, or iOS
+UI is accepted.
 
 ## Optional Continuation 10: Personal Team Device Acceptance
 

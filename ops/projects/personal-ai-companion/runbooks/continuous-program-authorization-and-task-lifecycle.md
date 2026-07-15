@@ -153,9 +153,9 @@ its assigned bounded scope; it never gains broad live-repair authority.
 
 The listed order is dependency order, not permission to start all work at once.
 `PAC-DOCS-SYNC` precedes every implementation wave. Completed orders 1-7 remain
-in `ARCHITECTURE_TODO.md`; orders 8-12A are repeated here only as the immediate
-dependency anchors for the manual-export normalization slice. Repeating field
-work is new L3 work, not a continuation of an accepted session.
+in `ARCHITECTURE_TODO.md`; orders 8-12D are repeated here as the accepted local
+dependency chain. No later local implementation slice is selected. Repeating
+field work is new L3 work, not a continuation of an accepted session.
 
 | Order | Task ID | Level | Scope and dependencies | Manual gates / owned surface |
 | --- | --- | --- | --- | --- |
@@ -167,8 +167,10 @@ work is new L3 work, not a continuation of an accepted session.
 | 11 | `PAC-IOS-SUPPORTED-APP-ACTION` (`completed 2026-07-15`) | L1 mock/Simulator first | Accepted at product `7547d8a`; see the [manifest](../manifests/ios-supported-app-action-v0.1.md) and [acceptance report](../reports/ios-supported-app-action-v0.1-acceptance-20260715.md). | Exactly one fixed public `companion.share_capabilities -> system.share_sheet` handoff; no receipt, durable audit, cancellation observation, target completion, dynamic data, or real-device action. |
 | 12 | `PAC-HEALTH-SOURCE-ABSTRACTION` (`completed 2026-07-15`) | L1 | Accepted and pushed at product `b6209a7`; see the [manifest](../manifests/health-source-abstraction-v0.1.md) and [acceptance report](../reports/health-source-abstraction-v0.1-acceptance-20260715.md). | Additive `HealthSourceCatalog`/`HealthSourceAdapter` seam with canonical five-family order, attribution/capture/consent/content/dedup metadata, and inert planned fallbacks. No file/network intake, real HealthKit read, signing, device result, or cloud transmission. |
 | 12A | `PAC-HEALTH-OWNER-SUMMARY-CONTRACT` (`completed 2026-07-15`) | L1 fixture-only | Accepted and pushed at product `4a8b52e`; see the owner-summary manifest and acceptance report. | Strict owner-authored compact JSON summary contract for the planned Shortcut/webhook source with synthetic fixture/tests only; no file, network/HTTP, Shortcut invocation, cloud transmission, or iOS UI. |
-| 12B | `PAC-HEALTH-MANUAL-EXPORT-NORMALIZATION` (`planned next local slice`) | L1 fixture-only | Depends on orders 12 and 12A; no real export file or parser execution is authorized. | Synthetic mapping from a documented manual-export shape to the five canonical families, reusing existing snapshot validation/hash/freshness/conflict boundaries. No real file read, network, cloud transmission, or iOS UI. |
-| 13 | `PAC-PERSONAL-TEAM-DEVICE-ACCEPTANCE` (`optional/deferred manual gate`) | L2 preflight; state-changing device/signing or real-data action needs separate authorization | Optional owner-present check; deferred and not a dependency of order 12A, 12B, or the fallback path. | Install/re-provision recovery and optional five-family HealthKit authorization; no TestFlight/App Store claim and no paid membership requirement. |
+| 12B | `PAC-HEALTH-MANUAL-EXPORT-NORMALIZATION` (`completed 2026-07-15`) | L1 fixture-only | Accepted at product `0665fd3`; no real export file or parser execution is authorized. | Synthetic pre-aggregated mapping into the five canonical families; no real file/ZIP/XML read, network, Swift-adapter enablement, cloud transmission, or iOS UI. |
+| 12C | `PAC-HEALTH-OFF-DEVICE-CONSENT-CONTRACT` (`completed 2026-07-15`) | L1 fixture-only privacy contract | Accepted at product `bff7398`; collection/import consent cannot substitute for transfer consent. | Literal `true` single-request consent, five-minute lifetime, content binding, and source/adapter stripping; no transport, API, model, persistence, chat wiring, Swift, or iOS UI. |
+| 12D | `PAC-HEALTH-ANALYSIS-CONTRACT` (`completed 2026-07-15`) | L1 fixture-only | Accepted at product `c0cd301`; depends on 12C, not Personal Team signing or a provider. | Fingerprint-bound request/response DTOs with controlled five-family explanation codes, explicit qualitative uncertainty, and categorical chart metadata; no free-form narrative, numeric sample, provider/model execution, network/API, persistence, chat wiring, Swift, or iOS UI. |
+| 13 | `PAC-PERSONAL-TEAM-DEVICE-ACCEPTANCE` (`optional/deferred manual gate`) | L2 preflight; state-changing device/signing or real-data action needs separate authorization | Optional owner-present check; deferred and not a dependency of orders 12A-12D or the fallback path. | Install/re-provision recovery and optional five-family HealthKit authorization; no TestFlight/App Store claim and no paid membership requirement. |
 
 ## Stop Rules
 

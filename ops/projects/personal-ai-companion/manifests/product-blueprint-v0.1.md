@@ -59,7 +59,7 @@ selection or MCP invocation controls.
 
 ## Current Confirmed State
 
-- Product `main@bff7398` contains a source-gated authenticated chat path that is
+- Product `main@c0cd301` contains a source-gated authenticated chat path that is
   off by default. When enabled with its trusted dependencies, non-temporary
   turns persist atomically, temporary turns skip persistence, and expired
   bounded context is pruned at startup and periodically. That authenticated
@@ -86,11 +86,12 @@ selection or MCP invocation controls.
   focused health tests, `1439` full Python tests, all `44/44` Swift smokes,
   and an unsigned Host build. Product `4a8b52e` adds the fixture-only
   owner-summary contract, product `0665fd3` adds fixture-only manual-export
-  normalization, and current product `bff7398` adds the default-off off-device
-  consent envelope. The latest acceptance passed `55` focused, `158` combined
-  health, and `1573` full Python tests. None of these contracts enables the
-  inert Swift adapters, file/network intake, model execution, authenticated-chat
-  health context, or cloud transmission.
+  normalization, product `bff7398` adds the default-off off-device consent
+  envelope, and current product `c0cd301` adds the local qualitative analysis
+  contract. The latest acceptance passed `65` focused, `223` combined health,
+  and `1638` full Python tests. None of these contracts enables the inert Swift
+  adapters, file/network intake, model execution, free-form model narrative,
+  authenticated-chat health context, chart UI, or cloud transmission.
 - Style-profile mechanisms and synthetic evaluation surfaces exist, but no
   thread-running claim is durable product state. New style work must use the
   current queue and a fresh consent/scope check.
@@ -108,7 +109,7 @@ selection or MCP invocation controls.
   path was later field-accepted for the sequence
   `happy -> correlated ACK -> neutral -> correlated ACK`, retained through
   product commit `9dbfafc` and current
-  `main@bff7398`. This does not establish continuous boot polling, unattended
+  `main@c0cd301`. This does not establish continuous boot polling, unattended
   reliability, or App integration for audio, motion, touch, or camera.
 - Separate direct-device checks field-confirmed low-speed X/Y servo movement and
   return, three-zone head-touch input, and one local low-resolution camera
@@ -232,6 +233,11 @@ Acceptance anchors:
   as default-off and single-request only. Collection/import or memory consent
   cannot substitute for its literal transfer assertion; no transport or model
   execution is enabled.
+- Treat the qualitative health-analysis contract accepted at product `c0cd301`
+  as a local schema boundary only. Its request fingerprint and response binding
+  cover the exact five qualitative families; explanation, uncertainty, and
+  chart fields remain controlled categorical codes. It does not generate prose,
+  execute a provider/model, expose an API/UI, persist health data, or wire chat.
 - Normalize every source only into the existing five families: steps, active
   energy, heart rate, sleep, and workouts.
 - Separate short-term session context, long-term memory atoms, and health
@@ -321,19 +327,20 @@ Acceptance anchors:
 - Treat the order 12 health-source seam accepted at product `b6209a7` as the
   current local boundary. Product `4a8b52e` adds the fixture-only owner-summary
   contract, product `0665fd3` adds fixture-only manual-export normalization, and
-  product `bff7398` adds the default-off off-device consent envelope. HealthKit
-  is optional code only; owner Shortcut and Swift manual-export adapters remain
+  product `bff7398` adds the default-off off-device consent envelope, and
+  product `c0cd301` adds the local qualitative analysis contract. HealthKit is
+  optional code only; owner Shortcut and Swift manual-export adapters remain
   inert and disabled by default. The formal Host's legacy HealthKit injection
   does not prove authorization or sample access. See the [order 12
   manifest](health-source-abstraction-v0.1.md), [owner-summary
   manifest](health-owner-summary-contract-v0.1.md), [manual-export
-  manifest](health-manual-export-normalization-v0.1.md), and [off-device consent
-  manifest](health-off-device-consent-contract-v0.1.md).
-- Implement `PAC-HEALTH-ANALYSIS-CONTRACT` next as a model-agnostic,
-  non-diagnostic request/response schema for five-family explanations,
-  uncertainty, and chart-ready metadata. Keep it local and synthetic: no
-  provider/model execution, network/API route, persistence, authenticated-chat
-  wiring, real health data, or iOS UI.
+  manifest](health-manual-export-normalization-v0.1.md), [off-device consent
+  manifest](health-off-device-consent-contract-v0.1.md), and [analysis
+  manifest](health-analysis-contract-v0.1.md).
+- Keep `PAC-HEALTH-ANALYSIS-CONTRACT` at its accepted schema-only boundary. No
+  later local implementation slice is selected; provider/model execution,
+  narrative rendering, network/API routes, persistence, authenticated-chat
+  wiring, real health data, Swift source, and iOS UI all require new scope.
 - Run a separate optional Personal Team signed-device acceptance when the owner
   is ready; paid distribution is not a prerequisite for the fallback path.
 - Decide when the synthetic style categories have enough coverage to freeze a

@@ -65,5 +65,8 @@ API route, invoke MCP, transmit health data, call a model, or expose iOS UI.
 its [manifest](health-off-device-consent-contract-v0.1.md) and [acceptance
 report](../reports/health-off-device-consent-contract-v0.1-acceptance-20260715.md).
 Collection/import scopes remain separate from off-device consent. The current
-next local candidate is `PAC-HEALTH-ANALYSIS-CONTRACT`, while Personal Team
-signing and real-device health access remain a separate optional manual gate.
+health-analysis contract was later accepted at product `c0cd301`; see its
+[manifest](health-analysis-contract-v0.1.md) and [acceptance
+report](../reports/health-analysis-contract-v0.1-acceptance-20260715.md).
+Personal Team signing and real-device health access remain a separate optional
+manual gate.

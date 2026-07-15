@@ -63,11 +63,11 @@ client still does not support health context.
 - `README.md`
 - `ios/PersonalAICompanion/README.md`
 
-## Next Boundary
+## Superseded Next Boundary
 
-The next local candidate is `PAC-HEALTH-ANALYSIS-CONTRACT`: define a
-model-agnostic, non-diagnostic request/response schema for explaining the five
-qualitative families, uncertainty, and chart-ready metadata using synthetic
-fixtures only. It must not call a provider/model, open a network connection,
-persist health data, modify authenticated chat, or expose iOS UI. Real execution
-and transfer remain later, separately accepted slices.
+`PAC-HEALTH-ANALYSIS-CONTRACT` was accepted at product `c0cd301`; see its
+[manifest](health-analysis-contract-v0.1.md) and [acceptance
+report](../reports/health-analysis-contract-v0.1-acceptance-20260715.md). It
+adds controlled local explanation/uncertainty/chart metadata only. Real model
+execution, narrative rendering, transfer, persistence, authenticated-chat
+wiring, and iOS UI remain later, separately reviewed work.
