@@ -59,7 +59,7 @@ selection or MCP invocation controls.
 
 ## Current Confirmed State
 
-- Product `main@4a8b52e` contains a source-gated authenticated chat path that is
+- Product `main@0665fd3` contains a source-gated authenticated chat path that is
   off by default. When enabled with its trusted dependencies, non-temporary
   turns persist atomically, temporary turns skip persistence, and expired
   bounded context is pruned at startup and periodically. That authenticated
@@ -84,7 +84,11 @@ selection or MCP invocation controls.
   cancellation observation, or target-completion proof. Product `b6209a7`
   carries that action and accepts the additive health-source seam with `24`
   focused health tests, `1439` full Python tests, all `44/44` Swift smokes,
-  and an unsigned Host build.
+  and an unsigned Host build. Product `4a8b52e` adds the fixture-only
+  owner-summary contract, while current product `0665fd3` adds fixture-only
+  manual-export normalization; the latest acceptance passed `43` focused,
+  `103` combined health, and `1518` full Python tests. Neither contract enables
+  the inert Swift adapters, a file/network intake, or cloud transmission.
 - Style-profile mechanisms and synthetic evaluation surfaces exist, but no
   thread-running claim is durable product state. New style work must use the
   current queue and a fresh consent/scope check.
@@ -102,7 +106,7 @@ selection or MCP invocation controls.
   path was later field-accepted for the sequence
   `happy -> correlated ACK -> neutral -> correlated ACK`, retained through
   product commit `9dbfafc` and current
-  `main@4a8b52e`. This does not establish continuous boot polling, unattended
+  `main@0665fd3`. This does not establish continuous boot polling, unattended
   reliability, or App integration for audio, motion, touch, or camera.
 - Separate direct-device checks field-confirmed low-speed X/Y servo movement and
   return, three-zone head-touch input, and one local low-resolution camera
@@ -123,10 +127,10 @@ selection or MCP invocation controls.
   remain future work. The first local/mock MCP gateway tool is accepted, while
   remote MCP transport, state-changing tools, arbitrary discovery, iOS-side
   execution, MCP controls in the current MVP, and automatic main-Chat invocation
-  remain future work. General
-  health-source fallbacks, continuous StackChan command
-  polling, production voice/camera workflows, and NAS/VPS production
-  integration also remain future phases.
+  remain future work. Real health-source file/network intake, third-party
+  adapters, independent off-device consent, model analysis, continuous
+  StackChan command polling, production voice/camera workflows, and NAS/VPS
+  production integration also remain future phases.
 
 ## Phase Map
 
@@ -170,6 +174,8 @@ Acceptance anchors:
   distribution an MVP dependency.
 - Keep HealthKit optional and request it only through explicit user
   authorization and visible settings.
+- Keep HealthKit collection authorization separate from a default-off,
+  owner-visible off-device health-summary transfer decision.
 - Represent health signals as context and trends, not as certain emotion labels.
 
 Acceptance anchors:
@@ -215,10 +221,11 @@ Acceptance anchors:
   without changing the existing summary API.
 - Add owner-triggered fallback adapters in this order: Shortcuts/webhook,
   manual Apple Health export, then selected wearable/provider APIs. The first
-  two are currently typed unavailable/inert seams; the fixture-only
+  two Swift adapters remain typed unavailable/inert seams. The fixture-only
   owner-authored Shortcut/webhook summary contract is accepted locally at
-  product `4a8b52e`, but no file/network intake is enabled. Manual export
-  normalization remains a separate next task.
+  product `4a8b52e`, and fixture-only manual-export normalization is accepted at
+  product `0665fd3`; neither acceptance enables file/network intake or an iOS
+  adapter.
 - Normalize every source only into the existing five families: steps, active
   energy, heart rate, sleep, and workouts.
 - Separate short-term session context, long-term memory atoms, and health
@@ -307,14 +314,18 @@ Acceptance anchors:
   sharing, or state-changing action needs a new scope and acceptance.
 - Treat the order 12 health-source seam accepted at product `b6209a7` as the
   current local boundary. Product `4a8b52e` adds the fixture-only owner-summary
-  contract. HealthKit is optional code only; planned fallback adapters remain
-  inert and disabled by default. The formal Host's legacy HealthKit injection
-  does not prove authorization or sample access. See the [order 12 manifest](health-source-abstraction-v0.1.md),
-  [owner-summary manifest](health-owner-summary-contract-v0.1.md), and
-  [acceptance report](../reports/health-source-abstraction-v0.1-acceptance-20260715.md).
-- Implement and review manual Apple Health export normalization only as a
-  separate privacy, parsing, and intake task; it must map only to the five
-  canonical families.
+  contract, and product `0665fd3` adds fixture-only manual-export normalization.
+  HealthKit is optional code only; owner Shortcut and Swift manual-export
+  adapters remain inert and disabled by default. The formal Host's legacy
+  HealthKit injection does not prove authorization or sample access. See the
+  [order 12 manifest](health-source-abstraction-v0.1.md), [owner-summary
+  manifest](health-owner-summary-contract-v0.1.md), [manual-export
+  manifest](health-manual-export-normalization-v0.1.md), and [manual-export
+  acceptance report](../reports/health-manual-export-normalization-v0.1-acceptance-20260715.md).
+- Implement `PAC-HEALTH-OFF-DEVICE-CONSENT-CONTRACT` next as a default-off,
+  owner-visible transfer decision and strict trend-only aggregate envelope.
+  Keep it local and synthetic: no network/API route, model execution,
+  persistence, real health data, or iOS UI.
 - Run a separate optional Personal Team signed-device acceptance when the owner
   is ready; paid distribution is not a prerequisite for the fallback path.
 - Decide when the synthetic style categories have enough coverage to freeze a

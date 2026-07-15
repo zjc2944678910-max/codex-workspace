@@ -3,7 +3,7 @@
 Use this runbook when starting implementation so the project does not drift
 into firmware work, model training, or live/NAS repair too early.
 
-Current baseline (2026-07-15): product `main@4a8b52e` contains a source-gated
+Current baseline (2026-07-15): product `main@0665fd3` contains a source-gated
 authenticated iOS-to-cloud chat path that is off by default. When enabled with
 its trusted dependencies, non-temporary turns persist atomically, temporary
 turns skip persistence, and expired bounded context is pruned at startup and
@@ -13,8 +13,8 @@ contracts plus the local encrypted custom-provider registry and bounded 9B
 runtime integration. It has an owner-authenticated redacted Provider API,
 default-off backend/local iOS status/selection wiring, and an injected-executor
 synthetic `normal` route, but no default network transport or live
-  optional-integration vertical. The current iOS MVP navigation does not expose
-  custom-provider selection or MCP controls.
+optional-integration vertical. The current iOS MVP navigation does not expose
+custom-provider selection or MCP controls.
 Product `2dc2948` also accepts the local/mock MCP gateway for exactly
 `server.local.context/context.today`, with strict allowlisting, bounded
 execution, idempotency/concurrency limits, and metadata-only audit. It adds no
@@ -55,9 +55,13 @@ The owner-summary follow-up is accepted at product `4a8b52e`: `36` focused
 intake tests, `60` combined health tests, and `1475` full Python tests passed
 with the existing warning. It remains transport-free and does not read a file,
 open a network connection, invoke a Shortcut, transmit to cloud chat, or expose
-an iOS UI. The next local candidate is
-`PAC-HEALTH-MANUAL-EXPORT-NORMALIZATION`, limited to synthetic mapping fixtures;
-the Personal Team device gate remains optional/deferred.
+an iOS UI. The fixture-only manual-export normalizer is accepted at product
+`0665fd3`: `43` focused tests, `103` combined health tests, and `1518` full
+Python tests passed with the same warning. It consumes only a pre-aggregated
+synthetic mapping; it does not read a file/ZIP/XML, enable the Swift adapter,
+open a network connection, transmit to cloud chat, or expose an iOS UI. The next
+local candidate is `PAC-HEALTH-OFF-DEVICE-CONSENT-CONTRACT`; the Personal Team
+device gate remains optional/deferred.
 
 ## Route Lock Template
 
@@ -343,8 +347,10 @@ The first fallback entries are owner-run Shortcut/webhook and manual Apple
 Health export, followed by selected third-party adapters. They are represented
 as planned inert adapters that fail closed with a typed unavailable result.
 The owner-summary contract is accepted separately as a transport-free
-fixture/test boundary; it does not enable intake. Manual-export parsing or any
-later file, network, or owner-approval work requires a separate task and review.
+fixture/test boundary; it does not enable intake. The Python fixture-only
+manual-export normalizer is also accepted, but does not enable the Swift adapter
+or any file/ZIP/XML intake. Later filesystem, network, or owner-approval work
+requires a separate task and review.
 
 ## Accepted Continuation 6: Owner Summary Contract (`completed 2026-07-15`)
 
@@ -354,20 +360,32 @@ existing Python health snapshot, and non-echoing validation errors. It adds no
 file import, HTTP, webhook route, Shortcut invocation, cloud-chat transmission,
 or iOS UI. See the owner-summary manifest and acceptance report.
 
-## Planned Continuation 7: Manual Export Normalization
+## Accepted Continuation 7: Manual Export Normalization (`completed 2026-07-15`)
 
-Define only a synthetic mapping from a documented manual Apple Health export
-shape to the five canonical families. Reuse existing snapshot validation,
-content hashing, freshness, deduplication, and conflict boundaries. Do not read
-a real export file or add a parser, network route, cloud transmission, or iOS
-UI in this slice.
+Product `0665fd3` accepts only a synthetic mapping from five documented manual
+Apple Health export markers to the canonical families. It reuses existing
+snapshot validation, content hashing, freshness, deduplication, and conflict
+boundaries. The acceptance passed `43` focused tests, `103` combined health
+tests, and `1518` full Python tests. See the [manifest](../manifests/health-manual-export-normalization-v0.1.md)
+and [acceptance report](../reports/health-manual-export-normalization-v0.1-acceptance-20260715.md).
+It reads no real export file, parses no ZIP/XML, enables no Swift adapter, and
+adds no network route, cloud transmission, model execution, or iOS UI.
 
-## Optional Continuation 8: Personal Team Device Acceptance
+## Planned Continuation 8: Off-Device Health Consent Contract
+
+Define a separate, default-off owner decision for allowing a trend-only health
+summary to leave the device, plus a strict aggregate envelope limited to the
+five canonical families. HealthKit collection permission or fallback-source
+selection must never imply transfer consent. Keep this slice local and
+synthetic: no network/API route, provider or model execution, persistence, real
+health data, or iOS UI.
+
+## Optional Continuation 9: Personal Team Device Acceptance
 
 Run this only after the backend contracts and mock paths are stable, and only
 if the owner chooses to pursue a short-lived Personal Team device check. It is
-optional/deferred, is not required for the order 12, owner-summary, or
-manual-export fallback seams, and does not require paid membership.
+optional/deferred, is not required for the accepted health input contracts or
+the off-device consent contract, and does not require paid membership.
 
 - Verify owner-device installation and re-provision/reinstall recovery.
 - Request only the existing five HealthKit read families if the owner chooses
