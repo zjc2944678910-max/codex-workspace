@@ -59,7 +59,7 @@ selection or MCP invocation controls.
 
 ## Current Confirmed State
 
-- Product `main@0665fd3` contains a source-gated authenticated chat path that is
+- Product `main@bff7398` contains a source-gated authenticated chat path that is
   off by default. When enabled with its trusted dependencies, non-temporary
   turns persist atomically, temporary turns skip persistence, and expired
   bounded context is pruned at startup and periodically. That authenticated
@@ -85,10 +85,12 @@ selection or MCP invocation controls.
   carries that action and accepts the additive health-source seam with `24`
   focused health tests, `1439` full Python tests, all `44/44` Swift smokes,
   and an unsigned Host build. Product `4a8b52e` adds the fixture-only
-  owner-summary contract, while current product `0665fd3` adds fixture-only
-  manual-export normalization; the latest acceptance passed `43` focused,
-  `103` combined health, and `1518` full Python tests. Neither contract enables
-  the inert Swift adapters, a file/network intake, or cloud transmission.
+  owner-summary contract, product `0665fd3` adds fixture-only manual-export
+  normalization, and current product `bff7398` adds the default-off off-device
+  consent envelope. The latest acceptance passed `55` focused, `158` combined
+  health, and `1573` full Python tests. None of these contracts enables the
+  inert Swift adapters, file/network intake, model execution, authenticated-chat
+  health context, or cloud transmission.
 - Style-profile mechanisms and synthetic evaluation surfaces exist, but no
   thread-running claim is durable product state. New style work must use the
   current queue and a fresh consent/scope check.
@@ -106,7 +108,7 @@ selection or MCP invocation controls.
   path was later field-accepted for the sequence
   `happy -> correlated ACK -> neutral -> correlated ACK`, retained through
   product commit `9dbfafc` and current
-  `main@0665fd3`. This does not establish continuous boot polling, unattended
+  `main@bff7398`. This does not establish continuous boot polling, unattended
   reliability, or App integration for audio, motion, touch, or camera.
 - Separate direct-device checks field-confirmed low-speed X/Y servo movement and
   return, three-zone head-touch input, and one local low-resolution camera
@@ -128,7 +130,7 @@ selection or MCP invocation controls.
   remote MCP transport, state-changing tools, arbitrary discovery, iOS-side
   execution, MCP controls in the current MVP, and automatic main-Chat invocation
   remain future work. Real health-source file/network intake, third-party
-  adapters, independent off-device consent, model analysis, continuous
+  adapters, off-device transmission, model analysis, continuous
   StackChan command polling, production voice/camera workflows, and NAS/VPS
   production integration also remain future phases.
 
@@ -226,6 +228,10 @@ Acceptance anchors:
   product `4a8b52e`, and fixture-only manual-export normalization is accepted at
   product `0665fd3`; neither acceptance enables file/network intake or an iOS
   adapter.
+- Treat the separate off-device consent envelope accepted at product `bff7398`
+  as default-off and single-request only. Collection/import or memory consent
+  cannot substitute for its literal transfer assertion; no transport or model
+  execution is enabled.
 - Normalize every source only into the existing five families: steps, active
   energy, heart rate, sleep, and workouts.
 - Separate short-term session context, long-term memory atoms, and health
@@ -314,18 +320,20 @@ Acceptance anchors:
   sharing, or state-changing action needs a new scope and acceptance.
 - Treat the order 12 health-source seam accepted at product `b6209a7` as the
   current local boundary. Product `4a8b52e` adds the fixture-only owner-summary
-  contract, and product `0665fd3` adds fixture-only manual-export normalization.
-  HealthKit is optional code only; owner Shortcut and Swift manual-export
-  adapters remain inert and disabled by default. The formal Host's legacy
-  HealthKit injection does not prove authorization or sample access. See the
-  [order 12 manifest](health-source-abstraction-v0.1.md), [owner-summary
+  contract, product `0665fd3` adds fixture-only manual-export normalization, and
+  product `bff7398` adds the default-off off-device consent envelope. HealthKit
+  is optional code only; owner Shortcut and Swift manual-export adapters remain
+  inert and disabled by default. The formal Host's legacy HealthKit injection
+  does not prove authorization or sample access. See the [order 12
+  manifest](health-source-abstraction-v0.1.md), [owner-summary
   manifest](health-owner-summary-contract-v0.1.md), [manual-export
-  manifest](health-manual-export-normalization-v0.1.md), and [manual-export
-  acceptance report](../reports/health-manual-export-normalization-v0.1-acceptance-20260715.md).
-- Implement `PAC-HEALTH-OFF-DEVICE-CONSENT-CONTRACT` next as a default-off,
-  owner-visible transfer decision and strict trend-only aggregate envelope.
-  Keep it local and synthetic: no network/API route, model execution,
-  persistence, real health data, or iOS UI.
+  manifest](health-manual-export-normalization-v0.1.md), and [off-device consent
+  manifest](health-off-device-consent-contract-v0.1.md).
+- Implement `PAC-HEALTH-ANALYSIS-CONTRACT` next as a model-agnostic,
+  non-diagnostic request/response schema for five-family explanations,
+  uncertainty, and chart-ready metadata. Keep it local and synthetic: no
+  provider/model execution, network/API route, persistence, authenticated-chat
+  wiring, real health data, or iOS UI.
 - Run a separate optional Personal Team signed-device acceptance when the owner
   is ready; paid distribution is not a prerequisite for the fallback path.
 - Decide when the synthetic style categories have enough coverage to freeze a

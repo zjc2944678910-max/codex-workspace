@@ -59,11 +59,11 @@ API route, invoke MCP, transmit health data, call a model, or expose iOS UI.
 - `README.md`
 - `ios/PersonalAICompanion/README.md`
 
-## Next Boundary
+## Superseded Next Boundary
 
-The next local candidate is `PAC-HEALTH-OFF-DEVICE-CONSENT-CONTRACT`: define a
-separate, default-off owner decision for transmitting a trend-only health
-summary and a strict aggregate envelope without adding a network route or model
-execution. HealthKit collection permission and off-device transmission consent
-must remain independent. Personal Team signing and real-device health access
-remain a separate manual gate.
+`PAC-HEALTH-OFF-DEVICE-CONSENT-CONTRACT` was accepted at product `bff7398`; see
+its [manifest](health-off-device-consent-contract-v0.1.md) and [acceptance
+report](../reports/health-off-device-consent-contract-v0.1-acceptance-20260715.md).
+Collection/import scopes remain separate from off-device consent. The current
+next local candidate is `PAC-HEALTH-ANALYSIS-CONTRACT`, while Personal Team
+signing and real-device health access remain a separate optional manual gate.

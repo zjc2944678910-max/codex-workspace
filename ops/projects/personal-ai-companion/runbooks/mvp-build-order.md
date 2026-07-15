@@ -3,7 +3,7 @@
 Use this runbook when starting implementation so the project does not drift
 into firmware work, model training, or live/NAS repair too early.
 
-Current baseline (2026-07-15): product `main@0665fd3` contains a source-gated
+Current baseline (2026-07-15): product `main@bff7398` contains a source-gated
 authenticated iOS-to-cloud chat path that is off by default. When enabled with
 its trusted dependencies, non-temporary turns persist atomically, temporary
 turns skip persistence, and expired bounded context is pruned at startup and
@@ -59,9 +59,15 @@ an iOS UI. The fixture-only manual-export normalizer is accepted at product
 `0665fd3`: `43` focused tests, `103` combined health tests, and `1518` full
 Python tests passed with the same warning. It consumes only a pre-aggregated
 synthetic mapping; it does not read a file/ZIP/XML, enable the Swift adapter,
-open a network connection, transmit to cloud chat, or expose an iOS UI. The next
-local candidate is `PAC-HEALTH-OFF-DEVICE-CONSENT-CONTRACT`; the Personal Team
-device gate remains optional/deferred.
+open a network connection, transmit to cloud chat, or expose an iOS UI. The
+default-off off-device consent envelope is accepted at product `bff7398`: `55`
+focused tests, `158` combined health tests, and `1573` full Python tests passed.
+It requires literal `true` single-request transfer consent, complete qualitative
+five-family content, and a five-minute maximum lifetime while stripping source
+and adapter identity. It adds no transport, model call, consent persistence,
+authenticated-chat wiring, Swift source, or iOS UI. The next local candidate is
+`PAC-HEALTH-ANALYSIS-CONTRACT`; the Personal Team device gate remains
+optional/deferred.
 
 ## Route Lock Template
 
@@ -371,21 +377,32 @@ and [acceptance report](../reports/health-manual-export-normalization-v0.1-accep
 It reads no real export file, parses no ZIP/XML, enables no Swift adapter, and
 adds no network route, cloud transmission, model execution, or iOS UI.
 
-## Planned Continuation 8: Off-Device Health Consent Contract
+## Accepted Continuation 8: Off-Device Health Consent Contract (`completed 2026-07-15`)
 
-Define a separate, default-off owner decision for allowing a trend-only health
-summary to leave the device, plus a strict aggregate envelope limited to the
-five canonical families. HealthKit collection permission or fallback-source
-selection must never imply transfer consent. Keep this slice local and
-synthetic: no network/API route, provider or model execution, persistence, real
-health data, or iOS UI.
+Product `bff7398` accepts one separate, default-off and single-request
+`HealthOffDeviceSummaryEnvelope`. Missing or `false` consent fails closed;
+collection/import and memory consent scopes cannot substitute for
+`owner_health_summary_transfer`. The envelope requires the complete canonical
+five-family qualitative summary, verifies its content digest, strips source and
+adapter identity, and expires within five minutes. See the [manifest](../manifests/health-off-device-consent-contract-v0.1.md)
+and [acceptance report](../reports/health-off-device-consent-contract-v0.1-acceptance-20260715.md).
+It does not transmit data, add an API route, call a provider/model, persist
+consent, modify authenticated chat, change Swift source, or expose iOS UI.
 
-## Optional Continuation 9: Personal Team Device Acceptance
+## Planned Continuation 9: Health Analysis Contract
+
+Define a model-agnostic, non-diagnostic synthetic request/response schema for
+five-family explanations, explicit uncertainty, and chart-ready metadata. It
+may consume the accepted off-device envelope only as a validated DTO; it must
+not open a network connection, call a provider/model, persist health data,
+modify authenticated chat, use real health data, or expose iOS UI.
+
+## Optional Continuation 10: Personal Team Device Acceptance
 
 Run this only after the backend contracts and mock paths are stable, and only
 if the owner chooses to pursue a short-lived Personal Team device check. It is
 optional/deferred, is not required for the accepted health input contracts or
-the off-device consent contract, and does not require paid membership.
+the off-device/analysis contracts, and does not require paid membership.
 
 - Verify owner-device installation and re-provision/reinstall recovery.
 - Request only the existing five HealthKit read families if the owner chooses
@@ -413,6 +430,7 @@ the off-device consent contract, and does not require paid membership.
 - All health adapters normalize only the five canonical families and preserve
   source attribution.
 - Health-source authorization alone does not authorize off-device or cloud-chat
-  transmission; that requires a separate owner-visible gate and acceptance.
+  transmission. The accepted 12C envelope is a local structural gate, not proof
+  of persisted consent, transport, model execution, or completed transmission.
 - The default chat route remains usable when custom providers, MCP, phone
   actions, HealthKit, or other health sources are disabled.
