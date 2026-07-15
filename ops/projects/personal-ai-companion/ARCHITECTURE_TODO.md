@@ -23,7 +23,7 @@ or the project README.
 ### 2026-07-15 Mainline Snapshot
 
 - Clean remote committed baseline: the product default branch `main` is pushed
-  at `7547d8a`; redundant compatibility refs `codex/initial-private-publish`
+  at `b6209a7`; redundant compatibility refs `codex/initial-private-publish`
   and `codex/pac-google-logout-revocation-fix` were retired after promotion.
   It retains repository hygiene (`e883a91`), cloud (`b9a5d7b`), iOS
   (`e15e553`), memory quality/runtime metadata, bounded StackChan LCD v0.1 E2E,
@@ -33,10 +33,12 @@ or the project README.
   temporary turns skip persistence, and expired bounded context is pruned at
   startup and periodically. The same baseline retains the transport-free v0.1
   provider/MCP/phone-action/health-source contracts, the local encrypted
-  custom-provider registry core, and the bounded synthetic 9B runtime/owner API
+  custom-provider registry core, the bounded synthetic 9B runtime/owner API,
+  and the additive iOS HealthSource adapter seam
   plus redacted iOS status/selection wiring. Product `2dc2948` now also carries
   the bounded local/mock MCP gateway slice for one read-only information tool,
-  and the first fixed public iOS system-share action.
+  and the first fixed public iOS system-share action. The current baseline also
+  carries the additive health-source seam at `main@b6209a7`.
   No live chat or live remote optional-integration vertical has been accepted.
   The
   [2026-07-15 runtime acceptance](reports/custom-provider-runtime-integration-v0.1-acceptance-20260715.md)
@@ -51,15 +53,17 @@ or the project README.
   product `7547d8a`, with the same warning.
 - Product direction update: Xiaoxin remains a single-owner personal app. Paid
   Apple Developer Program membership, TestFlight, and App Store distribution
-  are deferred. Personal Team testing and periodic re-provisioning are accepted
-  constraints. The shared `HealthSource` wire contract is accepted, while
-  HealthKit remains only one optional future adapter behind it. The bounded
+  are deferred. Personal Team testing and periodic re-provisioning are optional
+  manual gates, not prerequisites for the fallback health path. The shared
+  `HealthSource` wire contract and additive iOS adapter seam are accepted, while
+  HealthKit remains an optional, unaccepted device/data adapter. The bounded
   custom-provider registry/runtime, authenticated owner API, synthetic route,
   and default-off redacted iOS status/selection slice are accepted. The first
   local/mock MCP gateway slice is also accepted at product `2dc2948`. Real
   provider transport/health probing, remote MCP servers, state-changing MCP
-  execution and non-HealthKit health adapters remain planned but not yet
-  implemented. The supported phone-action order is now accepted only for the
+  execution remain planned but not yet implemented. Owner-run Shortcut/webhook
+  and manual Apple Health export are represented as inert planned fallbacks;
+  no external intake is enabled. The supported phone-action order is now accepted only for the
   fixed `companion.share_capabilities -> system.share_sheet` handoff; broader
   App Intents, Shortcuts, URL schemes, reminders, dynamic sharing, and
   state-changing actions remain out of scope.
@@ -123,18 +127,17 @@ or the project README.
   prior App/Host build and smoke evidence remains accepted. Real-device Personal Team
   acceptance remains unconfirmed; paid distribution is deferred rather than a
   current release blocker.
-- Health sources: the committed host requests read-only HealthKit access only
-  for steps, active energy, heart rate, sleep, and workouts. The iOS source can
-  construct one bounded trend-only chat summary from those families when both
-  owner controls are enabled; the authenticated cloud-chat client does not
-  accept that health context. Health Records entitlement and clinical-purpose
-  text were removed. Apple's current capability matrix lists basic HealthKit
-  for free Apple Developer accounts, but no real health data, Personal Team
-  signed-device result, or authenticated cloud-chat health transmission was
-  accepted. Collection authorization and off-device transmission are separate
-  gates. HealthKit is now an optional adapter; Shortcut/webhook, manual Apple
-  Health export, and selected third-party provider adapters are planned, not
-  implemented.
+- Health sources: the committed host remains scoped to read-only HealthKit
+  access for steps, active energy, heart rate, sleep, and workouts, while the
+  additive iOS `HealthSourceCatalog`/`HealthSourceAdapter` keeps that source
+  behind a shared boundary. The existing summary remains local and bounded; the
+  authenticated cloud-chat client does not accept health context. Health Records
+  entitlement and clinical-purpose text were removed. No paid Apple Developer
+  Program membership is assumed. No real health data, signed-device result,
+  HealthKit authorization, or authenticated cloud-chat transmission was
+  accepted. Owner-run Shortcut/webhook and manual Apple Health export are
+  planned, owner-initiated, disabled-by-default fallback seams with typed
+  unavailable adapters; selected third-party adapters remain later work.
 - Xiaoxin cloud/auth: the current recorded image is
   `xiaoxin-cloud-api:20260713T0137-native-google`. Native Google is preferred,
   Authentik PKCE remains available as fallback, and SMS OTP remains disabled.
@@ -275,8 +278,8 @@ or the project README.
 Rows 1-9B retain dependency history: completed source/deployment slices plus
 explicitly separate, still-manual checkpoints such as same-account re-login and
 Personal Team acceptance. They are not all fully complete, but none blocks the
-next local integration slice. After this docs sync, the current unstarted
-continuation begins at order 11 and must still run one bounded task at a time.
+next local integration slice. After order 11, the current unstarted
+continuation begins at order 13 and must still run one bounded task at a time.
 Order 10 is accepted locally at product `2dc2948`; it does not authorize
 remote or state-changing MCP work.
 
@@ -291,7 +294,7 @@ remote or state-changing MCP work.
 | 2 | `PAC-NATIVE-GOOGLE-DIRECT` (`completed deployment`) | L3 historical | Task `019f53e3-4888-7dd1-9dbe-7e7e69354cc6` is complete; its authorization is consumed. | Native Google deployed with Authentik fallback; built-in email and SMS disabled. |
 | 3 | `PAC-NATIVE-GOOGLE-OWNER-ACCEPTANCE` (`repair complete; re-login pending`) | Manual/L2 with bounded L3 repair completed | Expected-account selection, same-owner Google/Authentik binding, real refresh rotation, local logout cleanup, iOS pending-marker repair, and target-only orphan-family revocation are confirmed. Product repair `b8462a9` is retained in current `main@2dc2948`; the live backup and evidence are recorded in the acceptance report. | Direct live replay of deleted old tokens and same-account re-login/historical-data recovery remain unconfirmed. No further live action is authorized by the consumed repair card. |
 | 4 | `PAC-PRODUCT-POLISH-CLOSEOUT` (`completed`) | L1 | Converged and pushed at `e15e553`; source rollback branch retained at `12663dd`. | Repository hygiene, Cloud, and iOS slices are independently committed and verified. |
-| 5 | `PAC-HEALTH-SOURCE-AND-PERSONAL-TEAM-SCOPE` (`partially completed`) | L1/L2 | Minimum HealthKit read scope is five types and clinical/Health Records declarations are removed. Free Personal Team testing is the current target; paid distribution is deferred. | `HealthSource` abstraction, fallback adapters, Personal Team device acceptance, and real-data authorization remain separate gates. |
+| 5 | `PAC-HEALTH-SOURCE-AND-PERSONAL-TEAM-SCOPE` (`partially completed`) | L1/L2 | Minimum HealthKit read scope is five types and clinical/Health Records declarations are removed. Paid membership is deferred; Personal Team signing is optional and manual. | The order 12 source seam is accepted separately; Personal Team device acceptance and real-data authorization remain manual gates. |
 | 6 | `PAC-IOS-STACKCHAN-E2E-PREFLIGHT` (`completed`) | L2 | Static review completed without live access; clean convergence is now an execution prerequisite for order 7, not a prerequisite for this completed design review. | Selected v0.1 LCD `happy -> ack -> neutral -> ack`; no device action. See [the preflight report](reports/app-bridge-stackchan-e2e-preflight-20260713.md). |
 | 7 | `PAC-IOS-STACKCHAN-SCREEN-E2E` (`completed`) | L3 historical + L1 closeout | Field sequence owner-confirmed; durable product source and HTTP ACK-route hardening pushed at `9dbfafc`; acceptance recorded without repeating live commands. | One v0.1 App-to-LCD `happy -> ACK -> neutral -> ACK` path only; final `neutral`, queue `0`. No expansion to audio, motion, camera, touch, memory, HealthKit, polling, firmware, or other hardware. See [the acceptance report](reports/app-bridge-stackchan-e2e-acceptance-20260713.md). |
 | 8 | `PAC-INTEGRATION-CONTRACTS-V0.1` (`completed 2026-07-15`) | L1 | Accepted and pushed at product `65d47b5`; see the [manifest](manifests/integration-contracts-v0.1.md) and [acceptance report](reports/integration-contracts-v0.1-acceptance-20260715.md). | Strict provider, MCP, phone-action, and five-family health-source DTOs plus synthetic fixtures and `102` focused tests; no network, credentials, device, runtime wiring, or real data. |
@@ -299,8 +302,8 @@ remote or state-changing MCP work.
 | 9B | `PAC-CUSTOM-PROVIDER-RUNTIME-INTEGRATION` (`completed 2026-07-15`) | L1 with shared-contract review | Accepted and pushed at product `295687f`; see the [manifest](manifests/custom-provider-runtime-integration-v0.1.md) and [acceptance report](reports/custom-provider-runtime-integration-v0.1-acceptance-20260715.md). | Explicit KEK/resource lifecycle, injected executor, owner API, redacted iOS status/selection, and synthetic `normal` route/client wiring; no default network, real provider, sensitive privacy class, live reconfiguration, or deployment. |
 | 10 | `PAC-MCP-GATEWAY-READONLY` (`completed 2026-07-15`) | L1 | Accepted at product `2dc2948`; see the [manifest](manifests/mcp-gateway-readonly-v0.1.md) and [acceptance report](reports/mcp-gateway-readonly-v0.1-acceptance-20260715.md). Product `main` and `origin/main` matched at that commit. | One local allowlisted read-only `server.local.context/context.today` tool with bounded timeout, input/output limits, concurrency, idempotency, metadata-only audit, and failure isolation; no remote server, state-changing tool, durable audit store, or iOS runtime. |
 | 11 | `PAC-IOS-SUPPORTED-APP-ACTION` (`completed 2026-07-15`) | L1 mock/Simulator first | Accepted at product `7547d8a`; see the [manifest](manifests/ios-supported-app-action-v0.1.md) and [acceptance report](reports/ios-supported-app-action-v0.1-acceptance-20260715.md). | Exactly one fixed public `companion.share_capabilities -> system.share_sheet` handoff through SwiftUI `ShareLink`; no receipt, durable audit, cancellation observation, target completion, dynamic data, or real-device action. |
-| 12 | `PAC-HEALTH-SOURCE-ABSTRACTION` (`next`) | L1 | Preserve the existing five canonical families and HealthKit adapter behavior. | Adapter contract plus source attribution/deduplication; first fallback is owner-run Shortcut/webhook or manual Apple Health export, not real health-data intake. |
-| 13 | `PAC-PERSONAL-TEAM-DEVICE-ACCEPTANCE` (`manual gate`) | L2 preflight; state-changing device/signing or real-data action needs separate authorization | Requires stable mock/backend paths and owner presence. | Install/re-provision recovery and optional five-family HealthKit authorization only; no TestFlight/App Store claim and no paid membership requirement. |
+| 12 | `PAC-HEALTH-SOURCE-ABSTRACTION` (`completed 2026-07-15`) | L1 | Accepted and pushed at product `b6209a7`; see the [manifest](manifests/health-source-abstraction-v0.1.md) and [acceptance report](reports/health-source-abstraction-v0.1-acceptance-20260715.md). | Additive `HealthSourceCatalog`/`HealthSourceAdapter`, source attribution/capture/consent/content/dedup metadata, canonical five-family order, and inert owner-run Shortcut/webhook/manual-export fallback seams. No external intake, real HealthKit read, or cloud transmission. |
+| 13 | `PAC-PERSONAL-TEAM-DEVICE-ACCEPTANCE` (`next manual gate`) | L2 preflight; state-changing device/signing or real-data action needs separate authorization | Optional and owner-present only; it is not required for the order 12 fallback seam. | Install/re-provision recovery and optional five-family HealthKit authorization only; no TestFlight/App Store claim and no paid membership requirement. |
 
 This table is the current implementation queue. The runbook remains normative
 for risk/status vocabulary, manual repair gates, and stop conditions. This table

@@ -3,7 +3,7 @@
 Use this runbook when starting implementation so the project does not drift
 into firmware work, model training, or live/NAS repair too early.
 
-Current baseline (2026-07-15): product `main@7547d8a` contains a source-gated
+Current baseline (2026-07-15): product `main@b6209a7` contains a source-gated
 authenticated iOS-to-cloud chat path that is off by default. When enabled with
 its trusted dependencies, non-temporary turns persist atomically, temporary
 turns skip persistence, and expired bounded context is pruned at startup and
@@ -35,6 +35,20 @@ card through SwiftUI `ShareLink`. The order 11 acceptance passed `26` focused
 phone-contract tests, `1439` full Python tests, and all `44/44` Swift smoke
 executables, with one existing warning. The system handoff creates no app
 receipt/audit and cannot observe cancellation or target completion.
+
+Order 12 is now accepted as a local additive source boundary. The iOS Core
+catalog keeps the five canonical families in Python-contract order, declares
+HealthKit as an optional implemented-code adapter, and exposes owner-run
+Shortcut/webhook, manual Apple Health export, and selected third-party entries
+as planned, disabled-by-default fallbacks. Planned entries are inert typed
+unavailable adapters; no file import, network intake, HealthKit query, signing,
+or cloud transmission is part of this acceptance. The formal Host retains its
+legacy HealthKit provider injection for compatibility, but construction alone
+does not request authorization or read a sample. See the [order 12 manifest](../manifests/health-source-abstraction-v0.1.md)
+and [acceptance report](../reports/health-source-abstraction-v0.1-acceptance-20260715.md).
+The Python
+`pac.health_source.v0.1` DTO remains authoritative for numeric windows,
+cryptographic content hashes, freshness, and multi-source conflict composition.
 
 ## Route Lock Template
 
@@ -290,9 +304,10 @@ App Intents, Shortcuts, URL schemes, reminders, dynamic sharing, state changes,
 notification reading, arbitrary background control, private cross-app data, and
 real-device execution remain out of scope.
 
-## Current Continuation 5: Health-Source Abstraction
+## Accepted Continuation 5: Health-Source Abstraction (`completed 2026-07-15`)
 
-Make HealthKit one adapter behind a shared `HealthSource` boundary.
+Make HealthKit one adapter behind a shared `HealthSource` boundary. The order
+12 manifest and report record the accepted local slice.
 
 Canonical output remains limited to:
 
@@ -308,13 +323,25 @@ Add fallback adapters in this order:
 2. Manual Apple Health export import.
 3. Selected third-party wearable/provider APIs.
 
-Each snapshot must retain source attribution, collection time, consent scope,
-and deduplication identity. Disabling one adapter must not disable chat, memory,
-or another health source.
+The Swift attributed-summary seam retains source attribution, adapter/source
+revision, collection time, owner consent scope, a non-secret content
+fingerprint, and structural deduplication identity. The existing Python DTO
+continues to own exact window/hash/freshness/conflict semantics; no
+Swift/Python fixture parity is claimed. Disabling one adapter must not disable
+chat, memory, or another health source.
+
+The first fallback entries are owner-run Shortcut/webhook and manual Apple
+Health export, followed by selected third-party adapters. They are represented
+as planned inert adapters that fail closed with a typed unavailable result.
+Implementing intake is a later task and requires its own privacy, parsing,
+transport, and owner-approval review.
 
 ## Current Continuation 6: Personal Team Device Acceptance
 
-Run this only after the backend contracts and mock paths are stable.
+Run this only after the backend contracts and mock paths are stable, and only
+if the owner chooses to pursue a short-lived Personal Team device check. It is
+not required for the order 12 fallback seam and does not require paid
+membership.
 
 - Verify owner-device installation and re-provision/reinstall recovery.
 - Request only the existing five HealthKit read families if the owner chooses

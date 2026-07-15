@@ -54,7 +54,7 @@ signals, devices, and boundaries.
 
 ## Current Confirmed State
 
-- Product `main@7547d8a` contains a source-gated authenticated chat path that is
+- Product `main@b6209a7` contains a source-gated authenticated chat path that is
   off by default. When enabled with its trusted dependencies, non-temporary
   turns persist atomically, temporary turns skip persistence, and expired
   bounded context is pruned at startup and periodically. That authenticated
@@ -76,7 +76,10 @@ signals, devices, and boundaries.
   public `companion.share_capabilities -> system.share_sheet` handoff through
   SwiftUI `ShareLink`, with `1439` full Python tests and all `44/44` Swift smoke
   executables passing. The system handoff has no app receipt, durable audit,
-  cancellation observation, or target-completion proof.
+  cancellation observation, or target-completion proof. Product `b6209a7`
+  carries that action and accepts the additive health-source seam with `24`
+  focused health tests, `1439` full Python tests, all `44/44` Swift smokes,
+  and an unsigned Host build.
 - Style-profile mechanisms and synthetic evaluation surfaces exist, but no
   thread-running claim is durable product state. New style work must use the
   current queue and a fresh consent/scope check.
@@ -199,9 +202,12 @@ Acceptance anchors:
 - Put phone actions behind the same allowlist, preview, confirmation, and audit
   boundaries as other state-changing tools.
 - Introduce a `HealthSource` adapter boundary so HealthKit is one optional
-  source rather than the only health path.
+  source rather than the only health path. The local order 12 slice now
+  records attribution, consent, capture, content, and deduplication metadata
+  without changing the existing summary API.
 - Add owner-triggered fallback adapters in this order: Shortcuts/webhook,
-  manual Apple Health export, then selected wearable/provider APIs.
+  manual Apple Health export, then selected wearable/provider APIs. The first
+  two are currently typed unavailable/inert seams; no intake is enabled.
 - Normalize every source only into the existing five families: steps, active
   energy, heart rate, sleep, and workouts.
 - Separate short-term session context, long-term memory atoms, and health
@@ -288,11 +294,17 @@ Acceptance anchors:
   cancellation telemetry, receipt/audit support, or Swift/Python fixture parity
   from this handoff. Any App Intent, Shortcut, URL scheme, reminder, dynamic
   sharing, or state-changing action needs a new scope and acceptance.
-- Decide whether the first health fallback should be a user-run Shortcut or a
-  manual Apple Health export importer; both must map only to the five canonical
-  families.
-- Run a separate Personal Team signed-device acceptance when the owner is ready;
-  paid distribution remains a future product decision, not a blocker.
+- Treat the order 12 health-source seam accepted at product `b6209a7` as the
+  current local boundary. HealthKit is optional code only; planned fallback
+  adapters are inert and disabled by default. The formal Host's legacy
+  HealthKit injection does not prove authorization or sample access. See the
+  [order 12 manifest](health-source-abstraction-v0.1.md) and [acceptance
+  report](../reports/health-source-abstraction-v0.1-acceptance-20260715.md).
+- Implement and review the first health fallback (user-run Shortcut/webhook or
+  manual Apple Health export) only as a separate privacy, parsing, and intake
+  task; both must map only to the five canonical families.
+- Run a separate optional Personal Team signed-device acceptance when the owner
+  is ready; paid distribution is not a prerequisite for the fallback path.
 - Decide when the synthetic style categories have enough coverage to freeze a
   v1 response-shape baseline; do not infer that decision from an old thread
   status.

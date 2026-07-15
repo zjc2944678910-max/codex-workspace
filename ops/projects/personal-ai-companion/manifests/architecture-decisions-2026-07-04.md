@@ -23,19 +23,20 @@ distribution or HealthKit is required for the personal MVP:
 - The intended deployment is single-owner and personal-use. Keep owner
   authentication, privacy scoping, and audit logs, but do not design billing,
   organizations, public onboarding, or multi-tenant administration.
-- Do not require paid Apple Developer Program membership now. Use Xcode
-  Personal Team for owner-device testing and accept periodic re-provisioning;
-  TestFlight and App Store distribution are deferred.
+- Do not require or purchase paid Apple Developer Program membership now. Xcode
+  Personal Team is an optional, short-lived owner-device check with periodic
+  re-provisioning; TestFlight and App Store distribution are deferred.
 - Apple's current capability matrix lists basic HealthKit for free Apple
-  Developer accounts, but it remains an optional, unconfirmed device adapter.
-  No chat, memory, provider, MCP, or StackChan feature may depend on HealthKit
-  being available. HealthKit collection authorization and any off-device or
-  cloud-chat transmission are separate owner-visible gates; source permission
-  alone never authorizes transmission.
+  Developer accounts, but HealthKit remains an optional, unaccepted device/data
+  adapter. No chat, memory, provider, MCP, or StackChan feature may depend on
+  HealthKit being available. HealthKit collection authorization and any
+  off-device or cloud-chat transmission are separate owner-visible gates; source
+  permission alone never authorizes transmission.
 - Introduce a `HealthSource` boundary. Normalize HealthKit, owner-run
   Shortcuts/webhooks, manual Apple Health exports, and selected third-party
   wearable/provider APIs into only five canonical families: steps, active
-  energy, heart rate, sleep, and workouts.
+  energy, heart rate, sleep, and workouts. The first non-HealthKit entries are
+  owner-triggered and remain inert until a separate intake review.
 - Introduce a backend custom-provider registry for OpenAI-compatible endpoints,
   Gemini, Claude, Sub2API, and Ollama/NAS profiles. Store credentials encrypted
   on the backend; iOS may select profiles and view capabilities but may not read
@@ -262,17 +263,37 @@ Swift mock provider and Python phone contract test cover local handoff-only
 semantics; they do not establish Swift/Python payload or fixture parity. App
 Intents, Shortcuts, URL schemes, reminders, dynamic sharing, state-changing
 actions, notification reading, arbitrary cross-app control, and real-device
-execution remain separate future gates. The next queue item is
-`PAC-HEALTH-SOURCE-ABSTRACTION`.
+execution remain separate future gates. Order 12 is now recorded as the
+additive health-source boundary; the next queue item is the optional
+`PAC-PERSONAL-TEAM-DEVICE-ACCEPTANCE` manual gate.
+
+### 2026-07-15 Health Source Abstraction Amendment
+
+Order 12 is accepted at product `b6209a7` for a local/mock/Simulator-first
+additive seam. `HealthSourceCatalog` and `HealthSourceAdapter` preserve the
+five canonical families and attach source attribution, adapter/source revision,
+capture time, consent scope, non-secret content fingerprint, and structured
+deduplication metadata. HealthKit remains optional implemented code; owner-run
+Shortcut/webhook, manual Apple Health export, and selected third-party entries
+are planned, disabled-by-default, typed-unavailable seams. The formal Host's
+legacy HealthKit provider injection is retained for compatibility, but no
+authorization or sample read is accepted.
+
+See the [order 12 manifest](health-source-abstraction-v0.1.md) and
+[acceptance report](../reports/health-source-abstraction-v0.1-acceptance-20260715.md).
+The next candidate remains the optional `PAC-PERSONAL-TEAM-DEVICE-ACCEPTANCE`
+manual gate; it is not required for the fallback path.
 
 Phase 5:
 
-- Add one supported phone-app action through a mock/Simulator-first App
-  Intent/Shortcut or URL/universal-link/share-sheet path.
-- Add a non-HealthKit health adapter while preserving the same five canonical
-  summary families.
-- Run separate Personal Team device acceptance; do not block these backend
-  integrations on paid program membership.
+- Additive order 12 health-source boundary is accepted locally: the iOS
+  catalog/adapter metadata and inert owner-triggered fallback seams preserve
+  the five canonical families without starting intake.
+- Implement a non-HealthKit health adapter only after a new privacy/parsing/
+  transport review; the current Shortcut/webhook and manual-export entries are
+  typed unavailable seams.
+- Run separate optional Personal Team device acceptance; do not block the
+  fallback path on paid program membership.
 
 Phase 6:
 
