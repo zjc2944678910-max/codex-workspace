@@ -3,17 +3,19 @@
 Use this runbook when starting implementation so the project does not drift
 into firmware work, model training, or live/NAS repair too early.
 
-Current baseline (2026-07-15): product `main@ad18cd0` contains a source-gated
+Current baseline (2026-07-15): product `main@295687f` contains a source-gated
 authenticated iOS-to-cloud chat path that is off by default. When enabled with
 its trusted dependencies, non-temporary turns persist atomically, temporary
 turns skip persistence, and expired bounded context is pruned at startup and
 periodically. That authenticated route explicitly disables memory-candidate
 writes. The same baseline contains the accepted transport-free integration
-contracts plus the local encrypted custom-provider registry core. It still has
-no provider API/router/iOS execution path and no live chat or optional-
-integration vertical has been accepted. A local full-suite check
-[passed `1384` tests](../reports/custom-provider-registry-v0.1-acceptance-20260715.md)
-at that exact commit with one existing Starlette/TestClient warning. The latest
+contracts plus the local encrypted custom-provider registry and bounded 9B
+runtime integration. It has an owner-authenticated redacted Provider API,
+default-off iOS status/selection, and an injected-executor synthetic `normal`
+route, but no default network transport or live optional-integration vertical.
+A local full-suite check [passed `1417` tests](../reports/custom-provider-runtime-integration-v0.1-acceptance-20260715.md)
+and all `44` Swift executables at that exact commit with one existing
+Starlette/TestClient warning. The latest
 documented default companion cloud route is `claude-opus-4-6-thinking`; the
 private local-first Mac route uses `huihui_ai/qwen3.5-abliterated:9b`. Those are
 source/config decisions, not live-provider health evidence. Steps 1-5 below
@@ -185,10 +187,10 @@ Accepted result: product `65d47b5` freezes the four versioned families with
 synthetic fixtures and `102` focused tests. See the
 [contract manifest](../manifests/integration-contracts-v0.1.md) and
 [acceptance report](../reports/integration-contracts-v0.1-acceptance-20260715.md).
-This completion accepts schemas only; continuation 2 remains the first runtime
-integration task.
+This completion accepts schemas only; at that contract baseline, continuation 2
+was the first runtime integration task.
 
-## Current Continuation 2: Custom API Provider Registry
+## Accepted Continuation 2: Custom API Provider Registry
 
 Build this in the backend relay, not as an iOS secret store.
 
@@ -199,12 +201,16 @@ metadata-only audit, and an explicit `normal`-only fallback policy. See the
 [manifest](../manifests/custom-provider-registry-v0.1.md) and
 [acceptance report](../reports/custom-provider-registry-v0.1-acceptance-20260715.md).
 
-9B remains next. It must first define a secret-safe runtime adapter and KEK
-lifecycle, then add authenticated owner API and redacted iOS status/selection
-using synthetic/mock providers. It must not modify live provider configuration,
-call a real endpoint, or widen to sensitive privacy classes in its first slice.
+9B status: accepted at product `295687f`. It adds a secret-safe injected
+runtime adapter, explicit KEK/resource lifecycle, authenticated owner API,
+redacted iOS status/selection, and one synthetic `normal` route. See the
+[manifest](../manifests/custom-provider-runtime-integration-v0.1.md) and
+[acceptance report](../reports/custom-provider-runtime-integration-v0.1-acceptance-20260715.md).
+It does not modify live provider configuration, call a real endpoint, provide a
+default network executor or health prober, route the main Chat surface, or widen
+to sensitive privacy classes.
 
-First adapters:
+Future real adapters not accepted by 9B:
 
 - One OpenAI-compatible custom endpoint.
 - Existing Gemini/Claude routes represented through the same capability model.
@@ -215,7 +221,7 @@ Requirements:
 - Keep provider credentials encrypted at rest and never return them after
   registration.
 - Let iOS select a provider/profile and view redacted status/capabilities only
-  after the authenticated 9B owner API exists.
+  through the authenticated 9B owner API.
 - Invoke a fallback provider only when the owner explicitly allowlists that
   provider for the request's privacy class. Otherwise return an error without
   invoking another provider.

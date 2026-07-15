@@ -67,8 +67,9 @@ Target components:
 
 - StackChan/CoreS3 class desktop robot as an embodied voice/display front end.
 - User-owned relay server as the control plane.
-- Gemini and Claude routes through the user's gateway for cloud inference, with
-  an owner-configurable provider registry planned for additional endpoints.
+- Gemini and Claude routes through the user's gateway for cloud inference. The
+  owner-configurable provider registry is accepted; real additional endpoint
+  adapters remain planned.
 - Optional NAS local model for private/offline/lightweight tasks.
 - iOS app for chat, voice, optional multi-source health summaries,
   reminders/calendar, AlarmKit, provider/MCP controls, and Shortcuts/App Intents
@@ -221,9 +222,12 @@ Status amendment (2026-07-15): the first Phase 4 bullet is complete at product
 `65d47b5`; the accepted schema baseline is
 [integration-contracts-v0.1.md](integration-contracts-v0.1.md). The local
 custom-provider registry core is separately complete at product `ad18cd0`; see
-[custom-provider-registry-v0.1.md](custom-provider-registry-v0.1.md). KEK
-lifecycle, authenticated API, router/client execution, iOS settings, and MCP
-runtime remain planned and are not implied by either acceptance.
+[custom-provider-registry-v0.1.md](custom-provider-registry-v0.1.md). The bounded
+runtime/owner API and default-off redacted iOS provider status/selection slice
+is complete at product `295687f`; see
+[custom-provider-runtime-integration-v0.1.md](custom-provider-runtime-integration-v0.1.md).
+Real provider transport/health probing, main Chat routing, sensitive privacy
+classes, and MCP runtime remain planned and are not implied by these acceptances.
 
 Phase 5:
 
