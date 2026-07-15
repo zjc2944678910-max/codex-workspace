@@ -69,5 +69,9 @@ client still does not support health context.
 [manifest](health-analysis-contract-v0.1.md) and [acceptance
 report](../reports/health-analysis-contract-v0.1-acceptance-20260715.md). It
 adds controlled local explanation/uncertainty/chart metadata only. Real model
-execution, narrative rendering, transfer, persistence, authenticated-chat
-wiring, and iOS UI remain later, separately reviewed work.
+execution and narrative rendering remain later, separately reviewed work. The
+explicitly injected owner Shortcut analysis API was subsequently accepted at
+product `2360cba`; see its
+[manifest](health-owner-shortcut-analysis-api-v0.1.md). It performs no default
+or deployed transfer, persistence, authenticated-chat wiring, Shortcut/iOS
+execution, or model call.

@@ -59,7 +59,7 @@ selection or MCP invocation controls.
 
 ## Current Confirmed State
 
-- Product `main@c0cd301` contains a source-gated authenticated chat path that is
+- Product `main@2360cba` contains a source-gated authenticated chat path that is
   off by default. When enabled with its trusted dependencies, non-temporary
   turns persist atomically, temporary turns skip persistence, and expired
   bounded context is pruned at startup and periodically. That authenticated
@@ -87,11 +87,13 @@ selection or MCP invocation controls.
   and an unsigned Host build. Product `4a8b52e` adds the fixture-only
   owner-summary contract, product `0665fd3` adds fixture-only manual-export
   normalization, product `bff7398` adds the default-off off-device consent
-  envelope, and current product `c0cd301` adds the local qualitative analysis
-  contract. The latest acceptance passed `65` focused, `223` combined health,
-  and `1638` full Python tests. None of these contracts enables the inert Swift
-  adapters, file/network intake, model execution, free-form model narrative,
-  authenticated-chat health context, chart UI, or cloud transmission.
+  envelope, and product `c0cd301` adds the local qualitative analysis contract.
+  Product `2360cba` adds an explicitly injected, default-absent owner Shortcut
+  analysis API over those contracts. Its acceptance passed `16` focused, `349`
+  combined Cloud/health, and `1654` full Python tests. The route has no default
+  mount, deployed composition, Shortcut recipe/token handoff, persistence,
+  model execution, free-form narrative, authenticated-chat health context,
+  chart UI, Swift/iOS caller, or real-data acceptance.
 - Style-profile mechanisms and synthetic evaluation surfaces exist, but no
   thread-running claim is durable product state. New style work must use the
   current queue and a fresh consent/scope check.
@@ -109,7 +111,7 @@ selection or MCP invocation controls.
   path was later field-accepted for the sequence
   `happy -> correlated ACK -> neutral -> correlated ACK`, retained through
   product commit `9dbfafc` and current
-  `main@c0cd301`. This does not establish continuous boot polling, unattended
+  `main@2360cba`. This does not establish continuous boot polling, unattended
   reliability, or App integration for audio, motion, touch, or camera.
 - Separate direct-device checks field-confirmed low-speed X/Y servo movement and
   return, three-zone head-touch input, and one local low-resolution camera
@@ -130,8 +132,8 @@ selection or MCP invocation controls.
   remain future work. The first local/mock MCP gateway tool is accepted, while
   remote MCP transport, state-changing tools, arbitrary discovery, iOS-side
   execution, MCP controls in the current MVP, and automatic main-Chat invocation
-  remain future work. Real health-source file/network intake, third-party
-  adapters, off-device transmission, model analysis, continuous
+  remain future work. Real/deployed health-source file or Shortcut intake,
+  third-party adapters, model analysis, continuous
   StackChan command polling, production voice/camera workflows, and NAS/VPS
   production integration also remain future phases.
 
@@ -238,6 +240,11 @@ Acceptance anchors:
   cover the exact five qualitative families; explanation, uncertainty, and
   chart fields remain controlled categorical codes. It does not generate prose,
   execute a provider/model, expose an API/UI, persist health data, or wire chat.
+- Treat the owner Shortcut analysis API accepted at product `2360cba` as a
+  local/synthetic, explicitly injected composition boundary. It fixes one
+  consent window and returns the existing exact categorical response, but has
+  no default route mount, deployed composition, iPhone Shortcut, token handoff,
+  durable replay store, provider/model narrative, chat, Swift, or iOS UI.
 - Normalize every source only into the existing five families: steps, active
   energy, heart rate, sleep, and workouts.
 - Separate short-term session context, long-term memory atoms, and health
@@ -328,7 +335,8 @@ Acceptance anchors:
   current local boundary. Product `4a8b52e` adds the fixture-only owner-summary
   contract, product `0665fd3` adds fixture-only manual-export normalization, and
   product `bff7398` adds the default-off off-device consent envelope, and
-  product `c0cd301` adds the local qualitative analysis contract. HealthKit is
+  product `c0cd301` adds the local qualitative analysis contract, and product
+  `2360cba` adds the explicitly injected owner Shortcut analysis API. HealthKit is
   optional code only; owner Shortcut and Swift manual-export adapters remain
   inert and disabled by default. The formal Host's legacy HealthKit injection
   does not prove authorization or sample access. See the [order 12
@@ -336,10 +344,13 @@ Acceptance anchors:
   manifest](health-owner-summary-contract-v0.1.md), [manual-export
   manifest](health-manual-export-normalization-v0.1.md), [off-device consent
   manifest](health-off-device-consent-contract-v0.1.md), and [analysis
-  manifest](health-analysis-contract-v0.1.md).
-- Keep `PAC-HEALTH-ANALYSIS-CONTRACT` at its accepted schema-only boundary. No
-  later local implementation slice is selected; provider/model execution,
-  narrative rendering, network/API routes, persistence, authenticated-chat
+  manifest](health-analysis-contract-v0.1.md), and [owner Shortcut API
+  manifest](health-owner-shortcut-analysis-api-v0.1.md).
+- Keep `PAC-HEALTH-ANALYSIS-CONTRACT` and
+  `PAC-HEALTH-OWNER-SHORTCUT-ANALYSIS-API` at their accepted controlled-code and
+  default-absent boundaries. No later implementation slice is selected;
+  Shortcut recipe/token handoff, raw-record aggregation, provider/model
+  execution, narrative rendering, deployment, persistence, authenticated-chat
   wiring, real health data, Swift source, and iOS UI all require new scope.
 - Run a separate optional Personal Team signed-device acceptance when the owner
   is ready; paid distribution is not a prerequisite for the fallback path.

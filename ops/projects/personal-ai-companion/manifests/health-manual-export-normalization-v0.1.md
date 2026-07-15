@@ -68,5 +68,10 @@ Collection/import scopes remain separate from off-device consent. The current
 health-analysis contract was later accepted at product `c0cd301`; see its
 [manifest](health-analysis-contract-v0.1.md) and [acceptance
 report](../reports/health-analysis-contract-v0.1-acceptance-20260715.md).
+The explicitly injected owner Shortcut analysis API was then accepted at
+product `2360cba`; see its
+[manifest](health-owner-shortcut-analysis-api-v0.1.md) and [acceptance
+report](../reports/health-owner-shortcut-analysis-api-v0.1-acceptance-20260715.md).
+It consumes 12A rather than decoding or aggregating a real Apple export.
 Personal Team signing and real-device health access remain a separate optional
 manual gate.

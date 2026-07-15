@@ -3,7 +3,7 @@
 Use this runbook when starting implementation so the project does not drift
 into firmware work, model training, or live/NAS repair too early.
 
-Current baseline (2026-07-15): product `main@c0cd301` contains a source-gated
+Current baseline (2026-07-15): product `main@2360cba` contains a source-gated
 authenticated iOS-to-cloud chat path that is off by default. When enabled with
 its trusted dependencies, non-temporary turns persist atomically, temporary
 turns skip persistence, and expired bounded context is pruned at startup and
@@ -71,8 +71,14 @@ and `1638` full Python tests passed. It binds a validated 12C envelope to one
 request fingerprint and emits only controlled explanation codes, explicit
 qualitative uncertainty, and categorical chart metadata. It adds no free-form
 narrative, numeric health values, provider/model execution, network/API route,
-persistence, chat wiring, Swift source, or iOS UI. No later local implementation
-slice is selected; the Personal Team device gate remains optional/deferred.
+  persistence, chat wiring, Swift source, or iOS UI. Product `2360cba` adds the
+  explicitly injected owner Shortcut analysis API: `16` focused, `349` combined
+  Cloud/health, and `1654` full Python tests passed. It fixes the transfer window
+  to the submitted consent time and returns the existing exact 12D categorical
+  response, but has no default mount, deployed composition, Shortcut recipe/token
+  handoff, persistence, replay store, provider/model narrative, chat, Swift, or
+  iOS UI. No later implementation slice is selected; the Personal Team device
+  gate remains optional/deferred.
 
 ## Route Lock Template
 
@@ -407,12 +413,29 @@ No provider/model execution, free-form narrative, network/API route,
 persistence, authenticated-chat wiring, real health data, Swift source, or iOS
 UI is accepted.
 
-## Optional Continuation 10: Personal Team Device Acceptance
+## Accepted Continuation 10: Owner Shortcut Analysis API (`completed 2026-07-15`)
+
+Product `2360cba` accepts the explicitly injected owner-only
+`POST /v1/health/shortcut-analysis` composition. It validates a strict 20 KiB
+12A owner summary plus a separate single-request transfer assertion, fixes the
+12C five-minute window to the submitted consent time, and returns the exact 12D
+categorical response with no-cache headers. Bearer and trusted-owner checks run
+before body streaming. The service has no database dependency, and the route is
+absent unless both the dedicated service and owner resolver are injected. See
+the [manifest](../manifests/health-owner-shortcut-analysis-api-v0.1.md) and
+[acceptance report](../reports/health-owner-shortcut-analysis-api-v0.1-acceptance-20260715.md).
+
+This is not a deployed health path. It adds no iPhone Shortcut, token handoff,
+raw Apple sample intake, real export parser/aggregator, consent persistence,
+replay suppression, rate-limited public composition, model narrative, chat,
+Swift, or iOS UI.
+
+## Optional Continuation 11: Personal Team Device Acceptance
 
 Run this only after the backend contracts and mock paths are stable, and only
 if the owner chooses to pursue a short-lived Personal Team device check. It is
-optional/deferred, is not required for the accepted health input contracts or
-the off-device/analysis contracts, and does not require paid membership.
+  optional/deferred, is not required for the accepted health input/API contracts,
+  and does not require paid membership.
 
 - Verify owner-device installation and re-provision/reinstall recovery.
 - Request only the existing five HealthKit read families if the owner chooses

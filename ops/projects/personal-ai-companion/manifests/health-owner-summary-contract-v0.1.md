@@ -51,9 +51,12 @@ to cloud chat. Those actions require separate tasks and owner-visible gates.
 - `README.md`
 - `ios/PersonalAICompanion/README.md`
 
-## Next Boundary
+## Superseded Next Boundary
 
-The next local candidate is `PAC-HEALTH-MANUAL-EXPORT-NORMALIZATION`: synthetic
-mapping fixtures for a documented manual-export shape. It must reuse the
-existing snapshot validation/hash/freshness/conflict boundary and must not read
-a real export file or add a network, cloud, or iOS intake path.
+The separate 12B manual-export normalization, 12C transfer-consent, and 12D
+qualitative analysis contracts were accepted after this slice. Product
+`2360cba` then accepted the explicitly injected owner Shortcut analysis API that
+consumes this 12A shape; see its
+[manifest](health-owner-shortcut-analysis-api-v0.1.md). That later route remains
+default-absent and has no iPhone Shortcut, token handoff, real data, deployed
+composition, persistence, model execution, chat wiring, Swift, or iOS UI.

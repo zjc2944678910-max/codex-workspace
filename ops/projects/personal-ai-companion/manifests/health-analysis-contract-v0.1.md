@@ -89,8 +89,12 @@ DTO and its bounded authorization window.
 
 ## Current Continuation
 
-No later local implementation slice is selected. Personal Team device
-acceptance remains optional/deferred and is not required by the fallback path.
-Any model execution, narrative rendering, file/network intake, API/chat wiring,
-persistence, real-data use, Swift/iOS surface, or chart UI requires a new scope
-and acceptance.
+The separately accepted
+[`PAC-HEALTH-OWNER-SHORTCUT-ANALYSIS-API`](health-owner-shortcut-analysis-api-v0.1.md)
+now consumes this contract behind an explicitly injected owner-authenticated
+route at product `2360cba`. It retains the controlled categorical response and
+adds no model, persistence, chat, Swift, iOS, or live deployment path. Personal
+Team device acceptance remains optional/deferred and is not required by the
+fallback path. Any Shortcut recipe/token handoff, model execution, narrative
+rendering, real export aggregation, real-data use, Swift/iOS surface, chart UI,
+or deployment requires a new scope and acceptance.

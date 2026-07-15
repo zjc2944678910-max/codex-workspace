@@ -95,14 +95,14 @@ legacy HealthKit injection can still present the system-health UI until a later
 explicit source-choice gate is designed; this acceptance does not treat that
 as authorization or data access.
 
-The owner-summary follow-up is accepted separately at product `4a8b52e` as a
-fixture-only, transport-free compact JSON summary contract for the planned
-owner-run Shortcut/webhook source. See
-[health-owner-summary-contract-v0.1.md](health-owner-summary-contract-v0.1.md).
-It does not read files, open HTTP/network transport, invoke a Shortcut, transmit
-health data, or expose iOS UI. The next planned local follow-up is synthetic
-manual-export normalization; the optional Personal Team device gate remains
-deferred and independent.
+The later owner-summary, manual-export normalization, off-device consent,
+qualitative analysis, and explicitly injected owner Shortcut analysis API
+slices are accepted separately through product `2360cba`. See the current queue
+in `ARCHITECTURE_TODO.md` and the [12E
+manifest](health-owner-shortcut-analysis-api-v0.1.md). Those later acceptances do
+not change this source-seam slice into real HealthKit, file import, Swift
+Shortcut, or deployed health behavior. The optional Personal Team device gate
+remains deferred and independent.
 
 Rollback is a source revert of product commit `b6209a74`; no data, service,
 signing, deployment, or external-intake rollback is required because this
@@ -114,5 +114,5 @@ slice changed only local source, tests, and documentation.
 Simulator-first scope. It establishes the additive source seam and the
 owner-initiated fallback plan without buying paid membership or claiming real
 HealthKit, export, Shortcut, third-party, MCP, provider, or cloud behavior.
-The owner-summary follow-up is accepted separately; manual-export normalization
-remains planned work and is not part of this acceptance.
+All 12A-12E follow-ups are accepted separately and are not part of this
+historical order-12 acceptance.
