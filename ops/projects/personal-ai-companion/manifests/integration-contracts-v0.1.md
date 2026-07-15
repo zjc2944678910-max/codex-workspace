@@ -60,12 +60,15 @@ Acceptance of this manifest does not establish any of the following:
 
 ## Next Gates
 
-The contracts satisfy the dependency for `PAC-CUSTOM-PROVIDER-REGISTRY` and
-`PAC-MCP-GATEWAY-READONLY`. Those remain separate L1 implementation tasks. The
-provider task must define encrypted server-side secret handling and an explicit
-owner fallback policy before runtime wiring. The first MCP task remains one
-local, allowlisted, read-only tool with timeout, output bounds, metadata-only
-audit, and failure isolation.
+The contracts satisfied the dependency for `PAC-CUSTOM-PROVIDER-REGISTRY` and
+the first MCP gateway task at the time of this contract acceptance. The
+provider task was subsequently accepted as 9A/9B, and the bounded
+`PAC-MCP-GATEWAY-READONLY` slice was accepted at product `2dc2948`; these are
+historical dependency notes, not current queue instructions. The current next
+task is `PAC-IOS-SUPPORTED-APP-ACTION`. At that historical point, the provider
+task still required encrypted server-side secret handling and an explicit owner
+fallback policy before runtime wiring; those requirements were addressed by
+the later 9A/9B acceptances.
 
 Phone-action execution and concrete health adapters remain later tasks. Any
 real device, credential, provider, MCP server, health data, signing, or live

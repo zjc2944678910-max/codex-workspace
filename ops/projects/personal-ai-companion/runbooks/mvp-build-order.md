@@ -3,7 +3,7 @@
 Use this runbook when starting implementation so the project does not drift
 into firmware work, model training, or live/NAS repair too early.
 
-Current baseline (2026-07-15): product `main@295687f` contains a source-gated
+Current baseline (2026-07-15): product `main@2dc2948` contains a source-gated
 authenticated iOS-to-cloud chat path that is off by default. When enabled with
 its trusted dependencies, non-temporary turns persist atomically, temporary
 turns skip persistence, and expired bounded context is pruned at startup and
@@ -13,9 +13,15 @@ contracts plus the local encrypted custom-provider registry and bounded 9B
 runtime integration. It has an owner-authenticated redacted Provider API,
 default-off iOS status/selection, and an injected-executor synthetic `normal`
 route, but no default network transport or live optional-integration vertical.
+Product `2dc2948` also accepts the local/mock MCP gateway for exactly
+`server.local.context/context.today`, with strict allowlisting, bounded
+execution, idempotency/concurrency limits, and metadata-only audit. It adds no
+remote transport, state-changing execution, iOS runtime, or main-Chat call.
 A local full-suite check [passed `1417` tests](../reports/custom-provider-runtime-integration-v0.1-acceptance-20260715.md)
-and all `44` Swift executables at that exact commit with one existing
-Starlette/TestClient warning. The latest
+and all `44` Swift executables at the pre-MCP baseline with one existing
+Starlette/TestClient warning. The latest MCP check [passed `21` focused MCP
+tests and `1438` full Python tests](../reports/mcp-gateway-readonly-v0.1-acceptance-20260715.md)
+with the same warning. The latest
 documented default companion cloud route is `claude-opus-4-6-thinking`; the
 private local-first Mac route uses `huihui_ai/qwen3.5-abliterated:9b`. Those are
 source/config decisions, not live-provider health evidence. Steps 1-5 below
@@ -227,9 +233,10 @@ Requirements:
   invoking another provider.
 - Audit configuration changes without logging secrets or private prompts.
 
-## Current Continuation 3: Backend MCP Gateway
+## Accepted Continuation 3: Bounded Backend MCP Gateway
 
-Start with one local, allowlisted, read-only information tool.
+The first bounded slice is accepted at product `2dc2948`; it is local/mock only
+and is not a general remote MCP implementation.
 
 Requirements:
 
@@ -240,8 +247,22 @@ Requirements:
   confirmation.
 - Record metadata-only audit outcomes and keep tool failures isolated from chat.
 
-The iOS app may display server/tool status, collect arguments, and present
-confirmation. It must not execute arbitrary MCP servers directly.
+Accepted implementation: `server.local.context/context.today` only, using a
+caller-owned clock and explicit timezone input. Cloud routes are optional and
+appear only when a caller-injected gateway and trusted owner resolver are both
+present. The gateway validates `pac.mcp.v0.1`, request windows, health,
+credentials, effect kind, and bounded TTL idempotency before execution; it uses
+bounded admission/tool timeouts and records no arguments, results, exceptions,
+credentials, or URLs. Audit is bounded/injected, not a durable audit store.
+
+Remote transport/discovery, arbitrary JSON Schema execution, state-changing
+`ToolGate` execution, iOS-side MCP runtime, automatic main-Chat/provider
+fallback, live reconfiguration, deployment, and real private data remain
+outside this acceptance. Any additional tool requires a new queue item.
+
+The iOS app may later display server/tool status, collect arguments, and present
+confirmation. It must not execute arbitrary MCP servers directly; this slice
+does not add iOS MCP runtime wiring.
 
 ## Current Continuation 4: Supported Phone-App Actions
 
@@ -302,6 +323,9 @@ Run this only after the backend contracts and mock paths are stable.
 - Provider credentials never round-trip back to iOS.
 - MCP servers/tools and phone actions are allowlisted, independently disableable,
   and state changes require explicit confirmation.
+- The accepted MCP slice is limited to the local read-only tool above; its
+  metadata-only audit is bounded/injected and does not prove a durable audit
+  store or remote MCP health.
 - All health adapters normalize only the five canonical families and preserve
   source attribution.
 - Health-source authorization alone does not authorize off-device or cloud-chat

@@ -155,5 +155,6 @@ up to date.
 `PAC-CUSTOM-PROVIDER-RUNTIME-INTEGRATION` is complete for the bounded local and
 synthetic 9B scope. It does not accept a live Provider or complete the wider MCP,
 phone-action, health-source, Personal Team device, or production integration
-program. The next authorized local queue item is
-`PAC-MCP-GATEWAY-READONLY`.
+program. Its statement that `PAC-MCP-GATEWAY-READONLY` was next is historical;
+that bounded task was subsequently accepted at product `2dc2948`. The current
+queue item is `PAC-IOS-SUPPORTED-APP-ACTION`.

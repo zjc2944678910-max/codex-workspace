@@ -54,7 +54,7 @@ signals, devices, and boundaries.
 
 ## Current Confirmed State
 
-- Product `main@295687f` contains a source-gated authenticated chat path that is
+- Product `main@2dc2948` contains a source-gated authenticated chat path that is
   off by default. When enabled with its trusted dependencies, non-temporary
   turns persist atomically, temporary turns skip persistence, and expired
   bounded context is pruned at startup and periodically. That authenticated
@@ -63,10 +63,15 @@ signals, devices, and boundaries.
   health-source contracts and adds the local custom-provider registry/runtime
   slice with encrypted SQLite persistence, explicit KEK/resource lifecycle,
   synthetic health, owner API, redacted iOS selection/status, injected executor,
-  and `normal`-only routing. No live chat or live optional-integration vertical
-  has been accepted. The [2026-07-15 runtime acceptance](../reports/custom-provider-runtime-integration-v0.1-acceptance-20260715.md)
-  passed `1417` Python tests and all `44` Swift executables at that exact commit,
-  with one existing Starlette/TestClient warning.
+  and `normal`-only routing. Product `2dc2948` additionally accepts one local,
+  caller-injected, read-only MCP gateway tool, `server.local.context/context.today`,
+  with bounded execution and metadata-only audit. No live chat or live remote
+  optional-integration vertical has been accepted. The [2026-07-15 runtime
+  acceptance](../reports/custom-provider-runtime-integration-v0.1-acceptance-20260715.md)
+  passed `1417` Python tests and all `44` Swift executables at the pre-MCP
+  `295687f` baseline, with one existing Starlette/TestClient warning. The [MCP
+  acceptance](../reports/mcp-gateway-readonly-v0.1-acceptance-20260715.md)
+  passed `21` focused MCP tests and `1438` full Python tests at `2dc2948`.
 - Style-profile mechanisms and synthetic evaluation surfaces exist, but no
   thread-running claim is durable product state. New style work must use the
   current queue and a fresh consent/scope check.
@@ -84,7 +89,7 @@ signals, devices, and boundaries.
   path was later field-accepted for the sequence
   `happy -> correlated ACK -> neutral -> correlated ACK`, retained through
   product commit `9dbfafc` and current
-  `main@295687f`. This does not establish continuous boot polling, unattended
+  `main@2dc2948`. This does not establish continuous boot polling, unattended
   reliability, or App integration for audio, motion, touch, or camera.
 - Separate direct-device checks field-confirmed low-speed X/Y servo movement and
   return, three-zone head-touch input, and one local low-resolution camera
@@ -101,10 +106,12 @@ signals, devices, and boundaries.
 - The bounded custom-provider registry/runtime, authenticated owner API,
   synthetic route, and default-off redacted iOS status/selection slice are
   accepted. A real provider executor/health prober and main Chat integration
-  remain future work. An MCP gateway/UI, general phone-app actions,
-  health-source fallbacks, continuous StackChan command polling, production
-  voice/camera workflows, and NAS/VPS production integration also remain future
-  phases.
+  remain future work. The first local/mock MCP gateway tool is accepted, while
+  remote MCP transport, state-changing tools, arbitrary discovery, iOS-side
+  execution, and automatic main-Chat invocation remain future work. General
+  phone-app actions, health-source fallbacks, continuous StackChan command
+  polling, production voice/camera workflows, and NAS/VPS production
+  integration also remain future phases.
 
 ## Phase Map
 
@@ -266,8 +273,11 @@ Acceptance anchors:
   default-off iOS selection/status without authorizing a real provider, default
   network transport, health-probe authority, main Chat routing, or sensitive
   privacy classes.
-- Select the first MCP vertical. The recommended first target is one local,
-  allowlisted, read-only information tool with timeout and audit coverage.
+- Treat the local/mock MCP gateway accepted at product `2dc2948` as complete for
+  `server.local.context/context.today`. It has no default transport, remote
+  discovery, state-changing execution, iOS runtime, durable audit store, or
+  automatic main-Chat invocation. Any additional MCP tool requires a new
+  allowlist, scope, and acceptance.
 - Select the first phone action from a target app that already exposes a
   Shortcut/App Intent, and verify it in mock/Simulator form before real-device
   execution.

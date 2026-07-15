@@ -106,6 +106,8 @@ static, and staged-scope verification.
 ## Acceptance Judgment
 
 `PAC-INTEGRATION-CONTRACTS-V0.1` is complete for the local synthetic contract
-scope. It unblocks planning and implementation of the custom-provider registry
-and the first read-only MCP vertical, but it does not accept either runtime
-integration, a phone action, a health adapter, or any live behavior.
+scope. It unblocked planning and implementation of the custom-provider registry
+and the first read-only MCP vertical, but it did not accept either runtime
+integration, a phone action, a health adapter, or any live behavior at that
+time. The later bounded MCP slice was accepted separately at product
+`2dc2948`; the current queue continues with `PAC-IOS-SUPPORTED-APP-ACTION`.

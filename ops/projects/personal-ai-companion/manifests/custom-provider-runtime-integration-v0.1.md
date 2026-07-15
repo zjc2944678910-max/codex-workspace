@@ -105,8 +105,14 @@ those findings.
 
 ## Next Boundary
 
-The next queue item is `PAC-MCP-GATEWAY-READONLY`: one local, allowlisted,
-read-only information tool with timeout, output bounds, metadata-only audit,
-and failure isolation. Any real custom-provider executor/health prober, main
-Chat integration, sensitive privacy class, or deployment is a separate task
-with a fresh trust and risk review.
+The following sentence is a historical snapshot from the 9B acceptance and is
+superseded by the 2026-07-15 MCP gateway acceptance:
+
+> The next queue item is `PAC-MCP-GATEWAY-READONLY`: one local, allowlisted,
+> read-only information tool with timeout, output bounds, metadata-only audit,
+> and failure isolation.
+
+The current queue records that bounded task as complete at product `2dc2948`;
+the next task is `PAC-IOS-SUPPORTED-APP-ACTION`. Any real custom-provider
+executor/health prober, main Chat integration, sensitive privacy class, or
+deployment remains a separate task with a fresh trust and risk review.

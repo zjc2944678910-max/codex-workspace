@@ -227,7 +227,25 @@ runtime/owner API and default-off redacted iOS provider status/selection slice
 is complete at product `295687f`; see
 [custom-provider-runtime-integration-v0.1.md](custom-provider-runtime-integration-v0.1.md).
 Real provider transport/health probing, main Chat routing, sensitive privacy
-classes, and MCP runtime remain planned and are not implied by these acceptances.
+classes, and the broader MCP runtime remain planned and are not implied by these
+acceptances.
+
+### 2026-07-15 MCP Gateway Amendment
+
+The first bounded MCP runtime slice is now accepted at product `2dc2948`.
+It is local/mock only and executes exactly the caller-injected,
+read-only `server.local.context/context.today` tool behind an explicit
+server/tool allowlist. The optional Cloud routes are owner-authenticated and
+exist only when both a caller-owned `MCPGateway` and trusted owner resolver are
+injected. The slice adds strict request validation, request-window and
+idempotency checks, bounded admission/tool timeouts, concurrency and
+input/output limits, failure isolation, and metadata-only bounded audit.
+
+This amendment does not accept remote MCP transport or discovery, real
+credentials/endpoints, state-changing `ToolGate` execution, arbitrary JSON
+Schema execution, iOS-side MCP runtime, automatic main-Chat/provider fallback,
+durable audit storage, deployment, or real private data. Any additional tool or
+broader runtime needs a new queue item and acceptance.
 
 Phase 5:
 
