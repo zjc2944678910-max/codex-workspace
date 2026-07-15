@@ -3,14 +3,16 @@
 Use this runbook when starting implementation so the project does not drift
 into firmware work, model training, or live/NAS repair too early.
 
-Current baseline (2026-07-15): product `main@65d47b5` contains a source-gated
+Current baseline (2026-07-15): product `main@ad18cd0` contains a source-gated
 authenticated iOS-to-cloud chat path that is off by default. When enabled with
 its trusted dependencies, non-temporary turns persist atomically, temporary
 turns skip persistence, and expired bounded context is pruned at startup and
 periodically. That authenticated route explicitly disables memory-candidate
 writes. The same baseline contains the accepted transport-free integration
-contracts, but no live chat or optional-integration vertical has been accepted.
-A local full-suite check [passed `1299` tests](../reports/integration-contracts-v0.1-acceptance-20260715.md)
+contracts plus the local encrypted custom-provider registry core. It still has
+no provider API/router/iOS execution path and no live chat or optional-
+integration vertical has been accepted. A local full-suite check
+[passed `1384` tests](../reports/custom-provider-registry-v0.1-acceptance-20260715.md)
 at that exact commit with one existing Starlette/TestClient warning. The latest
 documented default companion cloud route is `claude-opus-4-6-thinking`; the
 private local-first Mac route uses `huihui_ai/qwen3.5-abliterated:9b`. Those are
@@ -190,6 +192,18 @@ integration task.
 
 Build this in the backend relay, not as an iOS secret store.
 
+9A core status: accepted at product `ad18cd0`. The standalone registry now has
+Provider-specific envelope encryption, external KEK injection, exact schema and
+nonce checks, optimistic revisions, synthetic health, redacted projections,
+metadata-only audit, and an explicit `normal`-only fallback policy. See the
+[manifest](../manifests/custom-provider-registry-v0.1.md) and
+[acceptance report](../reports/custom-provider-registry-v0.1-acceptance-20260715.md).
+
+9B remains next. It must first define a secret-safe runtime adapter and KEK
+lifecycle, then add authenticated owner API and redacted iOS status/selection
+using synthetic/mock providers. It must not modify live provider configuration,
+call a real endpoint, or widen to sensitive privacy classes in its first slice.
+
 First adapters:
 
 - One OpenAI-compatible custom endpoint.
@@ -198,8 +212,10 @@ First adapters:
 
 Requirements:
 
-- Encrypt provider credentials at rest and never return them after registration.
-- Let iOS select a provider/profile and view redacted status/capabilities.
+- Keep provider credentials encrypted at rest and never return them after
+  registration.
+- Let iOS select a provider/profile and view redacted status/capabilities only
+  after the authenticated 9B owner API exists.
 - Invoke a fallback provider only when the owner explicitly allowlists that
   provider for the request's privacy class. Otherwise return an error without
   invoking another provider.

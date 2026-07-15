@@ -54,15 +54,17 @@ signals, devices, and boundaries.
 
 ## Current Confirmed State
 
-- Product `main@65d47b5` contains a source-gated authenticated chat path that is
+- Product `main@ad18cd0` contains a source-gated authenticated chat path that is
   off by default. When enabled with its trusted dependencies, non-temporary
   turns persist atomically, temporary turns skip persistence, and expired
   bounded context is pruned at startup and periodically. That authenticated
-  route explicitly disables memory-candidate writes. The same baseline freezes
+  route explicitly disables memory-candidate writes. The same baseline retains
   the transport-free v0.1 provider, MCP, phone-action, and five-family
-  health-source contracts. No live chat or optional-integration vertical has
-  been accepted. The [2026-07-15 contract acceptance](../reports/integration-contracts-v0.1-acceptance-20260715.md)
-  passed `1299` tests at that exact commit with one existing
+  health-source contracts and adds the local custom-provider registry core with
+  encrypted SQLite persistence, synthetic health, redacted projections, and
+  `normal`-only fallback policy. No live chat or optional-integration vertical
+  has been accepted. The [2026-07-15 registry-core acceptance](../reports/custom-provider-registry-v0.1-acceptance-20260715.md)
+  passed `1384` tests at that exact commit with one existing
   Starlette/TestClient warning.
 - Style-profile mechanisms and synthetic evaluation surfaces exist, but no
   thread-running claim is durable product state. New style work must use the
@@ -81,7 +83,7 @@ signals, devices, and boundaries.
   path was later field-accepted for the sequence
   `happy -> correlated ACK -> neutral -> correlated ACK`, retained through
   product commit `9dbfafc` and current
-  `main@65d47b5`. This does not establish continuous boot polling, unattended
+  `main@ad18cd0`. This does not establish continuous boot polling, unattended
   reliability, or App integration for audio, motion, touch, or camera.
 - Separate direct-device checks field-confirmed low-speed X/Y servo movement and
   return, three-zone head-touch input, and one local low-resolution camera
@@ -95,10 +97,11 @@ signals, devices, and boundaries.
   enabled, but the authenticated cloud-chat client does not accept that health
   context. Real-device authorization, real health-data acceptance, and
   off-device health-summary transmission remain unconfirmed.
-- Owner-configurable custom API providers, an MCP gateway/UI, general phone-app
-  actions, health-source fallbacks, continuous StackChan command polling,
-  production voice/camera workflows, and NAS/VPS production integration remain
-  future phases.
+- The custom-provider registry core is accepted, but KEK lifecycle, authenticated
+  provider APIs, route/client execution, and iOS settings remain future work.
+  An MCP gateway/UI, general phone-app actions, health-source fallbacks,
+  continuous StackChan command polling, production voice/camera workflows, and
+  NAS/VPS production integration also remain future phases.
 
 ## Phase Map
 
@@ -253,13 +256,12 @@ Acceptance anchors:
   repeat run, reliability expansion, continuous polling, or additional hardware
   capability is a new task with a fresh risk gate.
 - Treat the v0.1 provider, MCP, phone-action, and normalized health-source
-  contracts accepted at product `65d47b5` as the schema baseline. Runtime
-  registries, adapters, execution paths, and settings screens remain separate
-  tasks and must not widen those contracts silently.
-- Select the first custom-provider vertical. The recommended first target is
-  one synthetic OpenAI-compatible profile with server-side secret storage and
-  an explicit owner-configured fallback allowlist. Without an allowed fallback,
-  provider failure must return an error without invoking another provider.
+  contracts accepted at product `65d47b5` as the schema baseline.
+- Treat the custom-provider registry core accepted at product `ad18cd0` as a
+  local persistence/decision primitive only. The next 9B task must design a
+  secret-safe runtime adapter and KEK lifecycle before adding authenticated
+  owner API, redacted iOS selection/status, or synthetic route execution.
+  Sensitive privacy classes remain blocked and no real provider is authorized.
 - Select the first MCP vertical. The recommended first target is one local,
   allowlisted, read-only information tool with timeout and audit coverage.
 - Select the first phone action from a target app that already exposes a

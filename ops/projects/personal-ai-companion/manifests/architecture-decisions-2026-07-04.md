@@ -218,10 +218,12 @@ Phase 4:
   coverage.
 
 Status amendment (2026-07-15): the first Phase 4 bullet is complete at product
-`main@65d47b5`; the accepted schema baseline is
-[integration-contracts-v0.1.md](integration-contracts-v0.1.md). The provider
-registry, iOS settings, and MCP runtime bullets remain planned and are not
-implied by contract acceptance.
+`65d47b5`; the accepted schema baseline is
+[integration-contracts-v0.1.md](integration-contracts-v0.1.md). The local
+custom-provider registry core is separately complete at product `ad18cd0`; see
+[custom-provider-registry-v0.1.md](custom-provider-registry-v0.1.md). KEK
+lifecycle, authenticated API, router/client execution, iOS settings, and MCP
+runtime remain planned and are not implied by either acceptance.
 
 Phase 5:
 
