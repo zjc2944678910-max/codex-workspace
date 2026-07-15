@@ -1,11 +1,12 @@
 # StackChan App Adapter Contract v0.1
 
-Status: L1 local design contract only. This document defines a future
-Bridge-to-StackChan app-adapter boundary; it neither enables nor validates the
-adapter path. Separate bounded hardware checks were later field-confirmed and
-are recorded as independent evidence, not as adapter acceptance.
+Status: the design contract remains normative. Its bounded v0.1 LCD screen row
+was later implemented and field-accepted for one App-driven sequence:
+`happy -> ACK -> neutral -> ACK`. Audio, motion, touch, camera, continuous
+polling, and repeat reliability remain unwired or unaccepted through the App
+adapter.
 
-## Route Lock
+## Original Route Lock (Historical)
 
 ```yaml
 task_id: PAC-CONTRACT-BRIDGE-STACKCHAN-V1
@@ -23,34 +24,38 @@ verification: read-only source and runbook cross-check; no product test, bridge,
 
 ## Authority And Evidence Boundary
 
-The active program-control runbook is the authority for current status. Its
-dated fact table overrides optimistic wording in historical reports or static
-source. In particular, a schema, fixture, mock, local unit test, or historical
-repair record is not a device acknowledgement or a physical observation.
+The project `README.md` is the authority for current facts, and
+`ARCHITECTURE_TODO.md` controls the current queue. The program-control runbook
+defines risk/status vocabulary and stop rules. A schema, fixture, mock, local
+unit test, or historical repair record is not a device acknowledgement or a
+physical observation.
 
 | Capability | Independent device evidence | App-adapter path status |
 | --- | --- | --- |
-| Screen | `device-ack verified` and `field-confirmed` for one manual v0.1 Bridge/device LCD expression. | Unwired and unconfirmed from iOS App ingress through this adapter. |
+| Screen | `device-ack verified` and `field-confirmed` for manual v0.1 Bridge/device LCD evidence plus one later bounded App-driven sequence. | Implemented and field-accepted only for `happy -> correlated ACK -> neutral -> correlated ACK`; no repeat reliability or wider expression allowlist. |
 | Audio | `device-ack verified` and `field-confirmed` for one bounded public-safe playback, followed by stop/mute. | Unwired and unconfirmed through this adapter; no general volume policy or repeat reliability claim. |
 | Motion | `field-confirmed` for one low-speed X/Y direct-driver movement and return per axis. | Unwired and unconfirmed through v0.1 placeholder motion, v0.2 DTOs, or this adapter. |
 | Touch | `field-confirmed` for direct three-zone sensor sampling. | No device-to-Bridge event or App consumer path is wired or confirmed. |
 | Camera | `field-confirmed` for one direct local `160x120` frame, followed by deletion and deinitialization. | No App/Bridge capture path is wired or confirmed; whether a visible activity indicator activated is unverified. |
 
-The earlier passive acknowledgement diagnostic remains valid for its bounded
-window, but its producer-only ceiling is superseded as a current hardware fact
-by the later field verification. The later session does not validate this App
-adapter: it used manual v0.1 Bridge/device paths or direct device-driver checks.
+The earlier passive acknowledgement diagnostic and standalone hardware session
+remain valid for their bounded windows. The later 2026-07-13 App acceptance is
+the separate evidence for the LCD adapter row; it does not validate any other
+capability in this document.
 
-Any adapter implementation, repeat hardware check, or expanded physical path
-requires a separately scoped task, an explicit `进入修复阶段` gate, and a fresh
-safety and rollback plan. Nothing in this document authorizes a producer send,
-poll, acknowledgement, firmware change, service action, or hardware test.
+Any repeat hardware check, reliability run, wider expression allowlist, or
+expanded physical path requires a separately scoped task, an explicit
+`进入修复阶段` gate, and a fresh safety and rollback plan. Nothing in this
+document authorizes another producer send, poll, acknowledgement, firmware
+change, service action, or hardware test.
 
 ## Contract Scope And Version Boundaries
 
-The app adapter is the future local boundary between an application producer
-and the Bridge. It normalizes capability intent, correlation, TTL, and evidence
-without silently treating the two existing protocol families as equivalent.
+The app adapter is the local boundary between an application producer and the
+Bridge. The accepted LCD slice implements a bounded part of this boundary; the
+remaining rows are design requirements. The adapter normalizes capability
+intent, correlation, TTL, and evidence without silently treating the two
+existing protocol families as equivalent.
 
 | Surface | What local evidence establishes | What it does not establish |
 | --- | --- | --- |
@@ -60,24 +65,25 @@ without silently treating the two existing protocol families as equivalent.
 | Static v0.2 lifecycle source | A local-memory reference lifecycle whose capabilities are explicitly reported as `declared`. | TTL enforcement, durable delivery, a current accepted integration, or hardware behavior. |
 | iOS previews, mocks, fixtures, and pre-field design records | Local/mock or historical design evidence only. | A real StackChan screen, speaker, servo, sensor, or camera result. |
 
-The future adapter MUST record the selected protocol version and queue mode on
-every lifecycle record. It MUST NOT inherit v0.1 delivery rules for a v0.2 DTO,
-or infer that a v0.2 schema type has a physical implementation.
+Any generalized or expanded adapter mapping MUST record the selected protocol
+version and queue mode on every lifecycle record. It MUST NOT inherit v0.1
+delivery rules for a v0.2 DTO, or infer that a v0.2 schema type has a physical
+implementation.
 
-A future L3 mapping must first preserve the App-to-Bridge contract's
-mock-only/no-network gate until that gate is separately replaced. Its app
-acknowledgement remains distinct from a device poll/ack/result; the two may be
-correlated later but must never be treated as the same evidence. The App
+Any unaccepted or expanded L3 mapping must first preserve the App-to-Bridge
+contract's mock-only/no-network gate until that gate is separately replaced.
+Its app acknowledgement remains distinct from a device poll/ack/result; the two
+may be correlated later but must never be treated as the same evidence. The App
 contract's ingress TTL is also a separate record from any selected device queue
-TTL until a future mapping explicitly defines their relationship.
+TTL until the selected mapping explicitly defines their relationship.
 
-## Selected First Field Slice
+## Accepted First Field Slice
 
 The 2026-07-13 L2 preflight selected the existing
-`stackchan.command.v0.1` LCD expression path for the first future E2E. This is a
-version selection and mapping decision only; no implementation or execution is
-authorized. See
-[`app-bridge-stackchan-e2e-preflight-20260713.md`](../reports/app-bridge-stackchan-e2e-preflight-20260713.md).
+`stackchan.command.v0.1` LCD expression path. The later bounded L3 task
+implemented and field-accepted that exact slice; its authority is consumed.
+See the [preflight](../reports/app-bridge-stackchan-e2e-preflight-20260713.md)
+and [acceptance report](../reports/app-bridge-stackchan-e2e-acceptance-20260713.md).
 
 The bounded mapping is:
 
@@ -103,9 +109,9 @@ with the exact phrase `进入修复阶段`.
 
 ## Common Correlation Contract
 
-The following fields form the minimum future adapter record. Existing v0.1 and
-v0.2 schemas use different exact envelopes; this is a normalized adapter record
-and is not an instruction to change either schema today.
+The following fields form the minimum normalized adapter record. Existing v0.1
+and v0.2 schemas use different exact envelopes; this record is not an
+instruction to change either schema today.
 
 | Field | Rule |
 | --- | --- |
@@ -176,12 +182,14 @@ polled | leased
 `leased` applies only when the selected queue implementation supports leases:
 the local v0.1 durable queue does, while the static v0.2 local-memory reference
 lifecycle does not. That v0.2 reference also has no clock-based TTL expiry
-enforcement; the state machine's TTL checkpoints apply only to a future adapter
-that implements this full contract.
+enforcement; the state machine's TTL checkpoints apply only to a generalized
+adapter mapping that implements this full contract. The accepted bounded LCD
+slice has its own recorded TTL/correlation evidence and does not claim the
+generalized contract.
 
 | State | Meaning | Required evidence / rule |
 | --- | --- | --- |
-| `producer_accepted` | The application producer accepted the bounded intent. | Does not prove the Bridge stored it, the device polled, or the device acted. It is one adapter lifecycle state, not the current standalone-screen evidence ceiling. |
+| `producer_accepted` | The application producer accepted the bounded intent. | Does not prove the Bridge stored it, the device polled, or the device acted. The accepted LCD path adds separate poll, acknowledgement, result, and observation evidence. |
 | `queued` / `pending` | The adapter accepted one canonical command and made it eligible for delivery. | Record `command_id`, idempotency identity, timing, capability, protocol version, and queue mode without sensitive body content. |
 | `polled` | The Bridge returned the command to the matching device identity. | Record poll time and attempt identity. It is not an acknowledgement. |
 | `leased` | A durable queue assigned an active lease to the matching device. | Record lease expiry and attempt. This state only applies when durable mode is selected. |
@@ -189,7 +197,7 @@ that implements this full contract.
 | `result_recorded` | A valid, correlated execution result was stored. | Preserve bounded metadata and outcome. A result may be `ok`, `partial`, `rejected`, `expired`, or `error`; it is still not field observation. |
 | `completed` / `partial` / `rejected` | Terminal result interpretation. | A capability-specific result must state the applied scope or rejection reason. No terminal result upgrades to `field-confirmed` without physical observation. |
 | `expired` | TTL won before a valid terminal completion. | No later poll, retry, or success transition is allowed. Late evidence is retained only as a diagnostic record. |
-| `cancelled` / `superseded` | A future, valid stop or newer screen command ended pending work. | The adapter records the control correlation and whether device-side stop was actually acknowledged. |
+| `cancelled` / `superseded` | A valid capability-specific stop or newer screen command ended pending work. | The adapter records the control correlation and whether device-side stop was actually acknowledged. |
 | `dead_letter` | A durable or policy terminal failure ended the command. | Preserve the bounded reason, not body content or media. |
 
 `ack` and `result` are deliberately distinct concepts. A v0.1 acknowledgement
@@ -212,10 +220,11 @@ device event created
   -> retained diagnostic record expires
 ```
 
-Every distinct physical touch, if a future device path exists, needs a unique
-`event_id`; duplicate delivery of the same ID is a no-op. Identical gesture
-values with different event IDs are distinct events. Debounce timing, event
-retention, and any user-visible reaction remain future L3 design choices. An
+Every distinct physical touch, if an App-adapter event path is later
+implemented, needs a unique `event_id`; duplicate delivery of the same ID is a
+no-op. Identical gesture values with different event IDs are distinct events.
+Debounce timing, event retention, and any user-visible reaction remain future
+L3 design choices. An
 inbound touch event must not automatically enqueue audio, motion, camera, or
 screen work.
 
@@ -226,10 +235,11 @@ screen work.
 1. A v0.2 command's `ttl_ms` is structurally bounded to 1,000 through 30,000
    ms, and `expires_at_ms` must equal `created_at_ms + ttl_ms`. The current
    DTO validation establishes these field constraints only.
-2. The future adapter MUST check expiry at enqueue, before poll, before lease
-   renewal/requeue, and before accepting a terminal transition. The current
-   v0.2 local-memory reference lifecycle does not perform this clock-based
-   expiry maintenance, so it is not sufficient evidence of this rule.
+2. Any implementation claiming this generalized contract MUST check expiry at
+   enqueue, before poll, before lease renewal/requeue, and before accepting a
+   terminal transition. The current v0.2 local-memory reference lifecycle does
+   not perform this clock-based expiry maintenance, so it is not sufficient
+   evidence of this rule.
 3. A command that is already expired is rejected or terminally recorded as
    `expired`; it must not be returned by poll. Expiry wins over pending,
    polled, and leased states.
@@ -277,13 +287,14 @@ implementation rather than assumed equivalent.
 
 ## Capability Matrix
 
-The request shapes below remain schema mappings or future adapter requirements.
-The final column separately records independent device evidence; that evidence
-does not mean these candidate adapter requests were sent or accepted.
+The request shapes below remain schema mappings or requirements for unaccepted
+or expanded adapter capabilities. The final column separately records
+independent device evidence; that evidence does not mean every candidate
+adapter request was sent or accepted.
 
 | Capability | Direction and normalized request | Stop / rollback requirement | Idempotency and evidence requirement | Independent device / adapter-path status |
 | --- | --- | --- | --- | --- |
-| Screen | App -> Bridge -> device. Selected first slice is v0.1 `expression` with bounded name and duration; v0.2 remains a later protocol candidate. | Future control intent returns the display to `neutral`; a newer screen intent may supersede only an undelivered older one. | Same canonical intent/key deduplicates. Record producer, poll, ack, result, and observation separately. | Independent manual v0.1 path: `field-confirmed`; App-adapter path: unwired/unconfirmed. |
+| Screen | App -> Bridge -> device. Accepted first slice is v0.1 `expression` with the live allowlist limited to `happy` and `neutral`; v0.2 remains a later protocol candidate. | The accepted sequence returned the display to `neutral`; a newer screen intent may supersede only an undelivered older one. | Same canonical intent/key deduplicates. Record producer, poll, ack, result, and observation separately. | Independent manual v0.1 path and one bounded App-adapter sequence are `field-confirmed`; repeat reliability and expansion are unconfirmed. |
 | Audio | App -> Bridge -> device. Candidate v0.2 `speak` with `delivery.channel=speaker`; public-safe privacy, text, language, interrupt, and capped volume are schema constraints. | Future scoped audio stop/mute must halt the active utterance and report whether it was applied. Partial playback is not reversible. | At-most-once after delivery begins; never replay on lost ack. Audio evidence must not expose spoken private text. | Independent bounded v0.1 playback: `field-confirmed`; App-adapter path and general volume policy: unwired/unconfirmed. |
 | Motion | App -> Bridge -> device. Candidate v0.2 `motion` with high-level action, bounded repeat, and watchdog idle; raw PWM is not valid v0.2 input. | Future stop must halt active motion and then request a pre-calibrated neutral pose. | At-most-once after delivery begins; never replay on lost ack. Evidence requires safety interlock state and a matching result before an adapter claim. | Direct official-driver X/Y checks: `field-confirmed`; v0.1/v0.2/App-adapter motion: unwired/unconfirmed. |
 | Touch | Device -> Bridge -> app. Candidate v0.1 `touch`/`button` event with region, gesture, event ID, device ID, and timestamp. There is no v0.2 touch command. | No physical stop command. The app may cancel or ignore its local reaction; touch must not trigger uncontrolled command fan-out. | Deduplicate by `event_id` in bounded retention; distinct event IDs remain distinct even if gesture text matches. | Direct sensor sampling: `field-confirmed`; device-event/Bridge/App path: unwired/unconfirmed. |
@@ -291,9 +302,10 @@ does not mean these candidate adapter requests were sent or accepted.
 
 ### Screen
 
-The later standalone screen check established a manual v0.1 enqueue, device
-poll, matching result, and owner-observed LCD output. It did not pass through
-the iOS App or this adapter. A future adapter screen slice must:
+The standalone screen check established a manual v0.1 enqueue, device poll,
+matching result, and owner-observed LCD output. The later accepted App slice
+demonstrated the same lifecycle for the bounded `happy`/`neutral` allowlist.
+Any repeat or expanded screen slice must continue to:
 
 1. serialize screen state per target device and reject or mark superseded an
    older undelivered expression after a newer intent is accepted;
@@ -357,8 +369,9 @@ visible indicator or this App/Bridge adapter path.
 
 ## Error And Outcome Registry
 
-The `E_ADAPTER_*` values below are normative names for a future adapter. They
-are not current bridge response codes and must not be assumed routable today.
+The `E_ADAPTER_*` values below are normative names for generalized or
+unaccepted capability mappings. They are not current bridge response codes and
+must not be assumed routable today.
 Existing local v0.2 validation uses its own declared values such as
 `unsupported_capability`, `validation_failed`, `device_busy`,
 `capture_unavailable`, and `internal_error`.
@@ -456,12 +469,12 @@ supersede an earlier bounded status without validating a different path.
 
 ## L3 Gate And Rollback Requirements
 
-Before implementing any adapter-path row in the capability matrix, the assigned future task
-must be L3 and must receive the explicit phrase `进入修复阶段`. Its plan must name
-one capability, exact owned files/surfaces, selected protocol/version, queue
-mode, TTL/ack semantics, safety and privacy preconditions, rollback action,
-and evidence threshold. It must stop if the work expands to another capability
-or conflicts with the active program-control status.
+Before implementing an unaccepted adapter-path row, or repeating/expanding the
+accepted screen row, the assigned task must be L3 and must receive the explicit
+phrase `进入修复阶段`. Its plan must name one capability, exact owned
+files/surfaces, selected protocol/version, queue mode, TTL/ack semantics, safety
+and privacy preconditions, rollback action, and evidence threshold. It must
+stop if the work expands to another capability or conflicts with current facts.
 
 The immediate rollback for this L1 task is deletion of this runbook only. No
 bridge, device, network, token, service, firmware, configuration, code, or Git
@@ -469,9 +482,10 @@ state was changed while creating it.
 
 ## Evidence Sources
 
+- `ops/projects/personal-ai-companion/README.md` is the current fact authority.
 - `ops/projects/personal-ai-companion/runbooks/continuous-program-authorization-and-task-lifecycle.md`
-  is the current status authority and establishes the gates for any future or
-  repeated hardware work.
+  defines the status vocabulary and gates for any future or repeated hardware
+  work.
 - `ops/projects/personal-ai-companion/manifests/app-bridge-contract-v0.1.md`
   establishes the separate mock-only App-to-Bridge ingress, including app-ack
   versus device-ack and the local-network no-go boundary.

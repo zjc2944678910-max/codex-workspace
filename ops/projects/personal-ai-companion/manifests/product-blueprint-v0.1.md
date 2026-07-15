@@ -57,12 +57,14 @@ signals, devices, and boundaries.
 - Product `main@72258a1` contains a source-gated authenticated chat path that is
   off by default. When enabled with its trusted dependencies, non-temporary
   turns persist atomically, temporary turns skip persistence, and expired
-  bounded context is pruned at startup and periodically. No live chat vertical
-  has been accepted. The 2026-07-15 local full-suite check passed `1197` tests
-  with one existing Starlette/TestClient warning.
-- Style-profile work is active in thread
-  `019f4054-6b58-74c1-ad8f-30354bffaf9b`; do not interrupt it unless the user
-  explicitly redirects.
+  bounded context is pruned at startup and periodically. That authenticated
+  route explicitly disables memory-candidate writes. No live chat vertical has
+  been accepted. The [2026-07-15 local full-suite check](../reports/product-main-verification-20260715.md)
+  passed `1197` tests at that exact commit with one existing
+  Starlette/TestClient warning.
+- Style-profile mechanisms and synthetic evaluation surfaces exist, but no
+  thread-running claim is durable product state. New style work must use the
+  current queue and a fresh consent/scope check.
 - StackChan is on official UIFlow2 StackChan v2.4.8 and can reach the local
   authenticated bridge.
 - StackChan has verified manual entries for connectivity and short text chat.
@@ -73,8 +75,12 @@ signals, devices, and boundaries.
   `status`, `expression`, safe placeholder `motion/action`, public-safe
   `speak` through bridge-generated local WAV playback, `ack`, and `error`
   envelopes. A bounded 2026-07-11 session field-confirmed the manual
-  Bridge/device LCD and audio paths. It is not yet wired into boot-time
-  continuous polling or the iOS App.
+  Bridge/device LCD and audio paths. One bounded App-to-Bridge-to-StackChan LCD
+  path was later field-accepted for the sequence
+  `happy -> correlated ACK -> neutral -> correlated ACK`, retained through
+  product commit `9dbfafc` and current
+  `main@72258a1`. This does not establish continuous boot polling, unattended
+  reliability, or App integration for audio, motion, touch, or camera.
 - Separate direct-device checks field-confirmed low-speed X/Y servo movement and
   return, three-zone head-touch input, and one local low-resolution camera
   frame. Those checks did not use the v0.1 `motion/action` placeholder, the
@@ -82,14 +88,23 @@ signals, devices, and boundaries.
   indicator activated was not verified. See
   [the field-verification report](../reports/stackchan-hardware-field-verification-20260711.md).
 - The iOS host already contains the bounded, read-only five-family HealthKit
-  adapter for steps, active energy, heart rate, sleep, and workouts. Real-device
-  authorization and real health-data acceptance remain unconfirmed.
+  adapter for steps, active energy, heart rate, sleep, and workouts. The source
+  can construct a bounded trend-only chat summary when both owner controls are
+  enabled, but the authenticated cloud-chat client does not accept that health
+  context. Real-device authorization, real health-data acceptance, and
+  off-device health-summary transmission remain unconfirmed.
 - Owner-configurable custom API providers, an MCP gateway/UI, general phone-app
   actions, health-source fallbacks, continuous StackChan command polling,
   production voice/camera workflows, and NAS/VPS production integration remain
   future phases.
 
 ## Phase Map
+
+These phases are capability-maturity bands, not completion percentages, task
+authorization, or a claim that every item in a phase is complete. Phase 0 is
+source/local verified; Phases 1 and 2 contain accepted bounded slices plus open
+reliability/device gates; Phases 3 through 5 are primarily planned. Current task
+status and order come from `ARCHITECTURE_TODO.md`.
 
 ### Phase 0: Local Companion Core
 
@@ -232,12 +247,9 @@ Acceptance anchors:
 
 ## Immediate Next Decisions
 
-- Decide when the style-category thread has enough coverage to freeze a v1
-  response-shape baseline.
-- Decide the first bounded `App -> Bridge -> StackChan` integration seam. The
-  recommended first physical target is the already field-confirmed LCD path,
-  after a read-only transport/credential/signing preflight and renewed L3
-  authorization.
+- Treat the first bounded App-to-StackChan LCD seam as accepted and closed. Any
+  repeat run, reliability expansion, continuous polling, or additional hardware
+  capability is a new task with a fresh risk gate.
 - Freeze v0.1 contracts for provider profiles, MCP server/tool capabilities,
   phone-action requests, and normalized health-source snapshots before adding
   their settings screens.
@@ -255,5 +267,8 @@ Acceptance anchors:
   families.
 - Run a separate Personal Team signed-device acceptance when the owner is ready;
   paid distribution remains a future product decision, not a blocker.
+- Decide when the synthetic style categories have enough coverage to freeze a
+  v1 response-shape baseline; do not infer that decision from an old thread
+  status.
 - Decide memory storage hardening before widening always-on use: schema
   migration, encryption/key handling, and retention classes.

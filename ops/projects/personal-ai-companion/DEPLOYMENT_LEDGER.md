@@ -15,7 +15,8 @@
   rollback image. The earlier email and direct-flow images remain historical
   anchors.
 - The durable canonical product lineage is committed and pushed on the GitHub
-  default branch `main` at `b8462a9`. Redundant compatibility refs
+  default branch `main` at `72258a1`. The earlier logout repair `b8462a9` is
+  retained in that lineage. Redundant compatibility refs
   `codex/initial-private-publish` and `codex/pac-google-logout-revocation-fix`
   were retired after the fast-forward promotion.
 - Native Google Sign-In is deployed. The 2026-07-14 lifecycle pass confirmed a
@@ -300,8 +301,8 @@ rollback, not as the first recovery action.
   do not remove that dependency during Google key rotation.
 - At the 2026-07-13 deployment, the source came from the dirty product-polish
   worktree. That source lineage was later committed at `b9a5d7b`, was present by
-  StackChan landing commit `9dbfafc`, and remains in current canonical
-  `b8462a9`. Exact byte-for-byte or
+  StackChan landing commit `9dbfafc`, and remains in current
+  `main@72258a1`. Exact byte-for-byte or
   build-provenance correspondence between the running image and a specific
   commit remains unconfirmed without independent evidence. A signed real-device
   or App Store build also remains unconfirmed.

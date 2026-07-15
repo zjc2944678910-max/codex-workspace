@@ -2,14 +2,23 @@
 
 - Audit ID: `PAC-HEALTHKIT-RELEASE-READINESS`
 - Original audit date: 2026-07-13
-- Current revalidation date: 2026-07-14
+- Snapshot revalidation date: 2026-07-14
 - Task level: L1 local release-readiness audit
 - Historical baseline: `e15e553e2aed5739de37f7f6a05e954c06a80b1b`
-- Current canonical baseline: `b8462a9a81636a93aae356e9d038a871107571b1`
-- Product branch: `codex/initial-private-publish`
+- Snapshot canonical baseline: `b8462a9a81636a93aae356e9d038a871107571b1`
+- Snapshot product branch: `codex/initial-private-publish`
 - Product evidence source (read-only):
   `/Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/personal-ai-companion`
 - Report source: `ops/projects/personal-ai-companion/reports/healthkit-release-readiness-20260713.md`
+
+Historical snapshot note (updated 2026-07-15): this report preserves the
+2026-07-13/14 audit against the commits and compatibility branch named above;
+they are evidence for that audit window, not the current product authority. Use
+the project [README](../README.md) and product `main@72258a1` for current facts.
+The five-family, trend-only local chat projection exists, but no transmission of
+a health summary through the source-gated authenticated cloud-chat path has been
+accepted. Local HealthKit authorization and off-device health-summary
+transmission remain separate gates.
 
 ## Route Lock And Boundaries
 

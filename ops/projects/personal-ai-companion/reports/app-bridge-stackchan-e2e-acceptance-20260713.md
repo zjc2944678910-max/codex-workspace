@@ -1,5 +1,12 @@
 # App-Bridge-StackChan LCD E2E Acceptance — 2026-07-13
 
+Historical snapshot note (updated 2026-07-15): this report remains the accepted
+evidence for one bounded LCD sequence. The product branch and commits named
+below describe the landing state at that time; the accepted source is retained
+in product `main@72258a1`. Use the project [README](../README.md) for current
+facts. The task-specific field authority was consumed and does not authorize a
+repeat or capability expansion.
+
 ## Scope And Evidence Boundary
 
 - Task: `PAC-IOS-STACKCHAN-SCREEN-E2E`

@@ -8,9 +8,11 @@
   first StackChan E2E slice is statically preflighted but not accepted end to end
 
 This is the dated iOS/cloud closeout snapshot, with a later source-only memory
-addendum. It is not the current product-state source: canonical is now `main` at
-`b8462a9`, after StackChan, Memory Phase 4A/4B, and logout-revocation repair
-landed. The 2026-07-14
+addendum. It is not the current product-state source. At the 2026-07-14
+supersession checkpoint, `main@b8462a9` included the later StackChan, Memory
+Phase 4A/4B, and logout-revocation repair. That commit and the old branches named
+below are evidence for their recorded windows; current product facts are
+controlled by product `main@72258a1`. The 2026-07-14
 [native Google owner-acceptance report](native-google-owner-acceptance-20260714.md)
 supersedes this report's statements that forced refresh was unconfirmed. Use
 the project [README](../README.md) and deployment ledger for current

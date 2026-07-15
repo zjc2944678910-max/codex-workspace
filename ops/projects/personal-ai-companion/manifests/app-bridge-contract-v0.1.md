@@ -1,24 +1,27 @@
 # App-to-Bridge Contract v0.1
 
-Status: defined and locally implemented in Python as an offline mock. Swift is
-still a typed mock seam; no live transport or App-to-device adapter exists.
+Status: the `pac.app_bridge.v0.1` core remains an offline-mock contract. A
+separate bounded Swift LCD client plus authenticated App/Bridge routes were
+later implemented and field-accepted for `happy` and `neutral`; that slice does
+not change this mock protocol or authorize another capability.
 
 Protocol version: `pac.app_bridge.v0.1`.
 
 ## Purpose And Boundary
 
-This contract defines the application-to-bridge envelope used by the iOS
-companion's typed bridge seam. It makes mock behavior deterministic while
-reserving a future transport integration behind a separate repair gate.
+This contract defines the offline application-to-bridge envelope used by the
+iOS companion's typed mock seam. It makes mock behavior deterministic and stays
+separate from the later bounded LCD transport.
 
 This contract does not define an HTTP route, a socket, a queue, credentials,
 an endpoint, a device action, or a live transport. It does not authorize any
 of them.
 
-The current executable mode is `offline_mock` only. A request that asks for
-`local_network` is rejected before dispatch, with no transport attempt. A live
-adapter may be designed or implemented only in a future bounded L3 task after
-the user explicitly says `进入修复阶段`; this document is not that approval.
+The executable mode inside this protocol is `offline_mock` only. A request that
+asks for `local_network` is rejected before dispatch, with no transport attempt.
+The accepted LCD implementation used a separate client and routes after its own
+bounded L3 gate; that authority is consumed. This document is not approval to
+repeat or widen that field slice.
 
 ## Source Boundaries
 
@@ -27,18 +30,23 @@ the user explicitly says `进入修复阶段`; this document is not that approva
 | App to Bridge | `pac.app_bridge.v0.1` | This document. It normalizes iOS intent and mock results. |
 | Bridge to StackChan device | `stackchan.command.v0.1` | Separate historical command/event protocol. Its device acknowledgement is not this contract's app acknowledgement. |
 | Offline DTO acceptance | `stackchan.wire.v0.2` | Separate strict DTO/canonical-JSON contract. It is not an iOS or LAN transport. |
-| Current iOS seam | `LANBridgeClient`, `MockLANBridgeClient`, `AppBridgeClientFactory` | Current calls remain Swift-local `send -> request_id -> pollResult`; they do not invoke the Python dispatcher. |
+| Current iOS seam | `LANBridgeClient`, `MockLANBridgeClient`, `LCDScreenE2ELANBridgeClient`, `AppBridgeClientFactory` | Mock calls remain Swift-local and do not invoke the Python dispatcher. The separately injected LCD client uses authenticated command/result routes and keeps the mock path available. |
+| Accepted bounded LCD transport | `POST /app/v0.1/lcd/commands`, `GET /app/v0.1/lcd/results/{bridge_request_id}`, and `POST /stackchan/events` | Separate implementation retained through product commit `9dbfafc`; one `happy -> ACK -> neutral -> ACK` sequence is field-accepted. It does not make `local_network` valid in this offline envelope. |
 | Current Python contract | `src/personal_ai_companion/app_bridge/contract.py`, `mock.py` | Immutable DTO validation and deterministic `OfflineMockDispatcher`; no route or device dependency. |
 | Current fixtures/tests | `fixtures/app-bridge/v0.1/`, `tests/test_app_bridge_contract.py` | Fixed canonical fixtures cover ack/result, timeout, expiry, dedupe/conflict, fallback, and live-transport rejection. |
 
-No field in this document proves interoperability with either StackChan
-contract. A future adapter must be separately specified and gated.
+No field in this document alone proves interoperability with either StackChan
+contract. The accepted LCD adapter has separate source and evidence; any repeat
+or additional capability must be separately specified and gated.
 
 ## Non-Negotiable Invariants
 
-1. `MockLANBridgeClient` remains the iOS default and only iOS dispatcher. The
-   separate Python `OfflineMockDispatcher` is local-only and has no route.
-2. Every current `AppIntegrationModeID` resolves to `offline_mock` execution.
+1. `MockLANBridgeClient` remains the default for this mock contract. The
+   separate Python `OfflineMockDispatcher` is local-only and has no route. The
+   Host may separately inject the bounded LCD client without changing these
+   semantics.
+2. Every `AppIntegrationModeID` represented by this envelope resolves to
+   `offline_mock` execution.
 3. `live_candidate` is an integration-readiness label, not permission to use a
    local network transport.
 4. An acknowledgement confirms validation and mock acceptance only. It does
@@ -384,8 +392,9 @@ This is a design mapping only. It does not require or authorize a Swift edit.
 | result | `StackChanBridgeResult` | Map `status`, `reply`, and `replyTruncated` to terminal result fields. |
 | public error | `CompanionPublicError` and `AppPublicErrorCatalog` | Map only the five existing public kinds; do not expose underlying error text. |
 
-The existing explicit `LANBridgeClient` injection seam remains test/future-gated
-only. It is not an exception to the v0.1 mock-only rule.
+The explicit `LANBridgeClient` injection seam now supports the separately gated
+LCD client as well as mock clients. It is not an exception to this envelope's
+v0.1 mock-only execution-mode rule.
 
 ## Current Python Mapping
 
@@ -401,9 +410,10 @@ The local product source implements the previously recommended Python slice:
    tombstones prevent unsafe ID reuse for the lifetime of the dispatcher; they
    are not currently TTL-pruned. Retained state excludes credentials, user data,
    and media.
-5. The implementation deliberately does not adapt to
-   `stackchan.command.v0.1` or `stackchan.wire.v0.2`. That remains a future L3
-   bridge slice with separate ID mapping, privacy review, and rollback.
+5. This Python offline dispatcher deliberately does not adapt to
+   `stackchan.command.v0.1` or `stackchan.wire.v0.2`. The separate LCD routes do
+   not turn the offline dispatcher into a live adapter; additional protocol or
+   capability mappings still need separate ID, privacy, and rollback review.
 
 ## Mock Fixture Corpus
 
@@ -445,13 +455,14 @@ user, health, media, or device data.
    `malformed_response`.
 5. The current `send -> bridge_request_id -> pollResult` flow is wrapped by
    this envelope; it is not removed or replaced by a flag-day migration.
-6. A future bridge-to-device adapter must create and track its own device
+6. Any bridge-to-device adapter must create and track its own device
    `command_id` and, if needed, a device `result_id`. It MUST NOT claim that
    the app command UUID is automatically compatible with `cmd_` or `res_`
    identifiers in `stackchan.wire.v0.2`.
-7. A protocol version change never authorizes live transport. The future L3
-   gate, bounded repair plan, explicit rollback path, mock fallback regression
-   coverage, and safe user-error verification remain mandatory.
+7. A protocol version change never authorizes live transport. A repeat or
+   expanded live slice still requires a fresh L3 gate, bounded repair plan,
+   explicit rollback path, mock fallback regression coverage, and safe
+   user-error verification.
 
 ## Acceptance Checklist
 
@@ -459,5 +470,5 @@ user, health, media, or device data.
 - [x] Keeps App-to-Bridge, Bridge-to-device, and offline DTO contracts distinct.
 - [x] Implements deterministic Python DTO, mock dispatcher, fixtures, and local tests.
 - [x] Maps the contract to the current Swift seam without claiming Swift/Python parity.
-- [x] States that v0.1 permits mock only and that all live transport remains behind a future explicit L3 gate.
-- [x] Contains no endpoint, credential, real data, network command, device action, or deployment instruction.
+- [x] States that this v0.1 envelope permits mock only and distinguishes the separately accepted bounded LCD transport.
+- [x] Names only the bounded LCD route surface needed to prevent status drift; it contains no endpoint address, credential, real data, network command, device action, or deployment instruction.

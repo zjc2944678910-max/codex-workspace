@@ -5,11 +5,13 @@ Date: 2026-07-11
 Status: `local MVP core verified`; current-checkout synthetic ingest seam
 verified; real/private-data integration not started
 
-Superseded current-state note (updated 2026-07-14): this report is retained as
-the historical ingest-seam baseline. Product `main` is now canonical at
-`b8462a9`; it includes Memory Quality Phase 2, Runtime Metadata Phase 3, and the
-default-off Phase 4A/4B opt-in candidate writer. Use the project
-[README](../README.md) for current facts and
+Dated historical snapshot note (updated 2026-07-15): this report is retained as
+the historical ingest-seam baseline. At the 2026-07-14 supersession checkpoint,
+product `main@b8462a9` included Memory Quality Phase 2, Runtime Metadata Phase 3,
+and the default-off Phase 4A/4B opt-in candidate writer. That commit and the old
+compatibility branches below are evidence for their recorded windows, not the
+current product authority. Use the project [README](../README.md) and product
+`main@72258a1` for current facts, and
 [memory-phase-4-readiness-20260714.md](memory-phase-4-readiness-20260714.md) for
 the remaining production boundary. No live memory deployment or real-database
 migration followed from those source changes.

@@ -7,10 +7,16 @@ Current baseline (2026-07-15): product `main@72258a1` contains a source-gated
 authenticated iOS-to-cloud chat path that is off by default. When enabled with
 its trusted dependencies, non-temporary turns persist atomically, temporary
 turns skip persistence, and expired bounded context is pruned at startup and
-periodically. No live chat vertical has been accepted. A local full-suite check
-passed `1197` tests with one existing Starlette/TestClient warning. Steps 1-5
-below preserve the original dependency order; current status remains
-authoritative in the project README and `ARCHITECTURE_TODO.md`.
+periodically. That authenticated route explicitly disables memory-candidate
+writes. No live chat vertical has been accepted. A local full-suite check
+[passed `1197` tests](../reports/product-main-verification-20260715.md) at that
+exact commit with one existing Starlette/TestClient warning. The latest
+documented default companion cloud route is `claude-opus-4-6-thinking`; the
+private local-first Mac route uses `huihui_ai/qwen3.5-abliterated:9b`. Those are
+source/config decisions, not live-provider health evidence. Steps 1-5 below
+preserve the original architecture dependency order; current completion status
+and task order remain authoritative in the project README and
+`ARCHITECTURE_TODO.md`.
 
 ## Route Lock Template
 
@@ -30,7 +36,13 @@ forbidden_surfaces:
   - live NAS/VPS/service state unless repair gate is opened
 ```
 
-## Step 1: Local Relay Skeleton
+## Original Dependency Order
+
+Steps 1-5 are a historical architecture sequence, not an unchecked build list
+or authorization to repeat completed work. Use the `Current Continuation`
+sections for the active planned sequence.
+
+### Step 1: Local Relay Skeleton
 
 Build locally first.
 
@@ -48,7 +60,7 @@ POST /v1/chat
 GET  /v1/admin/usage
 ```
 
-## Step 2: Memory-Service Core
+### Step 2: Memory-Service Core
 
 Implement before iOS and before chat-log style work.
 
@@ -73,17 +85,22 @@ POST   /v1/memory/{id}/reject
 DELETE /v1/memory/{id}
 ```
 
-## Step 3: Voice And StackChan
+### Step 3: Voice And StackChan
 
 Only after `/v1/chat` and memory gates work.
 
-Minimum endpoints:
+Current source voice endpoints:
 
 ```text
-POST /v1/voice/stt
-POST /v1/voice/tts
-POST /v1/devices/register
+POST /v1/audio/transcriptions
+POST /v1/audio/speech
+POST /v1/voice/chat
 ```
+
+The original `/v1/devices/register` target is not implemented. StackChan's
+accepted LCD slice uses the separately authenticated App/Bridge routes recorded
+in the project README; do not invent or expose a registration endpoint from
+this historical sequence.
 
 Default behavior:
 
@@ -91,13 +108,16 @@ Default behavior:
 - Sensitive memory is blocked from speaker output unless explicitly allowed.
 - Firmware changes are a fallback if custom base URL configuration is missing.
 
-## Step 4: iOS Companion
+### Step 4: iOS Companion
 
 Keep all integrations permission-scoped.
 
 Allowed targets:
 
 - Optional HealthKit summaries with user-granted categories.
+- Treat HealthKit collection permission and any off-device/cloud-chat use as
+  separate owner-visible gates. The authenticated cloud-chat client currently
+  does not accept health context.
 - EventKit reminders/calendar with authorization.
 - AlarmKit for app-owned alarms where supported.
 - Shortcuts/App Intents for explicit user-triggered actions.
@@ -118,7 +138,7 @@ Explicitly out of scope:
 - Controlling another app unless it exposes a supported App Intent, Shortcut,
   URL scheme, universal link, or share-sheet action.
 
-## Step 5: NAS Local Model
+### Step 5: NAS Local Model
 
 Add as an optional route after the relay contract is stable.
 
@@ -254,5 +274,7 @@ Run this only after the backend contracts and mock paths are stable.
   and state changes require explicit confirmation.
 - All health adapters normalize only the five canonical families and preserve
   source attribution.
+- Health-source authorization alone does not authorize off-device or cloud-chat
+  transmission; that requires a separate owner-visible gate and acceptance.
 - The default chat route remains usable when custom providers, MCP, phone
   actions, HealthKit, or other health sources are disabled.

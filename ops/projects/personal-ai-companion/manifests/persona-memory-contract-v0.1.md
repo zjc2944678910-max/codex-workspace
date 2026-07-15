@@ -57,9 +57,10 @@ The terms **MUST**, **MUST NOT**, **SHOULD**, and **MAY** are normative.
 - [Memory Layer v0.1](memory-layer-v0.1.md) supplies the baseline L1/L2/L3
   split, memory classes, provenance, consent, review, deletion, and projection
   vocabulary.
-- [Memory Readiness Map](../reports/memory-readiness-20260711.md) is the
-  source of truth for bounded local implementation evidence. It is not proof
-  of a real-data or runtime authorization.
+- [Memory Readiness Map](../reports/memory-readiness-20260711.md) is a dated
+  evidence snapshot, not the current source of truth. Current facts live in the
+  project [README](../README.md), with the remaining production boundary in the
+  [Phase 4 readiness banner](../reports/memory-phase-4-readiness-20260714.md).
 - [Companion Avatar and Persona Boundary](../reports/companion-avatar-and-persona-boundary-20260711.md)
   establishes the current non-human identity boundary and separate future
   identity/voice intake.
@@ -407,9 +408,10 @@ with synthetic fixtures that:
 
 This manifest resolves the contract semantics only. It does not add a data
 model, endpoint, cache, migration, retention executor, identity-consent store,
-or deletion mechanism. The current memory readiness report is the source of
-truth for existing local implementation evidence; older readiness plans remain
-design intent where they conflict.
+or deletion mechanism. The dated memory readiness map remains historical
+evidence; the project README and Phase 4 supersession banner control current
+implementation facts. Older readiness plans remain design intent where they
+conflict.
 
 Any future implementation slice must remain synthetic-only unless a new task
 explicitly authorizes a broader privacy scope. Any real-data read, schema or

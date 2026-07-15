@@ -4,6 +4,15 @@ Date: 2026-07-08
 Status: implementation-readiness plan
 Risk level: L1 read-only code planning and local documentation
 
+Historical planning snapshot note (updated 2026-07-15): this manifest preserves
+the gaps and ordering observed on 2026-07-08. The prompt projection, owner-gated
+admin, consent, class-policy, export, audit, and related predecessor controls
+described below as future work subsequently landed in source. The old readiness
+summary is not the current task queue. Use the project
+[README](../README.md), product `main@72258a1`, and the dated
+[Phase 4 readiness update](../reports/memory-phase-4-readiness-20260714.md) for
+current facts and remaining production boundaries.
+
 ## Scope And Route Lock
 
 - Target project: `personal-ai-companion` memory architecture

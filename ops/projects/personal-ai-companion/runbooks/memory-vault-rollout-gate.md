@@ -304,14 +304,17 @@ store:
    window, key custody/recovery policy, or rollback packet exists in this task.
 2. Vault persistence, access logging, key-version storage, and real data
    movement are not established as an authorized rollout schema.
-3. The prerequisite projection, admin-owner gating, consent hydration, ingest
-   validation, class policy, export, audit, and abuse controls are described as
-   implementation work, not confirmed live behavior.
+3. Source/synthetic predecessors for projection, admin-owner gating, consent,
+   ingest validation, class policy, export summaries, audit, and abuse controls
+   now exist in current product source. They are not accepted live owner binding
+   or proof that a real store is ready for vault rollout.
 4. There is no evidence in this L1 pass that an existing `memory.db` is at the
    registered latest schema, backup-restorable, or compatible with a vault
    rollout; it was deliberately not accessed.
 
-The next safe action is L1 implementation and synthetic/temp-DB verification of
-the predecessor controls named above, followed by a fresh L2/L3 authorization
-review. Do not begin real rollout work until the user explicitly says
-`进入修复阶段` and Gates A-C are complete.
+The next safe action is a bounded current-state design/preflight that names the
+candidate real store, backup/restore evidence, key custody, vault schema and
+migration shape, recovery path, live owner binding, and stop conditions without
+opening the real store. Follow that with a fresh L2/L3 authorization review. Do
+not begin real rollout work until the user explicitly says `进入修复阶段` and
+Gates A-C are complete.

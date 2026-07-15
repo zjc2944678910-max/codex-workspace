@@ -2,15 +2,18 @@
 
 ## Active Program Queue And Authority (2026-07-15)
 
-This running log may contain historical completed-work claims. The current
-program control source is
-[continuous-program-authorization-and-task-lifecycle.md](runbooks/continuous-program-authorization-and-task-lifecycle.md).
-When this file conflicts with that runbook's dated facts, authorization ledger,
-or stop rules, the runbook wins.
+This running log contains both the current queue and a long historical
+implementation record. The project [README](README.md) is authoritative for
+current facts, and the dated queue in this section is authoritative for current
+task order. The
+[continuous-program runbook](runbooks/continuous-program-authorization-and-task-lifecycle.md)
+defines risk/status vocabulary, task packets, expired-authority handling, and
+stop rules; its fact table or queue must not override a newer synchronized
+README/TODO snapshot.
 
-The project [README](README.md) is the current cross-thread fact index. Use
+Use
 [memory-runtime-metadata-phase-3-20260713.md](reports/memory-runtime-metadata-phase-3-20260713.md)
-for the current memory boundary; the dated
+for the Phase 3 evidence boundary; the dated
 [product/cloud report](reports/product-cloud-current-status-20260713.md) remains
 the iOS/cloud closeout snapshot plus a source-only memory addendum. The long
 `Near Term` section below remains a chronological implementation log; its older
@@ -29,7 +32,8 @@ or the project README.
   off by default. When enabled, non-temporary turns persist atomically,
   temporary turns skip persistence, and expired bounded context is pruned at
   startup and periodically. No live chat vertical has been accepted. The
-  2026-07-15 local full suite passed `1197` tests with one existing
+  [2026-07-15 local full suite](reports/product-main-verification-20260715.md)
+  passed `1197` tests at that exact commit with one existing
   Starlette/TestClient warning.
 - Product direction update: Xiaoxin remains a single-owner personal app. Paid
   Apple Developer Program membership, TestFlight, and App Store distribution
@@ -65,8 +69,9 @@ or the project README.
   movement and return, three-zone head touch, and one local `160x120` camera
   frame. The final state was Bridge queue `0`, servos off, camera off, audio
   muted, and serial closed. Whether a visible camera activity indicator
-  activated was not verified. This does not upgrade the iOS App or mock App
-  adapter to a real end-to-end path. See
+  activated was not verified. This standalone session did not itself upgrade
+  the iOS App or mock adapter; the later bounded App LCD acceptance below is the
+  separate evidence for that path. See
   [stackchan-hardware-field-verification-20260711.md](reports/stackchan-hardware-field-verification-20260711.md).
 - StackChan screen pages: `表情` / `聆听` / `状态` are **local/mock verified**
   in the iOS preview only. Their selection sends no mock bridge requests, and
@@ -89,19 +94,25 @@ or the project README.
   multi-account logout-revocation retry queue. The current mainline adds a
   source-gated authenticated chat path that is off by default. When enabled,
   non-temporary turns persist atomically, temporary turns skip persistence, and
-  expired bounded context is pruned at startup and periodically; no live chat
-  vertical has been accepted. The 2026-07-15 full suite passed `1197` tests;
+  expired bounded context is pruned at startup and periodically; it explicitly
+  disables memory-candidate writes, and no live chat vertical has been
+  accepted. The [2026-07-15 full suite](reports/product-main-verification-20260715.md)
+  passed `1197` tests at `main@72258a1`;
   prior App/Host build and smoke evidence remains accepted. Real-device Personal Team
   acceptance remains unconfirmed; paid distribution is deferred rather than a
   current release blocker.
 - Health sources: the committed host requests read-only HealthKit access only
-  for steps, active energy, heart rate, sleep, and workouts. Chat receives those
-  same five bounded local summary families. Health Records entitlement and
-  clinical-purpose text were removed. Apple's current capability matrix lists
-  basic HealthKit for free Apple Developer accounts, but no real health data or
-  Personal Team signed-device result was accepted. HealthKit is now an optional
-  adapter; Shortcut/webhook, manual Apple Health export, and selected
-  third-party provider adapters are planned, not implemented.
+  for steps, active energy, heart rate, sleep, and workouts. The iOS source can
+  construct one bounded trend-only chat summary from those families when both
+  owner controls are enabled; the authenticated cloud-chat client does not
+  accept that health context. Health Records entitlement and clinical-purpose
+  text were removed. Apple's current capability matrix lists basic HealthKit
+  for free Apple Developer accounts, but no real health data, Personal Team
+  signed-device result, or authenticated cloud-chat health transmission was
+  accepted. Collection authorization and off-device transmission are separate
+  gates. HealthKit is now an optional adapter; Shortcut/webhook, manual Apple
+  Health export, and selected third-party provider adapters are planned, not
+  implemented.
 - Xiaoxin cloud/auth: the current recorded image is
   `xiaoxin-cloud-api:20260713T0137-native-google`. Native Google is preferred,
   Authentik PKCE remains available as fallback, and SMS OTP remains disabled.
@@ -131,11 +142,13 @@ or the project README.
   bounded context, candidate review/promotion, scoped recall, privacy
   projection, owner admin, consent and class policy; vault/key and retention
   components remain isolated safety primitives or synthetic contracts.
-  Phase 3 acceptance passed `419` memory tests and `1072` full Python tests;
-  current full verification passes `1197` tests. Authenticated chat is
-  source-gated and off by default; when enabled, non-temporary turns persist
-  atomically, temporary turns skip persistence, and expired bounded context is
-  pruned at startup and periodically. No live chat vertical has been accepted.
+  Phase 3 snapshot acceptance passed `419` memory tests and `1072` full Python
+  tests; the [current exact-baseline verification](reports/product-main-verification-20260715.md)
+  passes `1197` tests at `main@72258a1`. Authenticated chat is source-gated and
+  off by default; when enabled, non-temporary turns persist atomically,
+  temporary turns skip persistence, and expired bounded context is pruned at
+  startup and periodically. It explicitly disables candidate writes, and no
+  live chat vertical has been accepted.
   Phase 4B fails closed without a trusted owner resolver and is not enabled by
   default.
   The earlier iOS convergence built the Swift App target and passed AppFlow
@@ -153,8 +166,10 @@ or the project README.
   [memory-recall-quality-phase-2-20260713.md](reports/memory-recall-quality-phase-2-20260713.md).
 - Memory runtime metadata phase 3: product commits `f758875`, privacy repair
   `1d38c3d`, and source-event replay repair `199638a` were independently
-  accepted, pushed on `codex/pac-memory-runtime-metadata-phase-3`, and
-  fast-forwarded into canonical `codex/initial-private-publish` at `199638a`.
+  accepted, pushed on `codex/pac-memory-runtime-metadata-phase-3`, and were
+  fast-forwarded at that time into `codex/initial-private-publish` at `199638a`.
+  Those commits are retained in current `main@72258a1`; the old branch is not
+  current authority.
   They add an additive v3 migration for
   nullable `fact_key` and `expires_at_ms`, preserve legacy NULL behavior,
   persist only existing-rule fact identity, and filter expiry at recall without
@@ -187,10 +202,12 @@ or the project README.
   duplicates/conflicts, and enforces one-way candidate-to-promoted/rejected
   transitions with atom/review/audit transaction alignment. It now also carries
   canonical recall selection, persisted fact identity/expiry, metadata-first
-  recall, and expiry-independent source-event replay. Current focused evidence
-  is `419` memory tests and `1072` full Python tests. Later Phase 4A/4B source
-  adds an explicit opt-in candidate writer to `/v1/chat`, but it is default-off
-  and requires a trusted owner resolver. This is not live memory integration or
+  recall, and expiry-independent source-event replay. Phase 3 snapshot evidence
+  is `419` memory tests and `1072` full Python tests; current mainline evidence
+  is linked above. Later Phase 4A/4B source adds an explicit opt-in candidate
+  writer to `/v1/chat`, but it is default-off and requires a trusted owner
+  resolver. The authenticated cloud-chat route separately disables candidate
+  writes. This is not live memory integration or
   automatic extraction; the rule set is bounded rather than a broad
   natural-language classifier. None of these
   lines authorizes raw private-data access, real data migration, retention
@@ -233,13 +250,15 @@ or the project README.
 
 ### Proposed Next Task Order
 
-Rows 1-7 retain completed dependency history. After this docs sync, the current
-unstarted continuation begins at order 8 and must still run one bounded task at
-a time.
+Rows 1-7 retain dependency history: completed source/deployment slices plus
+explicitly separate, still-manual checkpoints such as same-account re-login and
+Personal Team acceptance. They are not all fully complete, but none blocks the
+synthetic order-8 contract task. After this docs sync, the current unstarted
+continuation begins at order 8 and must still run one bounded task at a time.
 
 | Order | Task ID | Type | Dependency / manual gate | Owned surface |
 | --- | --- | --- | --- | --- |
-| 0 | `PAC-DOCS-SYNC` (`completed 2026-07-15`) | L1 | Completed for this planning wave; repeat before each later implementation wave. | The five assigned ops/blueprint docs only. |
+| 0 | `PAC-DOCS-SYNC` (`completed 2026-07-15`) | L1 | Completed for this planning wave; repeat before each later implementation wave. | Current authority/contract corrections and historical supersession banners only; no product or live-state change. |
 | 1 | `PAC-MEMORY-LOCAL-INGEST-SEAM` (`completed`, canonical) | L1 | Memory slice anchored at `934cec1` and retained in current canonical `72258a1`; synthetic fixtures and temporary SQLite only. | Committed memory candidate/review/privacy state machine; no automatic ordinary-chat extraction or real data. |
 | 1a | `PAC-MEMORY-RECALL-QUALITY-PHASE-2` (`completed`, canonical) | L1 | Product commits `e764b2f` and `6feb142`; isolated synthetic/temp-store acceptance only. | Canonical winner selection and bounded recall-quality inspection; no real data or retention execution. |
 | 1b | `PAC-MEMORY-RUNTIME-METADATA-PHASE-3` (`completed`, canonical) | L1 after L3-authorized local implementation | Product commits `f758875`, `1d38c3d`, and `199638a`; `419` memory and `1072` full tests. | Persisted runtime identity/expiry and metadata-first recall; no real database, automatic producer, scheduler, or deletion. |
@@ -258,8 +277,9 @@ a time.
 | 12 | `PAC-HEALTH-SOURCE-ABSTRACTION` (`planned`) | L1 | Preserve the existing five canonical families and HealthKit adapter behavior. | Adapter contract plus source attribution/deduplication; first fallback is owner-run Shortcut/webhook or manual Apple Health export, not real health-data intake. |
 | 13 | `PAC-PERSONAL-TEAM-DEVICE-ACCEPTANCE` (`manual gate`) | L2 preflight; state-changing device/signing or real-data action needs separate authorization | Requires stable mock/backend paths and owner presence. | Install/re-provision recovery and optional five-family HealthKit authorization only; no TestFlight/App Store claim and no paid membership requirement. |
 
-The detailed classification, dependencies, manual gates, and stop conditions are
-normative in the runbook; this table is intentionally not a concurrency plan.
+This table is the current implementation queue. The runbook remains normative
+for risk/status vocabulary, manual repair gates, and stop conditions. This table
+is intentionally not a concurrency plan.
 
 Memory retention has no selected real-data follow-up item. Memory Phases 1-4B
 used synthetic fixtures and `:memory:`/temporary SQLite; they did not read or
@@ -6762,20 +6782,14 @@ item directly from this log.
   style eval passed 45/45 with average style score `0.908` and
   `external_model_calls=0`. This record makes no claim of real-model validation.
 
-## Later
+## Longer-Term Backlog Beyond Orders 8-13
 
-- Add streaming audio, multipart upload ergonomics, and StackChan device registration.
-- Add Memory Admin UI/API.
-- Add the backend custom-provider registry and iOS redacted profile/capability UI.
-- Add one allowlisted read-only MCP gateway vertical before considering any
-  state-changing tool.
-- Add supported phone-app actions through App Intents, Shortcuts, URL schemes,
-  universal links, or share sheets only.
-- Put HealthKit behind the multi-source `HealthSource` boundary and add an
-  owner-triggered Shortcut/webhook or manual Apple Health export fallback.
-- Complete Personal Team device acceptance for the optional five-family
-  HealthKit scope. Revisit paid Apple membership/App Store review only if
-  distribution or a paid-only capability becomes necessary.
+Orders 9-13 above already cover provider, MCP, phone-action, health-source, and
+Personal Team work; they are not duplicated here as a second priority list.
+
+- Add streaming audio, multipart upload ergonomics, and a bounded StackChan
+  device-registration design if the current bridge routes prove insufficient.
+- Add Memory Admin UI/API beyond the existing owner-gated source surfaces.
 - Add NAS memory/vector persistence plan.
 - Add chat-log import and consented style profile pipeline.
 

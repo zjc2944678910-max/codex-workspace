@@ -1,7 +1,7 @@
 # Personal AI Companion Continuous Program Authorization And Task Lifecycle
 
-Date: 2026-07-11
-Status: active program-control runbook, synchronized after bounded hardware field verification
+Date: 2026-07-11; current-fact and queue synchronization: 2026-07-15
+Status: active risk/status/stop-rule runbook; current facts and queue synchronized
 
 ## Scope And Source Of Truth
 
@@ -14,8 +14,11 @@ task-specific Route Locks, repair gates, or safety review.
   StackChan preflight, HealthKit audit, the earlier L3-S1 screen transaction,
   and the later bounded hardware field verification in task
   `019f4fc2-69ac-7532-bc63-e35b1323ccd5`.
-- Historical reports/manifests may retain prior claims. This runbook's dated
-  fact table and explicit status vocabulary control current planning.
+- Historical reports/manifests may retain prior claims. The project `README.md`
+  controls current facts, and `ARCHITECTURE_TODO.md` controls the current queue.
+  This runbook controls status vocabulary, task packets, expired-authority
+  handling, and stop rules; its synchronized table must not override a newer
+  dated fact index.
 
 ## Evidence And Status Vocabulary
 
@@ -35,16 +38,16 @@ added only with evidence for that exact result.
 
 | Area | Current status | Confirmed evidence | Unconfirmed boundary |
 | --- | --- | --- | --- |
-| StackChan screen | `field-confirmed` | The manual Bridge/device path recorded enqueue, device poll, matching `result=ok`, and owner-observed `PAC Expression / happy`. | The iOS App and mock App adapter did not drive it; native avatar rendering, continuous boot polling, and repeated reliability remain unconfirmed. |
+| StackChan screen | `field-confirmed` | The manual Bridge/device path recorded enqueue, device poll, matching `result=ok`, and owner-observed `PAC Expression / happy`; a later bounded App-driven LCD sequence is recorded separately below. | Native avatar rendering, continuous boot polling, and repeated reliability remain unconfirmed. |
 | StackChan audio | `field-confirmed` | The owner heard the bounded public-safe phrase `测试成功`; the run recorded `result=ok`, used runtime volume `40/255`, then stopped and muted output. | This is not a general volume policy, microphone result, repeated-play reliability result, or iOS voice path. |
 | StackChan X/Y servos | `field-confirmed` | Each axis completed one low-speed movement of about `+5 degrees -> original position`, with owner observation; torque and power were disabled afterward. | The check used the direct official device driver, not the v0.1 placeholder or App adapter. A full calibrated motion envelope, endurance, and autonomous control remain unconfirmed. |
 | StackChan head touch | `field-confirmed` | Direct sampling observed press/release across all three zones and returned to `[0, 0, 0]`. | No device-to-Bridge event, App consumption, deduplication, or App reaction was verified. |
 | StackChan camera | `field-confirmed` | One local `160x120` JPEG frame was captured, inspected locally, removed from the temporary path, and the camera was deinitialized. | The owner did not see an indicator, so whether a visible activity indicator activated is unverified. No App/Bridge camera command, retention workflow, repeated capture, or external transfer was verified. |
-| StackChan App/adapter integration | `blocked` | The authenticated Bridge and bounded device/manual execution paths have real evidence. | The iOS App, `pac.app_bridge.v0.1`, and the future StackChan App adapter did not drive the accepted hardware checks. `App -> Bridge -> StackChan -> device` remains unverified and requires a separate design, gate, and rollback. |
-| iOS mock UX | `local/mock verified` | Mock-only package/smoke evidence and an unsigned local Simulator Host pass are recorded. | Signing, provisioning, real device, live LAN, Keychain, and StackChan integration remain unconfirmed. |
-| iOS real integration | `blocked` | Pre-live contracts preserve mock fallback. | Explicit owner decisions and a bounded L3 slice are required. |
-| HealthKit | `blocked` | Mock permission and design-time rollback/scope evidence exist. | System consent, entitlement/signing, and real health data collection are unconfirmed and prohibited here. |
-| Memory/privacy | `local/mock verified` | Local design and readiness documentation exist. | Raw private-data inspection/export, runtime data/schema change, and real migration require a separate authorized scope. |
+| StackChan App/adapter integration | `field-confirmed` | On 2026-07-13 the owner observed the bounded App-driven `happy -> correlated ACK -> neutral -> correlated ACK` LCD sequence; the final screen was `neutral`, queue depth was `0`, and source is retained through product commit `9dbfafc` in current `main@72258a1`. | This accepts only the LCD allowlist `happy` and `neutral`. Repeat reliability, continuous polling, and App paths for audio, motion, touch, camera, memory, or HealthKit remain unconfirmed and require new scope/gates. |
+| iOS mock UX | `local/mock verified` | Mock-only package/smoke evidence and an unsigned local Simulator Host pass are recorded. | This mock-UX evidence does not prove signing, provisioning, real-device behavior, or general integration. The separate bounded LAN/Keychain/StackChan LCD slice is accepted above. |
+| iOS real integration | `local/mock verified` | Source-gated authenticated chat, cloud auth, Keychain seams, and the bounded LCD client exist; the LCD field slice above is separately accepted. | No live authenticated-chat vertical, general device integration, distribution signing, or account deletion is accepted. |
+| HealthKit | `local/mock verified` | The committed source implements the bounded read-only five-family adapter and can construct a trend-only local chat summary. Basic HealthKit remains available to free Personal Team development according to Apple's capability matrix. | System consent, real-device reads, real health data, and authenticated cloud-chat health-summary transmission are unconfirmed. Collection and off-device transmission are separate gates. |
+| Memory/privacy | `local/mock verified` | Product `main@72258a1` retains Phase 2/3 and default-off Phase 4A/4B source with synthetic/temp-store verification. | Authenticated cloud chat disables candidate writes. Raw private-data inspection/export, live owner binding, runtime data/schema change, real migration, vault wiring, retention execution, and hard deletion require separate scopes. |
 | Style/persona | `local/mock verified` | Local synthetic style mechanisms/evaluations are historical evidence. The owner has attested consent for a future visual-likeness slice; no identifying material is tracked. | Voice, writing style, private chats, provider upload, real-device display, revocation handling, and private-data boundaries remain separate gates. |
 
 ## Time-Bounded Authorization Ledger
@@ -123,10 +126,12 @@ Additional mandatory constraints:
 
 ## Completion Callback To The Master
 
-Local L0/L1 task slices default to bounded internal subagents. Each subagent
-returns exactly one terminal compact report to the master through the
-collaboration channel when its assigned slice finishes. Do not create a
-separate task thread solely to deliver this completion callback.
+Local L0/L1 task slices may use a bounded internal subagent when mapping,
+mechanical editing, or independent verification materially reduces risk or
+effort. Small known-scope work may remain in Codex. Any subagent returns exactly
+one terminal compact report to the master through the collaboration channel
+when its assigned slice finishes. Do not create a separate task thread solely
+to deliver this completion callback.
 
 Required payload fields: `status`, `task_id`, `owned_surface`, `verification`,
 `blockers`, and `best_next_task`. Do not send progress callbacks or repeated
@@ -139,23 +144,23 @@ mandatory, L2 remains read-only, and L3 still requires its explicit manual
 repair authority and task-specific gates. An internal subagent receives only
 its assigned bounded scope; it never gains broad live-repair authority.
 
-## Non-Overlapping Next-Task Queue
+## Non-Overlapping Current Queue
 
 The listed order is dependency order, not permission to start all work at once.
-`PAC-DOCS-SYNC` must be completed before every implementation wave. The earlier
-standalone screen, audio, servo, touch, and camera slices are completed evidence
-and are no longer pending queue items. Repeating them is new L3 work, not a
-continuation of the completed session.
+`PAC-DOCS-SYNC` precedes every implementation wave. Completed orders 1-7 are
+retained in `ARCHITECTURE_TODO.md` as dependency history and are not repeated
+here. Repeating field work is new L3 work, not a continuation of an accepted
+session.
 
 | Order | Task ID | Level | Scope and dependencies | Manual gates / owned surface |
 | --- | --- | --- | --- | --- |
-| 0 | `PAC-DOCS-SYNC` | L1 | Precedes every implementation wave; reconcile current facts, ledger, and queue. | Documentation-only Route Lock; assigned ops docs only. |
-| 1 | `PAC-IOS-MOCK-UX-CLOSEOUT` | L1 | Review and checkpoint the current mock-only iOS work before any real integration design. | SwiftUI/package and local tests only; no network, credential, signing, system permission, or hardware action. |
-| 2 | `PAC-IOS-REAL-INTEGRATION-PREFLIGHT` | L2 | Requires accepted mock UX and a read-only mapping of LAN transport, protocol translation, credentials, signing, and rollback. | Read-only evidence and design only; no Bridge/device request or credential read. |
-| 3 | `PAC-IOS-STACKCHAN-SCREEN-E2E` | L3 | Requires completed preflight, renewed explicit authorization, and a fresh one-capability safety/rollback packet. | One `App -> Bridge -> StackChan -> LCD` path; preserve mock fallback; no automatic expansion to audio, servo, touch, or camera. |
-| 4 | `PAC-HEALTHKIT-SCOPE` | L3 | Requires explicit owner-selected categories, consent copy, minimization, and revocation/rollback plan. | Explicit repair gate; one system authorization/collection slice; no medical inference expansion. |
-| 5 | `PAC-MEMORY-PRIVACY` | L1/L3 | L1 only for isolated code/test/docs with temporary data; L3 for existing data, schema, migration, or runtime state. | One named memory policy/migration surface; no raw private export. |
-| 6 | `PAC-STYLE-PERSONA` | L1 | Requires documented consent, revocation, approved-source boundary, and a synthetic evaluation plan. | One local rule/evaluation surface; no unapproved-person imitation. |
+| 0 | `PAC-DOCS-SYNC` (`completed 2026-07-15`) | L1 | Precedes every implementation wave; reconcile current facts, ledger, and queue. | Current authority/contract corrections and historical supersession banners only; no product or live-state change. |
+| 8 | `PAC-INTEGRATION-CONTRACTS-V0.1` (`planned`) | L1 | Freeze provider, MCP, phone-action, and attributed health-source contracts using synthetic fixtures. | No network, credentials, device, real provider, real MCP server, or health data. |
+| 9 | `PAC-CUSTOM-PROVIDER-REGISTRY` (`planned`) | L1 | Requires accepted contracts and an explicit owner-configured fallback policy. | Backend registry plus redacted iOS status/selection; server-side secrets and synthetic endpoint tests only. |
+| 10 | `PAC-MCP-GATEWAY-READONLY` (`planned`) | L1 | Requires accepted MCP contracts and failure isolation. | One local allowlisted read-only tool with timeout, output bounds, and audit; no state-changing tool. |
+| 11 | `PAC-IOS-SUPPORTED-APP-ACTION` (`planned`) | L1 mock/Simulator first | Requires preview/confirmation contracts and a target app with a supported surface. | One App Intent, Shortcut, URL/universal-link, or share-sheet action; no arbitrary app control. |
+| 12 | `PAC-HEALTH-SOURCE-ABSTRACTION` (`planned`) | L1 | Preserve the five canonical families and existing HealthKit behavior. | Adapter attribution/deduplication plus a Shortcut/webhook or manual-export fallback; no real health-data intake. |
+| 13 | `PAC-PERSONAL-TEAM-DEVICE-ACCEPTANCE` (`manual gate`) | L2 preflight; state-changing device/signing or real-data action needs separate authorization | Requires stable mock/backend paths and owner presence. | Install/re-provision recovery and optional five-family HealthKit authorization; no TestFlight/App Store claim. |
 
 ## Stop Rules
 

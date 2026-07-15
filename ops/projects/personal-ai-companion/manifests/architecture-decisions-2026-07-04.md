@@ -29,7 +29,9 @@ distribution or HealthKit is required for the personal MVP:
 - Apple's current capability matrix lists basic HealthKit for free Apple
   Developer accounts, but it remains an optional, unconfirmed device adapter.
   No chat, memory, provider, MCP, or StackChan feature may depend on HealthKit
-  being available.
+  being available. HealthKit collection authorization and any off-device or
+  cloud-chat transmission are separate owner-visible gates; source permission
+  alone never authorizes transmission.
 - Introduce a `HealthSource` boundary. Normalize HealthKit, owner-run
   Shortcuts/webhooks, manual Apple Health exports, and selected third-party
   wearable/provider APIs into only five canonical families: steps, active
@@ -48,6 +50,12 @@ distribution or HealthKit is required for the personal MVP:
   links, and share sheets only when the target app supports them. Arbitrary
   background control, cross-app data reading, and unsupported automation remain
   outside the product boundary.
+- The original Gemini Flash default was superseded on 2026-07-05. The latest
+  documented default companion cloud route is `claude-opus-4-6-thinking`;
+  Gemini remains an available provider route. The private local-first Mac route
+  uses `huihui_ai/qwen3.5-abliterated:9b`, while private-cloud routing remains
+  conditional on explicit owner policy/config. These are source/config
+  decisions, not proof of current live provider health.
 
 Reference facts are recorded in Apple's
 [membership comparison](https://developer.apple.com/support/compare-memberships/)
@@ -173,14 +181,20 @@ current delivery mode and consent explicitly allow it.
 
 ## MVP Scope
 
+The Phase 1-6 list below is the original target sequence plus the 2026-07-15
+direction amendment. It is not the current completion ledger or permission to
+execute a task. Current facts and queue order live in the project `README.md`
+and `ARCHITECTURE_TODO.md`.
+
 Phase 1:
 
 - Register the project and preserve this architecture record.
 - Build local relay skeleton and `/v1/chat` route.
 - Build `InteractionEnvelope`, `IdentityKernel`, and `PrivacyKernel`.
 - Build memory tables and `/v1/memory/ingest`, `/v1/memory/recall`.
-- Use Gemini Flash as default and Claude for complex reasoning through the
-  server-side router.
+- The initial 2026-07-04 plan used Gemini Flash as the default and Claude for
+  complex reasoning through the server-side router. The direction amendment
+  above records the later default-route decision.
 
 Phase 2:
 
@@ -231,9 +245,12 @@ Phase 6:
 - Do not make paid distribution or any one health-data source a prerequisite
   for the personal MVP.
 
-## Acceptance Anchors
+## Integrated Target Acceptance Anchors
 
-The first MVP is acceptable when:
+These are acceptance anchors for the integrated personal-use target. The
+provider, MCP, phone-action, and multi-source health anchors apply only after
+their later phases land; they are not requirements retroactively satisfied by
+the earlier core MVP.
 
 - A local client can send a chat turn to the relay and get a model response.
 - The same turn produces a stored conversation message and optional session

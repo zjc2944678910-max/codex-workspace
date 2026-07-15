@@ -40,10 +40,12 @@ node docs/workspace/codex-register-project.mjs --regen
   Phase 4A/4B opt-in candidate writer, and now a source-gated authenticated chat
   path that is off by default. When enabled, non-temporary turns persist
   atomically and expired bounded context is pruned at startup and periodically;
-  temporary turns skip persistence. No live chat vertical has been accepted.
+  temporary turns skip persistence, and that authenticated route explicitly
+  disables candidate writes. No live chat vertical has been accepted.
   Historical and source-local evidence is not proof of current live health.
-  The 2026-07-15 local full-suite check passed `1197` tests with one
-  existing Starlette/TestClient warning.
+  The [2026-07-15 local full-suite check](reports/product-main-verification-20260715.md)
+  passed `1197` tests at product `main@72258a1`, with one existing
+  Starlette/TestClient warning.
   The owner field-confirmed one `happy` transaction and one safety-terminal
   `neutral` transaction with separate correlated acknowledgements; the final
   Bridge queue depth was `0`.
@@ -86,21 +88,37 @@ runbook](runbooks/continuous-program-authorization-and-task-lifecycle.md).
 | --- | --- | --- |
 | StackChan hardware | Bounded standalone checks are `field-confirmed` for the LCD expression path, audible playback, X/Y servo movement and return, active three-zone head-touch transitions, and one local low-resolution camera frame. The completed session ended with queue depth `0`, servos powered off, camera off, audio muted, and serial closed. See [the field-verification report](reports/stackchan-hardware-field-verification-20260711.md). | Whether a visible camera activity indicator activated was not verified. Repeated/unattended reliability, a full motion envelope, continuous boot polling, and any repeat execution remain unconfirmed and unauthorized. |
 | StackChan App integration | On 2026-07-13 the owner observed the App-driven v0.1 sequence `happy -> correlated ACK -> neutral -> correlated ACK`; the final screen was `neutral` and Bridge queue depth was `0`. Durable source is pushed at product commit `9dbfafc`; malformed ACK-like events are now rejected by the real `/stackchan/events` HTTP route with queue/result state unchanged. The source also contains the App client, Keychain-backed credential seam, authenticated command/result routes, TTL/idempotency handling, Host injection, and Simulator-only UI build target. See [the acceptance report](reports/app-bridge-stackchan-e2e-acceptance-20260713.md). | This accepts one bounded sequence, not repeated/unattended reliability or a production deployment expansion. The real v0.1 live allowlist remains only `happy` and `neutral`; audio, motion, camera, touch, memory, HealthKit, background polling, firmware, and other hardware remain outside this slice. |
-| iOS product | Product `main` and the remote default branch are pushed at canonical `72258a1`. Logout accepts only HTTP `204` as remote-revocation success and retains pending markers for `401`, `202`, and temporary failures. Authenticated chat is source-gated and off by default; when enabled, non-temporary turns persist atomically, temporary turns skip persistence, and expired bounded context is pruned at startup and periodically. The 2026-07-15 local full-suite check passed `1197` Python tests with one existing warning; prior AppFlow smoke, Ruff, Swift App build, and Simulator Host build evidence remains valid. | No live authenticated-chat vertical or account deletion is accepted. The product is personal/single-owner; public onboarding, multi-tenant administration, TestFlight, and App Store distribution are not current goals. The 12 expressions are App-local preview assets only; they are not a 12-expression live-device protocol. |
-| Health sources / Apple membership | The committed iOS host requests read-only access only for steps, active energy, heart rate, sleep, and workouts. Chat receives the same five bounded local trend-summary families. Apple's current capability table lists basic HealthKit for free Apple Developer accounts, so Xcode Personal Team device testing remains possible without paid membership. The existing HealthKit adapter will become one optional adapter behind the planned `HealthSource` boundary. | Apple still requires per-item owner consent; the callback cannot prove every item was granted. Personal Team profiles expire after seven days and require periodic rebuild/reinstall; they do not provide TestFlight or App Store distribution. No real-device or real health-data read was accepted. Shortcut/webhook, manual Apple Health export, and third-party provider adapters are planned, not implemented. |
+| iOS product | Product `main` and the remote default branch are pushed at canonical `72258a1`. Logout accepts only HTTP `204` as remote-revocation success and retains pending markers for `401`, `202`, and temporary failures. Authenticated chat is source-gated and off by default; when enabled, non-temporary turns persist atomically, temporary turns skip persistence, and expired bounded context is pruned at startup and periodically. The [2026-07-15 local verification](reports/product-main-verification-20260715.md) passed `1197` Python tests at that exact commit with one existing warning; prior AppFlow smoke, Ruff, Swift App build, and Simulator Host build evidence remains valid. | No live authenticated-chat vertical or account deletion is accepted. The product is personal/single-owner; public onboarding, multi-tenant administration, TestFlight, and App Store distribution are not current goals. The 12 expressions are App-local preview assets only; they are not a 12-expression live-device protocol. |
+| Health sources / Apple membership | The committed iOS host requests read-only access only for steps, active energy, heart rate, sleep, and workouts. The iOS source can construct one bounded, trend-only chat-context summary from the same five families when both owner controls are enabled. Apple's current capability table lists basic HealthKit for free Apple Developer accounts, so Xcode Personal Team device testing remains possible without paid membership. The existing HealthKit adapter will become one optional adapter behind the planned `HealthSource` boundary. | HealthKit collection authorization and off-device transmission are separate gates. Apple still requires per-item owner consent, and the callback cannot prove every item was granted. No real-device read, real health-data acceptance, or authenticated cloud-chat health-summary transmission is accepted. Personal Team profiles expire after seven days and require periodic rebuild/reinstall; they do not provide TestFlight or App Store distribution. Shortcut/webhook, manual Apple Health export, and third-party provider adapters are planned, not implemented. |
 | Provider, MCP, and phone-app integrations | Existing model routing and the source-gated, default-off authenticated chat path provide a backend base. The accepted direction is a server-side custom-provider registry, backend MCP gateway, and iOS status/selection/confirmation UI. Supported phone actions are limited to App Intents, Shortcuts, URL schemes, universal links, and share sheets exposed by target apps. | Owner-configurable provider profiles, MCP connections/tools, their iOS UI, and general phone-app actions are not implemented. Stored provider/MCP secrets must not be returned to iOS. Arbitrary app control, background cross-app automation, and reading messages/notifications remain impossible or out of scope. |
 | Xiaoxin cloud/auth | The running image remains `xiaoxin-cloud-api:20260713T0137-native-google`; health/readiness/capabilities pass with Google and Authentik available and email/OTP disabled. The owner confirmed the selected Google account was the intended original account, and sanitized live evidence showed both external identities on owner `d07f...`. Automatic refresh/rotation was confirmed earlier. Logout cleared Simulator Keychain state but returned `401`; the resulting single orphan family `b18f...` was revoked at `2026-07-14T14:22:57+08:00` under a verified backup. All other families and account/data counts remained unchanged. | Direct replay of the securely deleted old access/refresh credentials was not performed; rejection is supported by the inactive live family plus automated tests, not a live token replay. Same-account re-login and historical-data recovery remain unconfirmed. The retained email credential was not deleted. See [the acceptance report](reports/native-google-owner-acceptance-20260714.md). |
-| Memory/privacy | Product `main` at `72258a1` retains Phase 2 canonical recall selection, Phase 3 nullable `fact_key`/`expires_at_ms` persistence and metadata-first disclosure, plus Phase 4A/4B explicit opt-in admission and candidate-write wiring through `78103de`. The ordinary-chat writer is default-off and fails closed without a trusted owner resolver. Authenticated chat is also off by default; when enabled, non-temporary turns persist atomically, temporary turns skip persistence, and expired bounded context is pruned at startup and periodically. Current full verification passed `1197` Python tests. See [the Phase 3 report](reports/memory-runtime-metadata-phase-3-20260713.md) and [Phase 4 readiness/update](reports/memory-phase-4-readiness-20260714.md). | This is committed product source, not a live authenticated-chat/long-term-memory integration or evidence of a real-database migration. Automatic extraction without explicit opt-in, production trusted-owner binding, semantic/vector retrieval, broad automatic conflict resolution, vault-at-rest store wiring, authoritative retention execution, hard deletion, memory runtime auth/admin UI, and real NAS/health-source/cloud memory authorization remain unimplemented or unconfirmed. |
+| Memory/privacy | Product `main` at `72258a1` retains Phase 2 canonical recall selection, Phase 3 nullable `fact_key`/`expires_at_ms` persistence and metadata-first disclosure, plus Phase 4A/4B explicit opt-in admission and candidate-write wiring through `78103de`. The ordinary-chat writer is default-off and fails closed without a trusted owner resolver. The authenticated cloud-chat route is also off by default and explicitly disables candidate writes; when enabled, non-temporary turns persist bounded conversation context, temporary turns skip persistence, and expired context is pruned at startup and periodically. The [current full verification](reports/product-main-verification-20260715.md) passed `1197` Python tests at the same baseline. See [the Phase 3 report](reports/memory-runtime-metadata-phase-3-20260713.md) and [Phase 4 readiness/update](reports/memory-phase-4-readiness-20260714.md). | This is committed product source, not a live authenticated-chat/long-term-memory integration or evidence of a real-database migration. Automatic extraction without explicit opt-in, production trusted-owner binding, semantic/vector retrieval, broad automatic conflict resolution, vault-at-rest store wiring, authoritative retention execution, hard deletion, memory runtime auth/admin UI, and real NAS/health-source/cloud memory authorization remain unimplemented or unconfirmed. |
 | Style/persona | Local style mechanisms and synthetic evaluation surfaces are historical implementation evidence. The owner has attested consent for a future visual-likeness slice; no identifying material or consent text is stored here. | Voice, writing style, private chats, provider upload, real-device display, revocation handling, and private-data use remain separate gates. |
 
 Apple membership constraints above are grounded in Apple's
 [membership comparison](https://developer.apple.com/support/compare-memberships/)
 and [supported iOS capabilities](https://developer.apple.com/help/account/reference/supported-capabilities-ios/).
 
+## Current Source Interfaces
+
+- `POST /v1/chat` is the canonical relay chat contract/source route. It must not
+  be described as an accepted live authenticated iOS vertical.
+- `POST /app/v0.1/lcd/commands` and
+  `GET /app/v0.1/lcd/results/{bridge_request_id}` are the authenticated routes
+  for the accepted bounded App-to-StackChan LCD slice.
+- `POST /stackchan/events` is the device event/ACK correlation ingress used by
+  that LCD slice.
+- The latest documented default companion cloud route is
+  `claude-opus-4-6-thinking`; the private local-first Mac route uses
+  `huihui_ai/qwen3.5-abliterated:9b`. These are source/config decisions, not
+  proof of current provider availability or live health. Gemini remains an
+  available route, not the latest documented default.
+
 The 12-hour authorization documented in the runbook expired at
-`2026-07-11T11:22:52+08:00`. Its task protocol, stop rules, and non-overlapping
-queue are in
-[continuous-program-authorization-and-task-lifecycle.md](runbooks/continuous-program-authorization-and-task-lifecycle.md).
+`2026-07-11T11:22:52+08:00`. Its status vocabulary, task protocol, and stop
+rules remain in
+[continuous-program-authorization-and-task-lifecycle.md](runbooks/continuous-program-authorization-and-task-lifecycle.md);
+the current implementation queue is in `ARCHITECTURE_TODO.md`.
 The later field-verification session, the 2026-07-12 Xiaoxin cloud/auth
 deployment, and the 2026-07-13 native Google plus email-disable repairs each
 used separate task-specific repair authorization. Their scope, backups,
@@ -109,13 +127,20 @@ renew the expired program authorization or authorize another task. No new or
 repeated L3 work may start until the owner gives fresh explicit authorization
 for that named slice.
 
-## Stable Docs
+## Document Authority
 
-- `README.md`
-- `manifests/product-blueprint-v0.1.md`
-- `manifests/architecture-decisions-2026-07-04.md`
+Current authority:
+
+- `README.md`: current fact index and risk boundary.
+- `manifests/product-blueprint-v0.1.md`: current product direction.
+- `ARCHITECTURE_TODO.md`: current engineering queue and dated implementation
+  log.
+- `DEPLOYMENT_LEDGER.md`: dated live-change and rollback history; it does not
+  authorize repeat execution.
+
+Normative contracts and active runbooks:
+
 - `manifests/memory-layer-v0.1.md`
-- `manifests/memory-layer-v0.1-implementation-readiness.md`
 - `manifests/persona-memory-contract-v0.1.md`
 - `manifests/app-bridge-contract-v0.1.md`
 - `manifests/visual-likeness-consent-boundary-v0.1.md`
@@ -124,21 +149,17 @@ for that named slice.
 - `runbooks/stackchan-command-protocol-v0.1.md`
 - `runbooks/stackchan-app-adapter-contract-v0.1.md`
 - `runbooks/continuous-program-authorization-and-task-lifecycle.md`
-- `reports/memory-layer-current-status-20260711.md`
-- `reports/memory-recall-quality-phase-2-20260713.md`
-- `reports/memory-runtime-metadata-phase-3-20260713.md`
-- `reports/memory-phase-4-readiness-20260714.md`
-- `reports/product-cloud-current-status-20260713.md`
-- `reports/native-google-owner-acceptance-20260714.md`
-- `reports/healthkit-release-readiness-20260713.md`
-- `reports/app-bridge-stackchan-e2e-preflight-20260713.md`
-- `reports/app-bridge-stackchan-e2e-acceptance-20260713.md`
-- `reports/stackchan-hardware-field-verification-20260711.md`
-- `DEPLOYMENT_LEDGER.md`
-- `ARCHITECTURE_TODO.md` when architecture backlog exists
-- `manifests/`
-- `reports/`
-- `runbooks/`
+
+Dated planning and evidence snapshots:
+
+- `manifests/architecture-decisions-2026-07-04.md`
+- `manifests/memory-layer-v0.1-implementation-readiness.md`
+- `reports/`, including the current-baseline
+  [product verification](reports/product-main-verification-20260715.md)
+
+When a dated report conflicts with the current authority above, preserve the
+report as historical evidence and follow the newer current authority. A report
+or expired runbook entry never authorizes repeating a live action.
 
 ## Product Intent
 
