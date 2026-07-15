@@ -3,7 +3,7 @@
 Use this runbook when starting implementation so the project does not drift
 into firmware work, model training, or live/NAS repair too early.
 
-Current baseline (2026-07-15): product `main@2dc2948` contains a source-gated
+Current baseline (2026-07-15): product `main@7547d8a` contains a source-gated
 authenticated iOS-to-cloud chat path that is off by default. When enabled with
 its trusted dependencies, non-temporary turns persist atomically, temporary
 turns skip persistence, and expired bounded context is pruned at startup and
@@ -28,6 +28,13 @@ source/config decisions, not live-provider health evidence. Steps 1-5 below
 preserve the original architecture dependency order; current completion status
 and task order remain authoritative in the project README and
 `ARCHITECTURE_TODO.md`.
+
+The order 11 iOS action is now accepted at product `7547d8a`: Status exposes
+only the fixed public `companion.share_capabilities -> system.share_sheet`
+card through SwiftUI `ShareLink`. The order 11 acceptance passed `26` focused
+phone-contract tests, `1439` full Python tests, and all `44/44` Swift smoke
+executables, with one existing warning. The system handoff creates no app
+receipt/audit and cannot observe cancellation or target completion.
 
 ## Route Lock Template
 
@@ -264,18 +271,24 @@ The iOS app may later display server/tool status, collect arguments, and present
 confirmation. It must not execute arbitrary MCP servers directly; this slice
 does not add iOS MCP runtime wiring.
 
-## Current Continuation 4: Supported Phone-App Actions
+## Accepted Continuation 4: Supported Phone-App Action
 
-Implement one action at a time through an iOS-supported surface:
+The first action is accepted at product `7547d8a` for local/mock/Simulator
+scope. See the [manifest](../manifests/ios-supported-app-action-v0.1.md) and
+[acceptance report](../reports/ios-supported-app-action-v0.1-acceptance-20260715.md).
+It uses exactly one iOS-supported surface:
 
-- App Intents or Shortcuts when the target app exposes them.
-- URL schemes or universal links for supported deep links.
-- Share sheets for owner-visible content handoff.
+- `companion.share_capabilities -> system.share_sheet`;
+- SwiftUI `ShareLink` with a compile-time fixed public capability card; and
+- a read-only effect with no app-level confirmation.
 
-Use mock/Simulator acceptance before any real-device action. Require an
-owner-visible preview and confirmation for state changes. Do not promise
-arbitrary background control, notification reading, or private cross-app data
-access.
+The production path does not create a receipt or durable audit, observe owner
+cancellation, or confirm target-app completion. The mock handoff provider is
+contract-test-only, and its `targetCompletionConfirmed` value is always false.
+The Python test checks compatible semantics, not Swift/Python fixture parity.
+App Intents, Shortcuts, URL schemes, reminders, dynamic sharing, state changes,
+notification reading, arbitrary background control, private cross-app data, and
+real-device execution remain out of scope.
 
 ## Current Continuation 5: Health-Source Abstraction
 

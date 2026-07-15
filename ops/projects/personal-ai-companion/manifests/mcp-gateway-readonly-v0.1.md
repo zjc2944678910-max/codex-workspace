@@ -113,5 +113,6 @@ this slice; no unrelated lint cleanup is part of this acceptance.
 
 `PAC-MCP-GATEWAY-READONLY` is complete for the bounded local/mock scope. It does
 not accept a remote MCP integration, a state-changing tool, an iOS MCP runtime,
-or automatic Chat/provider invocation. The next queue item is
-`PAC-IOS-SUPPORTED-APP-ACTION`.
+or automatic Chat/provider invocation. Order 11 subsequently accepted the
+separate fixed public system-share handoff; the next queue item is now
+`PAC-HEALTH-SOURCE-ABSTRACTION`.

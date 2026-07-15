@@ -97,7 +97,8 @@ deployment rollback exists because the accepted work was local and synthetic.
 
 ## Acceptance Judgment
 
-`PAC-MCP-GATEWAY-READONLY` is complete for the bounded local/mock scope. The
-next queue item is `PAC-IOS-SUPPORTED-APP-ACTION`, which must remain
-mock/Simulator-first and use a supported App Intent, Shortcut, URL/universal
-link, or share-sheet surface rather than arbitrary app control.
+`PAC-MCP-GATEWAY-READONLY` is complete for the bounded local/mock scope. Order
+11 subsequently accepted a separate fixed public share-sheet handoff at
+product `7547d8a`; the next queue item is
+`PAC-HEALTH-SOURCE-ABSTRACTION`. No remote MCP, state-changing tool, iOS MCP
+runtime, or arbitrary app control is implied by either acceptance.

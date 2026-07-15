@@ -156,5 +156,8 @@ up to date.
 synthetic 9B scope. It does not accept a live Provider or complete the wider MCP,
 phone-action, health-source, Personal Team device, or production integration
 program. Its statement that `PAC-MCP-GATEWAY-READONLY` was next is historical;
-that bounded task was subsequently accepted at product `2dc2948`. The current
-queue item is `PAC-IOS-SUPPORTED-APP-ACTION`.
+that bounded task was subsequently accepted at product `2dc2948`. Its later
+statement that `PAC-IOS-SUPPORTED-APP-ACTION` was next is also historical;
+order 11 is accepted at product `7547d8a` as a separate fixed public
+system-share handoff. The current queue item is
+`PAC-HEALTH-SOURCE-ABSTRACTION`.

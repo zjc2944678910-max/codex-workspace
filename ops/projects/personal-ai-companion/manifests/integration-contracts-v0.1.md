@@ -65,11 +65,13 @@ the first MCP gateway task at the time of this contract acceptance. The
 provider task was subsequently accepted as 9A/9B, and the bounded
 `PAC-MCP-GATEWAY-READONLY` slice was accepted at product `2dc2948`; these are
 historical dependency notes, not current queue instructions. The current next
-task is `PAC-IOS-SUPPORTED-APP-ACTION`. At that historical point, the provider
+task at that historical point was `PAC-IOS-SUPPORTED-APP-ACTION`, which is now
+accepted at product `7547d8a` as a fixed public system-share handoff. At that
+historical point, the provider
 task still required encrypted server-side secret handling and an explicit owner
 fallback policy before runtime wiring; those requirements were addressed by
 the later 9A/9B acceptances.
 
-Phone-action execution and concrete health adapters remain later tasks. Any
-real device, credential, provider, MCP server, health data, signing, or live
-service work requires a new scope and the applicable L2/L3 gate.
+Broader phone-action execution and concrete health adapters remain later tasks.
+Any real device, credential, provider, MCP server, health data, signing, or
+live service work requires a new scope and the applicable L2/L3 gate.

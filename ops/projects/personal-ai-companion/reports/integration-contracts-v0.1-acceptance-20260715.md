@@ -110,4 +110,6 @@ scope. It unblocked planning and implementation of the custom-provider registry
 and the first read-only MCP vertical, but it did not accept either runtime
 integration, a phone action, a health adapter, or any live behavior at that
 time. The later bounded MCP slice was accepted separately at product
-`2dc2948`; the current queue continues with `PAC-IOS-SUPPORTED-APP-ACTION`.
+`2dc2948`; order 11 was then accepted at product `7547d8a` as a fixed public
+system-share handoff, and the current queue continues with
+`PAC-HEALTH-SOURCE-ABSTRACTION`.

@@ -247,6 +247,24 @@ Schema execution, iOS-side MCP runtime, automatic main-Chat/provider fallback,
 durable audit storage, deployment, or real private data. Any additional tool or
 broader runtime needs a new queue item and acceptance.
 
+### 2026-07-15 Supported iOS Action Amendment
+
+Order 11 is accepted at product `7547d8a` for one local/mock/Simulator-first
+system handoff only:
+`companion.share_capabilities -> system.share_sheet`. The Status screen uses
+SwiftUI `ShareLink` with a compile-time fixed public capability card. It does
+not include user, conversation, health, provider, device, account, credential,
+endpoint, or other runtime data.
+
+This is not an observable target-app integration. `ShareLink` produces no app
+receipt, durable audit, cancellation signal, or target-completion proof. The
+Swift mock provider and Python phone contract test cover local handoff-only
+semantics; they do not establish Swift/Python payload or fixture parity. App
+Intents, Shortcuts, URL schemes, reminders, dynamic sharing, state-changing
+actions, notification reading, arbitrary cross-app control, and real-device
+execution remain separate future gates. The next queue item is
+`PAC-HEALTH-SOURCE-ABSTRACTION`.
+
 Phase 5:
 
 - Add one supported phone-app action through a mock/Simulator-first App

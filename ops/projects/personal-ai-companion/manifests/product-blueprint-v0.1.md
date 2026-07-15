@@ -54,7 +54,7 @@ signals, devices, and boundaries.
 
 ## Current Confirmed State
 
-- Product `main@2dc2948` contains a source-gated authenticated chat path that is
+- Product `main@7547d8a` contains a source-gated authenticated chat path that is
   off by default. When enabled with its trusted dependencies, non-temporary
   turns persist atomically, temporary turns skip persistence, and expired
   bounded context is pruned at startup and periodically. That authenticated
@@ -71,7 +71,12 @@ signals, devices, and boundaries.
   passed `1417` Python tests and all `44` Swift executables at the pre-MCP
   `295687f` baseline, with one existing Starlette/TestClient warning. The [MCP
   acceptance](../reports/mcp-gateway-readonly-v0.1-acceptance-20260715.md)
-  passed `21` focused MCP tests and `1438` full Python tests at `2dc2948`.
+  passed `21` focused MCP tests and `1438` full Python tests at `2dc2948`. The
+  subsequent order 11 acceptance at product `7547d8a` adds exactly one fixed
+  public `companion.share_capabilities -> system.share_sheet` handoff through
+  SwiftUI `ShareLink`, with `1439` full Python tests and all `44/44` Swift smoke
+  executables passing. The system handoff has no app receipt, durable audit,
+  cancellation observation, or target-completion proof.
 - Style-profile mechanisms and synthetic evaluation surfaces exist, but no
   thread-running claim is durable product state. New style work must use the
   current queue and a fresh consent/scope check.
@@ -109,7 +114,7 @@ signals, devices, and boundaries.
   remain future work. The first local/mock MCP gateway tool is accepted, while
   remote MCP transport, state-changing tools, arbitrary discovery, iOS-side
   execution, and automatic main-Chat invocation remain future work. General
-  phone-app actions, health-source fallbacks, continuous StackChan command
+  health-source fallbacks, continuous StackChan command
   polling, production voice/camera workflows, and NAS/VPS production
   integration also remain future phases.
 
@@ -278,9 +283,11 @@ Acceptance anchors:
   discovery, state-changing execution, iOS runtime, durable audit store, or
   automatic main-Chat invocation. Any additional MCP tool requires a new
   allowlist, scope, and acceptance.
-- Select the first phone action from a target app that already exposes a
-  Shortcut/App Intent, and verify it in mock/Simulator form before real-device
-  execution.
+- Treat the fixed public share-sheet action accepted at product `7547d8a` as the
+  only current phone-action surface. Do not infer target-app completion,
+  cancellation telemetry, receipt/audit support, or Swift/Python fixture parity
+  from this handoff. Any App Intent, Shortcut, URL scheme, reminder, dynamic
+  sharing, or state-changing action needs a new scope and acceptance.
 - Decide whether the first health fallback should be a user-run Shortcut or a
   manual Apple Health export importer; both must map only to the five canonical
   families.

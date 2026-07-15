@@ -23,7 +23,7 @@ or the project README.
 ### 2026-07-15 Mainline Snapshot
 
 - Clean remote committed baseline: the product default branch `main` is pushed
-  at `2dc2948`; redundant compatibility refs `codex/initial-private-publish`
+  at `7547d8a`; redundant compatibility refs `codex/initial-private-publish`
   and `codex/pac-google-logout-revocation-fix` were retired after promotion.
   It retains repository hygiene (`e883a91`), cloud (`b9a5d7b`), iOS
   (`e15e553`), memory quality/runtime metadata, bounded StackChan LCD v0.1 E2E,
@@ -35,7 +35,8 @@ or the project README.
   provider/MCP/phone-action/health-source contracts, the local encrypted
   custom-provider registry core, and the bounded synthetic 9B runtime/owner API
   plus redacted iOS status/selection wiring. Product `2dc2948` now also carries
-  the bounded local/mock MCP gateway slice for one read-only information tool.
+  the bounded local/mock MCP gateway slice for one read-only information tool,
+  and the first fixed public iOS system-share action.
   No live chat or live remote optional-integration vertical has been accepted.
   The
   [2026-07-15 runtime acceptance](reports/custom-provider-runtime-integration-v0.1-acceptance-20260715.md)
@@ -44,6 +45,10 @@ or the project README.
   [MCP gateway acceptance](reports/mcp-gateway-readonly-v0.1-acceptance-20260715.md)
   passed `21` focused MCP tests and `1438` full Python tests at product
   `2dc2948`, with the same Python warning.
+  The [supported App action acceptance](reports/ios-supported-app-action-v0.1-acceptance-20260715.md)
+  passed `26` focused phone-contract tests, `1439` full Python tests, all
+  `44/44` Swift smoke executables, and an unsigned Simulator Host build at
+  product `7547d8a`, with the same warning.
 - Product direction update: Xiaoxin remains a single-owner personal app. Paid
   Apple Developer Program membership, TestFlight, and App Store distribution
   are deferred. Personal Team testing and periodic re-provisioning are accepted
@@ -53,8 +58,11 @@ or the project README.
   and default-off redacted iOS status/selection slice are accepted. The first
   local/mock MCP gateway slice is also accepted at product `2dc2948`. Real
   provider transport/health probing, remote MCP servers, state-changing MCP
-  execution, supported phone-app actions, and non-HealthKit health adapters
-  remain planned but not yet implemented.
+  execution and non-HealthKit health adapters remain planned but not yet
+  implemented. The supported phone-action order is now accepted only for the
+  fixed `companion.share_capabilities -> system.share_sheet` handoff; broader
+  App Intents, Shortcuts, URL schemes, reminders, dynamic sharing, and
+  state-changing actions remain out of scope.
 - Product closeout: `codex/pac-ios-product-polish` is clean at `12663dd` and is
   retained as a source rollback anchor. The converged branch was created from
   `934cec1`, passed final verification, and fast-forwarded into the canonical
@@ -290,8 +298,8 @@ remote or state-changing MCP work.
 | 9A | `PAC-CUSTOM-PROVIDER-REGISTRY-CORE` (`completed 2026-07-15`) | L1 | Accepted and pushed at product `ad18cd0`; see the [manifest](manifests/custom-provider-registry-v0.1.md) and [acceptance report](reports/custom-provider-registry-v0.1-acceptance-20260715.md). | Local transport-free registry, Provider-specific envelope encryption, synthetic health, exact `normal` fallback policy, and metadata-only audit; no runtime/API/iOS/network or real secrets. |
 | 9B | `PAC-CUSTOM-PROVIDER-RUNTIME-INTEGRATION` (`completed 2026-07-15`) | L1 with shared-contract review | Accepted and pushed at product `295687f`; see the [manifest](manifests/custom-provider-runtime-integration-v0.1.md) and [acceptance report](reports/custom-provider-runtime-integration-v0.1-acceptance-20260715.md). | Explicit KEK/resource lifecycle, injected executor, owner API, redacted iOS status/selection, and synthetic `normal` route/client wiring; no default network, real provider, sensitive privacy class, live reconfiguration, or deployment. |
 | 10 | `PAC-MCP-GATEWAY-READONLY` (`completed 2026-07-15`) | L1 | Accepted at product `2dc2948`; see the [manifest](manifests/mcp-gateway-readonly-v0.1.md) and [acceptance report](reports/mcp-gateway-readonly-v0.1-acceptance-20260715.md). Product `main` and `origin/main` matched at that commit. | One local allowlisted read-only `server.local.context/context.today` tool with bounded timeout, input/output limits, concurrency, idempotency, metadata-only audit, and failure isolation; no remote server, state-changing tool, durable audit store, or iOS runtime. |
-| 11 | `PAC-IOS-SUPPORTED-APP-ACTION` (`planned`) | L1 mock/Simulator first | Requires `ToolGate` preview/confirmation contract and a target app that exposes a supported surface. | One App Intent, Shortcut, URL/universal-link, or share-sheet action; no arbitrary app control, notification reading, or real-device action in the first slice. |
-| 12 | `PAC-HEALTH-SOURCE-ABSTRACTION` (`planned`) | L1 | Preserve the existing five canonical families and HealthKit adapter behavior. | Adapter contract plus source attribution/deduplication; first fallback is owner-run Shortcut/webhook or manual Apple Health export, not real health-data intake. |
+| 11 | `PAC-IOS-SUPPORTED-APP-ACTION` (`completed 2026-07-15`) | L1 mock/Simulator first | Accepted at product `7547d8a`; see the [manifest](manifests/ios-supported-app-action-v0.1.md) and [acceptance report](reports/ios-supported-app-action-v0.1-acceptance-20260715.md). | Exactly one fixed public `companion.share_capabilities -> system.share_sheet` handoff through SwiftUI `ShareLink`; no receipt, durable audit, cancellation observation, target completion, dynamic data, or real-device action. |
+| 12 | `PAC-HEALTH-SOURCE-ABSTRACTION` (`next`) | L1 | Preserve the existing five canonical families and HealthKit adapter behavior. | Adapter contract plus source attribution/deduplication; first fallback is owner-run Shortcut/webhook or manual Apple Health export, not real health-data intake. |
 | 13 | `PAC-PERSONAL-TEAM-DEVICE-ACCEPTANCE` (`manual gate`) | L2 preflight; state-changing device/signing or real-data action needs separate authorization | Requires stable mock/backend paths and owner presence. | Install/re-provision recovery and optional five-family HealthKit authorization only; no TestFlight/App Store claim and no paid membership requirement. |
 
 This table is the current implementation queue. The runbook remains normative
