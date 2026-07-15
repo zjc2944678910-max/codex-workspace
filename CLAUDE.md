@@ -16,7 +16,7 @@ strategy role exposed to Codex as `model_worker_delegate`.
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **codex-workspace** (2396 symbols, 3362 relationships, 66 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **codex-workspace** (2411 symbols, 3390 relationships, 66 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 
