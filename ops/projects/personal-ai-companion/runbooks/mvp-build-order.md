@@ -3,14 +3,15 @@
 Use this runbook when starting implementation so the project does not drift
 into firmware work, model training, or live/NAS repair too early.
 
-Current baseline (2026-07-15): product `main@72258a1` contains a source-gated
+Current baseline (2026-07-15): product `main@65d47b5` contains a source-gated
 authenticated iOS-to-cloud chat path that is off by default. When enabled with
 its trusted dependencies, non-temporary turns persist atomically, temporary
 turns skip persistence, and expired bounded context is pruned at startup and
 periodically. That authenticated route explicitly disables memory-candidate
-writes. No live chat vertical has been accepted. A local full-suite check
-[passed `1197` tests](../reports/product-main-verification-20260715.md) at that
-exact commit with one existing Starlette/TestClient warning. The latest
+writes. The same baseline contains the accepted transport-free integration
+contracts, but no live chat or optional-integration vertical has been accepted.
+A local full-suite check [passed `1299` tests](../reports/integration-contracts-v0.1-acceptance-20260715.md)
+at that exact commit with one existing Starlette/TestClient warning. The latest
 documented default companion cloud route is `claude-opus-4-6-thinking`; the
 private local-first Mac route uses `huihui_ai/qwen3.5-abliterated:9b`. Those are
 source/config decisions, not live-provider health evidence. Steps 1-5 below
@@ -165,7 +166,7 @@ Requirements:
 - Style profile that is labeled as a consented profile, not the real person.
 - Owner-visible deletion and revocation path.
 
-## Current Continuation 1: Integration Contracts
+## Current Continuation 1: Integration Contracts (`completed 2026-07-15`)
 
 Freeze additive v0.1 contracts before building settings screens or network
 adapters:
@@ -177,6 +178,13 @@ adapters:
 
 Contract tests must use synthetic fixtures and must not require real provider
 keys, MCP servers, health data, or phone apps.
+
+Accepted result: product `65d47b5` freezes the four versioned families with
+synthetic fixtures and `102` focused tests. See the
+[contract manifest](../manifests/integration-contracts-v0.1.md) and
+[acceptance report](../reports/integration-contracts-v0.1-acceptance-20260715.md).
+This completion accepts schemas only; continuation 2 remains the first runtime
+integration task.
 
 ## Current Continuation 2: Custom API Provider Registry
 

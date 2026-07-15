@@ -54,13 +54,15 @@ signals, devices, and boundaries.
 
 ## Current Confirmed State
 
-- Product `main@72258a1` contains a source-gated authenticated chat path that is
+- Product `main@65d47b5` contains a source-gated authenticated chat path that is
   off by default. When enabled with its trusted dependencies, non-temporary
   turns persist atomically, temporary turns skip persistence, and expired
   bounded context is pruned at startup and periodically. That authenticated
-  route explicitly disables memory-candidate writes. No live chat vertical has
-  been accepted. The [2026-07-15 local full-suite check](../reports/product-main-verification-20260715.md)
-  passed `1197` tests at that exact commit with one existing
+  route explicitly disables memory-candidate writes. The same baseline freezes
+  the transport-free v0.1 provider, MCP, phone-action, and five-family
+  health-source contracts. No live chat or optional-integration vertical has
+  been accepted. The [2026-07-15 contract acceptance](../reports/integration-contracts-v0.1-acceptance-20260715.md)
+  passed `1299` tests at that exact commit with one existing
   Starlette/TestClient warning.
 - Style-profile mechanisms and synthetic evaluation surfaces exist, but no
   thread-running claim is durable product state. New style work must use the
@@ -79,7 +81,7 @@ signals, devices, and boundaries.
   path was later field-accepted for the sequence
   `happy -> correlated ACK -> neutral -> correlated ACK`, retained through
   product commit `9dbfafc` and current
-  `main@72258a1`. This does not establish continuous boot polling, unattended
+  `main@65d47b5`. This does not establish continuous boot polling, unattended
   reliability, or App integration for audio, motion, touch, or camera.
 - Separate direct-device checks field-confirmed low-speed X/Y servo movement and
   return, three-zone head-touch input, and one local low-resolution camera
@@ -250,9 +252,10 @@ Acceptance anchors:
 - Treat the first bounded App-to-StackChan LCD seam as accepted and closed. Any
   repeat run, reliability expansion, continuous polling, or additional hardware
   capability is a new task with a fresh risk gate.
-- Freeze v0.1 contracts for provider profiles, MCP server/tool capabilities,
-  phone-action requests, and normalized health-source snapshots before adding
-  their settings screens.
+- Treat the v0.1 provider, MCP, phone-action, and normalized health-source
+  contracts accepted at product `65d47b5` as the schema baseline. Runtime
+  registries, adapters, execution paths, and settings screens remain separate
+  tasks and must not widen those contracts silently.
 - Select the first custom-provider vertical. The recommended first target is
   one synthetic OpenAI-compatible profile with server-side secret storage and
   an explicit owner-configured fallback allowlist. Without an allowed fallback,

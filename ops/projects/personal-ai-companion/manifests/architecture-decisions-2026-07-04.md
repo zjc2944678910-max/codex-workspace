@@ -217,6 +217,12 @@ Phase 4:
 - Add one allowlisted, read-only backend MCP vertical with timeout and audit
   coverage.
 
+Status amendment (2026-07-15): the first Phase 4 bullet is complete at product
+`main@65d47b5`; the accepted schema baseline is
+[integration-contracts-v0.1.md](integration-contracts-v0.1.md). The provider
+registry, iOS settings, and MCP runtime bullets remain planned and are not
+implied by contract acceptance.
+
 Phase 5:
 
 - Add one supported phone-app action through a mock/Simulator-first App

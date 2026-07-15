@@ -31,7 +31,7 @@ node docs/workspace/codex-register-project.mjs --regen
 ## Ops Quality Baseline
 
 - Current status: Mixed local/live, single-owner personal product. The product
-  source of truth and GitHub default branch are `main` at `72258a1`; redundant
+  source of truth and GitHub default branch are `main` at `65d47b5`; redundant
   compatibility refs `codex/initial-private-publish` and
   `codex/pac-google-logout-revocation-fix` were retired after the earlier
   fast-forward promotion. The canonical source retains the Xiaoxin iOS,
@@ -41,10 +41,12 @@ node docs/workspace/codex-register-project.mjs --regen
   path that is off by default. When enabled, non-temporary turns persist
   atomically and expired bounded context is pruned at startup and periodically;
   temporary turns skip persistence, and that authenticated route explicitly
-  disables candidate writes. No live chat vertical has been accepted.
+  disables candidate writes. The same baseline now includes the accepted,
+  transport-free provider/MCP/phone-action/health-source v0.1 contract package.
+  No live chat or optional-integration vertical has been accepted.
   Historical and source-local evidence is not proof of current live health.
-  The [2026-07-15 local full-suite check](reports/product-main-verification-20260715.md)
-  passed `1197` tests at product `main@72258a1`, with one existing
+  The [integration-contract acceptance](reports/integration-contracts-v0.1-acceptance-20260715.md)
+  passed `1299` tests at product `main@65d47b5`, with one existing
   Starlette/TestClient warning.
   The owner field-confirmed one `happy` transaction and one safety-terminal
   `neutral` transaction with separate correlated acknowledgements; the final
@@ -55,7 +57,7 @@ node docs/workspace/codex-register-project.mjs --regen
   resulting owner has both native-Google and Authentik identities. App logout
   cleared local state, but its remote call returned `401` and exposed an iOS
   defect that discarded the unresolved pending marker. Repair commit `b8462a9`
-  is retained in current `main@72258a1`, and the single orphan family was
+  is retained in current `main@65d47b5`, and the single orphan family was
   revoked under a verified database backup. Same-account re-login and
   historical-data recovery remain owner-observed checkpoints. See the
   [acceptance report](reports/native-google-owner-acceptance-20260714.md).
@@ -64,9 +66,10 @@ node docs/workspace/codex-register-project.mjs --regen
   - `node docs/workspace/find-project.mjs personal-ai-companion`
   - `node docs/workspace/workspace-health.mjs --repo "$PWD" --limit 12`
   - Project-specific commands belong in `## Key Commands` or project runbooks once confirmed.
-- Next useful work: Freeze the provider/MCP/phone-action/health-source contracts,
-  then implement one custom OpenAI-compatible provider profile and one
-  allowlisted read-only MCP vertical before widening integrations. The owner may
+- Next useful work: Implement one custom OpenAI-compatible provider profile
+  against the accepted v0.1 contracts, with encrypted server-side secrets and
+  an explicit owner fallback policy; then add one allowlisted read-only MCP
+  vertical before widening integrations. The owner may
   separately perform one
   same-account Google re-login to finish the remaining lifecycle checkpoint;
   Codex must not enter or inspect credentials. The bounded App-to-StackChan
@@ -88,11 +91,11 @@ runbook](runbooks/continuous-program-authorization-and-task-lifecycle.md).
 | --- | --- | --- |
 | StackChan hardware | Bounded standalone checks are `field-confirmed` for the LCD expression path, audible playback, X/Y servo movement and return, active three-zone head-touch transitions, and one local low-resolution camera frame. The completed session ended with queue depth `0`, servos powered off, camera off, audio muted, and serial closed. See [the field-verification report](reports/stackchan-hardware-field-verification-20260711.md). | Whether a visible camera activity indicator activated was not verified. Repeated/unattended reliability, a full motion envelope, continuous boot polling, and any repeat execution remain unconfirmed and unauthorized. |
 | StackChan App integration | On 2026-07-13 the owner observed the App-driven v0.1 sequence `happy -> correlated ACK -> neutral -> correlated ACK`; the final screen was `neutral` and Bridge queue depth was `0`. Durable source is pushed at product commit `9dbfafc`; malformed ACK-like events are now rejected by the real `/stackchan/events` HTTP route with queue/result state unchanged. The source also contains the App client, Keychain-backed credential seam, authenticated command/result routes, TTL/idempotency handling, Host injection, and Simulator-only UI build target. See [the acceptance report](reports/app-bridge-stackchan-e2e-acceptance-20260713.md). | This accepts one bounded sequence, not repeated/unattended reliability or a production deployment expansion. The real v0.1 live allowlist remains only `happy` and `neutral`; audio, motion, camera, touch, memory, HealthKit, background polling, firmware, and other hardware remain outside this slice. |
-| iOS product | Product `main` and the remote default branch are pushed at canonical `72258a1`. Logout accepts only HTTP `204` as remote-revocation success and retains pending markers for `401`, `202`, and temporary failures. Authenticated chat is source-gated and off by default; when enabled, non-temporary turns persist atomically, temporary turns skip persistence, and expired bounded context is pruned at startup and periodically. The [2026-07-15 local verification](reports/product-main-verification-20260715.md) passed `1197` Python tests at that exact commit with one existing warning; prior AppFlow smoke, Ruff, Swift App build, and Simulator Host build evidence remains valid. | No live authenticated-chat vertical or account deletion is accepted. The product is personal/single-owner; public onboarding, multi-tenant administration, TestFlight, and App Store distribution are not current goals. The 12 expressions are App-local preview assets only; they are not a 12-expression live-device protocol. |
-| Health sources / Apple membership | The committed iOS host requests read-only access only for steps, active energy, heart rate, sleep, and workouts. The iOS source can construct one bounded, trend-only chat-context summary from the same five families when both owner controls are enabled. Apple's current capability table lists basic HealthKit for free Apple Developer accounts, so Xcode Personal Team device testing remains possible without paid membership. The existing HealthKit adapter will become one optional adapter behind the planned `HealthSource` boundary. | HealthKit collection authorization and off-device transmission are separate gates. Apple still requires per-item owner consent, and the callback cannot prove every item was granted. No real-device read, real health-data acceptance, or authenticated cloud-chat health-summary transmission is accepted. Personal Team profiles expire after seven days and require periodic rebuild/reinstall; they do not provide TestFlight or App Store distribution. Shortcut/webhook, manual Apple Health export, and third-party provider adapters are planned, not implemented. |
-| Provider, MCP, and phone-app integrations | Existing model routing and the source-gated, default-off authenticated chat path provide a backend base. The accepted direction is a server-side custom-provider registry, backend MCP gateway, and iOS status/selection/confirmation UI. Supported phone actions are limited to App Intents, Shortcuts, URL schemes, universal links, and share sheets exposed by target apps. | Owner-configurable provider profiles, MCP connections/tools, their iOS UI, and general phone-app actions are not implemented. Stored provider/MCP secrets must not be returned to iOS. Arbitrary app control, background cross-app automation, and reading messages/notifications remain impossible or out of scope. |
+| iOS product | Product `main` and the remote default branch are pushed at canonical `65d47b5`. Logout accepts only HTTP `204` as remote-revocation success and retains pending markers for `401`, `202`, and temporary failures. Authenticated chat is source-gated and off by default; when enabled, non-temporary turns persist atomically, temporary turns skip persistence, and expired bounded context is pruned at startup and periodically. The [2026-07-15 integration-contract acceptance](reports/integration-contracts-v0.1-acceptance-20260715.md) passed `1299` Python tests at that exact commit with one existing warning; prior AppFlow smoke, Ruff, Swift App build, and Simulator Host build evidence remains valid. | No live authenticated-chat vertical or account deletion is accepted. The product is personal/single-owner; public onboarding, multi-tenant administration, TestFlight, and App Store distribution are not current goals. The 12 expressions are App-local preview assets only; they are not a 12-expression live-device protocol. |
+| Health sources / Apple membership | The committed iOS host requests read-only access only for steps, active energy, heart rate, sleep, and workouts. The iOS source can construct one bounded, trend-only chat-context summary from the same five families when both owner controls are enabled. Product `65d47b5` adds a transport-free, attributed five-family `HealthSourceSnapshot` contract with deterministic hashes and conflict-safe composition. Apple's current capability table lists basic HealthKit for free Apple Developer accounts, so Xcode Personal Team device testing remains possible without paid membership. | The new contract is not an adapter and is not wired to HealthKit or cloud chat. HealthKit collection authorization and off-device transmission are separate gates. No real-device read, real health-data acceptance, or authenticated cloud-chat health-summary transmission is accepted. Personal Team profiles expire after seven days and require periodic rebuild/reinstall; they do not provide TestFlight or App Store distribution. Shortcut/webhook, manual Apple Health export, and third-party provider adapters are planned, not implemented. |
+| Provider, MCP, and phone-app integrations | Product `65d47b5` freezes strict, redacted provider profiles, MCP server/tool requests and confirmation, and supported phone-action request/preview/confirmation/outcome contracts. The fixed fixtures are synthetic; read-only MCP is the default, state changes require an exact owner confirmation, and phone `handed_off` never claims target completion. See the [contract manifest](manifests/integration-contracts-v0.1.md). | Runtime provider registration, encrypted secret storage, provider fallback, MCP connections/execution/audit, iOS settings, and general phone-app actions are not implemented. Stored provider/MCP secrets must not be returned to iOS. Arbitrary app control, background cross-app automation, and reading messages/notifications remain impossible or out of scope. |
 | Xiaoxin cloud/auth | The running image remains `xiaoxin-cloud-api:20260713T0137-native-google`; health/readiness/capabilities pass with Google and Authentik available and email/OTP disabled. The owner confirmed the selected Google account was the intended original account, and sanitized live evidence showed both external identities on owner `d07f...`. Automatic refresh/rotation was confirmed earlier. Logout cleared Simulator Keychain state but returned `401`; the resulting single orphan family `b18f...` was revoked at `2026-07-14T14:22:57+08:00` under a verified backup. All other families and account/data counts remained unchanged. | Direct replay of the securely deleted old access/refresh credentials was not performed; rejection is supported by the inactive live family plus automated tests, not a live token replay. Same-account re-login and historical-data recovery remain unconfirmed. The retained email credential was not deleted. See [the acceptance report](reports/native-google-owner-acceptance-20260714.md). |
-| Memory/privacy | Product `main` at `72258a1` retains Phase 2 canonical recall selection, Phase 3 nullable `fact_key`/`expires_at_ms` persistence and metadata-first disclosure, plus Phase 4A/4B explicit opt-in admission and candidate-write wiring through `78103de`. The ordinary-chat writer is default-off and fails closed without a trusted owner resolver. The authenticated cloud-chat route is also off by default and explicitly disables candidate writes; when enabled, non-temporary turns persist bounded conversation context, temporary turns skip persistence, and expired context is pruned at startup and periodically. The [current full verification](reports/product-main-verification-20260715.md) passed `1197` Python tests at the same baseline. See [the Phase 3 report](reports/memory-runtime-metadata-phase-3-20260713.md) and [Phase 4 readiness/update](reports/memory-phase-4-readiness-20260714.md). | This is committed product source, not a live authenticated-chat/long-term-memory integration or evidence of a real-database migration. Automatic extraction without explicit opt-in, production trusted-owner binding, semantic/vector retrieval, broad automatic conflict resolution, vault-at-rest store wiring, authoritative retention execution, hard deletion, memory runtime auth/admin UI, and real NAS/health-source/cloud memory authorization remain unimplemented or unconfirmed. |
+| Memory/privacy | Product `main` at `65d47b5` retains Phase 2 canonical recall selection, Phase 3 nullable `fact_key`/`expires_at_ms` persistence and metadata-first disclosure, plus Phase 4A/4B explicit opt-in admission and candidate-write wiring through `78103de`. The ordinary-chat writer is default-off and fails closed without a trusted owner resolver. The authenticated cloud-chat route is also off by default and explicitly disables candidate writes; when enabled, non-temporary turns persist bounded conversation context, temporary turns skip persistence, and expired context is pruned at startup and periodically. The [current full verification](reports/integration-contracts-v0.1-acceptance-20260715.md) passed `1299` Python tests at the same baseline. See [the Phase 3 report](reports/memory-runtime-metadata-phase-3-20260713.md) and [Phase 4 readiness/update](reports/memory-phase-4-readiness-20260714.md). | This is committed product source, not a live authenticated-chat/long-term-memory integration or evidence of a real-database migration. Automatic extraction without explicit opt-in, production trusted-owner binding, semantic/vector retrieval, broad automatic conflict resolution, vault-at-rest store wiring, authoritative retention execution, hard deletion, memory runtime auth/admin UI, and real NAS/health-source/cloud memory authorization remain unimplemented or unconfirmed. |
 | Style/persona | Local style mechanisms and synthetic evaluation surfaces are historical implementation evidence. The owner has attested consent for a future visual-likeness slice; no identifying material or consent text is stored here. | Voice, writing style, private chats, provider upload, real-device display, revocation handling, and private-data use remain separate gates. |
 
 Apple membership constraints above are grounded in Apple's
@@ -108,6 +111,9 @@ and [supported iOS capabilities](https://developer.apple.com/help/account/refere
   for the accepted bounded App-to-StackChan LCD slice.
 - `POST /stackchan/events` is the device event/ACK correlation ingress used by
   that LCD slice.
+- `personal_ai_companion.integrations` is the accepted, transport-free v0.1
+  provider/MCP/phone-action/health-source schema package. It is not a runtime
+  registry, gateway, phone executor, or health adapter.
 - The latest documented default companion cloud route is
   `claude-opus-4-6-thinking`; the private local-first Mac route uses
   `huihui_ai/qwen3.5-abliterated:9b`. These are source/config decisions, not
@@ -153,9 +159,10 @@ Normative contracts and active runbooks:
 Dated planning and evidence snapshots:
 
 - `manifests/architecture-decisions-2026-07-04.md`
+- `manifests/integration-contracts-v0.1.md`
 - `manifests/memory-layer-v0.1-implementation-readiness.md`
 - `reports/`, including the current-baseline
-  [product verification](reports/product-main-verification-20260715.md)
+  [integration-contract acceptance](reports/integration-contracts-v0.1-acceptance-20260715.md)
 
 When a dated report conflicts with the current authority above, preserve the
 report as historical evidence and follow the newer current authority. A report
@@ -225,7 +232,7 @@ Use the benben vNext ideas as patterns, not as a service clone:
 
 That local-first sequence was the original build order. Memory Phase 3 landed at
 `199638a`; default-off Phase 4A/4B source followed through `78103de`. Both are
-retained in current canonical `main` at `72258a1`, together with a source-gated,
+retained in current canonical `main` at `65d47b5`, together with a source-gated,
 default-off authenticated chat path. When enabled, non-temporary turns persist
 atomically and expired bounded context is pruned at startup and periodically;
 temporary turns skip persistence. No live chat vertical is accepted. Xiaoxin
