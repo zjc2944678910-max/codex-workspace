@@ -93,11 +93,13 @@ static, and staged-scope verification.
   adapter work begins.
 - No JSON Schema engine executes MCP `input_schema` yet; this slice only bounds
   and preserves the declaration.
-- GitNexus reindexing with embeddings was attempted after commit but the local
-  MCP process held the graph database lock. The attempt was interrupted safely;
-  `.gitnexus/meta.json` remains at prior product commit `72258a1` with all `4513`
-  embeddings preserved. Refresh the index with
-  `npx gitnexus analyze --embeddings` after the lock is released.
+- GitNexus reindexing first encountered the local graph lock and was interrupted
+  safely. A later `npx gitnexus analyze --embeddings` retry wrote the current
+  product index. `npx gitnexus status` reports `65d47b5` as up to date, and
+  `.gitnexus/meta.json` records `4678` embeddings. The retry process returned
+  exit code `1` after its silent tail despite that confirmed on-disk result;
+  the current Codex MCP process may need a restart before it serves the new
+  in-memory graph.
 - The only source rollback is to revert product commit `65d47b5`; no schema,
   data, service, or deployment rollback exists because none was changed.
 
