@@ -3,7 +3,7 @@
 Use this runbook when starting implementation so the project does not drift
 into firmware work, model training, or live/NAS repair too early.
 
-Current baseline (2026-07-15): product `main@2360cba` contains a source-gated
+Current baseline (2026-07-16): product `main@09b86c7` contains a source-gated
 authenticated iOS-to-cloud chat path that is off by default. When enabled with
 its trusted dependencies, non-temporary turns persist atomically, temporary
 turns skip persistence, and expired bounded context is pruned at startup and
@@ -75,10 +75,13 @@ narrative, numeric health values, provider/model execution, network/API route,
   explicitly injected owner Shortcut analysis API: `16` focused, `349` combined
   Cloud/health, and `1654` full Python tests passed. It fixes the transfer window
   to the submitted consent time and returns the existing exact 12D categorical
-  response, but has no default mount, deployed composition, Shortcut recipe/token
-  handoff, persistence, replay store, provider/model narrative, chat, Swift, or
-  iOS UI. No later implementation slice is selected; the Personal Team device
-  gate remains optional/deferred.
+  response, but has no default mount or deployed composition. Product `09b86c7`
+  adds the fixed 21+7-day local aggregation policy and owner-buildable recipe:
+  `34` focused aggregation, `273` combined health-chain, and `1688` full Python
+  tests passed. The recipe ends at local JSON preview and includes no URL,
+  credential, HTTP action, installed Shortcut, or real-data proof. Order 12G's
+  dedicated route-scoped credential is the next selected local slice; the
+  Personal Team device gate remains optional/deferred.
 
 ## Route Lock Template
 
@@ -430,7 +433,44 @@ raw Apple sample intake, real export parser/aggregator, consent persistence,
 replay suppression, rate-limited public composition, model narrative, chat,
 Swift, or iOS UI.
 
-## Optional Continuation 11: Personal Team Device Acceptance
+## Accepted Continuation 11: Owner Shortcut Aggregation (`completed 2026-07-16`)
+
+Product `09b86c7` accepts the pure
+`pac.health_shortcut_aggregation.v0.1` transformation and an owner-buildable
+Apple Shortcuts reference recipe. The policy consumes exactly 21 complete local
+baseline days followed by seven complete current days, applies fixed 10/4/2/2
+coverage gates, and emits only the existing five-family qualitative 12A intake.
+Daily values, medians, and 90%/110% thresholds use six-decimal
+`ROUND_HALF_UP`; empty queries are missing, and each family keeps one stable
+source across the 28-day window. See the [manifest](../manifests/health-owner-shortcut-aggregation-v0.1.md)
+and [acceptance report](../reports/health-owner-shortcut-aggregation-v0.1-acceptance-20260716.md).
+
+The recipe lowercases intake and transfer UUIDs, asks for separate off-device
+confirmation, and stops at local JSON preview. It does not install or execute a
+Shortcut, read real Health samples, prove local-midnight alignment, issue or
+store a credential, make an HTTP call, deploy the route, persist health data,
+change Swift/iOS navigation, or add model narrative.
+
+## Selected Continuation 12: Shortcut-Scoped Credential
+
+Implement order 12G as a local/default-off authentication boundary before any
+Shortcut HTTP handoff:
+
+- issue a dedicated opaque credential accepted only for
+  `POST /v1/health/shortcut-analysis` / `health:shortcut-analysis`;
+- store only a domain-separated digest server-side and never log or return the
+  credential after its one-time issuance response;
+- bind each credential to the trusted owner, support individual revocation, and
+  reject revoked, unknown, malformed, or wrong-scope credentials;
+- reject the credential at every other API and keep existing account access and
+  refresh tokens out of Apple Shortcuts; and
+- keep route composition default-off and use synthetic tests only.
+
+This continuation authorizes local source and tests only. Deployment, real
+credential issuance, public route composition, phone installation, or real
+health transmission remains L3 and requires the owner to say `进入修复阶段`.
+
+## Optional Continuation 13: Personal Team Device Acceptance
 
 Run this only after the backend contracts and mock paths are stable, and only
 if the owner chooses to pursue a short-lived Personal Team device check. It is
@@ -465,5 +505,10 @@ if the owner chooses to pursue a short-lived Personal Team device check. It is
 - Health-source authorization alone does not authorize off-device or cloud-chat
   transmission. The accepted 12C envelope is a local structural gate, not proof
   of persisted consent, transport, model execution, or completed transmission.
+- The accepted 12F aggregation emits no daily numeric values, treats empty
+  queries as missing, and keeps one source per family across all 28 days.
+- Shortcut credentials are route-scoped, digest-only at rest, individually
+  revocable, and unusable at every non-health-analysis API; ordinary access and
+  refresh tokens are never stored in Shortcuts.
 - The default chat route remains usable when custom providers, MCP, phone
   actions, HealthKit, or other health sources are disabled.

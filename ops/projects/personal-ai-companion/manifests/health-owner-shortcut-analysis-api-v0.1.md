@@ -85,8 +85,10 @@ can produce the five qualitative families.
 
 ## Current Continuation
 
-No later implementation slice is selected. The next practical design choice is
-between an owner-visible Shortcut recipe/token handoff and a separately
-consented controlled model-narrative adapter. Either requires a new scope. A
-real export decoder/aggregator remains independent and lower priority because it
-does not yet provide the practical no-membership path.
+Order 12F is now accepted at product `09b86c7`: the fixed local daily-aggregate
+policy and owner-buildable Shortcut recipe can construct the qualitative 12A
+payload without exposing daily values. It still does not install or execute a
+Shortcut or call this API. The next selected design slice, order `12G`, is a
+dedicated, revocable, route-scoped opaque credential; normal access/refresh
+tokens must not be embedded in Shortcuts. A controlled model narrative and real
+export decoder remain separate lower-priority scopes.
