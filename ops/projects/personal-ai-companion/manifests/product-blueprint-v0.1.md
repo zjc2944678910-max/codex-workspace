@@ -38,10 +38,10 @@ signals, devices, and boundaries.
   only for narrow relay or remote-access roles that do not require raw private
   data exposure.
 
-The provider and MCP controls above are target architecture, not current MVP
-surface. The current iOS navigation exposes private chat, device/health status,
-and the fixed supported share action; it does not expose custom-provider
-selection or MCP invocation controls.
+The bounded single-owner Provider and MCP controls are now implemented locally
+at product `c550d4b`. They are independently default-off, expose only redacted
+Provider state and the exact local read-only MCP tool, and do not accept a real
+Provider, remote MCP server, deployment, or main-Chat routing.
 
 ## Component Boundaries
 
@@ -50,7 +50,7 @@ selection or MCP invocation controls.
 | `personal-ai-companion` API | interaction envelopes, model routing, provider registry, MCP gateway, memory gates, usage ledger | raw phone access, direct public exposure |
 | Style profile layer | bounded response-shape rules, diagnostics, rewrite guidance | pretending to be a real person without consent, raw chat truth |
 | StackChan | embodied display/voice/action front end, local device status, simple launchers | secrets, memory database, primary model inference |
-| iOS app | current chat UI, device controls, health-source status, supported phone-action launchers, owner settings; future provider/MCP UI remains planned | provider secrets, custom-provider selection and MCP invocation in the current MVP, arbitrary MCP execution, unpermissioned phone data, arbitrary app/message reading or background control |
+| iOS app | current chat UI, device controls, health-source status, supported phone-action launchers, owner settings, default-off Provider management, and the fixed local read-only MCP call | provider secrets, arbitrary Provider/MCP routing, arbitrary MCP execution, unpermissioned phone data, arbitrary app/message reading or background control |
 | Provider registry + MCP gateway | encrypted server-side provider credentials, capability discovery, allowlisted MCP connections/tools, timeout/audit policy | silently enabling tools, exposing saved credentials to iOS, bypassing `ToolGate` |
 | Health-source adapters | normalize owner-approved health inputs into the five canonical summary families | clinical diagnosis, hidden collection, treating inferred mood as fact |
 | Memory service | session context, candidate memories, promoted atoms, deletion/explain flows | irreversible hidden learning, unreviewed sensitive memory promotion |
@@ -59,7 +59,7 @@ selection or MCP invocation controls.
 
 ## Current Confirmed State
 
-- Product `main@7905b12` contains a source-gated authenticated chat path that is
+- Product `main@c550d4b` contains a source-gated authenticated chat path that is
   off by default. When enabled with its trusted dependencies, non-temporary
   turns persist atomically, temporary turns skip persistence, and expired
   bounded context is pruned at startup and periodically. That authenticated
@@ -100,7 +100,10 @@ selection or MCP invocation controls.
   JSON preview and contains no URL, credential, HTTP action, model execution,
   free-form narrative, authenticated-chat health context, chart UI, Swift/iOS
   caller, installed Shortcut, or real-data acceptance. The credential table
-  persists only owner binding, digest, and lifecycle metadata.
+  persists only owner binding, digest, and lifecycle metadata. Product
+  `c550d4b` additionally accepts the default-off iOS owner-tool UI and
+  revision-safe Provider delete contract. Its local acceptance used synthetic
+  data only; it does not prove deployed Provider or MCP availability.
 - Style-profile mechanisms and synthetic evaluation surfaces exist, but no
   thread-running claim is durable product state. New style work must use the
   current queue and a fresh consent/scope check.
@@ -118,7 +121,7 @@ selection or MCP invocation controls.
   path was later field-accepted for the sequence
   `happy -> correlated ACK -> neutral -> correlated ACK`, retained through
   product commit `9dbfafc` and current
-  `main@7905b12`. This does not establish continuous boot polling, unattended
+  `main@c550d4b`. This does not establish continuous boot polling, unattended
   reliability, or App integration for audio, motion, touch, or camera.
 - Separate direct-device checks field-confirmed low-speed X/Y servo movement and
   return, three-zone head-touch input, and one local low-resolution camera
@@ -133,13 +136,12 @@ selection or MCP invocation controls.
   context. Real-device authorization, real health-data acceptance, and
   off-device health-summary transmission remain unconfirmed.
 - The bounded custom-provider registry/runtime, authenticated owner API,
-  synthetic route, and default-off backend/local iOS status/selection slice are
-  accepted; the current iOS MVP navigation does not expose provider selection.
-  A real provider executor/health prober and main Chat integration
-  remain future work. The first local/mock MCP gateway tool is accepted, while
-  remote MCP transport, state-changing tools, arbitrary discovery, iOS-side
-  execution, MCP controls in the current MVP, and automatic main-Chat invocation
-  remain future work. Real/deployed health-source file or Shortcut intake,
+  synthetic route, and default-off iOS owner-tool UI are accepted. The UI can
+  create/replace/delete/validate redacted Provider profiles and call only
+  `server.local.context/context.today`. A real Provider executor/health prober
+  and main Chat integration remain future work. Remote MCP transport,
+  state-changing tools, arbitrary discovery/input, and automatic main-Chat
+  invocation remain future work. Real/deployed health-source file or Shortcut intake,
   third-party adapters, model analysis, continuous
   StackChan command polling, production voice/camera workflows, and NAS/VPS
   production integration also remain future phases.
@@ -207,9 +209,9 @@ Acceptance anchors:
 - Run MCP primarily through the backend relay. Allowlist servers and tools,
   default to read-only tools, apply timeouts and audit logs, and require
   `ToolGate` confirmation for every state-changing call.
-- In a future UI phase, let iOS show MCP connection/tool status, choose an
-  allowed tool, collect arguments, and present confirmation. The current MVP
-  does not expose those controls. Do not run arbitrary untrusted MCP servers
+- Keep the accepted iOS MCP surface limited to the exact backend projection of
+  `server.local.context/context.today` and the device timezone. Do not collect
+  arbitrary URL/server/tool/schema arguments or run an untrusted MCP server
   directly on the phone.
 
 Acceptance anchors:
@@ -347,6 +349,12 @@ Acceptance anchors:
   discovery, state-changing execution, iOS runtime, durable audit store, or
   automatic main-Chat invocation. Any additional MCP tool requires a new
   allowlist, scope, and acceptance.
+- Treat `PAC-IOS-OWNER-TOOLS-UI` accepted at product `c550d4b` as complete for
+  the local/synthetic, default-off boundary. Saved Provider private fields must
+  never return to iOS; `/select` remains validation/audit rather than durable
+  Chat routing; and the only reachable MCP call remains
+  `server.local.context/context.today`. Deployment, real secrets/servers, remote
+  or state-changing MCP, and Chat Provider routing require separate scope.
 - Treat the fixed public share-sheet action accepted at product `7547d8a` as the
   only current phone-action surface. Do not infer target-app completion,
   cancellation telemetry, receipt/audit support, or Swift/Python fixture parity
@@ -375,7 +383,7 @@ Acceptance anchors:
   `PAC-HEALTH-OWNER-SHORTCUT-ANALYSIS-API` at their accepted controlled-code and
   default-absent boundaries, keep `PAC-HEALTH-OWNER-SHORTCUT-RECIPE` at its
   local preview-only boundary, and keep the accepted 12G credential boundary
-  default-off. No post-12G implementation is selected. HTTP handoff, raw-record
+  default-off. No further health-source implementation is selected. HTTP handoff, raw-record
   import, provider/model execution, narrative rendering, deployment, expiry or
   rotation, persistence beyond the credential record, authenticated-chat
   wiring, real health data, Swift source, and iOS UI all require separate scope.

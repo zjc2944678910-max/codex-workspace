@@ -23,7 +23,7 @@ or the project README.
 ### 2026-07-16 Mainline Snapshot
 
 - Clean remote committed baseline: the product default branch `main` is pushed
-  at `7905b12`; order 12 remains anchored at `b6209a7`, order 12A at `4a8b52e`,
+  at `c550d4b`; order 12 remains anchored at `b6209a7`, order 12A at `4a8b52e`,
   order 12B at `0665fd3`, order 12C at `bff7398`, order 12D at `c0cd301`, and
   order 12E at `2360cba`, order 12F at `09b86c7`, and order 12G at `7905b12`.
   Redundant compatibility
@@ -51,13 +51,13 @@ or the project README.
   tests; 1688 full Python tests), and the dedicated 12G Shortcut credential
   boundary (10 credential tests; 283 combined health tests; 1698 full Python
   tests), plus
-  redacted backend/local iOS status/selection wiring. The current
-  iOS MVP
-  navigation does not expose custom-provider selection or MCP invocation
-  controls. Product `2dc2948` now also carries
+  redacted backend/local iOS status/selection wiring. Product `c550d4b` adds
+  independently default-off single-owner Provider management and the fixed
+  read-only MCP call UI, plus revision-safe Provider deletion. Product
+  `2dc2948` also carries
   the bounded local/mock MCP gateway slice for one read-only information tool,
   and the first fixed public iOS system-share action. The current baseline is
-  `main@7905b12` and carries those feature anchors plus the health-source seam,
+  `main@c550d4b` and carries those feature anchors plus the health-source seam,
   both fixture-only health input contracts, the separate off-device consent
   contract, the qualitative analysis contract, and its default-absent owner-only
   Shortcut analysis API, the local-only 12F aggregation policy/recipe, and the
@@ -82,9 +82,10 @@ or the project README.
   HealthKit remains optional implemented code whose signed-device/data behavior
   is unaccepted. The bounded
   custom-provider registry/runtime, authenticated owner API, synthetic route,
-  and default-off redacted backend/local iOS status/selection slice are accepted;
-  the current iOS MVP navigation does not expose provider or MCP controls. The first
-  local/mock MCP gateway slice is also accepted at product `2dc2948`. Real
+  and default-off redacted backend/local iOS owner-tool slice are accepted.
+  Product `c550d4b` exposes Provider create/replace/delete/validation and the
+  exact local read-only MCP call only behind independent default-off gates. The
+  first local/mock MCP gateway slice is accepted at product `2dc2948`. Real
   provider transport/health probing, remote MCP servers, state-changing MCP
   execution remain planned but not yet implemented. The Python owner-summary
   and manual-export normalization contracts are accepted locally, while the
@@ -103,7 +104,8 @@ or the project README.
   Product `7905b12` adds the accepted dedicated revocable opaque credential
   scoped only to the health-analysis route, with digest-only persistence and
   individual revocation. It adds no real issuance/handoff, HTTPS action,
-  deployment, rate limit, expiry/rotation, Swift, or iOS UI. No post-12G
+  deployment, rate limit, expiry/rotation, Swift, or iOS UI. The separate
+  `PAC-IOS-OWNER-TOOLS-UI` slice is complete at `c550d4b`; no later
   implementation slice is selected.
   The supported phone-action order is now accepted only for the
   fixed `companion.share_capabilities -> system.share_sheet` handoff; broader
@@ -126,7 +128,7 @@ or the project README.
   to the same owner. App logout cleared local Keychain state but returned `401`;
   iOS incorrectly removed the unresolved pending marker while the new family
   remained active. Repair commit `b8462a9` is retained in current
-  `main@7905b12`, and the single orphan family was revoked under a verified
+  `main@c550d4b`, and the single orphan family was revoked under a verified
   database backup without
   changing other families or owner data. Same-account re-login and
   historical-data recovery remain pending.
@@ -217,7 +219,7 @@ or the project README.
   Google account was the intended original account. That exchange bound Google
   and Authentik to the same owner. A reproduced logout `401` exposed a client
   defect: unresolved pending revocation was cleared while the family remained
-  active. Commit `b8462a9`, retained in current `main@7905b12`, keeps pending markers for
+  active. Commit `b8462a9`, retained in current `main@c550d4b`, keeps pending markers for
   every non-`204` response, including `401` and unexpected `202`. The one orphan
   family was separately
   revoked under backup; no cross-owner merge or data move occurred.
@@ -255,7 +257,7 @@ or the project README.
   `1d38c3d`, and source-event replay repair `199638a` were independently
   accepted, pushed on `codex/pac-memory-runtime-metadata-phase-3`, and were
   fast-forwarded at that time into `codex/initial-private-publish` at `199638a`.
-  Those commits are retained in current `main@7905b12`; the old branch is not
+  Those commits are retained in current `main@c550d4b`; the old branch is not
   current authority.
   They add an additive v3 migration for
   nullable `fact_key` and `expires_at_ms`, preserve legacy NULL behavior,
@@ -278,7 +280,7 @@ or the project README.
   wiring, deployment, or live operation occurred. See
   [memory-runtime-metadata-phase-3-20260713.md](reports/memory-runtime-metadata-phase-3-20260713.md).
 - Memory integration boundary: source present by feature landing `9dbfafc` and
-  retained in current canonical `7905b12` includes the synthetic Approved
+  retained in current canonical `c550d4b` includes the synthetic Approved
   Persona Memory Summary and App/bridge contracts from
   `3019a8c`, plus the explicit synthetic review-turn seam and privacy/state
   repairs through `4a3a7df` and `32b9d96`. The bounded seam applies NFKC before
@@ -343,20 +345,20 @@ explicitly separate, still-manual checkpoints such as same-account re-login and
   manual-export normalization, off-device consent, qualitative analysis,
   explicitly injected owner Shortcut analysis API, local Shortcut
   aggregation/recipe, and route-scoped credential slices are complete. No
-  post-12G implementation item is selected; no deployment is authorized.
+  post-owner-tools implementation item is selected; no deployment is authorized.
 Order 10 is accepted locally at product `2dc2948`; it does not authorize
 remote or state-changing MCP work.
 
 | Order | Task ID | Type | Dependency / manual gate | Owned surface |
 | --- | --- | --- | --- | --- |
 | 0 | `PAC-DOCS-SYNC` (`completed 2026-07-16`) | L1 | Completed for this planning wave; repeat before each later implementation wave. | Current authority/contract corrections and historical supersession banners only; no product or live-state change. |
-| 1 | `PAC-MEMORY-LOCAL-INGEST-SEAM` (`completed`, canonical) | L1 | Memory slice anchored at `934cec1` and retained in current canonical `7905b12`; synthetic fixtures and temporary SQLite only. | Committed memory candidate/review/privacy state machine; no automatic ordinary-chat extraction or real data. |
+| 1 | `PAC-MEMORY-LOCAL-INGEST-SEAM` (`completed`, canonical) | L1 | Memory slice anchored at `934cec1` and retained in current canonical `c550d4b`; synthetic fixtures and temporary SQLite only. | Committed memory candidate/review/privacy state machine; no automatic ordinary-chat extraction or real data. |
 | 1a | `PAC-MEMORY-RECALL-QUALITY-PHASE-2` (`completed`, canonical) | L1 | Product commits `e764b2f` and `6feb142`; isolated synthetic/temp-store acceptance only. | Canonical winner selection and bounded recall-quality inspection; no real data or retention execution. |
 | 1b | `PAC-MEMORY-RUNTIME-METADATA-PHASE-3` (`completed`, canonical) | L1 after L3-authorized local implementation | Product commits `f758875`, `1d38c3d`, and `199638a`; `419` memory and `1072` full tests. | Persisted runtime identity/expiry and metadata-first recall; no real database, automatic producer, scheduler, or deletion. |
 | 1c | `PAC-MEMORY-PHASE-4A-OPT-IN-ADMISSION` (`completed`, canonical) | L1 | Product commits `089214f` and `e0fed08`; pure bounded admission with synthetic tests. | Explicit structured opt-in classification only; no store or live action. |
 | 1d | `PAC-MEMORY-PHASE-4B-CANDIDATE-WRITE` (`completed source`, default off) | L1 | Product commit `78103de`; temp-store tests and trusted-owner fail-closed gate. | Writer is disabled by default; production owner binding, live enablement, migration, vault, vector, retention, and hard delete remain absent. |
 | 2 | `PAC-NATIVE-GOOGLE-DIRECT` (`completed deployment`) | L3 historical | Task `019f53e3-4888-7dd1-9dbe-7e7e69354cc6` is complete; its authorization is consumed. | Native Google deployed with Authentik fallback; built-in email and SMS disabled. |
-| 3 | `PAC-NATIVE-GOOGLE-OWNER-ACCEPTANCE` (`repair complete; re-login pending`) | Manual/L2 with bounded L3 repair completed | Expected-account selection, same-owner Google/Authentik binding, real refresh rotation, local logout cleanup, iOS pending-marker repair, and target-only orphan-family revocation are confirmed. Product repair `b8462a9` is retained in current `main@7905b12`; the live backup and evidence are recorded in the acceptance report. | Direct live replay of deleted old tokens and same-account re-login/historical-data recovery remain unconfirmed. No further live action is authorized by the consumed repair card. |
+| 3 | `PAC-NATIVE-GOOGLE-OWNER-ACCEPTANCE` (`repair complete; re-login pending`) | Manual/L2 with bounded L3 repair completed | Expected-account selection, same-owner Google/Authentik binding, real refresh rotation, local logout cleanup, iOS pending-marker repair, and target-only orphan-family revocation are confirmed. Product repair `b8462a9` is retained in current `main@c550d4b`; the live backup and evidence are recorded in the acceptance report. | Direct live replay of deleted old tokens and same-account re-login/historical-data recovery remain unconfirmed. No further live action is authorized by the consumed repair card. |
 | 4 | `PAC-PRODUCT-POLISH-CLOSEOUT` (`completed`) | L1 | Converged and pushed at `e15e553`; source rollback branch retained at `12663dd`. | Repository hygiene, Cloud, and iOS slices are independently committed and verified. |
 | 5 | `PAC-HEALTH-SOURCE-AND-PERSONAL-TEAM-SCOPE` (`partially completed`) | L1/L2 | Minimum HealthKit read scope is five types and clinical/Health Records declarations are removed. Paid membership is deferred; Personal Team signing is optional and manual. | The order 12 source seam is accepted separately; Personal Team device acceptance and real-data authorization remain manual gates. |
 | 6 | `PAC-IOS-STACKCHAN-E2E-PREFLIGHT` (`completed`) | L2 | Static review completed without live access; clean convergence is now an execution prerequisite for order 7, not a prerequisite for this completed design review. | Selected v0.1 LCD `happy -> ack -> neutral -> ack`; no device action. See [the preflight report](reports/app-bridge-stackchan-e2e-preflight-20260713.md). |
@@ -365,6 +367,7 @@ remote or state-changing MCP work.
 | 9A | `PAC-CUSTOM-PROVIDER-REGISTRY-CORE` (`completed 2026-07-15`) | L1 | Accepted and pushed at product `ad18cd0`; see the [manifest](manifests/custom-provider-registry-v0.1.md) and [acceptance report](reports/custom-provider-registry-v0.1-acceptance-20260715.md). | Local transport-free registry, Provider-specific envelope encryption, synthetic health, exact `normal` fallback policy, and metadata-only audit; no runtime/API/iOS/network or real secrets. |
 | 9B | `PAC-CUSTOM-PROVIDER-RUNTIME-INTEGRATION` (`completed 2026-07-15`) | L1 with shared-contract review | Accepted and pushed at product `295687f`; see the [manifest](manifests/custom-provider-runtime-integration-v0.1.md) and [acceptance report](reports/custom-provider-runtime-integration-v0.1-acceptance-20260715.md). | Explicit KEK/resource lifecycle, injected executor, owner API, redacted iOS status/selection, and synthetic `normal` route/client wiring; no default network, real provider, sensitive privacy class, live reconfiguration, or deployment. |
 | 10 | `PAC-MCP-GATEWAY-READONLY` (`completed 2026-07-15`) | L1 | Accepted at product `2dc2948`; see the [manifest](manifests/mcp-gateway-readonly-v0.1.md) and [acceptance report](reports/mcp-gateway-readonly-v0.1-acceptance-20260715.md). Product `main` and `origin/main` matched at that commit. | One local allowlisted read-only `server.local.context/context.today` tool with bounded timeout, input/output limits, concurrency, idempotency, metadata-only audit, and failure isolation; no remote server, state-changing tool, durable audit store, or iOS runtime. |
+| 10A | `PAC-IOS-OWNER-TOOLS-UI` (`completed 2026-07-16`) | L1 local/synthetic, default-off | Accepted and pushed at product `c550d4b`; see the [manifest](manifests/ios-owner-tools-v0.1.md) and [acceptance report](reports/ios-owner-tools-v0.1-acceptance-20260716.md). Depends on 9B and 10. | Single-owner Provider create/replace/delete/validation UI and exact `server.local.context/context.today` call UI behind independent default-off gates; saved secrets never return to iOS, arbitrary MCP inputs remain unreachable, and no deployment or real Provider/MCP evidence is accepted. |
 | 11 | `PAC-IOS-SUPPORTED-APP-ACTION` (`completed 2026-07-15`) | L1 mock/Simulator first | Accepted at product `7547d8a`; see the [manifest](manifests/ios-supported-app-action-v0.1.md) and [acceptance report](reports/ios-supported-app-action-v0.1-acceptance-20260715.md). | Exactly one fixed public `companion.share_capabilities -> system.share_sheet` handoff through SwiftUI `ShareLink`; no receipt, durable audit, cancellation observation, target completion, dynamic data, or real-device action. |
 | 12 | `PAC-HEALTH-SOURCE-ABSTRACTION` (`completed 2026-07-15`) | L1 | Accepted and pushed at product `b6209a7`; see the [manifest](manifests/health-source-abstraction-v0.1.md) and [acceptance report](reports/health-source-abstraction-v0.1-acceptance-20260715.md). | Additive `HealthSourceCatalog`/`HealthSourceAdapter`, source attribution/capture/consent/content/dedup metadata, canonical five-family order, and inert owner-run Shortcut/webhook/manual-export fallback seams. No external intake, real HealthKit read, or cloud transmission. |
 | 12A | `PAC-HEALTH-OWNER-SUMMARY-CONTRACT` (`completed 2026-07-15`) | L1 fixture-only | Accepted and pushed at product `4a8b52e`; see the owner-summary manifest and acceptance report. | Owner-authored compact JSON summary for the planned Shortcut/webhook source, strict fixed metadata, canonical five-family projections, deterministic snapshot conversion, and synthetic fixtures/tests only. No file read, network/HTTP transport, Shortcut invocation, cloud transmission, or iOS UI. |
