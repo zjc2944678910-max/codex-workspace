@@ -2,7 +2,7 @@
 
 ## Current Recorded Baseline
 
-- Latest completed automated live verification in this ledger: 2026-07-14.
+- Latest completed automated live verification in this ledger: 2026-07-16.
 - The bounded App-to-StackChan LCD v0.1 field sequence is complete: the owner
   observed `happy` after its correlated acknowledgement, then observed
   safety-terminal `neutral` after its separate correlated acknowledgement.
@@ -10,15 +10,14 @@
   `9dbfafc`; this is not evidence for repeated reliability or any non-LCD
   capability.
 - Latest verified Xiaoxin API image:
-  `xiaoxin-cloud-api:20260713T0137-native-google`.
-- `xiaoxin-cloud-api:20260712T2352-google-state` remains the immediate API
-  rollback image. The earlier email and direct-flow images remain historical
-  anchors.
-- The durable canonical product lineage recorded by the latest live ledger
-  entry was committed and pushed on the GitHub default branch `main` at
-  `72258a1`; that is a historical deployment anchor. The current product
-  `main` is `4a8b52e`. The earlier logout repair `b8462a9` is retained in that
-  lineage. Redundant compatibility refs
+  `xiaoxin-cloud-api:20260716T111947-health-dark`.
+- `xiaoxin-cloud-api:20260713T0137-native-google` is the immediate API rollback
+  image. `xiaoxin-cloud-api:20260712T2352-google-state` remains the next older
+  rollback anchor; earlier email and direct-flow images remain historical.
+- The durable canonical product source and GitHub default branch are now
+  `main@5225740`. Historical deployment anchor `72258a1`, logout repair
+  `b8462a9`, iOS owner tools `c550d4b`, and native actions `54a069a` remain in
+  that lineage. Redundant compatibility refs
   `codex/initial-private-publish` and `codex/pac-google-logout-revocation-fix`
   were retired after the fast-forward promotion.
 - Native Google Sign-In is deployed. The 2026-07-14 lifecycle pass confirmed a
@@ -29,6 +28,135 @@
 - Built-in email registration and password login are currently disabled because
   the initial flow did not verify mailbox ownership before issuing tokens. The
   retained email account and its data were not deleted.
+- Health Shortcut hardening is dark-deployed with the route disabled. The
+  additive credential and metadata-only audit schema is present, but both
+  tables contain zero rows and no real scoped credential has been issued.
+- The running dark image predates product `5225740`'s post-deployment repairs
+  for pre-buffer stream-size enforcement and management-path audit retention.
+  It must remain disabled until a separately reviewed image is rebuilt and
+  deployed from `5225740` or a reviewed descendant.
+
+## 2026-07-16: Health Shortcut Security Hardening Dark Deployment
+
+Task level: `L3 repair execution` after L2 evidence, local verification, and
+explicit owner authorization for the `home-nas-wg` dark-deployment slice.
+Live scope was limited to the Xiaoxin API image, the additive Alembic revision,
+and API-only recreation. The health route remained disabled. The database
+container, credential issuance, phone/HealthKit/Shortcut actions, VPS,
+Cloudflare, and tunnel services were outside the deployment scope.
+
+### Changes
+
+- Restored the Mac's existing owner-only WireGuard client path and used
+  `home-nas-wg` for deployment transport. No NAS, VPS, Cloudflare, or remote
+  firewall configuration was changed during that client repair.
+- Uploaded and verified the fixed gzip image archive, then loaded
+  `xiaoxin-cloud-api:20260716T111947-health-dark`. The archive SHA-256 is
+  `cd93ad33a71e2ee5d18f246ecb77aeabc75a81a7c77bee6662fde799f3997222`.
+  The NAS platform-image ID is
+  `sha256:d84a3b7aaba4dc69260b9b0bc62673bb9fdc14e25446edd6ae7fa523aef9fa46`;
+  its normalized architecture, startup configuration, and RootFS matched the
+  locally inspected image. The differing local top-level ID was the containerd
+  image-index digest, not a content mismatch.
+- Installed only the reviewed source, Alembic, and deployment-file allowlist.
+  The NAS Compose overlay remained byte-identical. The private environment was
+  changed only for the immutable API image tag and explicit
+  `XIAOXIN_HEALTH_SHORTCUT_ENABLED=false`; all unrelated lines were identical.
+- Applied Alembic revision `20260716_0001` and recreated only the API. The
+  PostgreSQL container ID remained unchanged.
+
+### Verification
+
+- Pre-deployment local verification passed: `1711` full Python tests and `147`
+  focused cloud tests. Container migration, default-off, and security checks
+  also passed before live execution.
+- Post-deployment source review repaired the stream-buffer ordering and audit
+  retention trigger coverage. Product `5225740` then passed `38` focused tests,
+  `1713` full Python tests with the existing warning, targeted lint/format,
+  compileall, Alembic-head, and staged GitNexus checks. This source has not been
+  rebuilt or redeployed.
+- The migration created the 9-column scoped-credential table, the 7-column
+  metadata-only audit table, all 6 required indexes, and the owner cascade
+  foreign key. Both tables contained zero rows after API startup.
+- The new API container is healthy, uses a read-only root filesystem, drops all
+  capabilities, retains `no-new-privileges`, and publishes only on loopback.
+  No startup traceback or residual one-off migration container was found.
+- Internal and public `/healthz`, `/readyz`, and `/v1/auth/capabilities`
+  returned HTTP 200. Public TLS verification passed. Internal and public
+  `POST /v1/health/shortcut-analysis` returned HTTP 404, confirming the dark
+  route remained absent.
+- The original backup, the immediate pre-install source/environment backup,
+  and the cutover rollback set all passed checksum verification.
+
+### Rollback And Remaining Gates
+
+- Primary backup:
+  `/var/backups/xiaoxin-auth/20260716T111947+0800/health-dark-before`.
+  It retains the original stack, private environment, database dump, candidate
+  evidence, and API-only cutover rollback files under root-only permissions.
+- Routine rollback restores the prior image/environment/Compose and recreates
+  only the API. The additive schema is left unused; normal rollback must not
+  run an Alembic downgrade. The database dump remains disaster-recovery only.
+- This deployment proves the additive schema and default-off backend cutover,
+  not parity with the later accepted source `5225740`. It does not prove
+  real-device HealthKit authorization, real health-data minimization, Shortcut
+  installation/execution, real scoped-credential handoff, or a phone HTTPS
+  request. A post-repair image rebuild/deployment and those owner-visible
+  checkpoints remain independent gates.
+
+## 2026-07-16: Health Dark Deployment Stopped Before Cutover (Historical)
+
+This section records the earlier fallback-path attempt. The later completed
+deployment above supersedes its then-current residual checks and next action.
+
+Task level: `L3 repair execution` after L2 evidence and local verification.
+Authorization: the owner explicitly said `进入修复阶段`, confirmed the
+`home-nas` fallback dark-deployment slice, and extended its execution window to
+two hours. The approved scope was a fresh backup, gzip image transfer, additive
+Alembic migration, and API-only recreation with the health route kept disabled.
+Database-container recreation, credential issuance, phone/HealthKit/Shortcut
+actions, tunnel changes, and Cloudflare changes were outside the slice.
+
+### Completed Evidence
+
+- Verified pre-change backup:
+  `/var/backups/xiaoxin-auth/20260716T111947+0800/health-dark-before`.
+  The root is owner-only and contains the live stack, private environment,
+  runtime anchors, and a custom-format PostgreSQL dump. Dump listing and
+  checksums passed before transfer began.
+- The locally verified candidate image was
+  `xiaoxin-cloud-api:20260716T111947-health-dark`, image ID
+  `sha256:eaa4d56c933aed4b29d72ea258fb586ce7aa72ecc2f4a2e078e0600e5bf07136`.
+- The single `docker save | gzip -1 | ssh ... docker load` transfer remained
+  connected but did not complete its remote image-ID equality check within the
+  safe execution margin. It was terminated at the declared `13:20 +08:00`
+  stop point after approximately 99 minutes. No second transfer was started.
+- No deployment files or environment values were installed, Alembic was not
+  run, and neither the API nor database container was recreated.
+- After the stop, public HTTPS checks returned `200` for `/healthz`, `/readyz`,
+  and `/v1/auth/capabilities`; `POST /v1/health/shortcut-analysis` returned
+  `404`. This confirms the user-visible baseline remained available and the
+  health route remained disabled.
+
+### Stop Condition And Residual Checks
+
+- A separate SSH read-only probe during the saturated transfer and the final
+  post-stop SSH probe both timed out during banner exchange before any remote
+  command ran. Per the approved stop condition, no SSH retry or L3 action was
+  attempted afterward.
+- The previously observed API image and database container were not changed by
+  this run, but their final internal IDs were not re-read after the stop.
+- Whether the interrupted `docker load` left untagged layers, and whether the
+  candidate tag is absent, remain unconfirmed. A future slice must begin with a
+  fresh read-only SSH/disk/image/container preflight and a new bounded window.
+- A local restart artifact was prepared under excluded scratch storage as a
+  `0600` gzip archive (`76,350,922` bytes), SHA-256
+  `cd93ad33a71e2ee5d18f246ecb77aeabc75a81a7c77bee6662fde799f3997222`.
+  It contains the already verified image and no deployment environment or
+  credential material. A future slice may transfer it resumably, verify the
+  full checksum, and only then invoke `docker load`.
+- The verified backup remains the rollback anchor. No rollback was invoked
+  because no config, schema, or running-container cutover occurred.
 
 ## 2026-07-14: Native Google Logout Repair And Orphan-Family Revocation
 
@@ -304,7 +432,7 @@ rollback, not as the first recovery action.
 - At the 2026-07-13 deployment, the source came from the dirty product-polish
   worktree. That source lineage was later committed at `b9a5d7b`, was present by
   StackChan landing commit `9dbfafc`, and was recorded in then-current
-  `main@72258a1`; current product authority is `main@4a8b52e`. Exact byte-for-byte or
+  `main@72258a1`; current product authority is `main@5225740`. Exact byte-for-byte or
   build-provenance correspondence between the running image and a specific
   commit remains unconfirmed without independent evidence. A signed real-device
   or App Store build also remains unconfirmed.
