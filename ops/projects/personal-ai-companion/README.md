@@ -31,7 +31,7 @@ node docs/workspace/codex-register-project.mjs --regen
 ## Ops Quality Baseline
 
 - Current status: Mixed local/live, single-owner personal product. The product
-  source of truth and GitHub default branch are `main` at `09b86c7`; redundant
+  source of truth and GitHub default branch are `main` at `7905b12`; redundant
   compatibility refs `codex/initial-private-publish` and
   `codex/pac-google-logout-revocation-fix` were retired after the earlier
   fast-forward promotion. The canonical source retains the Xiaoxin iOS,
@@ -56,6 +56,9 @@ node docs/workspace/codex-register-project.mjs --regen
   explicitly injected, default-absent owner Shortcut analysis API over those
   accepted contracts. Product `09b86c7` adds the fixed local 21+7-day Shortcut
   aggregation policy and an owner-buildable recipe that stops at JSON preview.
+  Product `7905b12` adds the local/default-off owner-bound credential scoped
+  only to Shortcut analysis, with digest-only persistence and individual
+  revocation; it adds no real issuance, phone storage/action, or deployment.
   No live chat or live remote optional-integration vertical has been accepted.
   Historical and source-local evidence is not proof of current live health.
   The [integration-contract acceptance](reports/integration-contracts-v0.1-acceptance-20260715.md)
@@ -109,6 +112,13 @@ node docs/workspace/codex-register-project.mjs --regen
   warning. It adds a pure local policy and reference recipe, but no installed
   Shortcut, real sample read, credential, HTTP call, deployment, Swift source,
   or iOS UI.
+  The [Shortcut-scoped credential acceptance](reports/health-shortcut-scoped-credential-v0.1-acceptance-20260716.md)
+  is accepted at product `main@7905b12`: `10` dedicated credential tests, `283`
+  combined health-chain tests, and `1698` full Python tests passed with the same
+  warning. Analysis now accepts only the dedicated owner-bound credential when
+  explicitly composed; account access/refresh tokens cannot authorize it. No
+  real issuance/handoff, HTTPS action, deployment, expiry/rotation, rate limit,
+  Swift source, iOS UI, or real health transfer was added.
   The owner field-confirmed one `happy` transaction and one safety-terminal
   `neutral` transaction with separate correlated acknowledgements; the final
   Bridge queue depth was `0`.
@@ -118,7 +128,7 @@ node docs/workspace/codex-register-project.mjs --regen
   resulting owner has both native-Google and Authentik identities. App logout
   cleared local state, but its remote call returned `401` and exposed an iOS
   defect that discarded the unresolved pending marker. Repair commit `b8462a9`
-  is retained in current `main@09b86c7`, and the single orphan family was
+  is retained in current `main@7905b12`, and the single orphan family was
   revoked under a verified database backup. Same-account re-login and
   historical-data recovery remain owner-observed checkpoints. See the
   [acceptance report](reports/native-google-owner-acceptance-20260714.md).
@@ -127,15 +137,12 @@ node docs/workspace/codex-register-project.mjs --regen
   - `node docs/workspace/find-project.mjs personal-ai-companion`
   - `node docs/workspace/workspace-health.mjs --repo "$PWD" --limit 12`
   - Project-specific commands belong in `## Key Commands` or project runbooks once confirmed.
-- Next useful work: locally design and implement order 12G,
-  `PAC-HEALTH-SHORTCUT-SCOPED-CREDENTIAL`. Its prerequisite line is complete:
-  the health-source boundary; fixture-only
-  `PAC-HEALTH-OWNER-SUMMARY-CONTRACT` and
-  `PAC-HEALTH-MANUAL-EXPORT-NORMALIZATION`; default-off
-  `PAC-HEALTH-OFF-DEVICE-CONSENT-CONTRACT`; local
-  `PAC-HEALTH-ANALYSIS-CONTRACT`; default-absent
-  `PAC-HEALTH-OWNER-SHORTCUT-ANALYSIS-API`; and local
-  `PAC-HEALTH-OWNER-SHORTCUT-RECIPE`. These slices follow the accepted
+- Next useful work: no post-12G implementation slice is currently selected.
+  `PAC-HEALTH-SHORTCUT-SCOPED-CREDENTIAL` is accepted locally at product
+  `7905b12`, completing the bounded sequence from the health-source boundary;
+  fixture-only owner summary/manual normalization; off-device consent;
+  qualitative analysis; default-absent analysis API; local aggregation recipe;
+  and strict route-scoped authentication. These slices follow the accepted
   `PAC-IOS-SUPPORTED-APP-ACTION`. The supported action is limited to one
   fixed public capability card sent through the owner-visible system share
   sheet; it creates no app receipt/audit and cannot observe cancellation or
@@ -143,12 +150,14 @@ node docs/workspace/codex-register-project.mjs --regen
   they do not read a file, open a network connection, invoke a Shortcut, call a
   model, or expose iOS UI. The analysis contract adds only fingerprint-bound,
   non-diagnostic categorical metadata. The owner-only API composes those
-  contracts but has no default route mount, token handoff, persistence, model
-  prose, or chart. The 12F policy and reference recipe build only local
+  contracts but has no default route mount, health persistence, model prose, or
+  chart. The 12F policy and reference recipe build only local
   qualitative JSON; they do not install/run a Shortcut, query a real phone, or
-  call the API. Order 12G must use a dedicated revocable opaque credential
-  scoped only to the health analysis route. Existing access/refresh tokens must
-  not be embedded in Shortcuts.
+  call the API. Order 12G adds a dedicated revocable opaque credential scoped
+  only to health analysis, but it adds no real issuance/handoff or phone HTTP
+  action. Existing access/refresh tokens cannot authorize analysis and must not
+  be embedded in Shortcuts. Selecting a deployed health route, real credential,
+  HTTPS action, or real transfer is separate L3 work.
   The Personal Team
   device gate is optional/deferred and is not a fallback-path dependency.
   The MCP slice remains limited to one local,
@@ -177,11 +186,11 @@ runbook](runbooks/continuous-program-authorization-and-task-lifecycle.md).
 | --- | --- | --- |
 | StackChan hardware | Bounded standalone checks are `field-confirmed` for the LCD expression path, audible playback, X/Y servo movement and return, active three-zone head-touch transitions, and one local low-resolution camera frame. The completed session ended with queue depth `0`, servos powered off, camera off, audio muted, and serial closed. See [the field-verification report](reports/stackchan-hardware-field-verification-20260711.md). | Whether a visible camera activity indicator activated was not verified. Repeated/unattended reliability, a full motion envelope, continuous boot polling, and any repeat execution remain unconfirmed and unauthorized. |
 | StackChan App integration | On 2026-07-13 the owner observed the App-driven v0.1 sequence `happy -> correlated ACK -> neutral -> correlated ACK`; the final screen was `neutral` and Bridge queue depth was `0`. Durable source is pushed at product commit `9dbfafc`; malformed ACK-like events are now rejected by the real `/stackchan/events` HTTP route with queue/result state unchanged. The source also contains the App client, Keychain-backed credential seam, authenticated command/result routes, TTL/idempotency handling, Host injection, and Simulator-only UI build target. See [the acceptance report](reports/app-bridge-stackchan-e2e-acceptance-20260713.md). | This accepts one bounded sequence, not repeated/unattended reliability or a production deployment expansion. The real v0.1 live allowlist remains only `happy` and `neutral`; audio, motion, camera, touch, memory, HealthKit, background polling, firmware, and other hardware remain outside this slice. |
-| iOS product | Product `main` and the remote default branch are pushed at canonical `09b86c7`. Logout accepts only HTTP `204` as remote-revocation success and retains pending markers for `401`, `202`, and temporary failures. Authenticated chat is source-gated and off by default; when enabled, non-temporary turns persist atomically, temporary turns skip persistence, and expired bounded context is pruned at startup and periodically. The provider registry/status client is backend/local code and remains default-off; the current MVP navigation does not expose provider selection or MCP controls. The supported App action is a fixed public `ShareLink` card in Status; it has no receipt/audit/completion observation. The 12F Shortcut recipe is documentation only and is not compiled into the app. | No live authenticated-chat vertical or account deletion is accepted. Custom-provider selection does not route the existing `owner_private` Chat flow through a `normal` provider. The health API has no iOS caller or navigation surface. The product is personal/single-owner; public onboarding, multi-tenant administration, TestFlight, and App Store distribution are not current goals. The 12 expressions are App-local preview assets only; they are not a 12-expression live-device protocol. |
-| Health sources / Apple membership | Product `b6209a7` is the order-12 source-seam anchor; products `4a8b52e`, `0665fd3`, `bff7398`, and `c0cd301` add the owner intake, fixture-only manual-export normalization, single-request off-device consent, and qualitative analysis contracts. Product `2360cba` adds the explicitly injected owner-only API. Product `09b86c7` adds the fixed 21+7-day local aggregation policy and owner-buildable reference recipe. It uses six-decimal thresholds, conservative missing-data handling, and stable single-source instructions while emitting only qualitative 12A content. HealthKit remains optional implemented code; no paid Apple Developer Program membership is assumed for the personal MVP. | No real HealthKit authorization, signed-device result, real `export.xml`/ZIP/file parsing, installed/executed iPhone Shortcut, Shortcut token handoff, deployed health route, third-party adapter, consent persistence/UI, authenticated cloud-chat health transmission, provider/model narrative, durable replay protection, free-form analysis, or chart UI is accepted. The Python module cannot prove local-midnight alignment, and automated tests do not prove real Shortcuts action availability. Collection/import scopes cannot substitute for off-device transfer consent. Personal Team signing remains an optional manual gate. |
-| Provider, MCP, and phone-app integrations | Product `65d47b5` freezes the strict integration contracts and `ad18cd0` adds the encrypted registry core. Product `295687f` adds explicit caller-owned KEK/resource lifecycle, an injected-executor runtime, owner-authenticated CRUD/selection/fallback and conditional `normal` runtime routes, plus default-off redacted provider projection code. Product `2dc2948` adds the owner-authenticated local MCP gateway with exactly `server.local.context/context.today`, bounded execution, and metadata-only audit. Product `7547d8a` adds exactly one fixed public `companion.share_capabilities -> system.share_sheet` handoff through SwiftUI `ShareLink`; current `main@09b86c7` carries these slices together with the health-source contracts. The current iOS MVP does not expose MCP invocation or custom-provider selection UI. See the [9B manifest](manifests/custom-provider-runtime-integration-v0.1.md), [MCP manifest](manifests/mcp-gateway-readonly-v0.1.md), [supported-action manifest](manifests/ios-supported-app-action-v0.1.md), and [health-source manifest](manifests/health-source-abstraction-v0.1.md). | No KEK loader/rotation service, default provider network executor, trusted provider health prober, real provider/endpoint/credential, remote MCP server, state-changing MCP execution, durable audit store, live reconfiguration, deployment, or sensitive privacy class is accepted. The phone still cannot run arbitrary MCP servers or receive stored secrets. The share action does not read private cross-app data, observe cancellation, create a receipt/audit, or confirm target completion. General phone-app actions, arbitrary app control, background cross-app automation, and reading messages/notifications remain impossible or out of scope. |
+| iOS product | Product `main` and the remote default branch are pushed at canonical `7905b12`. Logout accepts only HTTP `204` as remote-revocation success and retains pending markers for `401`, `202`, and temporary failures. Authenticated chat is source-gated and off by default; when enabled, non-temporary turns persist atomically, temporary turns skip persistence, and expired bounded context is pruned at startup and periodically. The provider registry/status client is backend/local code and remains default-off; the current MVP navigation does not expose provider selection or MCP controls. The supported App action is a fixed public `ShareLink` card in Status; it has no receipt/audit/completion observation. The 12F Shortcut recipe is documentation only and is not compiled into the app; 12G adds no Swift source or Keychain item. | No live authenticated-chat vertical or account deletion is accepted. Custom-provider selection does not route the existing `owner_private` Chat flow through a `normal` provider. The health API has no iOS caller or navigation surface. The product is personal/single-owner; public onboarding, multi-tenant administration, TestFlight, and App Store distribution are not current goals. The 12 expressions are App-local preview assets only; they are not a 12-expression live-device protocol. |
+| Health sources / Apple membership | Product `b6209a7` is the order-12 source-seam anchor; products `4a8b52e`, `0665fd3`, `bff7398`, and `c0cd301` add the owner intake, fixture-only manual-export normalization, single-request off-device consent, and qualitative analysis contracts. Product `2360cba` adds the explicitly injected owner-only API, `09b86c7` adds the fixed 21+7-day local aggregation policy/reference recipe, and `7905b12` adds the dedicated owner-bound credential scoped only to analysis with digest-only persistence and individual revocation. HealthKit remains optional implemented code; no paid Apple Developer Program membership is assumed for the personal MVP. | No real HealthKit authorization, signed-device result, real `export.xml`/ZIP/file parsing, installed/executed iPhone Shortcut, real credential issuance/handoff/storage, phone HTTP action, HTTPS/rate-limited deployed health route, credential expiry/rotation, third-party adapter, consent persistence/UI, authenticated cloud-chat health transmission, provider/model narrative, durable replay protection, free-form analysis, or chart UI is accepted. The Python module cannot prove local-midnight alignment, and automated tests do not prove real Shortcuts action availability. Collection/import scopes cannot substitute for off-device transfer consent. Personal Team signing remains an optional manual gate. |
+| Provider, MCP, and phone-app integrations | Product `65d47b5` freezes the strict integration contracts and `ad18cd0` adds the encrypted registry core. Product `295687f` adds explicit caller-owned KEK/resource lifecycle, an injected-executor runtime, owner-authenticated CRUD/selection/fallback and conditional `normal` runtime routes, plus default-off redacted provider projection code. Product `2dc2948` adds the owner-authenticated local MCP gateway with exactly `server.local.context/context.today`, bounded execution, and metadata-only audit. Product `7547d8a` adds exactly one fixed public `companion.share_capabilities -> system.share_sheet` handoff through SwiftUI `ShareLink`; current `main@7905b12` carries these slices together with the health-source contracts. The current iOS MVP does not expose MCP invocation or custom-provider selection UI. See the [9B manifest](manifests/custom-provider-runtime-integration-v0.1.md), [MCP manifest](manifests/mcp-gateway-readonly-v0.1.md), [supported-action manifest](manifests/ios-supported-app-action-v0.1.md), and [health-source manifest](manifests/health-source-abstraction-v0.1.md). | No KEK loader/rotation service, default provider network executor, trusted provider health prober, real provider/endpoint/credential, remote MCP server, state-changing MCP execution, durable audit store, live reconfiguration, deployment, or sensitive privacy class is accepted. The phone still cannot run arbitrary MCP servers or receive stored secrets. The share action does not read private cross-app data, observe cancellation, create a receipt/audit, or confirm target completion. General phone-app actions, arbitrary app control, background cross-app automation, and reading messages/notifications remain impossible or out of scope. |
 | Xiaoxin cloud/auth | The running image remains `xiaoxin-cloud-api:20260713T0137-native-google`; health/readiness/capabilities pass with Google and Authentik available and email/OTP disabled. The owner confirmed the selected Google account was the intended original account, and sanitized live evidence showed both external identities on owner `d07f...`. Automatic refresh/rotation was confirmed earlier. Logout cleared Simulator Keychain state but returned `401`; the resulting single orphan family `b18f...` was revoked at `2026-07-14T14:22:57+08:00` under a verified backup. All other families and account/data counts remained unchanged. | Direct replay of the securely deleted old access/refresh credentials was not performed; rejection is supported by the inactive live family plus automated tests, not a live token replay. Same-account re-login and historical-data recovery remain unconfirmed. The retained email credential was not deleted. See [the acceptance report](reports/native-google-owner-acceptance-20260714.md). |
-| Memory/privacy | Product `main@09b86c7` retains Phase 2 canonical recall selection, Phase 3 nullable `fact_key`/`expires_at_ms` persistence and metadata-first disclosure, plus Phase 4A/4B explicit opt-in admission and candidate-write wiring through `78103de`. The ordinary-chat writer is default-off and fails closed without a trusted owner resolver. The authenticated cloud-chat route is also off by default and explicitly disables candidate writes; when enabled, non-temporary turns persist bounded conversation context, temporary turns skip persistence, and expired context is pruned at startup and periodically. The 12F change is isolated from memory behavior. See [the Phase 3 report](reports/memory-runtime-metadata-phase-3-20260713.md) and [Phase 4 readiness/update](reports/memory-phase-4-readiness-20260714.md). | This is committed product source, not a live authenticated-chat/long-term-memory integration or evidence of a real-database migration. Automatic extraction without explicit opt-in, production trusted-owner binding, semantic/vector retrieval, broad automatic conflict resolution, vault-at-rest store wiring, authoritative retention execution, hard deletion, memory runtime auth/admin UI, and real NAS/health-source/cloud memory authorization remain unimplemented or unconfirmed. |
+| Memory/privacy | Product `main@7905b12` retains Phase 2 canonical recall selection, Phase 3 nullable `fact_key`/`expires_at_ms` persistence and metadata-first disclosure, plus Phase 4A/4B explicit opt-in admission and candidate-write wiring through `78103de`. The ordinary-chat writer is default-off and fails closed without a trusted owner resolver. The authenticated cloud-chat route is also off by default and explicitly disables candidate writes; when enabled, non-temporary turns persist bounded conversation context, temporary turns skip persistence, and expired bounded context is pruned at startup and periodically. The 12F/12G changes are isolated from memory behavior. See [the Phase 3 report](reports/memory-runtime-metadata-phase-3-20260713.md) and [Phase 4 readiness/update](reports/memory-phase-4-readiness-20260714.md). | This is committed product source, not a live authenticated-chat/long-term-memory integration or evidence of a real-database migration. Automatic extraction without explicit opt-in, production trusted-owner binding, semantic/vector retrieval, broad automatic conflict resolution, vault-at-rest store wiring, authoritative retention execution, hard deletion, memory runtime auth/admin UI, and real NAS/health-source/cloud memory authorization remain unimplemented or unconfirmed. |
 | Style/persona | Local style mechanisms and synthetic evaluation surfaces are historical implementation evidence. The owner has attested consent for a future visual-likeness slice; no identifying material or consent text is stored here. | Voice, writing style, private chats, provider upload, real-device display, revocation handling, and private-data use remain separate gates. |
 
 Apple membership constraints above are grounded in Apple's
@@ -200,11 +209,16 @@ and [supported iOS capabilities](https://developer.apple.com/help/account/refere
 - `personal_ai_companion.integrations` is the accepted, transport-free v0.1
   provider/MCP/phone-action/health-source schema package, including the
   owner-authored `OwnerHealthSummaryIntake` contract.
-- `POST /v1/health/shortcut-analysis` is the accepted local/synthetic owner-only
-  composition route. It exists only when both `HealthShortcutAnalysisService`
-  and a trusted owner resolver are injected; the default factory exposes no
-  route. It returns the exact categorical 12D response and has no persistence,
-  model, chat, Swift/iOS caller, or deployed composition.
+- `POST /v1/health/shortcut-analysis` is the accepted local/synthetic
+  owner-only composition route. It exists only when both
+  `HealthShortcutAnalysisService` and a trusted owner resolver are injected;
+  the default factory exposes no route. In that composition it accepts only the
+  dedicated `health:shortcut-analysis` credential. Account-authenticated
+  `POST/GET /v1/health/shortcut-credentials` and
+  `DELETE /v1/health/shortcut-credentials/{credential_id}` issue once, list
+  metadata, and revoke individually. Only credential metadata/digest persists;
+  health analysis still has no health-data persistence, model, chat, Swift/iOS
+  caller, or deployed composition.
 - `personal_ai_companion.integrations.mcp_gateway` is the accepted local-only
   MCP runtime for `server.local.context/context.today`; when a caller-injected
   gateway and trusted owner resolver are present, the Cloud app exposes
@@ -275,6 +289,7 @@ Dated planning and evidence snapshots:
 - `manifests/health-analysis-contract-v0.1.md`
 - `manifests/health-owner-shortcut-analysis-api-v0.1.md`
 - `manifests/health-owner-shortcut-aggregation-v0.1.md`
+- `manifests/health-shortcut-scoped-credential-v0.1.md`
 - `manifests/memory-layer-v0.1-implementation-readiness.md`
 - `reports/`, including the current-baseline
   [integration-contract acceptance](reports/integration-contracts-v0.1-acceptance-20260715.md),
@@ -349,7 +364,7 @@ Use the benben vNext ideas as patterns, not as a service clone:
 
 That local-first sequence was the original build order. Memory Phase 3 landed at
 `199638a`; default-off Phase 4A/4B source followed through `78103de`. Both are
-retained in current canonical `main` at `09b86c7`, together with a source-gated,
+retained in current canonical `main` at `7905b12`, together with a source-gated,
 default-off authenticated chat path. When enabled, non-temporary turns persist
 atomically and expired bounded context is pruned at startup and periodically;
 temporary turns skip persistence. No live chat vertical is accepted. Xiaoxin

@@ -88,7 +88,8 @@ can produce the five qualitative families.
 Order 12F is now accepted at product `09b86c7`: the fixed local daily-aggregate
 policy and owner-buildable Shortcut recipe can construct the qualitative 12A
 payload without exposing daily values. It still does not install or execute a
-Shortcut or call this API. The next selected design slice, order `12G`, is a
-dedicated, revocable, route-scoped opaque credential; normal access/refresh
-tokens must not be embedded in Shortcuts. A controlled model narrative and real
-export decoder remain separate lower-priority scopes.
+Shortcut or call this API. Order 12G is now accepted at product `7905b12`: the
+composed analysis route strictly requires its dedicated revocable credential,
+while normal access/refresh tokens cannot authorize analysis and must not be
+embedded in Shortcuts. No post-12G implementation is selected. A controlled
+model narrative and real export decoder remain separate lower-priority scopes.

@@ -3,7 +3,7 @@
 Use this runbook when starting implementation so the project does not drift
 into firmware work, model training, or live/NAS repair too early.
 
-Current baseline (2026-07-16): product `main@09b86c7` contains a source-gated
+Current baseline (2026-07-16): product `main@7905b12` contains a source-gated
 authenticated iOS-to-cloud chat path that is off by default. When enabled with
 its trusted dependencies, non-temporary turns persist atomically, temporary
 turns skip persistence, and expired bounded context is pruned at startup and
@@ -79,9 +79,10 @@ narrative, numeric health values, provider/model execution, network/API route,
   adds the fixed 21+7-day local aggregation policy and owner-buildable recipe:
   `34` focused aggregation, `273` combined health-chain, and `1688` full Python
   tests passed. The recipe ends at local JSON preview and includes no URL,
-  credential, HTTP action, installed Shortcut, or real-data proof. Order 12G's
-  dedicated route-scoped credential is the next selected local slice; the
-  Personal Team device gate remains optional/deferred.
+  credential, HTTP action, installed Shortcut, or real-data proof. Product
+  `7905b12` adds the accepted 12G route-scoped credential boundary: `10`
+  dedicated credential, `283` combined health-chain, and `1698` full Python
+  tests passed. The Personal Team device gate remains optional/deferred.
 
 ## Route Lock Template
 
@@ -451,10 +452,10 @@ Shortcut, read real Health samples, prove local-midnight alignment, issue or
 store a credential, make an HTTP call, deploy the route, persist health data,
 change Swift/iOS navigation, or add model narrative.
 
-## Selected Continuation 12: Shortcut-Scoped Credential
+## Accepted Continuation 12: Shortcut-Scoped Credential (`completed 2026-07-16`)
 
-Implement order 12G as a local/default-off authentication boundary before any
-Shortcut HTTP handoff:
+Product `7905b12` accepts order 12G as a local/default-off authentication
+boundary before any Shortcut HTTP handoff:
 
 - issue a dedicated opaque credential accepted only for
   `POST /v1/health/shortcut-analysis` / `health:shortcut-analysis`;
@@ -466,9 +467,16 @@ Shortcut HTTP handoff:
   refresh tokens out of Apple Shortcuts; and
 - keep route composition default-off and use synthetic tests only.
 
-This continuation authorizes local source and tests only. Deployment, real
-credential issuance, public route composition, phone installation, or real
-health transmission remains L3 and requires the owner to say `进入修复阶段`.
+The accepted source strictly replaces access-token analysis whenever 12E is
+explicitly composed; it does not add a second authentication fallback. The
+default Cloud factory still mounts none of the health routes. See the
+[manifest](../manifests/health-shortcut-scoped-credential-v0.1.md) and
+[acceptance report](../reports/health-shortcut-scoped-credential-v0.1-acceptance-20260716.md).
+
+This acceptance covers local source and tests only. There is no selected
+post-12G implementation slice. Deployment, real credential issuance, public
+route composition, phone installation, or real health transmission remains L3
+and requires the owner to say `进入修复阶段` for that named slice.
 
 ## Optional Continuation 13: Personal Team Device Acceptance
 

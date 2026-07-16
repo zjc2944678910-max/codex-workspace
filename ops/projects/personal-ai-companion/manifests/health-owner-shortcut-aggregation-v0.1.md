@@ -98,11 +98,10 @@ analysis, or provide medical advice.
 
 ## Current Continuation
 
-The next selected design slice is `12G`: a dedicated opaque credential scoped
-only to `health:shortcut-analysis`, stored server-side as a domain-separated
+Order 12G is accepted at product `7905b12`: a dedicated owner-bound credential
+is scoped only to `health:shortcut-analysis`, stored as a domain-separated
 digest, individually revocable, and rejected by every other API. The ordinary
-five-minute access token is unsuitable for recurring automation, and the
-rotating full-account refresh token must never be stored in Apple Shortcuts.
-Source implementation remains local/default-off; any deployment, real token
-issuance, public route composition, or real health transmission requires a
-separate L3 gate.
+account access and refresh tokens cannot authorize analysis and must never be
+stored in Apple Shortcuts. No post-12G implementation is selected; deployment,
+real issuance/handoff, public route composition, or real health transmission
+requires a separate L3 gate.
