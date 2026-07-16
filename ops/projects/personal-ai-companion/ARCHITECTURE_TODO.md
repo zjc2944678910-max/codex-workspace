@@ -22,14 +22,16 @@ or the project README.
 
 ### 2026-07-16 Mainline Snapshot
 
-- Clean remote committed baseline: the product default branch `main` is pushed
-  at `0e53f74`; order 12 remains anchored at `b6209a7`, order 12A at `4a8b52e`,
+- Remote product `origin/main` remains at `0e53f74`; local product `main` is
+  committed at `8dd90ae`. Order 12 remains anchored at `b6209a7`, order 12A at `4a8b52e`,
   order 12B at `0665fd3`, order 12C at `bff7398`, order 12D at `c0cd301`, and
   order 12E at `2360cba`, order 12F at `09b86c7`, order 12G at `7905b12`, order
   12H at `5225740`, and order 13 at `54a069a`. Product `9ebda8c` adds the
   default-off Provider HTTP executor, `3448e84` adds metadata-only memory
   retention summary projection, and `0e53f74` adds StackChan queue reliability
-  regression coverage. The final combined Python suite passes `1743` tests.
+  regression coverage. Local product `8dd90ae` adds the default-off deployed
+  ChatRuntime composition and isolated iOS StackChan v0.2 status transport.
+  The final combined Python suite passes `1761` tests.
   Redundant compatibility
   refs `codex/initial-private-publish`
   and `codex/pac-google-logout-revocation-fix` were retired after promotion.
@@ -71,7 +73,8 @@ or the project README.
   local/default-off 12G scoped credential boundary, and 12H expiry/rotation,
   credential/IP limits, metadata-only bounded audit, Alembic, and strict
   pre-buffer request sizing.
-  No live chat or live remote optional-integration vertical has been accepted.
+  The local source vertical is accepted, but no live chat, App/Host status
+  injection, Bridge/device status request, push, or deployment is accepted.
   The
   [2026-07-15 runtime acceptance](reports/custom-provider-runtime-integration-v0.1-acceptance-20260715.md)
   passed `1417` Python tests and all `44` Swift executables at that exact commit,
@@ -412,6 +415,7 @@ remote or state-changing MCP work.
 | 12G | `PAC-HEALTH-SHORTCUT-SCOPED-CREDENTIAL` (`completed 2026-07-16`) | L1 local/default-off source; deployment or real issuance is L3 | Accepted and pushed at product `7905b12`; see the [manifest](manifests/health-shortcut-scoped-credential-v0.1.md) and [acceptance report](reports/health-shortcut-scoped-credential-v0.1-acceptance-20260716.md). Dedicated owner-bound opaque credential, domain-separated digest-only persistence, one-time plaintext issuance, metadata listing, individual revocation, and strict analysis-only auth; `10` focused, `283` health-chain, and `1698` full Python tests passed. | No expiry/rotation, last-used audit, rate limit, HTTPS deployment, real issuance/handoff, installed Shortcut, phone HTTP action, Swift/iOS UI, or real health transmission is accepted. |
 | 12H | `PAC-HEALTH-SHORTCUT-HARDENING` (`source completed; dark deployment route-off`) | L1 source + historical L3 dark deployment | Accepted and pushed at product `5225740`; see the [manifest](manifests/health-shortcut-hardening-v0.1.md), [acceptance report](reports/health-shortcut-hardening-v0.1-acceptance-20260716.md), and [deployment ledger](DEPLOYMENT_LEDGER.md). Adds Alembic, finite expiry, atomic rotation, pre-body credential/IP limits, HMAC-derived metadata-only audit, bounded retention, strict pre-buffer request sizing, and default-off deployed composition; `38` focused and `1713` full tests passed. | The running dark image predates the final source repairs and must remain disabled. No post-repair redeployment, real credential handoff, installed Shortcut, phone HTTPS action, HealthKit read, or real health transmission is accepted. |
 | 13 | `PAC-IOS-CONVERSATIONAL-NATIVE-ACTIONS` (`completed 2026-07-16`) | L1 local/synthetic with Personal Team build/install | Accepted and pushed at product `54a069a`; see the [manifest](manifests/ios-conversational-native-actions-v0.1.md) and [acceptance report](reports/ios-conversational-native-actions-v0.1-acceptance-20260716.md). The Host built, installed, and launched with a Personal Team. | Exactly six typed Chat proposals for alarm, event, reminder, and music play/pause/next; explicit confirmation, five-minute expiry, fixed errors, and mock Simulator execution. No real permission prompt, native side effect, catalog-wide MusicKit, background automation, deployment, or Provider/MCP evidence is accepted. |
+| 14 | `PAC-CLOUD-CHAT-STACKCHAN-STATUS-VERTICAL` (`completed 2026-07-16`, local/default-off) | L1 cross-module local source | Accepted locally at product `8dd90ae`; see the [manifest](manifests/cloud-chat-stackchan-status-vertical-v0.1.md) and [acceptance report](reports/cloud-chat-stackchan-status-vertical-v0.1-acceptance-20260716.md). Remote `origin/main` remains `0e53f74`. | Default-off deployed ChatRuntime composition with separate Chat/Health owners, dedicated memory and credentialed HTTPS relay gates; isolated explicit iOS v0.2 status enqueue/fetch with streamed bounds, redirect rejection, replay recovery, and strict correlation. No push, UI/Host injection, live Chat, Bridge/device request, credential, image build, or deployment. |
 
 This table is the current implementation queue. The runbook remains normative
 for risk/status vocabulary, manual repair gates, and stop conditions. This table
