@@ -1,6 +1,6 @@
 # NAS WireGuard SSH Access Runbook
 
-Last verified: 2026-05-20 09:05 CST
+Last verified: 2026-07-16 13:54 CST
 
 ## Current State
 
@@ -18,6 +18,31 @@ The intended steady state is:
 - Keep `home-nas` and `home-nas-admin` through the VPS reverse tunnel as rescue paths.
 - Do not use direct public IPv6 SSH to the NAS.
 - Keep relay/API services on the VPS unless a separate canary proves the NAS is better.
+
+## 2026-07-16 Mac Client Recovery
+
+- The Mac had no active WireGuard address or route, so `home-nas-wg` was
+  unavailable and a Docker image transfer fell back to the VPS reverse-tunnel
+  path. The fallback completed an SSH command in about 15.7 seconds and
+  transferred the image at less than 13 KiB/s.
+- The same-LAN NAS path remained healthy at about 5.3 ms ICMP latency, while
+  direct LAN SSH stayed closed or filtered as intended by the firewall policy.
+- One existing owner-only WireGuard configuration was found with mode `0600`,
+  narrow NAS-only `AllowedIPs`, no DNS setting, no route hooks, valid key
+  formats, and a peer still registered on the NAS. Its prior endpoint was
+  stale and no longer matched a reachable NAS address.
+- The Mac configuration endpoint was changed to the same-LAN NAS listener on
+  the existing WireGuard port. A mode-`0600` pre-change backup remains adjacent
+  to the private configuration; no key or endpoint value is recorded here.
+- The repaired path established a recent peer handshake and matched host
+  identity `zjcNAS`. Synthetic 8 MiB tests reached about 9.88 MiB/s down and
+  11.98 MiB/s up. The final persistent-config SSH check completed in about
+  0.36 seconds, and the public Xiaoxin health endpoint remained HTTP 200.
+- No NAS, VPS, Cloudflare, firewall, SSH alias, production container, or
+  database state was modified. NAS commands in this recovery were read-only.
+- The repaired endpoint is intentionally same-LAN specific. Away from the home
+  LAN, use the VPS fallback unless a separately reviewed remote WireGuard
+  endpoint is restored.
 
 ## Local SSH Aliases
 
