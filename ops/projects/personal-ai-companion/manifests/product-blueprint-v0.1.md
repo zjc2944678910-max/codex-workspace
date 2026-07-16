@@ -29,8 +29,9 @@ signals, devices, and boundaries.
 - Embodiment: use StackChan as a physical front end for presence, display,
   simple actions, voice, and camera-related experiences, not as the model host.
 - Mobile control: use an iOS app for private chat, device control, permissioned
-  health summaries, supported App Intents/Shortcuts actions, integration status,
-  and owner-visible settings.
+  health summaries, confirmed local alarm/calendar/reminder/music actions,
+  supported App Intents/Shortcuts actions, integration status, and owner-visible
+  settings.
 - Extensibility: add owner-configured model/API providers and allowlisted MCP
   tools through the backend relay, with secrets kept off the phone and explicit
   confirmation for side effects.
@@ -41,7 +42,10 @@ signals, devices, and boundaries.
 The bounded single-owner Provider and MCP controls are now implemented locally
 at product `c550d4b`. They are independently default-off, expose only redacted
 Provider state and the exact local read-only MCP tool, and do not accept a real
-Provider, remote MCP server, deployment, or main-Chat routing.
+Provider, remote MCP server, deployment, or main-Chat routing. Product
+`54a069a` additionally accepts six strictly typed, confirmation-gated Chat
+actions for alarms, calendar events, reminders, and Apple Music playback
+controls; it does not accept arbitrary phone automation or remote MCP actions.
 
 ## Component Boundaries
 
@@ -50,7 +54,7 @@ Provider, remote MCP server, deployment, or main-Chat routing.
 | `personal-ai-companion` API | interaction envelopes, model routing, provider registry, MCP gateway, memory gates, usage ledger | raw phone access, direct public exposure |
 | Style profile layer | bounded response-shape rules, diagnostics, rewrite guidance | pretending to be a real person without consent, raw chat truth |
 | StackChan | embodied display/voice/action front end, local device status, simple launchers | secrets, memory database, primary model inference |
-| iOS app | current chat UI, device controls, health-source status, supported phone-action launchers, owner settings, default-off Provider management, and the fixed local read-only MCP call | provider secrets, arbitrary Provider/MCP routing, arbitrary MCP execution, unpermissioned phone data, arbitrary app/message reading or background control |
+| iOS app | current chat UI, device controls, health-source status, six confirmation-gated native Chat actions, supported phone-action launchers, owner settings, default-off Provider management, and the fixed local read-only MCP call | provider secrets, arbitrary Provider/MCP routing, arbitrary MCP execution, unpermissioned phone data, arbitrary app/message reading or background control |
 | Provider registry + MCP gateway | encrypted server-side provider credentials, capability discovery, allowlisted MCP connections/tools, timeout/audit policy | silently enabling tools, exposing saved credentials to iOS, bypassing `ToolGate` |
 | Health-source adapters | normalize owner-approved health inputs into the five canonical summary families | clinical diagnosis, hidden collection, treating inferred mood as fact |
 | Memory service | session context, candidate memories, promoted atoms, deletion/explain flows | irreversible hidden learning, unreviewed sensitive memory promotion |
@@ -59,7 +63,7 @@ Provider, remote MCP server, deployment, or main-Chat routing.
 
 ## Current Confirmed State
 
-- Product `main@c550d4b` contains a source-gated authenticated chat path that is
+- Product `main@54a069a` contains a source-gated authenticated chat path that is
   off by default. When enabled with its trusted dependencies, non-temporary
   turns persist atomically, temporary turns skip persistence, and expired
   bounded context is pruned at startup and periodically. That authenticated
@@ -104,6 +108,11 @@ Provider, remote MCP server, deployment, or main-Chat routing.
   `c550d4b` additionally accepts the default-off iOS owner-tool UI and
   revision-safe Provider delete contract. Its local acceptance used synthetic
   data only; it does not prove deployed Provider or MCP availability.
+  Product `54a069a` adds the order-13 conversational native-action slice: six
+  typed proposals, explicit confirmation, five-minute expiry, fixed public
+  errors, Simulator mock execution, and an availability-gated AlarmKit,
+  EventKit, and MediaPlayer adapter. Personal Team build/install/launch are
+  confirmed; no real permission prompt or native side effect was executed.
 - Style-profile mechanisms and synthetic evaluation surfaces exist, but no
   thread-running claim is durable product state. New style work must use the
   current queue and a fresh consent/scope check.
@@ -121,7 +130,7 @@ Provider, remote MCP server, deployment, or main-Chat routing.
   path was later field-accepted for the sequence
   `happy -> correlated ACK -> neutral -> correlated ACK`, retained through
   product commit `9dbfafc` and current
-  `main@c550d4b`. This does not establish continuous boot polling, unattended
+  `main@54a069a`. This does not establish continuous boot polling, unattended
   reliability, or App integration for audio, motion, touch, or camera.
 - Separate direct-device checks field-confirmed low-speed X/Y servo movement and
   return, three-zone head-touch input, and one local low-resolution camera
@@ -145,6 +154,11 @@ Provider, remote MCP server, deployment, or main-Chat routing.
   third-party adapters, model analysis, continuous
   StackChan command polling, production voice/camera workflows, and NAS/VPS
   production integration also remain future phases.
+- The order-13 Chat action slice is accepted at product `54a069a`. It recognizes
+  only alarm creation, calendar-event creation, reminder creation, and Apple
+  Music play/pause/next. Each proposal is shown in Chat and requires an owner
+  confirmation before execution; ambiguous text stays ordinary Chat. Native
+  errors are fixed and bounded, and saved Provider secrets never participate.
 
 ## Phase Map
 
@@ -227,6 +241,12 @@ Acceptance anchors:
 - Invoke other phone apps only through supported iOS surfaces: App Intents,
   Shortcuts, URL schemes, universal links, and share sheets. A target app must
   expose a supported action; arbitrary background control remains impossible.
+- The accepted order-13 Chat surface is narrower than general phone
+  automation: it exposes only six typed local actions (alarm, calendar event,
+  reminder, and Apple Music play/pause/next), previews each proposal, requires
+  explicit confirmation, expires proposals after five minutes, and fails closed
+  on unsupported or denied native services. Simulator execution is mock-only;
+  real permission and side-effect evidence remains open.
 - Put phone actions behind the same allowlist, preview, confirmation, and audit
   boundaries as other state-changing tools.
 - Introduce a `HealthSource` adapter boundary so HealthKit is one optional
@@ -346,8 +366,9 @@ Acceptance anchors:
   privacy classes.
 - Treat the local/mock MCP gateway accepted at product `2dc2948` as complete for
   `server.local.context/context.today`. It has no default transport, remote
-  discovery, state-changing execution, iOS runtime, durable audit store, or
-  automatic main-Chat invocation. Any additional MCP tool requires a new
+  discovery, state-changing execution, durable audit store, or automatic
+  main-Chat invocation. The default-off iOS MCP surface reaches only this exact
+  projected tool and accepts no arbitrary server/tool/schema input. Any additional MCP tool requires a new
   allowlist, scope, and acceptance.
 - Treat `PAC-IOS-OWNER-TOOLS-UI` accepted at product `c550d4b` as complete for
   the local/synthetic, default-off boundary. Saved Provider private fields must
@@ -355,11 +376,13 @@ Acceptance anchors:
   Chat routing; and the only reachable MCP call remains
   `server.local.context/context.today`. Deployment, real secrets/servers, remote
   or state-changing MCP, and Chat Provider routing require separate scope.
-- Treat the fixed public share-sheet action accepted at product `7547d8a` as the
-  only current phone-action surface. Do not infer target-app completion,
-  cancellation telemetry, receipt/audit support, or Swift/Python fixture parity
-  from this handoff. Any App Intent, Shortcut, URL scheme, reminder, dynamic
-  sharing, or state-changing action needs a new scope and acceptance.
+- Treat the fixed public share-sheet action accepted at product `7547d8a` and
+  the six typed, confirmation-gated local Chat actions accepted at product
+  `54a069a` as the current phone-action surfaces. Do not infer target-app
+  completion, cancellation telemetry, receipt/audit support, catalog-wide
+  MusicKit, background automation, or Swift/Python fixture parity from either
+  surface. Any additional App Intent, Shortcut, URL scheme, or state-changing
+  action needs a new scope and acceptance.
 - Treat the order 12 health-source seam accepted at product `b6209a7` as the
   current local boundary. Product `4a8b52e` adds the fixture-only owner-summary
   contract, product `0665fd3` adds fixture-only manual-export normalization, and
