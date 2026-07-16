@@ -23,10 +23,13 @@ or the project README.
 ### 2026-07-16 Mainline Snapshot
 
 - Clean remote committed baseline: the product default branch `main` is pushed
-  at `5225740`; order 12 remains anchored at `b6209a7`, order 12A at `4a8b52e`,
+  at `0e53f74`; order 12 remains anchored at `b6209a7`, order 12A at `4a8b52e`,
   order 12B at `0665fd3`, order 12C at `bff7398`, order 12D at `c0cd301`, and
   order 12E at `2360cba`, order 12F at `09b86c7`, order 12G at `7905b12`, order
-  12H at `5225740`, and order 13 at `54a069a`.
+  12H at `5225740`, and order 13 at `54a069a`. Product `9ebda8c` adds the
+  default-off Provider HTTP executor, `3448e84` adds metadata-only memory
+  retention summary projection, and `0e53f74` adds StackChan queue reliability
+  regression coverage. The final combined Python suite passes `1743` tests.
   Redundant compatibility
   refs `codex/initial-private-publish`
   and `codex/pac-google-logout-revocation-fix` were retired after promotion.
@@ -61,7 +64,7 @@ or the project README.
   `2dc2948` also carries
   the bounded local/mock MCP gateway slice for one read-only information tool,
   and the first fixed public iOS system-share action. The current baseline is
-  `main@5225740` and carries those feature anchors plus the health-source seam,
+  `main@0e53f74` and carries those feature anchors plus the health-source seam,
   both fixture-only health input contracts, the separate off-device consent
   contract, the qualitative analysis contract, and its default-absent owner-only
   Shortcut analysis API, the local-only 12F aggregation policy/recipe, the
@@ -146,7 +149,7 @@ or the project README.
   to the same owner. App logout cleared local Keychain state but returned `401`;
   iOS incorrectly removed the unresolved pending marker while the new family
   remained active. Repair commit `b8462a9` is retained in current
-  `main@5225740`, and the single orphan family was revoked under a verified
+  `main@0e53f74`, and the single orphan family was revoked under a verified
   database backup without
   changing other families or owner data. Same-account re-login and
   historical-data recovery remain pending.
@@ -178,7 +181,7 @@ or the project README.
   repeated or unattended reliability.
 - iOS product/UI: the three-task line superseded the earlier mock-visual queue.
   StackChan feature landing `9dbfafc`, retained in current canonical
-  `5225740`, has Xiaoxin branding/icon, user-scoped chat-history and device-cover
+  `0e53f74`, has Xiaoxin branding/icon, user-scoped chat-history and device-cover
   storage, identity UI, native Google with Authentik rollback, and a
   multi-account logout-revocation retry queue. The current mainline adds a
   source-gated authenticated chat path that is off by default. When enabled,
@@ -243,11 +246,11 @@ or the project README.
   Google account was the intended original account. That exchange bound Google
   and Authentik to the same owner. A reproduced logout `401` exposed a client
   defect: unresolved pending revocation was cleared while the family remained
-  active. Commit `b8462a9`, retained in current `main@5225740`, keeps pending
+  active. Commit `b8462a9`, retained in current `main@0e53f74`, keeps pending
   markers for every non-`204` response, including `401` and unexpected `202`. The one orphan
   family was separately
   revoked under backup; no cross-owner merge or data move occurred.
-- Memory/privacy: product `main` is pushed at `5225740` and retains the
+- Memory/privacy: product `main` is pushed at `0e53f74` and retains the
   review/promotion seam through `934cec1`, canonical recall selection and
   persisted runtime metadata through `199638a`, and default-off explicit opt-in
   admission/candidate-write source through `78103de`. The committed branch is
@@ -281,7 +284,7 @@ or the project README.
   `1d38c3d`, and source-event replay repair `199638a` were independently
   accepted, pushed on `codex/pac-memory-runtime-metadata-phase-3`, and were
   fast-forwarded at that time into `codex/initial-private-publish` at `199638a`.
-  Those commits are retained in current `main@5225740`; the old branch is not
+  Those commits are retained in current `main@0e53f74`; the old branch is not
   current authority.
   They add an additive v3 migration for
   nullable `fact_key` and `expires_at_ms`, preserve legacy NULL behavior,
@@ -304,7 +307,7 @@ or the project README.
   wiring, deployment, or live operation occurred. See
   [memory-runtime-metadata-phase-3-20260713.md](reports/memory-runtime-metadata-phase-3-20260713.md).
 - Memory integration boundary: source present by feature landing `9dbfafc` and
-  retained in current canonical `5225740` includes the synthetic Approved
+  retained in current canonical `0e53f74` includes the synthetic Approved
   Persona Memory Summary and App/bridge contracts from
   `3019a8c`, plus the explicit synthetic review-turn seam and privacy/state
   repairs through `4a3a7df` and `32b9d96`. The bounded seam applies NFKC before
@@ -363,34 +366,39 @@ or the project README.
 
 ### Proposed Next Task Order
 
-Rows 1-9B retain dependency history: completed source/deployment slices plus
+Rows 1-9C retain dependency history: completed source/deployment slices plus
 explicitly separate, still-manual checkpoints such as same-account re-login and
   Personal Team acceptance. They are not all fully complete. The owner-summary,
   manual-export normalization, off-device consent, qualitative analysis,
   explicitly injected owner Shortcut analysis API, local Shortcut
   aggregation/recipe, route-scoped credential, owner-tools, and conversational
-  native-action slices are complete. No post-native-actions implementation item
-  is selected; no deployment is authorized.
+  native-action slices are complete. The local retention-summary, Provider HTTP
+  executor, and StackChan reliability slices are also complete, with the latter
+  two remaining default-off/tests-only. No post-native-actions live item is
+  selected; no deployment is authorized.
 Order 10 is accepted locally at product `2dc2948`; it does not authorize
 remote or state-changing MCP work.
 
 | Order | Task ID | Type | Dependency / manual gate | Owned surface |
 | --- | --- | --- | --- | --- |
 | 0 | `PAC-DOCS-SYNC` (`completed 2026-07-16`) | L1 | Completed for this planning wave; repeat before each later implementation wave. | Current authority/contract corrections and historical supersession banners only; no product or live-state change. |
-| 1 | `PAC-MEMORY-LOCAL-INGEST-SEAM` (`completed`, canonical) | L1 | Memory slice anchored at `934cec1` and retained in current canonical `5225740`; synthetic fixtures and temporary SQLite only. | Committed memory candidate/review/privacy state machine; no automatic ordinary-chat extraction or real data. |
+| 1 | `PAC-MEMORY-LOCAL-INGEST-SEAM` (`completed`, canonical) | L1 | Memory slice anchored at `934cec1` and retained in current canonical `0e53f74`; synthetic fixtures and temporary SQLite only. | Committed memory candidate/review/privacy state machine; no automatic ordinary-chat extraction or real data. |
 | 1a | `PAC-MEMORY-RECALL-QUALITY-PHASE-2` (`completed`, canonical) | L1 | Product commits `e764b2f` and `6feb142`; isolated synthetic/temp-store acceptance only. | Canonical winner selection and bounded recall-quality inspection; no real data or retention execution. |
 | 1b | `PAC-MEMORY-RUNTIME-METADATA-PHASE-3` (`completed`, canonical) | L1 after L3-authorized local implementation | Product commits `f758875`, `1d38c3d`, and `199638a`; `419` memory and `1072` full tests. | Persisted runtime identity/expiry and metadata-first recall; no real database, automatic producer, scheduler, or deletion. |
 | 1c | `PAC-MEMORY-PHASE-4A-OPT-IN-ADMISSION` (`completed`, canonical) | L1 | Product commits `089214f` and `e0fed08`; pure bounded admission with synthetic tests. | Explicit structured opt-in classification only; no store or live action. |
 | 1d | `PAC-MEMORY-PHASE-4B-CANDIDATE-WRITE` (`completed source`, default off) | L1 | Product commit `78103de`; temp-store tests and trusted-owner fail-closed gate. | Writer is disabled by default; production owner binding, live enablement, migration, vault, vector, retention, and hard delete remain absent. |
+| 1e | `PAC-MEMORY-RETENTION-SUMMARY` (`completed 2026-07-16`, local metadata only) | L1 | Accepted and pushed at product `3448e84`; see the [manifest](manifests/memory-retention-summary-v0.1.md) and [acceptance report](reports/memory-retention-summary-v0.1-acceptance-20260716.md). | Owner-only export exposes active/expired/no-expiry/suppressed aggregates from payload-free metadata; optional metadata failures degrade safely. No retention executor, deletion, vault, schema, or live data. |
 | 2 | `PAC-NATIVE-GOOGLE-DIRECT` (`completed deployment`) | L3 historical | Task `019f53e3-4888-7dd1-9dbe-7e7e69354cc6` is complete; its authorization is consumed. | Native Google deployed with Authentik fallback; built-in email and SMS disabled. |
-| 3 | `PAC-NATIVE-GOOGLE-OWNER-ACCEPTANCE` (`repair complete; re-login pending`) | Manual/L2 with bounded L3 repair completed | Expected-account selection, same-owner Google/Authentik binding, real refresh rotation, local logout cleanup, iOS pending-marker repair, and target-only orphan-family revocation are confirmed. Product repair `b8462a9` is retained in current `main@5225740`; the live backup and evidence are recorded in the acceptance report. | Direct live replay of deleted old tokens and same-account re-login/historical-data recovery remain unconfirmed. No further live action is authorized by the consumed repair card. |
+| 3 | `PAC-NATIVE-GOOGLE-OWNER-ACCEPTANCE` (`repair complete; re-login pending`) | Manual/L2 with bounded L3 repair completed | Expected-account selection, same-owner Google/Authentik binding, real refresh rotation, local logout cleanup, iOS pending-marker repair, and target-only orphan-family revocation are confirmed. Product repair `b8462a9` is retained in current `main@0e53f74`; the live backup and evidence are recorded in the acceptance report. | Direct live replay of deleted old tokens and same-account re-login/historical-data recovery remain unconfirmed. No further live action is authorized by the consumed repair card. |
 | 4 | `PAC-PRODUCT-POLISH-CLOSEOUT` (`completed`) | L1 | Converged and pushed at `e15e553`; source rollback branch retained at `12663dd`. | Repository hygiene, Cloud, and iOS slices are independently committed and verified. |
 | 5 | `PAC-HEALTH-SOURCE-AND-PERSONAL-TEAM-SCOPE` (`partially completed`) | L1/L2 | Minimum HealthKit read scope is five types and clinical/Health Records declarations are removed. Paid membership is deferred; Personal Team signing is optional and manual. | The order 12 source seam is accepted separately; Personal Team device acceptance and real-data authorization remain manual gates. |
 | 6 | `PAC-IOS-STACKCHAN-E2E-PREFLIGHT` (`completed`) | L2 | Static review completed without live access; clean convergence is now an execution prerequisite for order 7, not a prerequisite for this completed design review. | Selected v0.1 LCD `happy -> ack -> neutral -> ack`; no device action. See [the preflight report](reports/app-bridge-stackchan-e2e-preflight-20260713.md). |
 | 7 | `PAC-IOS-STACKCHAN-SCREEN-E2E` (`completed`) | L3 historical + L1 closeout | Field sequence owner-confirmed; durable product source and HTTP ACK-route hardening pushed at `9dbfafc`; acceptance recorded without repeating live commands. | One v0.1 App-to-LCD `happy -> ACK -> neutral -> ACK` path only; final `neutral`, queue `0`. No expansion to audio, motion, camera, touch, memory, HealthKit, polling, firmware, or other hardware. See [the acceptance report](reports/app-bridge-stackchan-e2e-acceptance-20260713.md). |
+| 7A | `PAC-STACKCHAN-QUEUE-RELIABILITY` (`completed 2026-07-16`, tests-only) | L1 | Accepted and pushed at product `0e53f74`; see the [manifest](manifests/stackchan-queue-reliability-v0.1.md) and [acceptance report](reports/stackchan-queue-reliability-v0.1-acceptance-20260716.md). | Deterministic two-device v0.2 replay and SQLite restart/expiry coverage; `90` StackChan tests and `1743` full Python tests. No production queue change, hardware, socket, or field reliability claim. |
 | 8 | `PAC-INTEGRATION-CONTRACTS-V0.1` (`completed 2026-07-15`) | L1 | Accepted and pushed at product `65d47b5`; see the [manifest](manifests/integration-contracts-v0.1.md) and [acceptance report](reports/integration-contracts-v0.1-acceptance-20260715.md). | Strict provider, MCP, phone-action, and five-family health-source DTOs plus synthetic fixtures and `102` focused tests; no network, credentials, device, runtime wiring, or real data. |
 | 9A | `PAC-CUSTOM-PROVIDER-REGISTRY-CORE` (`completed 2026-07-15`) | L1 | Accepted and pushed at product `ad18cd0`; see the [manifest](manifests/custom-provider-registry-v0.1.md) and [acceptance report](reports/custom-provider-registry-v0.1-acceptance-20260715.md). | Local transport-free registry, Provider-specific envelope encryption, synthetic health, exact `normal` fallback policy, and metadata-only audit; no runtime/API/iOS/network or real secrets. |
 | 9B | `PAC-CUSTOM-PROVIDER-RUNTIME-INTEGRATION` (`completed 2026-07-15`) | L1 with shared-contract review | Accepted and pushed at product `295687f`; see the [manifest](manifests/custom-provider-runtime-integration-v0.1.md) and [acceptance report](reports/custom-provider-runtime-integration-v0.1-acceptance-20260715.md). | Explicit KEK/resource lifecycle, injected executor, owner API, redacted iOS status/selection, and synthetic `normal` route/client wiring; no default network, real provider, sensitive privacy class, live reconfiguration, or deployment. |
+| 9C | `PAC-CUSTOM-PROVIDER-HTTP-EXECUTOR` (`completed 2026-07-16`, default-off) | L1 | Accepted and pushed at product `9ebda8c`; see the [manifest](manifests/provider-http-executor-v0.1.md) and [acceptance report](reports/provider-http-executor-v0.1-acceptance-20260716.md). | Strict caller-opt-in OpenAI-compatible executor with bounded timeout/response, HTTPS/path/media validation, no redirects, and redacted errors; no app/runtime wiring or real network. |
 | 10 | `PAC-MCP-GATEWAY-READONLY` (`completed 2026-07-15`) | L1 | Accepted at product `2dc2948`; see the [manifest](manifests/mcp-gateway-readonly-v0.1.md) and [acceptance report](reports/mcp-gateway-readonly-v0.1-acceptance-20260715.md). Product `main` and `origin/main` matched at that commit. | One local allowlisted read-only `server.local.context/context.today` tool with bounded timeout, input/output limits, concurrency, idempotency, metadata-only audit, and failure isolation; no remote server, state-changing tool, durable audit store, or arbitrary iOS MCP runtime. |
 | 10A | `PAC-IOS-OWNER-TOOLS-UI` (`completed 2026-07-16`) | L1 local/synthetic, default-off | Accepted and pushed at product `c550d4b`; see the [manifest](manifests/ios-owner-tools-v0.1.md) and [acceptance report](reports/ios-owner-tools-v0.1-acceptance-20260716.md). Depends on 9B and 10. | Single-owner Provider create/replace/delete/validation UI and exact `server.local.context/context.today` call UI behind independent default-off gates; saved secrets never return to iOS, arbitrary MCP inputs remain unreachable, and no deployment or real Provider/MCP evidence is accepted. |
 | 11 | `PAC-IOS-SUPPORTED-APP-ACTION` (`completed 2026-07-15`) | L1 mock/Simulator first | Accepted at product `7547d8a`; see the [manifest](manifests/ios-supported-app-action-v0.1.md) and [acceptance report](reports/ios-supported-app-action-v0.1-acceptance-20260715.md). | Exactly one fixed public `companion.share_capabilities -> system.share_sheet` handoff through SwiftUI `ShareLink`; no receipt, durable audit, cancellation observation, target completion, dynamic data, or real-device action. |

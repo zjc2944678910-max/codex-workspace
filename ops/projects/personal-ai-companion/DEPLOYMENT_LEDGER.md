@@ -15,7 +15,7 @@
   image. `xiaoxin-cloud-api:20260712T2352-google-state` remains the next older
   rollback anchor; earlier email and direct-flow images remain historical.
 - The durable canonical product source and GitHub default branch are now
-  `main@5225740`. Historical deployment anchor `72258a1`, logout repair
+  `main@0e53f74`. Historical deployment anchor `72258a1`, logout repair
   `b8462a9`, iOS owner tools `c550d4b`, and native actions `54a069a` remain in
   that lineage. Redundant compatibility refs
   `codex/initial-private-publish` and `codex/pac-google-logout-revocation-fix`
@@ -432,7 +432,7 @@ rollback, not as the first recovery action.
 - At the 2026-07-13 deployment, the source came from the dirty product-polish
   worktree. That source lineage was later committed at `b9a5d7b`, was present by
   StackChan landing commit `9dbfafc`, and was recorded in then-current
-  `main@72258a1`; current product authority is `main@5225740`. Exact byte-for-byte or
+  `main@72258a1`; current product authority is `main@0e53f74`. Exact byte-for-byte or
   build-provenance correspondence between the running image and a specific
   commit remains unconfirmed without independent evidence. A signed real-device
   or App Store build also remains unconfirmed.
