@@ -39,8 +39,18 @@ or the project README.
   plus idempotent StackChan enqueue and TTL reconciliation. Order 14C adds
   stable Host pairing ownership, origin-bound Bridge result routing, and
   deferred per-request status credential resolution. Order 14D adds atomic
-  Bridge v0.2 expiry cleanup and rejects changed result-ID replay. It has no
-  live or deployment acceptance.
+  Bridge v0.2 expiry cleanup and rejects changed result-ID replay. The current
+  uncommitted order 14E worktree adds the status-only test-machine worker,
+  durable frozen result journal, bounded field runbook, persistent status
+  daemon, and Bridge LaunchAgent. Worker hardening adds full-command journal
+  correlation, validated-ACK/empty-poll cleanup, exact privacy validation, and
+  strict runtime NVS configuration. One signed-iPhone four-field status
+  roundtrip, soft-reset auto-start, forced Bridge restart, six-second Bridge
+  outage recovery, two distinct commands inside one TTL, one physical cold
+  boot with a later owner-triggered iPhone refresh, and foreground snapshot
+  retention are accepted. Repeated cold-boot reliability and iPhone VPN/LAN
+  route recovery remain unconfirmed residuals;
+  cloud/public deployment and non-status device automation remain unaccepted.
   Redundant compatibility
   refs `codex/initial-private-publish`
   and `codex/pac-google-logout-revocation-fix` were retired after promotion.
@@ -431,6 +441,7 @@ remote or state-changing MCP work.
 | 14B | `PAC-IOS-CHAT-LIFECYCLE-STACKCHAN-RECONCILIATION` (`completed and pushed 2026-07-16`, local/default-off) | L1 iOS lifecycle and state-machine tests | Product `1abf23a`; see the [manifest](manifests/ios-chat-lifecycle-stackchan-reconciliation-v0.1.md) and [acceptance report](reports/ios-chat-lifecycle-stackchan-reconciliation-v0.1-acceptance-20260716.md). | Four synthetic Chat factory/IdentityGate/ChatViewModel lifecycle tests; uncertain StackChan enqueue reconciliation, exact pre-expiry idempotent retry, TTL replacement, and stale-completion rejection. Gates stay false. Bridge v0.2 TTL cleanup is completed by 14D. |
 | 14C | `PAC-IOS-HOST-PAIRING-STATE-OWNERSHIP` (`completed and pushed 2026-07-16`, local/default-off) | L1 iOS Host/state ownership and routing tests | Product `1abf23a`; see the [manifest](manifests/ios-host-pairing-state-ownership-v0.1.md) and [acceptance report](reports/ios-host-pairing-state-ownership-v0.1-acceptance-20260716.md). | Stable reloadable Host Bridge, no pairing-driven App/StateObject rebuild, origin-bound pending request routing, fail-closed retired/evicted/colliding IDs, Device pending-result preservation, and deferred latest-credential status requests. `16` XCTest cases and all affected smoke/build checks pass. Gates stay false; no real API, Keychain, Bridge, device, or deployment. |
 | 14D | `PAC-STACKCHAN-V02-LIFECYCLE-HARDENING` (`completed and pushed 2026-07-16`, local/default-off) | L1 Bridge lifecycle and concurrency tests | Product `1abf23a`; see the [manifest](manifests/stackchan-v02-lifecycle-hardening-v0.1.md) and [acceptance report](reports/stackchan-v02-lifecycle-hardening-v0.1-acceptance-20260716.md). | Injectable epoch-ms clock; atomic expiry cleanup across command/state/idempotency/result indexes; `410` expired admission; late writes/reads fail closed; concurrent idempotency replacement stays single-winner; changed result-ID replay returns conflict. `14` focused, `95` StackChan, `1766` full Python, and `16` Swift tests pass. No live API, Bridge/device, credential, service change, or deployment. |
+| 14E | `PAC-STACKCHAN-V02-STATUS-WORKER-TEST-ENVIRONMENT` (`local continuous runtime accepted in uncommitted worktree 2026-07-17`, default-off iOS) | L1 source plus authorized bounded L3 field repair | Based on product `1abf23a`; see the [manifest](manifests/stackchan-v02-status-worker-test-environment-v0.1.md), [one-shot acceptance](reports/stackchan-v02-status-worker-test-environment-v0.1-acceptance-20260716.md), and [continuous-runtime acceptance](reports/stackchan-v02-status-continuous-runtime-acceptance-20260717.md). | Status-only dedicated-device poller; full-command frozen journal with validated-ACK/empty-poll cleanup; exact privacy and runtime-NVS validation; primary-before-ACK ordering; strict credential/response/TTL/correlation boundaries; manual-triggered iOS polling bounded to nine reads with dedicated inter-poll cancellation coverage; transport/5xx-only daemon backoff; empty-poll log suppression; user LaunchAgent; and flag-gated network-first device auto-start. Signed iPhone field status, soft reset, forced Bridge restart, six-second Bridge outage recovery, two distinct automatic commands inside one TTL, one physical cold boot with a later iPhone refresh, completed-snapshot foreground retention, and queue zero are accepted. `66` focused UIFlow2, `186` StackChan, `1857` full Python, and `17` Swift tests pass. Repeated cold-boot reliability and iPhone VPN/LAN route recovery remain residuals; checked-in iOS gates stay false; no cloud/public deployment, commit, or push. |
 
 This table is the current implementation queue. The runbook remains normative
 for risk/status vocabulary, manual repair gates, and stop conditions. This table

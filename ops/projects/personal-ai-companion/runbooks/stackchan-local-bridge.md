@@ -15,7 +15,14 @@ This runbook covers the local authenticated StackChan bridge for
 
 - Current bridge listener: `192.168.31.225:18769`.
 - Current bridge upstream: `http://127.0.0.1:8768/v1/chat`.
-- Current device entry: boot-time PAC auto-start v1.2.
+- Current bridge supervisor: user LaunchAgent
+  `xyz.nodezjc12348888.personal-ai-companion.stackchan-bridge`.
+- Current device entry: the flag-gated boot hook starts the status-only v0.2
+  daemon at `/flash/apps/04_pac_v02_status_daemon.py` after network setup and
+  the existing three-second Ctrl-C window.
+- The UIFlow2 worker reads its Bridge URL, dedicated device ID, and firmware
+  label from runtime-only `pac` NVS keys. The current private endpoint and
+  identity are not embedded in worker source.
 - Manual UIFlow2 App List launch remains a rollback/fallback path.
 - Command protocol v0.1 is documented in
   `runbooks/stackchan-command-protocol-v0.1.md`, deployed into the current
@@ -44,10 +51,34 @@ This runbook covers the local authenticated StackChan bridge for
   `/Users/zhangjincheng/Documents/GitHub/codex-workspace/state/project-data/personal-ai-companion/stackchan-bridge/token`
 - Local PID file:
   `/Users/zhangjincheng/Documents/GitHub/codex-workspace/state/project-data/personal-ai-companion/stackchan-bridge/stackchan_bridge.pid`
+- LaunchAgent plist:
+  `/Users/zhangjincheng/Library/LaunchAgents/xyz.nodezjc12348888.personal-ai-companion.stackchan-bridge.plist`
+- LaunchAgent stdout/stderr:
+  `/Users/zhangjincheng/Documents/GitHub/codex-workspace/state/project-data/personal-ai-companion/stackchan-bridge/launchagent.stdout.log`
+  and `launchagent.stderr.log`
 
 The token file is local state and must not be committed or printed.
 
 ## Start
+
+The current entry is the user LaunchAgent. It uses absolute executable paths,
+reads the credential only from the owner-only token file, starts at login, and
+restarts only after an abnormal exit.
+
+```bash
+plutil -lint "$HOME/Library/LaunchAgents/xyz.nodezjc12348888.personal-ai-companion.stackchan-bridge.plist"
+launchctl bootstrap "gui/$(id -u)" "$HOME/Library/LaunchAgents/xyz.nodezjc12348888.personal-ai-companion.stackchan-bridge.plist"
+launchctl list xyz.nodezjc12348888.personal-ai-companion.stackchan-bridge
+```
+
+Use `launchctl kickstart -k` instead of a second `bootstrap` when the job is
+already loaded. Do not use `launchctl print` in shared evidence because the GUI
+launchd domain may display unrelated inherited environment values.
+
+## Historical Manual Start
+
+This screen-based start remains a fallback when the LaunchAgent has been
+explicitly unloaded:
 
 ```bash
 cd /Users/zhangjincheng/Documents/GitHub/codex-workspace/projects/products/personal-ai-companion
@@ -63,6 +94,7 @@ exec python3 -u scripts/stackchan_bridge.py \
   --port 18769 \
   --allow-client 192.168.31.225 \
   --allow-client 192.168.31.215 \
+  --allow-client 192.168.31.132 \
   --token-file '$STATE_DIR/token' \
   --scope owner_private \
   --model-hint claude \
@@ -161,9 +193,21 @@ Current device auto-start state:
 - `/flash/main.py` is the original placeholder:
   `# main.py`
 - The auto-start path runs:
-  `/flash/apps/00_pac_bridge_demo.py`
-- This sends only the `DEVICE_CONNECTED` handshake. Short text chat remains
-  manual through:
+  `/flash/apps/04_pac_v02_status_daemon.py`
+- The daemon polls only the dedicated `stackchan-status-test` v0.2 status
+  identity. It retries only transport and HTTP 5xx failures with capped
+  exponential backoff. Credential, HTTP 4xx, protocol, correlation, expiry,
+  runtime-config, journal-integrity, unsupported-command, keyboard interrupt,
+  and unexpected errors stop it.
+- The worker journal stores the complete validated command and frozen primary/
+  ACK payloads. It is retained through ACK transport/5xx ambiguity, removed only
+  after strict ACK response validation, and cleared after a successful empty
+  poll when the Bridge has already completed the command.
+- Runtime configuration uses ESP32 NVS namespace `pac` with keys `bridge_url`,
+  `device_id`, and `firmware_label`. The URL must be canonical HTTP with a
+  literal RFC1918 address and explicit port; labels are bounded ASCII values.
+- The previous handshake entry remains installed at
+  `/flash/apps/00_pac_bridge_demo.py`. Short text chat remains manual through:
   `/flash/apps/01_pac_chat_test.py`
 
 Local backup and patch evidence:
@@ -174,6 +218,13 @@ Local backup and patch evidence:
   `/Users/zhangjincheng/Documents/GitHub/codex-workspace/scratch/projects/personal-ai-companion/stackchan-integration-20260708/boot-py-pac-autostart-20260708-215857.py`
 - Original main placeholder backup:
   `/Users/zhangjincheng/Documents/GitHub/codex-workspace/scratch/projects/personal-ai-companion/stackchan-integration-20260708/backups/main-py-before-autostart-20260708-214949.py`
+- Continuous-runtime pre-switch boot backup:
+  `/Users/zhangjincheng/Documents/GitHub/codex-workspace/scratch/projects/personal-ai-companion/stackchan-continuous-20260717/device-before-boot-switch-20260717-012552/boot.py`
+- Continuous-runtime installed boot source:
+  `/Users/zhangjincheng/Documents/GitHub/codex-workspace/scratch/projects/personal-ai-companion/stackchan-continuous-20260717/boot-status-daemon-20260717-012552.py`
+- Pre-worker-hardening backup, including the old worker, unchanged daemon,
+  prior journal, and non-credential NVS state:
+  `/Users/zhangjincheng/Documents/GitHub/codex-workspace/scratch/projects/personal-ai-companion/stackchan-continuous-20260717/device-before-worker-hardening-20260717-021652/`
 
 Disable auto-start from StackChan REPL:
 
@@ -203,20 +254,60 @@ machine.reset()
 ## Stop
 
 ```bash
-kill "$(cat /Users/zhangjincheng/Documents/GitHub/codex-workspace/state/project-data/personal-ai-companion/stackchan-bridge/stackchan_bridge.pid)"
-screen -S personal-ai-companion-stackchan-bridge -X quit
+launchctl bootout "gui/$(id -u)/xyz.nodezjc12348888.personal-ai-companion.stackchan-bridge"
 ```
+
+For a historical screen-based fallback process, use its PID file and screen
+session only after confirming the LaunchAgent is unloaded.
 
 ## Rollback
 
-- Stop the bridge process with the command above.
+- Unload the LaunchAgent with the command above.
 - Keep `127.0.0.1:8768` unchanged.
-- If needed, restart the previous scratch bridge from the session notes.
-- Remove only local bridge state if intentionally decommissioning:
+- To restore the prior device boot target exactly, run the bounded USB helper
+  from the continuous-runtime scratch directory:
 
 ```bash
-rm -rf /Users/zhangjincheng/Documents/GitHub/codex-workspace/state/project-data/personal-ai-companion/stackchan-bridge
+cd /Users/zhangjincheng/Documents/GitHub/codex-workspace/scratch/projects/personal-ai-companion/stackchan-continuous-20260717
+uv run --with mpremote python device_switch_boot_target.py \
+  --port /dev/cu.usbmodem101 \
+  --expected-current boot-status-daemon-20260717-012552.py \
+  --replacement device-before-boot-switch-20260717-012552/boot.py
 ```
+
+- Soft-reset the device only after the reverse write verifies its hash.
+- To roll back only the worker hardening, restore the owner-only pre-hardening
+  worker and daemon backup with the bounded USB helper:
+
+```bash
+cd /Users/zhangjincheng/Documents/GitHub/codex-workspace/scratch/projects/personal-ai-companion/stackchan-continuous-20260717
+uv run --with mpremote python device_install_status_daemon.py \
+  --port /dev/cu.usbmodem101 \
+  --worker device-before-worker-hardening-20260717-021652/pac_v02_status_worker.py \
+  --daemon device-before-worker-hardening-20260717-021652/apps__04_pac_v02_status_daemon.py
+```
+
+- The three runtime keys did not exist before this repair. Erase them from the
+  StackChan REPL for an exact NVS rollback, then reset:
+
+```python
+import esp32, machine
+nvs = esp32.NVS("pac")
+for key in ("bridge_url", "device_id", "firmware_label"):
+    try:
+        nvs.erase_key(key)
+    except OSError:
+        pass
+nvs.commit()
+machine.reset()
+```
+
+- The rollback leaves `/flash/main.py`, `boot_option=2`, the flag, token NVS,
+  old app, and status files intact.
+- Do not delete the token or state directory as part of ordinary rollback.
+- Fixed DHCP addresses remain a live dependency. If `.225`, `.215`, or `.132`
+  changes, stop and update the Bridge allowlist, worker NVS, and temporary iOS
+  configuration under a fresh L3 gate.
 
 ## Device Notes
 
@@ -225,6 +316,9 @@ rm -rf /Users/zhangjincheng/Documents/GitHub/codex-workspace/state/project-data/
 - For MicroPython, send JSON request bodies as UTF-8 bytes so `Content-Length`
   is byte-accurate for non-ASCII text.
 - Device token storage uses ESP32 NVS namespace `pac`, key `bridge_token`.
+- Device runtime status configuration uses the same namespace with separate
+  `bridge_url`, `device_id`, and `firmware_label` keys. Do not place the token in
+  any of those values or in evidence output.
 - Manual client file:
   `/flash/pac_bridge_client.py`
 - UIFlow2 app-list entry:

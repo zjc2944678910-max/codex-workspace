@@ -2,7 +2,18 @@
 
 ## Current Recorded Baseline
 
-- Latest completed automated live verification in this ledger: 2026-07-16.
+- Latest completed owner-visible live verification in this ledger: 2026-07-17.
+- Latest Chat model experiment (2026-07-17) is recorded in
+  [the Sonnet experiment report](reports/chat-sonnet-default-experiment-20260717.md).
+  The temporary Sonnet default passed one sample at `4556.6 ms` but failed the
+  hard `8 s` maximum on the second at `10324.3 ms`; the third allowed sample was
+  not sent. The API was rolled back to the Opus default using the verified
+  `sonnet-experiment-before` backup. Current model configuration is default
+  `claude-opus-4-6-thinking`, Sonnet alias `claude-sonnet-4-6`, and complex Opus
+  alias `claude-opus-4-6-thinking`. The current Chat baseline is
+  `conversation_messages=6`, `session_deltas=0`, `memory_atoms=0`,
+  `model_usage_logs=3`; API/DB health and identity checks passed. No commit or
+  push was performed.
 - The bounded App-to-StackChan LCD v0.1 field sequence is complete: the owner
   observed `happy` after its correlated acknowledgement, then observed
   safety-terminal `neutral` after its separate correlated acknowledgement.
@@ -10,12 +21,16 @@
   `9dbfafc`; this is not evidence for repeated reliability or any non-LCD
   capability.
 - Latest verified Xiaoxin API image:
-  `xiaoxin-cloud-api:20260716T111947-health-dark`.
-- `xiaoxin-cloud-api:20260713T0137-native-google` is the immediate API rollback
-  image. `xiaoxin-cloud-api:20260712T2352-google-state` remains the next older
-  rollback anchor; earlier email and direct-flow images remain historical.
+  `xiaoxin-cloud-api:20260717T170800-chat-latency`, NAS-normalized image ID
+  `sha256:1b785f1a4336175186d86ca0d46232c8e5c6c76f22e04a5bee1bde9a8ee0015d`.
+- `xiaoxin-cloud-api:20260717T135348-chat-latency` is the immediate API rollback
+  image. `xiaoxin-cloud-api:20260717T114059-chat-candidate`,
+  `xiaoxin-cloud-api:20260716T111947-health-dark`,
+  `xiaoxin-cloud-api:20260713T0137-native-google`, and
+  `xiaoxin-cloud-api:20260712T2352-google-state` remain older rollback anchors;
+  earlier email and direct-flow images remain historical.
 - The durable canonical product source and GitHub default branch are now
-  `main@0e53f74`. Historical deployment anchor `72258a1`, logout repair
+  `main@1abf23a`. Historical deployment anchor `72258a1`, logout repair
   `b8462a9`, iOS owner tools `c550d4b`, and native actions `54a069a` remain in
   that lineage. Redundant compatibility refs
   `codex/initial-private-publish` and `codex/pac-google-logout-revocation-fix`
@@ -31,10 +46,159 @@
 - Health Shortcut hardening is dark-deployed with the route disabled. The
   additive credential and metadata-only audit schema is present, but both
   tables contain zero rows and no real scoped credential has been issued.
-- The running dark image predates product `5225740`'s post-deployment repairs
-  for pre-buffer stream-size enforcement and management-path audit retention.
-  It must remain disabled until a separately reviewed image is rebuilt and
-  deployed from `5225740` or a reviewed descendant.
+- The running Chat image is built from `1abf23a`, a reviewed descendant of
+  product `5225740`, so it includes the pre-buffer stream-size enforcement and
+  management-path audit-retention repairs. The Health route remains explicitly
+  disabled/404 with zero credential and audit rows.
+- Owner-only authenticated Chat is enabled for one matched Cloud owner with an
+  isolated Chat memory volume and credentialed HTTPS relay. Latency telemetry
+  now correlates iOS, API, and relay phases without logging content or identity.
+  Three repair-stage temporary turns left the preflight table baseline unchanged
+  at `conversation_messages=4`, `model_usage_logs=2`,
+  `session_deltas=0`, and `memory_atoms=0`. The existing persisted rows are
+  new evidence that standard mode was exercised outside the original temporary
+  acceptance; standard persisted Chat remains unaccepted.
+- The signed field App contains both authenticated Chat and StackChan status,
+  plus content-free Chat latency console evidence.
+  One post-install StackChan refresh completed after reconnecting stale iPhone
+  Wi-Fi routing; the Bridge queue returned to zero. The stale VPN/Wi-Fi route
+  remains an operational residual. Two correlated Chat samples now complete in
+  `5.281-10.383` seconds; relay/model response-header wait is the dominant and
+  variable stage. See the
+  [latency repair report](reports/chat-latency-observability-repair-20260717.md).
+
+- The 2026-07-17 standard Chat memory/style repair is live in
+  `xiaoxin-cloud-api:20260717T184100-chat-memory-style`. Standard authenticated
+  turns now persist atomically, send explicit candidate-memory consent only
+  when the owner enables the iOS setting, keep candidates review-required, and
+  inject the read-only `girlfriend_style` profile. The iOS client uses a
+  90-second Chat transport timeout. A final owner-triggered standard turn
+  increased the sanitized Chat counts from `12/3/2/2/6` to `14/4/2/2/7`
+  (messages/session deltas/memory atoms/open reviews/usage logs); the two
+  preference candidates remained open and unpromoted. The API returned `200`
+  in about `4.29 s`, with no traceback, and API/DB restart counts remained
+  zero. The server-side integration is accepted; a saved iOS console capture
+  of the final visible reply was unavailable, so that client-visible check is
+  retained as an owner-observed residual. See the
+  [standard Chat memory/style repair report](reports/standard-chat-memory-style-repair-20260717.md).
+
+## 2026-07-17: Authenticated Chat Latency Observability Repair
+
+Task level: `L3 repair execution` after a bounded L2 latency audit and explicit
+owner authorization. The change added content-free trace correlation and
+timings only; model, timeout, memory, persistence, retry, Health, Provider/MCP,
+StackChan, VPS, Cloudflare, and database behavior remained unchanged.
+
+### Deployment And Verification
+
+- Current image:
+  `xiaoxin-cloud-api:20260717T170800-chat-latency`, API container
+  `f20a286a6f31e3b27b582d0b4066f8898018d1956aea8dc5785341de9aa8ab94`.
+  PostgreSQL stayed at
+  `bff211a48f2922d0c3351bed1d6a8b4f10b72ed578b92c34477f75f33ddb072a`.
+- Root-only rollback anchors:
+  `/var/backups/xiaoxin-auth/20260717T164318+0800/chat-latency-before` and
+  `/var/backups/xiaoxin-auth/20260717T171455+0800/chat-latency-logfix-before`.
+  PostgreSQL dump, Chat SQLite online backup, and manifests passed.
+- The signed same-bundle App preserved its login data. Its Host binary SHA-256
+  is `d3c9e66b47ea5ab10a235003ae569b401fbff66bc84ad2545e2f15bde8db91c3`.
+- Local verification passed `1772` full Python tests on the first candidate,
+  `62` focused Python tests and `30` Swift tests on the final log-sink
+  candidate, plus Ruff, compileall, codesign, image source hash, archive, public
+  health/auth, and API-only cutover checks.
+
+### Live Attribution
+
+- Correlated temporary samples completed in `5281.3 ms` and `10382.5 ms`.
+  Token lookup was below `0.4 ms`; API/model phases were `4590.5/4589.9 ms`
+  and `9624.7/9624.2 ms`.
+- Relay waits for response headers were `4192.1 ms` and `9248.0 ms`.
+  Their `5.056 s` increase explains about 99% of the total sample variation.
+- Client HTTP minus API time was a secondary, steadier `688.4-756.5 ms`.
+  Pre/post-model, decode, and body-read work were negligible.
+- The dominant wait is therefore upstream of local API processing and inside
+  the relay/model response-header interval. Current evidence cannot distinguish
+  relay queueing from provider model inference.
+- The non-streaming UI exposes the entire wait before showing the complete JSON
+  reply. Streaming or a model/config comparison requires a separately named
+  repair decision.
+- All temporary repair turns left the exact `4/0/0/2` Chat-table baseline
+  unchanged. Final API/DB health is good, restart counts are zero, and no recent
+  traceback/error was found.
+
+Detailed evidence, limitations, and rollback are in the
+[latency repair report](reports/chat-latency-observability-repair-20260717.md).
+
+## 2026-07-17: Authenticated Chat And Combined iOS Field Acceptance
+
+Task level: `L3 repair execution` after L2 evidence, local candidate
+verification, and explicit owner authorization. Live scope was limited to the
+Xiaoxin API image and Chat configuration, an isolated Chat volume, API-only
+recreation, and installation of the signed combined Chat/StackChan iOS App.
+Health, Provider/MCP, display, motion, audio, camera, touch, VPS, Cloudflare,
+tunnel configuration, database schema, account mutation, and standard
+persisted Chat were excluded.
+
+### Backup And Deployment
+
+- Fresh verified root-only backup:
+  `/var/backups/xiaoxin-auth/20260717T120205+0800/authenticated-chat-before`.
+  It contains Compose, the byte-preserved NAS override, private environment,
+  container/image metadata, PostgreSQL dump, and the Chat-off intermediate
+  state.
+- The candidate archive transferred and checksum-verified before load. The
+  deployed image is `xiaoxin-cloud-api:20260717T114059-chat-candidate`; the API
+  container ID is
+  `d00fde12324ea0245ffab9731f92f77a93fcfb05af1be186fe143fa6b216ab5e`.
+- The PostgreSQL container remained unchanged at
+  `bff211a48f2922d0c3351bed1d6a8b4f10b72ed578b92c34477f75f33ddb072a`.
+- Compose gained only the reviewed Chat image/environment/mount additions and
+  the isolated `xiaoxin-cloud_xiaoxin-chat-memory` volume. The deployment
+  environment remains `0600 root:root`; no token, relay key, or full owner UUID
+  was printed.
+- The server was recreated with Chat explicitly off first. Health, readiness,
+  auth parity, unchanged DB identity, mount/security settings, and route
+  absence passed before a second API-only recreation enabled Chat. Public
+  `GET /v1/chat` then changed from `404` to the expected `405`.
+- The signed combined App installed with the existing Bundle ID and retained
+  the existing signed-in session. App launch completed token refresh with HTTP
+  `200`; neither Chat nor StackChan sent an unprompted request.
+
+### Owner-Visible Verification
+
+- The owner selected temporary mode and sent one public-safe message. API logs
+  record `POST /v1/chat` HTTP `200` at `2026-07-17T12:26:42+08:00`; the App
+  displayed the exact correlated reply `临时对话联调成功`.
+- The client rejects a temporary response unless its conversation ID matches
+  and `memory_status=ephemeral`. Post-turn SQLite integrity is `ok`, while
+  `conversation_messages`, `session_deltas`, `memory_atoms`, and
+  `model_usage_logs` remain zero.
+- The interval from the same-turn token refresh completion to Chat completion
+  was about `16.3` seconds. The request was correct and stable but subjectively
+  slow; no performance configuration was changed during acceptance.
+- The first post-Chat StackChan refresh and a Safari health probe timed out
+  before reaching the Bridge. Mac listener, allowlist, process, and health were
+  intact. Reconnecting iPhone Wi-Fi restored two iPhone `/healthz` requests,
+  both HTTP `200`, matching the known stale VPN/Wi-Fi route residual.
+- The next single manual refresh completed iPhone enqueue `202`, worker poll
+  `200`, result upload `202`, iPhone result read `200`, and ACK `200`. The UI
+  displayed battery `100%`, network `Wi-Fi`, uptime `3 hours 18 minutes`, and
+  firmware `uiflow2-v2.4.8`; final Bridge queue depth was zero.
+- Final public health/readiness passed, the API and DB remained healthy, and no
+  Chat traceback or StackChan command from the Chat turn was found.
+
+### Rollback And Residual Risk
+
+- Server rollback restores the retained backup's Compose/environment and prior
+  image, then recreates only the API. Keep the new Chat volume and temporary
+  archives intact during routine rollback; do not restore the PostgreSQL dump
+  unless disaster recovery is required.
+- iOS rollback App:
+  `scratch/projects/personal-ai-companion/stackchan-continuous-20260717/ios-status-snapshot-retention-20260717-1018/DerivedData/Build/Products/Debug-iphoneos/PersonalAICompanionHost.app`.
+- Standard persisted Chat, repeated Chat latency, streaming, model selection,
+  repeated cold-boot reliability, automatic iPhone VPN/LAN route recovery, and
+  App Store/TestFlight distribution remain unaccepted. No commit or push was
+  performed by this deployment acceptance.
 
 ## 2026-07-16: Health Shortcut Security Hardening Dark Deployment
 
@@ -432,7 +596,7 @@ rollback, not as the first recovery action.
 - At the 2026-07-13 deployment, the source came from the dirty product-polish
   worktree. That source lineage was later committed at `b9a5d7b`, was present by
   StackChan landing commit `9dbfafc`, and was recorded in then-current
-  `main@72258a1`; current product authority is `main@0e53f74`. Exact byte-for-byte or
+  `main@72258a1`; current product authority is `main@1abf23a`. Exact byte-for-byte or
   build-provenance correspondence between the running image and a specific
   commit remains unconfirmed without independent evidence. A signed real-device
   or App Store build also remains unconfirmed.
