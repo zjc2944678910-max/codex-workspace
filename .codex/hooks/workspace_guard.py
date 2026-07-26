@@ -18,7 +18,7 @@ WORKSPACE_ROOT = Path("/Users/zhangjincheng/Documents/GitHub/codex-workspace")
 STATE_PATH = Path.home() / ".codex" / "state" / "codex-workspace-hooks.json"
 PROJECT_REGISTRY_PATH = WORKSPACE_ROOT / "docs" / "workspace" / "project-registry.json"
 REPAIR_PHRASE = "进入修复阶段"
-REPAIR_AUTH_TTL_SECONDS = 30 * 60
+REPAIR_AUTH_SCOPE = "task"
 
 
 READ_ONLY_LIVE_TERMS = [
@@ -205,7 +205,11 @@ def prune_expired_repair_auth(state: dict[str, Any], now: int | None = None) -> 
     return {
         key: value
         for key, value in state.items()
-        if isinstance(value, dict) and int(value.get("expires_at") or 0) > current_time
+        if isinstance(value, dict)
+        and (
+            value.get("scope") == REPAIR_AUTH_SCOPE
+            or int(value.get("expires_at") or 0) > current_time
+        )
     }
 
 
@@ -316,8 +320,17 @@ def record_repair_auth(payload: dict[str, Any]) -> None:
     state = prune_expired_repair_auth(read_state(), now)
     state[session_key(payload)] = {
         "authorized_at": now,
-        "expires_at": now + REPAIR_AUTH_TTL_SECONDS,
+        "scope": REPAIR_AUTH_SCOPE,
     }
+    write_state(state)
+
+
+def clear_repair_auth(payload: dict[str, Any]) -> None:
+    state = read_state()
+    key = session_key(payload)
+    if key not in state:
+        return
+    del state[key]
     write_state(state)
 
 
@@ -329,7 +342,10 @@ def repair_auth_active(payload: dict[str, Any]) -> bool:
     entry = pruned_state.get(session_key(payload))
     if not isinstance(entry, dict):
         return False
-    return int(entry.get("expires_at") or 0) > int(time.time())
+    return (
+        entry.get("scope") == REPAIR_AUTH_SCOPE
+        or int(entry.get("expires_at") or 0) > int(time.time())
+    )
 
 
 def workspace_context() -> str:
@@ -407,7 +423,9 @@ def prompt_context(payload: dict[str, Any]) -> str:
     if REPAIR_PHRASE in prompt:
         record_repair_auth(payload)
         parts.append(
-            "Repair gate phrase detected for this session for 30 minutes. Keep the L3 plan scoped, preserve rollback evidence, and do not broaden the repair."
+            "Repair gate phrase detected for the current task. "
+            "Authorization remains active until the task stops; keep the L3 plan scoped, "
+            "preserve rollback evidence, and do not broaden the repair."
         )
 
     return " ".join(parts)
@@ -628,7 +646,8 @@ def check_command(payload: dict[str, Any]) -> None:
     if policy == "l3_block":
         if repair_auth_active(payload):
             emit_system_message(
-                f"Workspace hook: L3-looking command allowed because {REPAIR_PHRASE!r} was seen recently. Keep execution scoped and verify rollback."
+                f"Workspace hook: L3-looking command allowed because {REPAIR_PHRASE!r} "
+                "is active for the current task. Keep execution scoped and verify rollback."
             )
             return
         deny_pre_tool(f"{reason} Ask the user to say {REPAIR_PHRASE!r} before executing this state-changing action.")
@@ -654,6 +673,7 @@ def check_permission_request(payload: dict[str, Any]) -> None:
 
 
 def check_stop(payload: dict[str, Any]) -> None:
+    clear_repair_auth(payload)
     message = str(payload.get("last_assistant_message") or "")
     if not message.strip():
         return

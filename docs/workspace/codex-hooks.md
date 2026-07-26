@@ -25,7 +25,7 @@ commands, but they are not a complete security sandbox.
 | `PreToolUse` | Command guard | Blocks destructive local commands and L3-looking live mutations unless the repair gate is open, while allowing read-only inspection commands that merely mention blocked strings. |
 | `PermissionRequest` | Approval guard | Denies dangerous approval requests if approval prompts are enabled in a future profile. |
 | `PostToolUse` | Hygiene check | Runs workspace hygiene after file edits and only warns when policy-relevant issues appear. |
-| `Stop` | Closeout reminder | Reminds high-risk L2/L3/live answers to include evidence, risks, and next steps. |
+| `Stop` | Closeout and repair-gate cleanup | Clears task-scoped repair authorization and reminds high-risk L2/L3/live answers to include evidence, risks, and next steps. |
 
 ## Repair Gate
 
@@ -35,12 +35,16 @@ L3 repair execution remains gated by the exact user phrase:
 进入修复阶段
 ```
 
-When that phrase appears in a user prompt, the hook runner records a session
-repair window for 30 minutes in:
+When that phrase appears in a user prompt, the hook runner records task-scoped
+repair authorization in:
 
 ```text
 ~/.codex/state/codex-workspace-hooks.json
 ```
+
+The authorization stays active for the current task execution even when it runs
+longer than 30 minutes. The `Stop` hook removes it when that task execution ends,
+so it is not carried into the next task execution.
 
 The gate only relaxes L3-looking command blocking. It does not authorize broad
 scope changes, production cutovers, deploys, or unrelated cleanup.

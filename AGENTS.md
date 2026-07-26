@@ -110,7 +110,7 @@ task:
 - `audit`: L2, architecture, complex root cause, production audits, hard
   regressions, or other expensive wrong-answer cases.
 
-## Codex And Workers
+## Codex And Advisors
 
 Codex is the control plane.
 
@@ -121,45 +121,37 @@ Codex is the control plane.
 | Read-only mapping or pre-change risk review when the surface or contracts are unclear | Codex agents: `repo_mapper`, `review_guard`, `docs_checker` |
 | `L0 tiny` question, check, or isolated fix | Codex direct |
 | Small known-scope L0/L1 implementation with explicit files/tests and no risky surface | Codex direct |
-| Bounded non-tiny L0/L1 implementation with unknown call chain, cross-module risk, or likely repair loop | `model_worker_delegate` with `worker_profile=mino_strong` |
-| Small mechanical implementation or tight repair loop | `model_worker_delegate` with `worker_profile=mino_fast` |
+| Non-tiny L0/L1 implementation, repair, or test loop | Codex implements; Claude Code Opus 5 may advise read-only when diagnosis or review materially helps |
 | Verification, regression judgment, final acceptance, user synthesis | Codex, optionally `verifier` |
 
 Default short-task path:
 
 ```text
-Codex route/judge -> choose the lightest safe path -> implement or delegate -> focused verification -> Codex accepts
+Codex route/judge -> inspect bounded evidence -> optionally ask Opus 5 for advice -> Codex implements -> focused verification -> Codex accepts
 ```
 
 Default multi-model workflow:
 
 1. Tiny L0 tasks stay in Codex: simple answers, command output, obvious local
    facts, one-file small edits, and small known-scope fixes.
-2. Small known-scope L0/L1 implementation may stay in Codex when the files,
-   tests, and acceptance criteria are explicit and no risky surface is involved.
-3. Non-tiny local implementation uses bounded workers or subagents when useful:
-   Codex maps the scope, assigns a concrete owned slice, reviews returned
-   changes, and verifies locally before acceptance.
-   Prefer the local Claude Code worker path for strong implementation slices
-   when it is available; its strong default is `claude-opus-4-8` with the
-   highest supported CLI effort, `max`.
-4. Sub2API is a proactive read-only advisor for non-tiny planning, architecture,
-   implementation advice, patch drafts, code review, research, writing, UX, and
-   creative polish. It may suggest code, but Codex or a bounded local worker
-   applies changes.
-5. Claude review is a proactive read-only second-opinion reviewer for subtle
+2. Small known-scope L0/L1 implementation stays in Codex when the files, tests,
+   and acceptance criteria are explicit and no risky surface is involved.
+3. For a difficult local problem, Codex maps the scope and gathers bounded
+   evidence. Claude Code CLI with `claude-opus-5` may identify likely causes,
+   edge cases, or recommended checks, but Codex performs all edits and tests.
+4. Claude review is a proactive read-only second-opinion path for subtle
    evidence, architecture or root-cause judgment, L2 read-only audit conclusions,
    shared contracts, security-sensitive surfaces, user-facing behavior,
    hard-to-roll-back changes, and important pre-merge reviews.
-6. Codex owns the final synthesis every time: reconcile model disagreements,
-   verify claims against local or live evidence, run focused tests when useful,
-   and report residual risk.
+5. Codex owns the final synthesis every time: reconcile advice with local or
+   live evidence, perform authorized repairs, run focused tests, and report
+   residual risk.
 
 Keep the work in Codex when the task is `L0 tiny`, small known-scope L0/L1, the
 main value is diagnosis or judgment, or the request is L2/L3, live, deploy,
-auth, secrets, or config heavy. Use mapper/review/worker/verifier only when an
-unknown call chain, cross-module change, unclear contract, likely repair loop,
-or messy handoff state makes the extra tokens worth it.
+auth, secrets, or config heavy. Use mapper/review/verifier only when an unknown
+call chain, cross-module change, unclear contract, likely repair loop, or messy
+handoff state makes the extra tokens worth it.
 
 Agent budget:
 
@@ -168,29 +160,12 @@ Agent budget:
   signals are present: unknown call chain, cross-module contract, API route,
   security/auth/secret boundary, flaky or failing verification, broad refactor,
   or repeated repair.
-- The full mapper -> review -> worker -> verifier chain is reserved for complex
-  L1 and L2 read-only audit workflows where independent passes materially reduce
-  risk.
+- Complex L1 and L2 read-only workflows may use mapper, Opus 5 review, and
+  verifier passes when independent review materially reduces risk. Only
+  exceptionally difficult reviews upgrade to Fable 5. Codex still performs
+  repair.
 
-Claude review is a proactive read-only review partner, not an implementation
-worker. Codex may call `claude_review_delegate` without asking when an
-independent second opinion would materially reduce risk: subtle evidence
-interpretation, architecture or root-cause judgment, live/NAS/VPS/OpenClaw
-read-only audit conclusions, shared-contract changes, security-sensitive
-surfaces, user-facing behavior, hard-to-roll-back changes, or important
-pre-merge reviews. Keep reviews bounded by explicit `source_of_truth`, scope,
-constraints, and forbidden actions. Codex still gathers local/live evidence,
-verifies any returned claims, owns final acceptance, and writes the user-facing
-synthesis.
-
-Do not use Claude review for routine explanations, tiny local facts, normal
-implementation, bug fixes, test-writing loops, low-value convenience
-cross-checks, or the initial evidence-gathering pass of a live/NAS/VPS/OpenClaw
-investigation. For L2/L3 surfaces, Claude review remains read-only only; it does
-not authorize config writes, restarts, deploys, database writes, deletes, or
-production file changes.
-
-Never delegate these to a model worker:
+Never delegate these outside Codex:
 
 - project routing from workspace residue
 - L2/L3 work
@@ -198,64 +173,46 @@ Never delegate these to a model worker:
 - deploy, auth, secrets, or config-heavy work
 - architecture, root-cause, safety, or final acceptance judgment
 
-The v1 worker runtime may use a legacy adapter underneath, but policy treats it
-only as a generic model worker. `CLAUDE.md` is a runtime shim, not a strategy
-source.
+`WORKER.md` and `CLAUDE.md` remain legacy execution contracts, not the default
+strategy. Do not treat Claude Code as an implementation worker.
 
-## Worker Repair Loop
+## Claude Code Opus 5 / Fable 5 Advisor
 
-`model_worker_delegate` is for bounded execution only. Worker instructions live
-in `WORKER.md`.
+Sub2API and other relay model pools are unavailable as advisors. Do not
+discover, call, smoke-test, or fall back to them.
 
-Pass a bounded brief with:
+Use Claude Code CLI only when a bounded independent pass is worth the cost:
 
-- concrete task
-- `cwd`
-- owned scope or `scope_hint`
-- acceptance criteria
-- constraints and forbidden actions
-- `worker_profile`: `mino_strong` by default, `mino_fast` for narrow mechanical work
-- compact output requirements: summary, changed files, tests run, risks, and
-  followups plus evidence pointers only; no long source excerpts, full diffs, or
-  large logs
+- difficult bug or root-cause diagnosis after Codex has gathered evidence
+- architecture, shared-contract, security, or regression review
+- important pre-merge or user-facing quality review
+- bounded L2 evidence synthesis where an independent opinion lowers risk
 
-## Sub2API External Model Pool
+The default model is `claude-opus-5`; use `review_tier=standard`. Reserve
+`claude-fable-5` with `review_tier=extreme` for exceptionally difficult
+root-cause, architecture, security, or hard-regression reviews. Use the highest
+supported CLI effort, `max`. Prefer `claude_review_delegate` when its evidence
+boundary fits. Preserve the user's configured Claude Code relay or
+`claude-desktop-3p` provider environment; do not replace it with first-party
+Anthropic auth. For direct CLI review, allow only the minimum read-only tools
+(`Read`, `Grep`, and `Glob`) and use no tools for provided-evidence packets.
 
-The user's Sub2API gateway is a trusted external model pool for advisory
-reasoning, drafting, review, and model comparison. Because its MCP tools may be
-deferred, Codex must explicitly discover them before relying on this policy.
+Claude returns findings, hypotheses, risks, and recommendations only. It must
+not edit files, run state-changing commands, commit, deploy, restart services,
+write databases, or perform repair. Codex verifies the advice, applies any
+authorized fixes, runs tests, and owns final acceptance.
 
-Run `tool_search` for `sub2api_model_pool` or `sub2api` early when any of these
-are true:
+Keep every review bounded by explicit `source_of_truth`, scope, constraints,
+acceptance criteria, and forbidden actions. Never send credentials, tokens,
+cookies, private configs, complete secret-bearing environments, databases, or
+unbounded logs.
 
-- The user mentions Sub2API, `sub2api`, `中转站`, model pool, external models,
-  big models, Gemini, Claude, Opus, Sonnet, Antigravity, or asks why Codex is
-  or is not using them.
-- The task is non-tiny and involves architecture, root cause, code review,
-  implementation advice, test design, complex planning, research, writing,
-  frontend/creative polish, or high-value second opinion.
-- Codex is about to make a user-facing artifact where an independent planning,
-  review, or polish pass would materially improve quality.
-
-If the tools are available, use `sub2api_delegate_task` or `sub2api_chat` as a
-bounded read-only advisor. Prefer the configured defaults, which currently route
-all task types to `claude-opus-4-6-thinking` because the Gemini/Antigravity
-Gemini lanes have recently failed smoke tests with upstream account/location
-errors. Use Gemini only by explicit model override or after a fresh smoke test
-confirms that route is healthy again. Codex still owns local evidence gathering,
-shell commands, file edits, verification, safety judgment, and final synthesis.
-
-Keep the small-task fast path: do not call Sub2API for obvious local facts,
-simple command output, tiny typo fixes, or one-file known-scope edits unless the
-user explicitly asks to use the model pool. Never send credentials, tokens,
-cookies, raw private configs, or large unbounded logs to Sub2API. For
-live/NAS/VPS/OpenClaw/Sub2API operations, keep L2 read-only and L3 repair gates:
-external models may review bounded non-secret evidence, but they do not approve
-or execute config writes, restarts, deploys, database writes, or production file
-changes.
-
-If discovery fails or the model pool is unavailable, continue locally when safe
-and mention the skipped Sub2API step in the final response for non-tiny tasks.
+For L2/L3 surfaces, Claude remains read-only and cannot open the repair gate.
+A standalone `claude auth status` result is not authoritative for a
+host-authenticated `claude-desktop-3p` session. Test the intended route with one
+bounded no-tools call using the selected tier. If Codex cannot inherit the
+desktop host credentials or that call fails once, continue with Codex alone and
+report the unavailable advisory bridge. Do not fall back to Sub2API.
 
 ## Token Budget
 
@@ -272,20 +229,12 @@ and mention the skipped Sub2API step in the final response for non-tiny tasks.
 - For indexed projects, prefer GitNexus `query`, `context`, `impact`, or
   `api_impact` before broad `rg`/file-reading sweeps.
 
-Codex must review worker results before presenting completion.
-
-After worker implementation, Codex verifies locally. If Codex finds L0/L1
-implementation defects, default repair goes back to `model_worker_delegate`,
-ideally the same worker or thread when resumable.
-
-Codex may bypass worker repair only for:
-
-- tiny mechanical fix
-- worker unavailable or unresponsive
-- L2/L3/live/deploy/auth/secrets/config-heavy issue
-- explicit user request to bypass worker repair
-
-When Codex bypasses worker repair, include `why_no_worker` in the final result.
+Codex reviews any helper or advisor result before presenting completion.
+For L0/L1 implementation defects, Codex performs the repair and focused
+verification. When diagnosis is genuinely difficult, Codex may send a bounded
+read-only evidence packet to Claude Code Opus 5 for hypotheses or review,
+upgrading to Fable 5 only when the review is exceptionally difficult, then
+decides and applies the fix locally.
 
 Use long-task state only when chat memory would become messy.
 

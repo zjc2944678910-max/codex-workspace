@@ -248,7 +248,7 @@ test("permission hook denies L3 approval requests without repair gate", () => {
   assert.match(output.hookSpecificOutput.decision.message, /进入修复阶段/u);
 });
 
-test("repair authorization state prunes expired entries", () => {
+test("repair authorization state keeps task entries and prunes expired legacy entries", () => {
   const tempRoot = mkdtempSync(path.join(tmpdir(), "codex-workspace-hook-state-"));
   try {
     const statePath = path.join(tempRoot, "state.json");
@@ -267,10 +267,11 @@ module.STATE_PATH = pathlib.Path(${JSON.stringify(statePath)})
 now = int(time.time())
 module.write_state({
     "expired-session": {"authorized_at": now - 3600, "expires_at": now - 1},
-    "active-session": {"authorized_at": now, "expires_at": now + 600},
+    "active-legacy-session": {"authorized_at": now, "expires_at": now + 600},
+    "task-session": {"authorized_at": now - 7200, "scope": module.REPAIR_AUTH_SCOPE},
 })
 
-active = module.repair_auth_active({"session_id": "active-session"})
+active = module.repair_auth_active({"session_id": "task-session"})
 print(json.dumps({"active": active, "state": module.read_state()}))
 `;
 
@@ -286,7 +287,66 @@ print(json.dumps({"active": active, "state": module.read_state()}))
 
     const output = JSON.parse(result.stdout);
     assert.equal(output.active, true);
-    assert.deepEqual(Object.keys(output.state), ["active-session"]);
+    assert.deepEqual(Object.keys(output.state), ["active-legacy-session", "task-session"]);
+    assert.equal(output.state["task-session"].scope, "task");
+    assert.equal("expires_at" in output.state["task-session"], false);
+  } finally {
+    rmSync(tempRoot, { recursive: true, force: true });
+  }
+});
+
+test("repair authorization lasts until the stop hook completes the task", () => {
+  const tempRoot = mkdtempSync(path.join(tmpdir(), "codex-workspace-hook-state-"));
+  try {
+    const statePath = path.join(tempRoot, "state.json");
+    const python = `
+import importlib.util
+import json
+import pathlib
+
+script = pathlib.Path(${JSON.stringify(hookScript)})
+spec = importlib.util.spec_from_file_location("workspace_guard", script)
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+
+module.STATE_PATH = pathlib.Path(${JSON.stringify(statePath)})
+payload = {"session_id": "task-session", "prompt": module.REPAIR_PHRASE}
+context = module.prompt_context(payload)
+stored = module.read_state()["task-session"]
+active_before_stop = module.repair_auth_active(payload)
+module.check_stop({
+    **payload,
+    "last_assistant_message": "completed\\nconfirmed: local tests passed\\nrisks: none",
+})
+active_after_stop = module.repair_auth_active(payload)
+
+print(json.dumps({
+    "context": context,
+    "stored": stored,
+    "active_before_stop": active_before_stop,
+    "active_after_stop": active_after_stop,
+    "state": module.read_state(),
+}))
+`;
+
+    const result = spawnSync("python3", ["-c", python], {
+      cwd: repoRoot,
+      env: { ...process.env, PYTHONDONTWRITEBYTECODE: "1" },
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    if (result.status !== 0) {
+      throw new Error((result.stderr || result.stdout || `python exited ${result.status}`).trim());
+    }
+
+    const output = JSON.parse(result.stdout);
+    assert.match(output.context, /current task/u);
+    assert.doesNotMatch(output.context, /30 minutes/u);
+    assert.equal(output.stored.scope, "task");
+    assert.equal("expires_at" in output.stored, false);
+    assert.equal(output.active_before_stop, true);
+    assert.equal(output.active_after_stop, false);
+    assert.deepEqual(output.state, {});
   } finally {
     rmSync(tempRoot, { recursive: true, force: true });
   }

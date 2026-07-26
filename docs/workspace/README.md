@@ -11,7 +11,7 @@ Policy: `AGENTS.md`. Worker contract: `WORKER.md`.
 | `harness-contract.md` | Cross-cutting workspace harness contract for routing, permissions, tasks, verification, memory, and workers |
 | `daily-workflow.md` | Entry point for `L0 tiny` fast path, ordinary short-task workflow, capability defaults, and long-task escalation |
 | `project-knowledge-map.md` | Searchable map of project docs, route tokens, decisions, runbooks, and model-review playbooks |
-| `model-review-packets.md` | Reusable evidence packet templates for Sub2API advisors and Claude review |
+| `model-review-packets.md` | Reusable evidence packets for default Opus 5 and exceptional Fable 5 read-only review |
 | `codex-register-project.mjs` | Register a durable project surface and regenerate the root `PROJECTS.md` index |
 | `find-project.mjs` | Search the project registry by slug, alias, service, host, or route token |
 | `token-budget.md` | Profile selection, agent budget, output limits, evidence pointers, decision reuse, and GitNexus-first rules |

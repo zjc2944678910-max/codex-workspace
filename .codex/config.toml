@@ -1,8 +1,6 @@
 #:schema https://developers.openai.com/codex/config-schema.json
 
 review_model = "gpt-5.5"
-model_context_window = 1000000
-model_auto_compact_token_limit = 900000
 
 sandbox_mode = "danger-full-access"
 approval_policy = "never"
@@ -15,6 +13,7 @@ Use the lightest safe path; reserve xhigh/full agent chains for L2, architecture
 OpenClaw/NAS/live/production is L2 read-only; L3 state changes require "进入修复阶段".
 Use Route Lock for long tasks/handoffs and prefer compact file-pointer evidence.
 Workers follow WORKER.md and return compact results.
+Sub2API advisor routing is disabled. For difficult diagnosis or review, Claude Code CLI defaults to claude-opus-5 as a bounded read-only advisor; reserve claude-fable-5 for exceptionally difficult reviews. Codex performs all edits, fixes, verification, and final acceptance.
 """
 
 [features]
