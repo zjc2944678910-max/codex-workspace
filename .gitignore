@@ -24,3 +24,4 @@ result.json
 /ops/projects/*/logs/
 /ops/projects/*/quarantine/
 /ops/projects/*/rollback/*
+/tmp/
