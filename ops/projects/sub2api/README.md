@@ -31,7 +31,12 @@ belongs to this surface.
   - `node docs/workspace/workspace-health.mjs --repo "$PWD" --limit 12`
   - Project-specific commands belong in `## Key Commands` or project runbooks once confirmed.
 - Next useful work: Keep routing facts synced with the registry; promote durable findings into this README, runbooks, reports, or ledgers after read-only audits; write an explicit L3 plan only after the repair gate opens.
-- Model review guidance: Use Claude review or Sub2API only with bounded, redacted, read-only evidence. Do not send credentials, private configs, cookies, tokens, or unbounded logs. Use [model-review-packets.md](../../../docs/workspace/model-review-packets.md) for packet shape.
+- Model review guidance: Sub2API is a service-operations target only and is
+  disabled as a Codex advisor. For a valuable independent pass, use Claude Code
+  Opus 5 with bounded, redacted, read-only evidence; upgrade to Fable 5 only
+  when the review is exceptionally difficult. Codex owns fixes and final
+  acceptance. Do not send credentials, private configs, cookies, tokens, or
+  unbounded logs. Use [model-review-packets.md](../../../docs/workspace/model-review-packets.md) for packet shape.
 
 ## Stable Docs
 
@@ -110,13 +115,14 @@ streams the right Responses SSE events (verified by direct probes).
    `--disable web_search` do **not** work — the override must be the top-level
    `web_search` = `"live"|"indexed"|"cached"|"disabled"` key.
 
-Verified via `codex exec --profile sub2api`: Claude + Gemini both complete the
-loop, make tool calls, and create+edit files (`config.json` 1→2). The
-`sub2api_mcp.py` advisor path is separate from the main-model profile. As of
-2026-07-04, local MCP advisor defaults should route every task type to
-`claude-opus-4-6-thinking`; Gemini should be used only by explicit override or
-after a fresh smoke test because recent Gemini/Antigravity Gemini advisor smokes
-failed with upstream account/location errors.
+Historical verification from 2026-07-04 showed the Sub2API profile and MCP
+advisor could complete model calls. That evidence is retained for service
+history only. As of 2026-07-23, the Sub2API advisor route is disabled and must
+not be discovered, smoke-tested, or used as a fallback by Codex. The configured
+independent advisor is Claude Code with `claude-opus-5` by default through the
+user's configured relay or `claude-desktop-3p` provider; exceptionally difficult
+reviews may upgrade to `claude-fable-5`. Claude gives read-only findings and
+recommendations, while Codex performs any authorized fixes and verification.
 
 ## Risk Notes
 
