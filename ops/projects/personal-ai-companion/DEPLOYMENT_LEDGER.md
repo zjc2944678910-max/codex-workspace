@@ -2,7 +2,30 @@
 
 ## Current Recorded Baseline
 
+- The 2026-07-21 realtime conversation work is local source only. No standalone
+  realtime Mac service, iPhone realtime token, StackChan PCM worker/NVS token,
+  signed App install, or physical realtime session has been deployed or
+  accepted. The latest live baseline below is therefore unchanged.
 - Latest completed owner-visible live verification in this ledger: 2026-07-17.
+- The owner-only custom Provider bridge is live in
+  `xiaoxin-cloud-api:20260717T2150-provider-probe`, NAS image ID
+  `sha256:5316d0234d1d09c97cd5559a9d89ece9dd446557959b59831548f2cdf56fbcc6`.
+  The signed same-bundle App exposes the URL/API-key/model form and allows an
+  unknown-health profile to execute one explicit `验证并选择` probe. Success
+  records server-side health and selection; failure does not retry or select.
+  Local verification passed `1879` Python tests, `30/30` Swift tests, and the
+  AppFlow smoke. Live health/readiness/auth-method boundaries passed with an
+  unchanged PostgreSQL container. Provider probe and main Chat request counts
+  remained `0`; real Provider compatibility is unconfirmed. Backup and
+  rollback evidence is recorded in the
+  [Provider Chat wiring report](reports/custom-provider-chat-wiring-20260717.md).
+- The owner requested a server-side expansion of the multi-model Provider
+  inventory. After a root-only online registry backup, one bounded `/v1/models`
+  request returned 13 model IDs; 12 missing profiles were created by reusing
+  the encrypted endpoint/credential configuration without exposing it. The
+  registry now contains 14 profiles, all 12 new entries remain `unknown` until
+  explicitly validated, `deepseek-chat` remains selected, and the API remains
+  healthy with zero restarts. This inventory operation sent no Chat request.
 - Latest Chat model experiment (2026-07-17) is recorded in
   [the Sonnet experiment report](reports/chat-sonnet-default-experiment-20260717.md).
   The temporary Sonnet default passed one sample at `4556.6 ms` but failed the
@@ -20,19 +43,22 @@
   Final Bridge queue depth was `0`. Durable source is pushed at product commit
   `9dbfafc`; this is not evidence for repeated reliability or any non-LCD
   capability.
-- Latest verified Xiaoxin API image:
+- Earlier latency-observability API image retained as a verified rollback and
+  evidence anchor, not as the current image:
   `xiaoxin-cloud-api:20260717T170800-chat-latency`, NAS-normalized image ID
   `sha256:1b785f1a4336175186d86ca0d46232c8e5c6c76f22e04a5bee1bde9a8ee0015d`.
-- `xiaoxin-cloud-api:20260717T135348-chat-latency` is the immediate API rollback
-  image. `xiaoxin-cloud-api:20260717T114059-chat-candidate`,
+- `xiaoxin-cloud-api:20260717T135348-chat-latency` is the immediate rollback for
+  that latency image. `xiaoxin-cloud-api:20260717T114059-chat-candidate`,
   `xiaoxin-cloud-api:20260716T111947-health-dark`,
   `xiaoxin-cloud-api:20260713T0137-native-google`, and
   `xiaoxin-cloud-api:20260712T2352-google-state` remain older rollback anchors;
   earlier email and direct-flow images remain historical.
-- The durable canonical product source and GitHub default branch are now
-  `main@1abf23a`. Historical deployment anchor `72258a1`, logout repair
+- The durable canonical product source and GitHub default branch are
+  `main@7754727` before the current uncommitted privacy/documentation repair.
+  The deployed Provider candidate was built over product `923b04e`; older
+  running-image source `1abf23a`, deployment anchor `72258a1`, logout repair
   `b8462a9`, iOS owner tools `c550d4b`, and native actions `54a069a` remain in
-  that lineage. Redundant compatibility refs
+  the recorded lineage. Redundant compatibility refs
   `codex/initial-private-publish` and `codex/pac-google-logout-revocation-fix`
   were retired after the fast-forward promotion.
 - Native Google Sign-In is deployed. The 2026-07-14 lifecycle pass confirmed a
@@ -46,18 +72,20 @@
 - Health Shortcut hardening is dark-deployed with the route disabled. The
   additive credential and metadata-only audit schema is present, but both
   tables contain zero rows and no real scoped credential has been issued.
-- The running Chat image is built from `1abf23a`, a reviewed descendant of
-  product `5225740`, so it includes the pre-buffer stream-size enforcement and
-  management-path audit-retention repairs. The Health route remains explicitly
-  disabled/404 with zero credential and audit rows.
+- The earlier Chat-latency image was built from `1abf23a`, a reviewed descendant
+  of product `5225740`, so that image includes the pre-buffer stream-size
+  enforcement and management-path audit-retention repairs. The later recorded
+  Provider image is identified at the top of this baseline. The Health route
+  remains explicitly disabled/404 with zero credential and audit rows.
 - Owner-only authenticated Chat is enabled for one matched Cloud owner with an
   isolated Chat memory volume and credentialed HTTPS relay. Latency telemetry
   now correlates iOS, API, and relay phases without logging content or identity.
   Three repair-stage temporary turns left the preflight table baseline unchanged
   at `conversation_messages=4`, `model_usage_logs=2`,
   `session_deltas=0`, and `memory_atoms=0`. The existing persisted rows are
-  new evidence that standard mode was exercised outside the original temporary
-  acceptance; standard persisted Chat remains unaccepted.
+  evidence that standard mode was exercised outside the original temporary
+  acceptance. The later standard Chat memory/style acceptance below supersedes
+  this latency-stage preflight state.
 - The signed field App contains both authenticated Chat and StackChan status,
   plus content-free Chat latency console evidence.
   One post-install StackChan refresh completed after reconnecting stale iPhone
@@ -858,3 +886,80 @@ rollback choice.
 - Ephemeral web authentication intentionally avoids persistent Authentik and
   Google browser cookies. Users may need to select or enter their Google account
   more often, in exchange for preventing accidental administrator linking.
+
+## 2026-07-21 Local Realtime Conversation Repair
+
+Task level: `L3 repair execution`
+Authorization: the owner explicitly said `进入修复阶段` and authorized the
+three-stage realtime conversation repair through completion.
+Live scope: the owner's Mac, signed iPhone 15 Pro Max build, and private-LAN
+StackChan/CoreS3 only. No NAS, cloud image, public endpoint, or provider
+credential was changed.
+
+### Changes
+
+- Installed `pac_realtime_audio_worker.py` on CoreS3 and provisioned a dedicated
+  token plus port in short ESP32 NVS keys. The existing v0.2 status worker,
+  `/flash/main.py`, and `/flash/boot.py` were not replaced.
+- Updated only the existing status daemon entry so its production boot path
+  starts the realtime worker in a separate thread while preserving the old
+  status loop.
+- Built, signed, installed, and launched the iOS Host with the private-LAN
+  realtime endpoint and no embedded token.
+- Stored distinct Mac-facing and robot-facing credentials in macOS Keychain.
+  The installed LaunchAgent plist contains no credential value.
+- Backed up the protected local `memory.db`, then applied its single registered
+  v2 -> v3 migration. The post-migration plan is a latest-schema no-op and
+  SQLite integrity remains `ok`.
+- Started the Mac realtime WebSocket manually for field validation. Its health
+  reports realtime enabled with robot-audio and v0.2 presence lanes configured.
+
+### Verification
+
+- Physical CoreS3 smoke: `ok=true`, 84 ACKs, playback ACK, mute ACK, exact
+  cancel ACK, four starts, and successful forced reconnect; elapsed 6960.5 ms.
+- Python: `1973 passed`, with the existing Starlette/TestClient deprecation
+  warning only.
+- Swift: `36 passed`; focused realtime/source lint is clean; MockSafety and
+  signed device install/launch passed earlier in the same repair session.
+- The old v0.2 Bridge remained healthy with queue depth zero, and CoreS3 port
+  `18771` plus Mac realtime port `18770` were reachable on the private LAN.
+- A VAD-shaped synthetic 16 kHz WebSocket turn completed real Azure SDK STT,
+  warmed local 2B streaming, Azure SDK raw-PCM TTS, and physical robot
+  delivery. Metrics were `stt_final_ms=261.2`,
+  `model_first_delta_ms=519.9`, `first_audio_ms=1686.7`, and
+  `completed_ms=3609.3`.
+- A 5.568-second synthesized Chinese phrase submitted 56/56 100 ms slices with
+  a maximum device interval of 133 ms and zero intervals over 150 ms. Three
+  additional 2-second runs also had zero intervals over 150 ms.
+- A physical speaking turn returned robot cancel ACK plus `turn.interrupted`
+  in 56.9 ms with zero stale model deltas and returned the v0.2 presence queue
+  to zero.
+- Relay TLS verification was repaired with the environment's trusted CA bundle,
+  but the configured Claude and Gemini routes returned HTTP 503 with
+  `No available accounts`. The realtime service is therefore pinned to a
+  warmed no-thinking, 30-minute-kept-alive local 2B model for this field state.
+
+### Backups And Rollback
+
+- CoreS3 backups are under
+  `scratch/projects/personal-ai-companion/realtime-v1-20260721-*`, including
+  pre-worker and pre-daemon copies.
+- The v2 SQLite backup is under
+  `state/project-data/personal-ai-companion/rollback/realtime-v1-20260721-before-memory-v3/`.
+- Stop/unload only the realtime Mac service, remove only the realtime worker
+  and its two NVS keys, and disable the iOS realtime control. Continue using
+  the unchanged complete-WAV and v0.2 command paths.
+
+### Residual Acceptance
+
+- At this checkpoint the iPhone had not yet established its first authenticated
+  realtime WebSocket session. Actual-room microphone/AEC, audible robot reply,
+  owner barge-in, provider first-audio latency, and voiceprint calibration were
+  therefore not yet accepted.
+- The VAD-shaped synthetic physical route now meets the 1-2 second first-audio
+  target at 1686.7 ms. Actual-room iPhone microphone/AEC timing remains an
+  owner-observation item.
+- The LaunchAgent file was installed but its `launchctl bootstrap` was still
+  held by the workspace's current-session repair gate. The manually launched
+  service is validation evidence, not persistent-start acceptance.

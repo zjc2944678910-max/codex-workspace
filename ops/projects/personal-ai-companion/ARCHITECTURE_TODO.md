@@ -1,6 +1,6 @@
 # Personal AI Companion Architecture TODO
 
-## Active Program Queue And Authority (2026-07-16)
+## Active Program Queue And Authority
 
 This running log contains both the current queue and a long historical
 implementation record. The project [README](README.md) is authoritative for
@@ -19,6 +19,53 @@ the iOS/cloud closeout snapshot plus a source-only memory addendum. The long
 `Near Term` section below remains a chronological implementation log; its older
 `pending` labels are not the current queue when they conflict with this section
 or the project README.
+
+### 2026-07-20 Source Authority Correction
+
+- Canonical product source `main` and `origin/main` are synchronized at
+  `7754727` before the current local repair. The dated 2026-07-16 snapshot below
+  remains historical implementation evidence.
+- The former uncommitted order-14E source is committed in `7f30745` and retained
+  by `7754727`; it must no longer be used as evidence that the canonical product
+  checkout is dirty.
+- Current local order 15 is a source-only privacy/documentation reconciliation:
+  custom Provider execution accepts only exact `normal` prompts, while private
+  cloud routes and non-`normal` prompt projections bypass it for the existing
+  Relay. No deployment, Provider credential, Bridge, device, or live database
+  action is part of this order.
+- Product source authority does not change the live deployment anchor. Use the
+  deployment ledger and dated live reports for any live-state claim.
+
+### 2026-07-21 Order 16 Realtime Conversation
+
+- `implementation-complete`: the local worktree contains the independent
+  iPhone WebSocket, incremental STT, true model stream, short-sentence raw PCM
+  TTS, ACK-bounded Mac-to-CoreS3 lane, generation cancellation, background
+  memory commit, deterministic presence lane, wake word, optional voiceprint,
+  iOS voice processing/VAD, reconnect, and legacy WAV/v0.2 rollback.
+- `device-protocol-accepted`: the physical CoreS3 auto-starts the worker beside
+  the existing v0.2 status daemon. The field harness received 84 ACKs including
+  played, muted, and exact-generation cancel ACKs and passed a forced mid-turn
+  reconnect. The signed iPhone Host installed and launched.
+- `mac-e2e-accepted`: a VAD-shaped synthetic 16 kHz WebSocket turn completed
+  real Azure SDK STT, warmed local 2B streaming, Azure raw PCM TTS, physical
+  playback, and deterministic presence. First audio was 1686.7 ms and the turn
+  completed in 3609.3 ms. A speaking-state interruption returned the CoreS3
+  cancel ACK plus `turn.interrupted` in 56.9 ms with zero stale model deltas.
+- `device-continuity-accepted`: a 5.568-second synthesized Chinese phrase
+  submitted 56/56 100 ms slices with a 133 ms maximum device interval and zero
+  intervals over 150 ms; three 2-second runs also had zero such gaps.
+- `field-observation-pending`: the first real iPhone microphone turn, room AEC,
+  audible owner barge-in, and voiceprint threshold are not accepted until the
+  owner observes them. LaunchAgent bootstrap also
+  remains pending even though its credential-free plist is installed.
+- `latency-target-accepted-synthetic`: the warmed local 2B plus Azure SDK route
+  meets the 1-2 second metric in the VAD-shaped synthetic physical turn. Relay
+  TLS/auth still reaches HTTP 503/no available accounts and is not required for
+  this accepted local route.
+- Rollback anchors are the pre-worker `/flash` backups, the pre-daemon file,
+  the v2 SQLite online backup, removal of only the realtime worker/NVS keys,
+  and the unchanged complete-WAV/v0.2 paths.
 
 ### 2026-07-16 Mainline Snapshot
 
@@ -442,6 +489,8 @@ remote or state-changing MCP work.
 | 14C | `PAC-IOS-HOST-PAIRING-STATE-OWNERSHIP` (`completed and pushed 2026-07-16`, local/default-off) | L1 iOS Host/state ownership and routing tests | Product `1abf23a`; see the [manifest](manifests/ios-host-pairing-state-ownership-v0.1.md) and [acceptance report](reports/ios-host-pairing-state-ownership-v0.1-acceptance-20260716.md). | Stable reloadable Host Bridge, no pairing-driven App/StateObject rebuild, origin-bound pending request routing, fail-closed retired/evicted/colliding IDs, Device pending-result preservation, and deferred latest-credential status requests. `16` XCTest cases and all affected smoke/build checks pass. Gates stay false; no real API, Keychain, Bridge, device, or deployment. |
 | 14D | `PAC-STACKCHAN-V02-LIFECYCLE-HARDENING` (`completed and pushed 2026-07-16`, local/default-off) | L1 Bridge lifecycle and concurrency tests | Product `1abf23a`; see the [manifest](manifests/stackchan-v02-lifecycle-hardening-v0.1.md) and [acceptance report](reports/stackchan-v02-lifecycle-hardening-v0.1-acceptance-20260716.md). | Injectable epoch-ms clock; atomic expiry cleanup across command/state/idempotency/result indexes; `410` expired admission; late writes/reads fail closed; concurrent idempotency replacement stays single-winner; changed result-ID replay returns conflict. `14` focused, `95` StackChan, `1766` full Python, and `16` Swift tests pass. No live API, Bridge/device, credential, service change, or deployment. |
 | 14E | `PAC-STACKCHAN-V02-STATUS-WORKER-TEST-ENVIRONMENT` (`local continuous runtime accepted in uncommitted worktree 2026-07-17`, default-off iOS) | L1 source plus authorized bounded L3 field repair | Based on product `1abf23a`; see the [manifest](manifests/stackchan-v02-status-worker-test-environment-v0.1.md), [one-shot acceptance](reports/stackchan-v02-status-worker-test-environment-v0.1-acceptance-20260716.md), and [continuous-runtime acceptance](reports/stackchan-v02-status-continuous-runtime-acceptance-20260717.md). | Status-only dedicated-device poller; full-command frozen journal with validated-ACK/empty-poll cleanup; exact privacy and runtime-NVS validation; primary-before-ACK ordering; strict credential/response/TTL/correlation boundaries; manual-triggered iOS polling bounded to nine reads with dedicated inter-poll cancellation coverage; transport/5xx-only daemon backoff; empty-poll log suppression; user LaunchAgent; and flag-gated network-first device auto-start. Signed iPhone field status, soft reset, forced Bridge restart, six-second Bridge outage recovery, two distinct automatic commands inside one TTL, one physical cold boot with a later iPhone refresh, completed-snapshot foreground retention, and queue zero are accepted. `66` focused UIFlow2, `186` StackChan, `1857` full Python, and `17` Swift tests pass. Repeated cold-boot reliability and iPhone VPN/LAN route recovery remain residuals; checked-in iOS gates stay false; no cloud/public deployment, commit, or push. |
+| 15 | `PAC-PROVIDER-PRIVACY-AND-SOURCE-RECONCILIATION` (`local repair accepted 2026-07-20`) | L1 shared Chat boundary + docs | Based on canonical product `7754727`; see the [2026-07-20 local acceptance report](reports/provider-privacy-and-source-reconciliation-20260720.md). | Preserve the public Chat API while adding explicit prompt privacy classification, duplicate fail-closed Provider enforcement, private-route Relay bypass, regression tests, and synchronized product/ops authority docs. No live inspection, deployment, credential, Provider request, Bridge/device command, or database migration. |
+| 16 | `PAC-REALTIME-CONVERSATION-V1` (`local source complete 2026-07-21`; field acceptance pending) | Authorized L3 repair, bounded local/source implementation | Separate default-off Mac WebSocket service, PACR PCM socket, removable CoreS3 worker, iOS VAD/voice-processing client, barge-in, reconnect, fixed v0.2 presence lane, wake word, optional local voiceprint, tests, docs, and unchanged WAV/v0.2 rollback. | No deployment or device mutation is implied. Physical CoreS3 streaming, real iPhone echo/barge-in, 1–2 second latency, and voiceprint calibration require the dedicated field checklist. |
 
 This table is the current implementation queue. The runbook remains normative
 for risk/status vocabulary, manual repair gates, and stop conditions. This table
