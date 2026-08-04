@@ -963,3 +963,46 @@ credential was changed.
 - The LaunchAgent file was installed but its `launchctl bootstrap` was still
   held by the workspace's current-session repair gate. The manually launched
   service is validation evidence, not persistent-start acceptance.
+
+## 2026-07-27 Through 2026-07-30 Sanitized Deployment Summary
+
+Task level: `L3 repair execution`.
+Authorization: the owner explicitly approved the corresponding deployment and
+repair sessions. This entry is a historical summary, not evidence of current
+service health.
+
+### Durable Outcomes
+
+- Provider management work covered batch creation, partial updates, deletion,
+  row interaction, and streamed responses across the cloud and signed App
+  surfaces.
+- Cloud voice work consolidated the response path and hardened long-response
+  streaming, delivery continuity, and completion handling.
+- CoreS3 voice work established the native pipeline baseline and iterated on
+  interruption handling, audio/text synchronization, progressive latency,
+  canonical long-response delivery, and a staged direct-voice path.
+- The owner-authorized sessions included focused source tests, API checks,
+  signed-App checks, and bounded physical-device verification appropriate to
+  each change.
+
+### Public Documentation Boundary
+
+- Exact endpoints, network addresses, ports, device and user identifiers,
+  service identifiers, local and backup paths, process/container identifiers,
+  provisioning details, and artifact or image hashes are intentionally omitted.
+- This summary adds no exact rollback targets. Related 2026-07-27 through
+  2026-07-30 detailed evidence is retained locally under the workspace evidence
+  and rollback rules.
+- Credentials were not recorded in this public summary.
+
+### Rollback And Residual Acceptance
+
+- Each live change retained a targeted rollback path to the prior verified
+  artifact or configuration. Exact commands and locations remain private.
+- Physical audio quality and latency depend on the actual device, room, and
+  network conditions and must be re-verified before a future live change.
+- Candidate work that did not satisfy its hardware gate was returned to the
+  prior stable path. Acoustic-echo promotion, real external-provider latency,
+  and the originally recorded environment/tooling gaps remained unaccepted.
+- This summary records completed historical work only; it must not be used as
+  a substitute for a fresh read-only audit of current runtime state.
