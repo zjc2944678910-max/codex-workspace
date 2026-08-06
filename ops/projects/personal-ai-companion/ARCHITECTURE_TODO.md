@@ -20,7 +20,32 @@ the iOS/cloud closeout snapshot plus a source-only memory addendum. The long
 `pending` labels are not the current queue when they conflict with this section
 or the project README.
 
-### 2026-07-20 Source Authority Correction
+### 2026-08-06 Source And Risk Reconciliation
+
+- Canonical product source `main` and `origin/main` are synchronized at
+  `3ca3a0b`; this workspace commit synchronizes only the operator-facing
+  record and does not alter product source or runtime state.
+- Source remediation is complete for this slice: the CI matrix is pinned and
+  frozen, architecture line ceilings are enforced, the native TTS off-loop
+  behavior has a regression test, Python 3.12 background-commit timing is
+  deterministic, and the Starlette WebSocket integration test uses an explicit
+  `TestClient` lifespan.
+- Local full suites passed `2740` tests on Python 3.11 and `2740` on Python
+  3.12, each with one skip and the existing Starlette/TestClient deprecation
+  warning. The final hosted run
+  [31078474152](https://github.com/zjc2944678910-max/personal-ai-companion/actions/runs/31078474152)
+  passed both matrix jobs.
+- The 2026-08-05 public checkpoint is read-only and point-in-time: health,
+  readiness, and auth-capability routes returned `200` with TLS verification;
+  no live state was changed. Private image identity, device/hardware state,
+  provider account availability, and current database contents remain outside
+  the evidence.
+- No broad architecture extraction was selected in this slice. The temporary
+  line ceilings are containment guardrails; future extraction must name the
+  target module, run impact analysis first, preserve behavior, and update the
+  corresponding tests/docs in one bounded change.
+
+### Historical Source Authority Correction (2026-07-20)
 
 - Canonical product source `main` and `origin/main` are synchronized at
   `7754727` before the current local repair. The dated 2026-07-16 snapshot below

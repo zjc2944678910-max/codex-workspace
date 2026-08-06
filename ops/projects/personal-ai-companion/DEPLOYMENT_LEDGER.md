@@ -1,11 +1,41 @@
 # Personal AI Companion Deployment Ledger
 
+## 2026-08-06 Read-Only Public Checkpoint And Source CI Baseline
+
+Task level: `L2 read-only public checkpoint` plus local `L1` source, test, CI,
+and documentation work. No production repair gate was opened and no live
+service, database, credential, tunnel, image, iPhone, or StackChan state was
+changed.
+
+- Product `main` and `origin/main` are synchronized at `3ca3a0b`. This source
+  hash is not deployment evidence; the current private image/container and
+  device runtime were not inspected.
+- Around 2026-08-05 22:58 +08:00, HTTPS with certificate verification passed
+  for the public `/healthz`, `/readyz`, and `/v1/auth/capabilities` routes.
+  Each returned HTTP 200. `/healthz` reported service/database/storage `ok`;
+  `/readyz` reported `ready` with login, Google, OIDC, token, and storage
+  capabilities while email/OTP remained unavailable; the capabilities route
+  advertised Google native nonce, Authentik OIDC/PKCE, token/storage,
+  direct-voice `pac.direct.voice.v1`, and no email/OTP.
+- The checkpoint used only GET requests and did not send credentials or issue
+  a state-changing request. It confirms the public control-plane surface at
+  that moment, not private database rows, provider account health, image
+  provenance, firmware, or physical audio/AEC behavior.
+- The source CI workflow is now present and pinned. Final hosted run
+  [31078474152](https://github.com/zjc2944678910-max/personal-ai-companion/actions/runs/31078474152)
+  passed Python 3.11 and 3.12 after fixing two platform-exposed test races.
+- Detailed evidence and residual boundaries are in the
+  [source, CI, and public-health reconciliation report](reports/source-ci-and-public-health-reconciliation-20260806.md).
+
 ## Current Recorded Baseline
 
-- The 2026-07-21 realtime conversation work is local source only. No standalone
-  realtime Mac service, iPhone realtime token, StackChan PCM worker/NVS token,
-  signed App install, or physical realtime session has been deployed or
-  accepted. The latest live baseline below is therefore unchanged.
+- The following 2026-07-21 statement is historical scope evidence, not a
+  current public-health claim: that realtime slice recorded no accepted
+  standalone Mac service, iPhone realtime token, StackChan PCM worker/NVS
+  token, signed App install, or physical realtime session at its checkpoint.
+- The current public checkpoint above does not supersede any private deployment
+  anchor below; it only records what the public control-plane returned on the
+  probe date.
 - Latest completed owner-visible live verification in this ledger: 2026-07-17.
 - The owner-only custom Provider bridge is live in
   `xiaoxin-cloud-api:20260717T2150-provider-probe`, NAS image ID

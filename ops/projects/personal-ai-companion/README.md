@@ -39,7 +39,32 @@ node docs/workspace/codex-register-project.mjs --regen
   replace the unavailable Relay/local REST fallback with a provider path that
   can meet the measured 1-2 second first-audio objective.
 
-### Source Authority Correction (2026-07-20)
+### Source, CI, And Public Health Reconciliation (2026-08-06)
+
+- Canonical product source `main` and `origin/main` are synchronized at
+  `3ca3a0b` (`test: stabilize realtime websocket cleanup`). The source change
+  adds the Python CI matrix, architecture-growth guardrails, deterministic
+  realtime streaming/cleanup regressions, and current maintenance metadata;
+  it does not deploy or mutate a live service, database, credential, tunnel,
+  iPhone, or StackChan.
+- The product workflow now runs on pull requests and pushes to `main` with
+  read-only repository permissions, pinned `actions/checkout`/`setup-uv`
+  revisions, frozen `uv.lock` installs, the architecture budget check, and
+  Python 3.11/3.12 full suites. Final hosted run
+  [31078474152](https://github.com/zjc2944678910-max/personal-ai-companion/actions/runs/31078474152)
+  passed both jobs.
+- A point-in-time public HTTPS checkpoint on 2026-08-05 around 22:58 +08:00
+  returned HTTP 200 with valid TLS for `/healthz`, `/readyz`, and
+  `/v1/auth/capabilities`. The service/database/storage readiness fields were
+  healthy; Google native auth, Authentik OIDC, token/storage, and direct voice
+  were advertised; email/OTP remained disabled. This is public control-plane
+  evidence only, not proof of the current private image, database contents,
+  provider accounts, device firmware, or hardware state.
+- See the [source, CI, and public-health reconciliation report](reports/source-ci-and-public-health-reconciliation-20260806.md)
+  for exact local verification, the failed-then-fixed CI race, and residual
+  acceptance gates.
+
+### Historical Source Authority Correction (2026-07-20)
 
 - Canonical product source `main` and `origin/main` are synchronized at
   `7754727` (`feat: integrate live robot controls and provider chat`) before the
