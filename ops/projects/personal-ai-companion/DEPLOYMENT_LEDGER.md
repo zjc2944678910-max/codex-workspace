@@ -1,5 +1,49 @@
 # Personal AI Companion Deployment Ledger
 
+## 2026-08-09 Real Text Streaming And First-Delta Repair
+
+Task level: `L3 repair execution` after an L2 source/live latency audit and
+explicit owner authorization. Scope was limited to ordinary authenticated text
+streaming in the Cloud API and the signed same-bundle iPhone App. Database,
+credentials, Provider selection, Direct Voice, Mac services, robot firmware,
+and wake-word state were unchanged.
+
+- Previous image: `xiaoxin-cloud-api:20260809T155404-chat-tools`, image ID
+  `sha256:32553c7614367027c8de91669b21a573c5a1b7f6324b57d25822ad5f9e003a40`.
+- Current image: `xiaoxin-cloud-api:20260809T194200-real-streaming`, image ID
+  `sha256:0285320a3549a1fdbf8b1e42c11a609855fb0dee510b6f0175240ebd8e70c3e7`.
+  It overlays only `cloud/chat_stream.py` and `realtime/turn.py` on the previous
+  immutable image.
+- Ordinary immediate text streams now request the existing non-thinking
+  provider control, which the DeepSeek executor converts to explicit disabled
+  thinking without storing the control text. A Provider stream that is absent
+  or fails before its first delta now goes directly to the true relay streamer;
+  it cannot call the synchronous Provider reply and emit the full answer as one
+  fake delta.
+- The iPhone App now publishes each server delta directly into the active
+  assistant message. The discarded 45 ms presentation queue and artificial
+  sleeps are absent. Installed App executable SHA-256 is
+  `02131e3feddf95d1dee2f904bbef0e18cf8cb093de01f6e9379eb37374d1de76`,
+  CDHash `f4232dde72246649af1c6af00944b619e59d283e`; it launched as PID `2173`.
+- Public real-provider acceptance returned the first model delta in `2464.1`
+  ms, emitted `66` model deltas for `112` characters, and completed in `3573.9`
+  ms. The comparable pre-repair probe first delta was about `6469.3` ms. The
+  acceptance request was temporary; Chat SQLite counts remained exactly
+  `30` messages, `2` memory atoms, and `105` model-usage rows.
+- Local verification passed `2759` Python tests with one skip and the existing
+  Starlette warning, all `119` Swift tests, focused Cloud/iOS streaming suites,
+  Ruff, signed device build, code-sign verification, and diff checks. After
+  cutover, API/database health passed with zero restarts, the database container
+  ID remained unchanged, public health/readiness/capabilities passed, and no new
+  API traceback/error was found.
+- Root-only remote rollback evidence is under
+  `/var/backups/xiaoxin-auth/20260809T194200+0800/real-streaming-before`; the
+  retained signed pre-repair App and bounded source copies are under the private
+  workspace rollback area. Routine rollback restores the previous image in the
+  environment and recreates only the API, then reinstalls the retained App if
+  needed. Owner-visible confirmation that text visibly grows on the physical
+  screen remains the final manual UX check.
+
 ## 2026-08-09 Cloud Chat Time And Tavily Tools
 
 Task level: `L3 repair execution` after a current-state L2 audit and explicit
