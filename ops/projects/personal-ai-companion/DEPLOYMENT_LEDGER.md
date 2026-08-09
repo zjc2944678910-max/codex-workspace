@@ -1,5 +1,31 @@
 # Personal AI Companion Deployment Ledger
 
+## 2026-08-09 iOS Local Health Chat Repair
+
+Task level: `L3 repair execution` after explicit owner authorization. Scope was
+limited to deterministic iPhone-local personal-health questions. Cloud API,
+database, Mac services, robot configuration and firmware, and HealthKit writes
+were unchanged.
+
+- Personal questions about steps, active energy, heart rate, sleep, and
+  workouts now read the existing user-authorized Apple Health summary locally
+  before any Cloud Chat request. Disabled permission/settings, missing data,
+  and read failures fail closed without allowing the model to invent values.
+- General health-knowledge questions still use normal Chat. Personal medical
+  interpretation stays local and adds a non-diagnostic safety boundary.
+- Verification passed 7 focused tests, the complete 134-test Swift suite, 11
+  Cloud privacy-boundary tests, scoped diff checks, signed device build, strict
+  signing validation, installation, and launch.
+- Installed executable SHA-256 is
+  `1bc935fc62dae82a04d84f0ff132391f17a4afc22d2256d61f35e38246200ebb`,
+  CDHash `e29c6294d467d4c5ad627ca8f6131e19f973a15a`, bundle
+  `xyz.nodezjc12348888.xiaoxin`, Team ID `Y38TU585HM`, device bundle container
+  `1433D4EB-A693-46A4-9DC9-B3287FBA4628`, and launch PID `2286`.
+- Owner-visible HealthKit permission/data acceptance remains pending. Exact
+  source snapshots, signed before/candidate Apps, hashes, privacy boundaries,
+  and rollback directions are in
+  `state/project-data/personal-ai-companion/rollback/local-health-chat-20260809T224259+0800/MANIFEST.md`.
+
 ## 2026-08-09 Natural-Language Web Search Deployment
 
 Task level: `L3 repair execution` after explicit owner authorization. Scope was
