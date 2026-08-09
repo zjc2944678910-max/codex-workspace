@@ -1,5 +1,37 @@
 # Personal AI Companion Deployment Ledger
 
+## 2026-08-09 iOS Calendar Anti-Hallucination Hotfix
+
+Task level: `L3 repair execution` after owner-visible false calendar claims and
+explicit authorization. Scope was limited to iOS calendar intent routing,
+local fail-closed behavior, signed same-bundle installation, and verification.
+Cloud API, database, Mac services, robot configuration, and firmware were
+unchanged.
+
+- Confirmed the screenshot response was produced by the older installed App:
+  the request fell through to model Chat, which had no EventKit evidence but
+  invented a 10:00 client meeting and a 15:30 hospital follow-up.
+- Supported personal calendar queries, including `看一下明天的日程`,
+  `告诉我明天的行程`, `明天的安排是什么`, and `列出后天的日程`, now create a
+  bounded local EventKit read proposal before any Chat request.
+- A clear calendar query that cannot be safely parsed, such as
+  `请告诉我下周的日程`, now fails closed on-device with a no-guessing response.
+  Tests assert that neither supported nor fail-closed calendar paths create a
+  Bridge/Cloud Chat request. Ordinary conversational uses of `安排` remain Chat.
+- Verification passed 10 focused tests, the complete 126-test Swift suite,
+  diff checks, signed device build, strict code-sign validation, and a stable
+  post-install process check.
+- Installed executable SHA-256 is
+  `19bc1c26d0960b299626f21485aef70a2ba8f605d6460bd6d2437173abbbaf7c`,
+  CDHash `7622e60e3faa3165c3cdc85f8ec17c7a1df1aadd`, bundle
+  `xyz.nodezjc12348888.xiaoxin`, Team ID `Y38TU585HM`, device container
+  `F50149C7-FC3D-418A-BE0D-DF3CCEC48B8E`, and launch PID `2233`.
+- Exact before/after source, installed-before and installed-after signed Apps,
+  hashes, and rollback directions are stored under
+  `state/project-data/personal-ai-companion/rollback/calendar-anti-hallucination-20260809T205924+0800`.
+  Owner-visible EventKit output after confirmation remains the final manual
+  acceptance checkpoint.
+
 ## 2026-08-09 Robot Microphone Disabled
 
 Task level: `L3 repair execution` after current-state confirmation and explicit
