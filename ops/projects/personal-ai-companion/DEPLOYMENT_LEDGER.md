@@ -13,14 +13,18 @@ were unchanged.
   and read failures fail closed without allowing the model to invent values.
 - General health-knowledge questions still use normal Chat. Personal medical
   interpretation stays local and adds a non-diagnostic safety boundary.
+- Owner field testing rejected the first candidate because the natural phrase
+  `我今天走了多少路` missed the original step markers and fell through to
+  Cloud Chat. The installed v2 recognizes that exact phrase plus common
+  `走了多远` variants; regression tests require zero Cloud Chat requests.
 - Verification passed 7 focused tests, the complete 134-test Swift suite, 11
   Cloud privacy-boundary tests, scoped diff checks, signed device build, strict
   signing validation, installation, and launch.
 - Installed executable SHA-256 is
-  `1bc935fc62dae82a04d84f0ff132391f17a4afc22d2256d61f35e38246200ebb`,
-  CDHash `e29c6294d467d4c5ad627ca8f6131e19f973a15a`, bundle
+  `0a0d25993f88dbe8635dd2dba5b7db92c445af7be046fcd916fa011b3f272629`,
+  CDHash `fbdd8edb60601211afd8f2d3055acf0ed5af330e`, bundle
   `xyz.nodezjc12348888.xiaoxin`, Team ID `Y38TU585HM`, device bundle container
-  `1433D4EB-A693-46A4-9DC9-B3287FBA4628`, and launch PID `2286`.
+  `FA33892A-E0B5-465F-97CD-86EEFB932FA9`, and launch PID `2301`.
 - Owner-visible HealthKit permission/data acceptance remains pending. Exact
   source snapshots, signed before/candidate Apps, hashes, privacy boundaries,
   and rollback directions are in
