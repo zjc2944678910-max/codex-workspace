@@ -1,5 +1,36 @@
 # Personal AI Companion Deployment Ledger
 
+## 2026-08-09 Owner Mac Realtime And Signed iPhone Repair
+
+Task level: `L3 repair execution` after explicit owner authorization. Scope was
+limited to installing the signed same-bundle iPhone App and reloading the
+owner-Mac realtime LaunchAgent. Public Cloud Chat, database, credentials,
+robot firmware, NAS, and VPS state were unchanged.
+
+- The signed iPhone build installed and launched successfully; the process
+  remained alive after acceptance. Its calendar usage descriptions are present.
+- The owner-Mac realtime LaunchAgent required one explicit kickstart after
+  bootstrap registered the job without starting it. It is now running and its
+  health reports the model prewarmed plus the robot microphone connected and
+  listening.
+- Wake-word gating and the local KWS model are both disabled. The robot
+  microphone transport remains enabled, so ordinary realtime audio is retained
+  without reserving runtime for the discarded wake path.
+- An authenticated live WebSocket probe confirmed session configuration,
+  text-input acceptance, and handoff to the external-response path. Focused
+  verification passed 8 Python realtime/tool tests, 3 calendar Swift tests,
+  and 10 device-conversation observer Swift tests. A real Tavily probe returned
+  five bounded HTTP(S) results.
+- Current-time and Tavily enrichment are verified in local source, but the
+  signed App's Chat and external voice response still target the public Cloud
+  API. No Cloud deployment was authorized in this repair, so those two tools
+  are not recorded as live on the phone yet. Direct-voice observer preview is
+  also code-verified but remains inactive while the direct-voice service mode
+  is disabled.
+- Private rollback evidence is retained under the workspace state area with
+  the pre-repair LaunchAgent plist, prior signed App, pre/post health responses,
+  source patch, and a narrow rollback manifest.
+
 ## 2026-08-06 Read-Only Public Checkpoint And Source CI Baseline
 
 Task level: `L2 read-only public checkpoint` plus local `L1` source, test, CI,
