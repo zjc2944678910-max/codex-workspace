@@ -1,5 +1,39 @@
 # Personal AI Companion Deployment Ledger
 
+## 2026-08-09 Natural-Language Web Search Deployment
+
+Task level: `L3 repair execution` after explicit owner authorization. Scope was
+limited to Cloud API natural-language web-search routing. iPhone and Mac apps,
+robot configuration and firmware, database schema/data, Provider selection,
+and the existing streaming implementation were unchanged.
+
+- Natural current-information questions such as news, weather, and stock-price
+  requests now invoke Tavily enrichment. Ordinary conversational mentions do
+  not trigger a search, and unavailable search evidence fails closed rather
+  than allowing invented current facts.
+- Search-grounded answers now require a `参考链接：` section containing 1–3
+  exact result URLs. The first deployed candidate was rejected after a live
+  news answer returned no URLs; the strengthened v2 candidate was then built,
+  deployed, and accepted.
+- Accepted image is `xiaoxin-cloud-api:20260809T221438-natural-search-v2`, image
+  ID `sha256:169f57f82b7df23591c31f444f341266585a528fd7ba7c3a40901791786c706b`,
+  running as API container
+  `ea83283033ae24d3f86cf4484b79606b0755a0d45568123e46a84ba6ff48e87f`.
+- Verification passed 93 focused Python tests and the complete suite with 2767
+  passed, 1 skipped, and 1 warning. A real Tavily probe returned five HTTP
+  URLs.
+- Exact live query `今天有什么重要新闻？` returned HTTP 200 with 212 streamed
+  model deltas, first delta at 1918.6 ms, total time 3802.4 ms, and three
+  source URLs under `参考链接：`.
+- Public `healthz`, `readyz`, and `capabilities` remained HTTP 200. The API had
+  zero restarts and no new matching `Traceback` or `ERROR` log entries.
+  Streaming-file hashes were unchanged.
+- The database container remained unchanged and healthy with zero restarts;
+  conversation-message, memory-atom, and usage-log counts stayed at 58/2/111,
+  and SQLite `quick_check` remained `ok`.
+- Exact rollback evidence, hashes, acceptance facts, and instructions are in
+  `state/project-data/personal-ai-companion/rollback/cloud-natural-search-20260809T215632+0800/MANIFEST.md`.
+
 ## 2026-08-09 iOS Calendar Anti-Hallucination Hotfix
 
 Task level: `L3 repair execution` after owner-visible false calendar claims and
