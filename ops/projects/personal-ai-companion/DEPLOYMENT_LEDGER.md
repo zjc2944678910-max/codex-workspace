@@ -18,14 +18,20 @@ unchanged.
   `请告诉我下周的日程`, now fails closed on-device with a no-guessing response.
   Tests assert that neither supported nor fail-closed calendar paths create a
   Bridge/Cloud Chat request. Ordinary conversational uses of `安排` remain Chat.
-- Verification passed 10 focused tests, the complete 126-test Swift suite,
+- Owner-visible acceptance then exposed a matching write defect:
+  `帮我记录一下明天早上八点上课` fell through to model Chat, which falsely
+  claimed it had recorded and would remind the owner. The write hotfix treats
+  a record directive with a concrete time as a local calendar event, cleans the
+  title to `上课`, preserves explicit confirmation, and fails closed rather
+  than letting an unexecuted system-write request claim success.
+- Verification passed 11 focused tests, the complete 127-test Swift suite,
   diff checks, signed device build, strict code-sign validation, and a stable
   post-install process check.
 - Installed executable SHA-256 is
-  `19bc1c26d0960b299626f21485aef70a2ba8f605d6460bd6d2437173abbbaf7c`,
-  CDHash `7622e60e3faa3165c3cdc85f8ec17c7a1df1aadd`, bundle
+  `06a811c3da41e901252b9c6a6944c225d6cea68358a55b8cc767c29b0296ae5c`,
+  CDHash `693becb1fd3e3cc22c8d3a62fbfae6805dfb7bf6`, bundle
   `xyz.nodezjc12348888.xiaoxin`, Team ID `Y38TU585HM`, device container
-  `F50149C7-FC3D-418A-BE0D-DF3CCEC48B8E`, and launch PID `2233`.
+  `FD4C145A-5A3F-4F85-B426-E9B33069DB59`, and launch PID `2244`.
 - Exact before/after source, installed-before and installed-after signed Apps,
   hashes, and rollback directions are stored under
   `state/project-data/personal-ai-companion/rollback/calendar-anti-hallucination-20260809T205924+0800`.
