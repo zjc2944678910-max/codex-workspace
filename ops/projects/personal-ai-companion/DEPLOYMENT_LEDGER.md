@@ -1,5 +1,31 @@
 # Personal AI Companion Deployment Ledger
 
+## 2026-08-09 Robot Microphone Disabled
+
+Task level: `L3 repair execution` after current-state confirmation and explicit
+owner authorization. Scope was limited to the Mac realtime LaunchAgent's robot
+microphone path. iOS, Cloud API, database, credentials, provider selection, and
+robot firmware were unchanged.
+
+- Confirmed pre-change state was `PAC_ROBOT_MIC_ENABLED=1` with
+  `PAC_ROBOT_MIC_WAKE_WORD_REQUIRED=0`, which admitted robot microphone audio
+  without a wake-word gate.
+- The durable deployment source and loaded LaunchAgent now set
+  `PAC_ROBOT_MIC_ENABLED=0`. The loaded machine-specific LaunchAgent also sets
+  the dependent `PAC_ROBOT_MIC_CLOUD_RESPONSE_ENABLED=0`; the source template
+  already defaults that absent setting to disabled.
+- The first restart correctly failed configuration validation while the
+  dependent cloud-response switch was still enabled. After disabling that
+  robot-microphone-only switch, the LaunchAgent loaded successfully as PID
+  `81026` and remained stable through the final check.
+- Final `/healthz` returned HTTP `200`. Robot microphone enabled, connected,
+  listening, conversation mode, cloud response, and local KWS all reported
+  `false`; UDP port `18772` had no listener. The normal realtime service still
+  listened on `192.168.2.1:18770`, and robot audio output remained configured.
+- Exact before/after configs, hashes, validation facts, and rollback directions
+  are stored under
+  `state/project-data/personal-ai-companion/rollback/robot-mic-disable-20260809T204007+0800`.
+
 ## 2026-08-09 iOS Local Time And Conversational Calendar Repair
 
 Task level: `L3 repair execution` after a bounded L2 routing audit and explicit
