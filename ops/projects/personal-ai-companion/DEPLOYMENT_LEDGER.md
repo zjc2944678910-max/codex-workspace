@@ -1,5 +1,40 @@
 # Personal AI Companion Deployment Ledger
 
+## 2026-08-09 Cloud Chat Time And Tavily Tools
+
+Task level: `L3 repair execution` after a current-state L2 audit and explicit
+owner authorization. The deployment was API-only and preserved the existing
+database, Provider selection, Direct Voice configuration, Mac/iPhone runtime,
+and robot firmware.
+
+- Previous image:
+  `xiaoxin-cloud-api:20260802T230359-deepseek-voice-low-latency`, image ID
+  `sha256:fff71937e8609baddb8694e00515e976f222acaff1e137a41feef58ac323c5be`.
+- Current image: `xiaoxin-cloud-api:20260809T155404-chat-tools`, image ID
+  `sha256:32553c7614367027c8de91669b21a573c5a1b7f6324b57d25822ad5f9e003a40`.
+  It overlays only the bounded time/search tool module plus the non-streaming
+  and streaming Chat integration files on the previous image.
+- Production Compose now passes the root-only Tavily credential and explicit
+  `Asia/Shanghai` companion timezone. The environment remains mode `0600`,
+  root-owned, and contains one line for each new setting.
+- Technical acceptance passed public health/readiness/auth capabilities, exact
+  candidate hashes, a current-time tool probe, and a real Tavily probe with five
+  bounded HTTP(S) results. The API and unchanged database container are healthy
+  with zero restarts; Chat SQLite aggregate counts were identical before and
+  after, and no new API traceback/error was found.
+- Local acceptance passed `2759` Python tests with one skip and the existing
+  Starlette deprecation warning, plus Ruff, lock, plist, and diff checks. The
+  prior wake-word-disabled runtime test expectation was aligned with the
+  owner-approved configuration.
+- Verified root-only rollback evidence is stored at
+  `/var/backups/xiaoxin-auth/20260809T155404+0800/chat-tools-before`; the private
+  workspace manifest is under the project state rollback area. Routine rollback
+  restores the prior environment/Compose and recreates only the API from the
+  previous DeepSeek image. PostgreSQL and Chat SQLite backups are retained as
+  consistency anchors.
+- Owner-visible iPhone prompts for current time and explicit web search remain
+  the final manual acceptance at this checkpoint.
+
 ## 2026-08-09 Owner Mac Realtime And Signed iPhone Repair
 
 Task level: `L3 repair execution` after explicit owner authorization. Scope was
