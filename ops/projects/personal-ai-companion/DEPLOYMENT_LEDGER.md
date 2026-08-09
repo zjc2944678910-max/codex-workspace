@@ -1,5 +1,44 @@
 # Personal AI Companion Deployment Ledger
 
+## 2026-08-09 iOS Local Time And Conversational Calendar Repair
+
+Task level: `L3 repair execution` after a bounded L2 routing audit and explicit
+owner authorization. Scope was limited to the signed same-bundle iPhone Chat
+path. Cloud API, database, credentials, Provider selection, Direct Voice, Mac
+services, robot firmware, and wake-word state were unchanged.
+
+- Current-time, current-date, and weekday questions are now answered from the
+  iPhone clock before any Chat transport. Focused tests prove that these turns
+  produce zero Bridge/Cloud Chat requests.
+- Calendar reads remain local EventKit actions with explicit confirmation.
+  Natural questions such as `我明天忙吗` and `后天有空吗` now resolve to the
+  bounded one-day calendar read instead of ordinary model Chat.
+- Calendar and reminder writes now accept bounded natural forms including
+  `帮我记录事件`, `帮我记录明天下午3点开会`, and
+  `帮我把明天下午3点开会加到日历`. Missing title or time stays on-device and
+  produces a follow-up question; a completed proposal still requires the
+  existing explicit owner confirmation before EventKit writes.
+- Verification passed 9 focused local-action tests, the complete 125-test Swift
+  suite, strict code-sign verification, and diff checks. GitNexus reported the
+  expected high-risk Chat/parser surface; snapshot comparison isolated this
+  repair to `ChatViewModel.swift`, `ConversationalSystemActions.swift`, and the
+  bounded calendar action tests inside the pre-existing dirty product tree.
+- Installed signed App executable SHA-256 is
+  `6734afdc1aa0aee236dba3415e5c0687f69ddba585efa1b366418b74ddeced5d`,
+  CDHash `5b634efb355096e45c74d4d74764e8d31918d857`, bundle
+  `xyz.nodezjc12348888.xiaoxin`, and Team ID `Y38TU585HM`. Installation
+  succeeded at device container
+  `CD394FF0-3B09-4F61-A3C2-756ADA9CA8B1`. The first launch was denied while
+  the device was locked; retry succeeded and the process remained alive as PID
+  `2194` after a five-second check.
+- Private rollback evidence is under
+  `state/project-data/personal-ai-companion/rollback/ios-local-actions-20260809T201757+0800`.
+  It retains the accepted pre-repair App (executable SHA-256
+  `02131e3feddf95d1dee2f904bbef0e18cf8cb093de01f6e9379eb37374d1de76`),
+  the candidate App, and exact bounded pre-repair source copies. Routine
+  rollback reinstalls the retained pre-repair App and restores only those
+  bounded source files.
+
 ## 2026-08-09 Real Text Streaming And First-Delta Repair
 
 Task level: `L3 repair execution` after an L2 source/live latency audit and
