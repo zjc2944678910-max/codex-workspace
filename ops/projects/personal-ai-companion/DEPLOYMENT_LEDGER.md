@@ -35,8 +35,9 @@ unchanged.
 - Exact before/after source, installed-before and installed-after signed Apps,
   hashes, and rollback directions are stored under
   `state/project-data/personal-ai-companion/rollback/calendar-anti-hallucination-20260809T205924+0800`.
-  Owner-visible EventKit output after confirmation remains the final manual
-  acceptance checkpoint.
+  At `2026-08-09 21:23 +0800`, the owner reported successful completion of the
+  instructed resend-and-confirm flow; the final device check still showed PID
+  `2244` alive.
 
 ## 2026-08-09 Robot Microphone Disabled
 
