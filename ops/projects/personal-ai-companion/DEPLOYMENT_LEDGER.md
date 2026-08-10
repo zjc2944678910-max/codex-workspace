@@ -1,5 +1,52 @@
 # Personal AI Companion Deployment Ledger
 
+## 2026-08-10 Cloud-Ephemeral Apple Health Analysis
+
+Task level: `L3 repair execution` after explicit owner authorization. Scope is
+limited to an explicit iPhone cloud-health consent setting, bounded Apple
+Health summaries for matching personal questions, ephemeral Cloud Chat
+analysis, and the same-bundle signed App. Calendar, robot, Provider selection,
+HealthKit writes, raw-sample upload, background sync, and database migration
+were excluded.
+
+- Cloud health analysis is disabled by default. After the owner enables
+  `允许云端健康分析`, a matching question reads the already authorized HealthKit
+  summary and sends only allowlisted, bounded summary text under protocol
+  `pac.chat_health_context.v0.1`.
+- Health turns are forced to ephemeral mode with no memory recall, recent-chat
+  context, candidate write, speaker delivery, or response caching. Health
+  evidence suppresses web search and the model is instructed not to invent
+  missing facts, claim broad phone access, or diagnose.
+- The first whole-file candidate was rejected at startup because it included
+  an unrelated undeployed repository call from the existing dirty worktree.
+  Rollback restored the previous healthy image immediately with unchanged
+  database identity, counts, and integrity.
+- The accepted second candidate was based on the exact production source plus
+  only the health patch. Accepted image is
+  `xiaoxin-cloud-api:20260810T125041-cloud-health-chat-v2`, image ID
+  `sha256:f797a7fad2962fc6faff1c0b6c07a0a5d148d2187ca547278cfcbdf9e91da66e`,
+  running as API container
+  `f7fdf7b7a39912b36705f6e7f2671a571d8988174ae6b188339f8616f10c71ed`.
+- Public health, readiness, and auth-capabilities endpoints returned HTTP 200;
+  API and database were healthy with zero restarts and zero new matching error
+  logs. The database container stayed unchanged, Chat counts stayed 59/2/112,
+  and SQLite `quick_check` remained `ok`.
+- Focused verification passed 138 Swift tests, the 5-test new Python health
+  suite, the 93-test Cloud Chat/tools group, Ruff, a production-derived source
+  pass, image hash checks, and a production-parameter canary construction.
+  The broader local Python run retains 94 unrelated existing Vault/Argon2
+  failures and is not represented as fully green.
+- The new signed App passed strict signature and HealthKit-entitlement checks:
+  executable SHA-256
+  `a050443cc78c52ef6c9a15bccfe023eee70f6a0a58fdd52b1db7401ed146cdbe`,
+  CDHash `f505ecb31fce52d8b5184c4f6b3cd84f992dedbc`, bundle
+  `xyz.nodezjc12348888.xiaoxin`, Team ID `Y38TU585HM`. Installation and the
+  owner-visible health turn remain pending because the paired iPhone developer
+  tunnel is currently unavailable.
+- Exact privacy boundaries, rejected/accepted candidate evidence, backups,
+  hashes, and rollback instructions are in
+  `state/project-data/personal-ai-companion/rollback/cloud-health-chat-20260809T232208+0800/MANIFEST.md`.
+
 ## 2026-08-09 iOS Local Health Chat Repair
 
 Task level: `L3 repair execution` after explicit owner authorization. Scope was
