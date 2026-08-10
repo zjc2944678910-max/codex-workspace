@@ -1,5 +1,38 @@
 # Personal AI Companion Deployment Ledger
 
+## 2026-08-10 Private Health/Calendar Hallucination Guard
+
+Task level: `L3 repair execution` after the owner reported a fabricated daily
+status response and explicitly authorized repair. Scope was limited to the
+iPhone health-state intent, Cloud Chat fail-close behavior without verified
+personal health/calendar evidence, exact cleanup of the reported short-term
+turn, production API deployment, and same-bundle signed iPhone installation.
+
+- `看一下我今天的状态` now reads the enabled Apple Health signals on iPhone.
+  A valid bounded summary may be analyzed only as an ephemeral health turn;
+  without matching evidence, both synchronous and immediate streaming Chat
+  return a deterministic safe reply before model preparation, with no model,
+  conversation, memory, or usage write.
+- The exact hallucinated user/assistant pair was backed up and removed
+  transactionally. Counts changed from 4/2/113 to 2/2/113 while all long-term
+  memory and usage audit rows were retained; SQLite integrity remained `ok`.
+- Accepted image is
+  `xiaoxin-cloud-api:20260810T214627-private-data-guard`, image ID
+  `sha256:127b0d605067b4995a6dfc4c47a6d27827b79f44cf88deb1944ccfe6c7c8c9c8`.
+  The API and unchanged database remained healthy with zero restarts; public
+  health, readiness, and auth-capability checks returned HTTP 200.
+- Verification passed 102 focused Cloud Chat/tools tests, Ruff, 11 focused
+  Swift health tests, and the full 138-test Swift suite. The signed App retained
+  bundle `xyz.nodezjc12348888.xiaoxin`, Team ID `Y38TU585HM`, and HealthKit
+  entitlement, then installed and launched successfully.
+- Owner-visible acceptance passed using the exact prompt. The response was
+  grounded in current steps, energy, heart-rate, and sleep evidence; the API
+  saw one successful stream request while counts stayed 2/2/113 and recent
+  matching errors stayed zero.
+- Exact IDs/hashes, backups, production-derived patching, cleanup boundaries,
+  signing facts, and rollback instructions are in
+  `state/project-data/personal-ai-companion/rollback/private-data-hallucination-20260810T212713+0800/MANIFEST.md`.
+
 ## 2026-08-10 Cloud-Ephemeral Apple Health Analysis
 
 Task level: `L3 repair execution` after explicit owner authorization. Scope is
