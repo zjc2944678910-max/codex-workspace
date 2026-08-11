@@ -203,16 +203,17 @@ were originally filed under openclaw. Canonical home is here.
 
 ### Clash 独立住宅出口 (2026-08-11)
 
-为 Clash Verge Rev 增加三个明确的住宅线路选择：`住宅线路-自动`、
-`住宅线路-萨克拉门托`、`住宅线路-华盛顿`。
+为 Clash Verge Rev 增加三个明确的住宅线路选择：`住宅线路｜自动`、
+`住宅线路｜萨克拉门托`、`住宅线路｜华盛顿`。
 
-- `住宅线路-自动` 继续复用原 `webshare-bal`，按 Xray 默认策略在两条住宅出口之间分配新连接。
+- `住宅线路｜自动` 继续复用原 `webshare-bal`，按 Xray 默认策略在两条住宅出口之间分配新连接。
 - 两个固定城市各使用独立的本地 VLESS+WS 入站和不公开的随机路径，分别固定路由到 `webshare1`、`webshare2`；公网仍复用现有域名、TLS 和 8443 端口，没有新增公网监听。
 - nginx 的 apex/node 两个 vhost 均增加对应 WS location；Cloudflare DNS、Origin Rule 和证书未改。
 - Clash YAML 保留原有节点，仅把一个住宅自动别名改为中文名称并新增两个固定城市节点；三者只加入手动选择组，不加入自动测速组，避免意外消耗住宅流量。
 - sing-box 9444、Webshare 凭据、共享 250GB 流量池、Shadowrocket 原订阅和其他节点均未改。
 - Xray/Nginx/Clash 配置检查、源站及 Cloudflare WebSocket 101、公开订阅校验值和三节点完整客户端出口测试全部通过。
 - 详细变更、验证和回滚信息见 `reports/2026-08-11-two-fixed-residential-egress.md`。
+- 同日将 Clash 中全部 13 个节点统一为中文显示名称；当前名称和验证信息见 `reports/2026-08-11-clash-chinese-node-names.md`。
 
 ## 关联 / Cross-refs
 

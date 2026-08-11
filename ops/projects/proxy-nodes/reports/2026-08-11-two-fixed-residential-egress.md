@@ -84,3 +84,10 @@ continued.
   exits does not increase quota.
 - The Clash subscription URL and opaque WS paths remain credentials and must
   not be published.
+
+## Follow-up
+
+Later on 2026-08-11, all Clash display names were normalized to Chinese. The
+three current residential labels are `住宅线路｜自动`, `住宅线路｜萨克拉门托`,
+and `住宅线路｜华盛顿`. See
+`2026-08-11-clash-chinese-node-names.md` for the complete mapping.
