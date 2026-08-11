@@ -92,3 +92,10 @@ authorized repair of the `家庭中转｜NAS` connection record. The active grou
 selections remained unchanged, and an isolated request through the refreshed
 NAS record returned HTTP 204. See
 `2026-08-11-nas-relay-node-credential-repair.md`.
+
+## Residential Selector Follow-up
+
+The merged profile's `住宅出口` group was later found to be disconnected from
+the `统一选择` group used by its final rule. A separately authorized repair
+added that single selector reference without changing providers, nodes, rules,
+or filters. See `2026-08-11-merged-residential-selector-repair.md`.
