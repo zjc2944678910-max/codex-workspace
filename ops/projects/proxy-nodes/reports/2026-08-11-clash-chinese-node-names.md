@@ -72,3 +72,9 @@ No NAS repair was attempted because it was outside the authorized scope.
 - After refreshing the subscription, a client that had persisted a previous
   node name may require one manual selection.
 - The subscription URL remains a credential and must not be published.
+
+## Follow-up
+
+The local Clash Verge `自建+三毛合并` profile was synchronized later the same
+day. Its stored choices and name-based filters now understand the Chinese node
+names. See `2026-08-11-merged-profile-chinese-names.md`.
