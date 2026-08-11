@@ -81,3 +81,8 @@ names. The Shadowrocket Base64 subscription was also synchronized and expanded
 to the same 13-node Chinese inventory. See
 `2026-08-11-merged-profile-chinese-names.md` and
 `2026-08-11-shadowrocket-13-chinese-nodes.md`.
+
+The unrelated NAS route-health finding was subsequently repaired under a
+separate L3 authorization. Its stale UUID, SNI, and WebSocket Host were synced
+without changing this naming operation; see
+`2026-08-11-nas-relay-node-credential-repair.md`.

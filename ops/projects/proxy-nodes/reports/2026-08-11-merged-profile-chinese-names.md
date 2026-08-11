@@ -84,3 +84,11 @@ profiles page may be needed to refresh its display.
   provider rollback does not break selection behavior.
 - The merged subscription and provider URLs remain credentials and must not be
   published.
+
+## Follow-up
+
+The active `self-hosted` provider cache was later refreshed after a separately
+authorized repair of the `家庭中转｜NAS` connection record. The active group
+selections remained unchanged, and an isolated request through the refreshed
+NAS record returned HTTP 204. See
+`2026-08-11-nas-relay-node-credential-repair.md`.

@@ -43,3 +43,11 @@
 ## Residual Risk
 
 The relay now depends on Cloudflare for its NAS-to-VPS segment. This removes the observed lossy direct route but reduces path independence from the existing Cloudflare-backed proxy nodes.
+
+## 2026-08-11 Follow-up
+
+The relay transport remained healthy, but the Clash and Shadowrocket NAS
+records had drifted from the current VPS authorization and Cloudflare hostname.
+The client records were synchronized under separate L3 authorization; the NAS
+service, router, DNS, Cloudflare, and VPS services were not changed or
+restarted. See `2026-08-11-nas-relay-node-credential-repair.md`.

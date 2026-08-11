@@ -83,3 +83,10 @@ or restart is required.
   replacement completes.
 - The subscription URL and decoded node records are credentials and must not
   be published.
+
+## Follow-up
+
+The `家庭中转｜NAS` record was later found to contain stale connection
+parameters and was repaired under separate L3 authorization. This did not
+change the 13-node inventory or Chinese display names. See
+`2026-08-11-nas-relay-node-credential-repair.md`.
