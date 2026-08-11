@@ -215,6 +215,7 @@ were originally filed under openclaw. Canonical home is here.
 - 详细变更、验证和回滚信息见 `reports/2026-08-11-two-fixed-residential-egress.md`。
 - 同日将 Clash 中全部 13 个节点统一为中文显示名称；当前名称和验证信息见 `reports/2026-08-11-clash-chinese-node-names.md`。
 - 本机 `自建+三毛合并` 配置也已同步：卡片说明修正为自建 13 节点 + 机场 38 节点，保存选择改为中文，并让住宅/自动分组同时兼容新旧名称；见 `reports/2026-08-11-merged-profile-chinese-names.md`。
+- 小火箭 Base64 订阅随后也从 11 条更新为相同的 13 个中文节点，新增萨克拉门托/华盛顿两个固定住宅出口；另一份 `mac-main.txt` 未改。见 `reports/2026-08-11-shadowrocket-13-chinese-nodes.md`。
 
 ## 关联 / Cross-refs
 

@@ -68,3 +68,10 @@ require a service reload.
   credentials as well.
 - NAS relay latency display can be unreliable even though proxied traffic was
   verified successfully.
+
+## Follow-up
+
+The source Shadowrocket subscription was expanded later on 2026-08-11 from 11
+records to the same 13-node Chinese inventory used by Clash, including two
+fixed residential-city exits. See
+`2026-08-11-shadowrocket-13-chinese-nodes.md`.
