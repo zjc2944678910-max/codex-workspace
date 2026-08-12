@@ -216,6 +216,7 @@ were originally filed under openclaw. Canonical home is here.
 - 同日将 Clash 中全部 13 个节点统一为中文显示名称；当前名称和验证信息见 `reports/2026-08-11-clash-chinese-node-names.md`。
 - 本机 `自建+三毛合并` 配置也已同步：卡片说明修正为自建 13 节点 + 机场 38 节点，保存选择改为中文，并让住宅/自动分组同时兼容新旧名称；见 `reports/2026-08-11-merged-profile-chinese-names.md`。
 - 修复本机合并配置的住宅选择接线：`住宅出口` 现已加入主规则实际使用的 `统一选择`，避免规则模式下界面选住宅、流量仍走自动机场。修复时用户正在使用独立自建订阅，该配置保持激活且未被重载；见 `reports/2026-08-11-merged-residential-selector-repair.md`。
+- 2026-08-12 将合并配置进一步扁平化为单一 `节点选择`：自建13条、机场38条、自动与直连都在同一列表中，点具体节点即直接生效；同时将8个 Cloudflare VLESS 客户端入口及 Clash 订阅下载入口从8443迁至443，并在小火箭运行期间关闭 Clash TUN，消除双隧道路由/DNS冲突。见 `reports/2026-08-12-mixed-flat-selector-network-compat-repair.md`。
 - 小火箭 Base64 订阅随后也从 11 条更新为相同的 13 个中文节点，新增萨克拉门托/华盛顿两个固定住宅出口；另一份 `mac-main.txt` 未改。见 `reports/2026-08-11-shadowrocket-13-chinese-nodes.md`。
 - 同日修复 `家庭中转｜NAS` 的陈旧订阅参数：同步当前有效 UUID、SNI 和 WebSocket Host 到 Clash 与小火箭订阅，并刷新本机合并配置的自建 provider；NAS/VPS/路由器/Cloudflare 和所有服务均未改动或重启。刷新后隔离全链路测试返回 HTTP 204，见 `reports/2026-08-11-nas-relay-node-credential-repair.md`。
 

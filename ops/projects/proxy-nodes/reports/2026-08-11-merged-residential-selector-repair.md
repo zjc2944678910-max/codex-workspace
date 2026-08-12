@@ -94,3 +94,10 @@ airport, residential, and direct choices available in the same merged profile.
   the Sacramento path completed successfully. This is independent of the
   confirmed selector-wiring defect.
 - Provider and subscription URLs remain credentials and must not be published.
+
+## 2026-08-12 Follow-up
+
+The nested selector model was replaced by a single flat `节点选择` group under
+separate L3 authorization. Concrete self-hosted and airport nodes can now be
+selected directly without first selecting a child group. See
+`2026-08-12-mixed-flat-selector-network-compat-repair.md`.
