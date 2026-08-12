@@ -1,5 +1,37 @@
 # Personal AI Companion Deployment Ledger
 
+## 2026-08-12 Shared Xiaoxin Identity Card And Answer Contract
+
+Task level: `L3 repair execution` after the owner reported that the prior
+style-scoring system could produce off-topic answers and explicitly authorized
+repair. Scope was limited to a stable identity card, the existing per-turn
+answer contract, a production API update, and one Mac realtime Bridge restart.
+
+- Xiaoxin now has one compact `xiaoxin.v1` identity card covering role,
+  relationship, character, values, speaking behavior, evidence boundaries, and
+  response priority. It is shared by iPhone Cloud Chat and the CoreS3 realtime
+  route; the partner-style profile is only an optional tone overlay.
+- The answer contract now applies even when no style profile is active, fixing
+  the robot's default `group_safe_shared` path. Model routing, streaming,
+  privacy projection, tools, memory writes, iOS segmentation, and robot
+  firmware were unchanged.
+- Accepted image is
+  `xiaoxin-cloud-api:20260812T230021-identity-card`, image ID
+  `sha256:b7397f9992c1ca52f39abe17aeb3df24dbb233928db62805b4db4eb5d8b7a969`.
+  API, database, public health/readiness/auth capabilities, existing iPhone App
+  launch, Mac Bridge, CoreS3 microphone connection, model prewarm, and robot
+  audio reachability passed with zero service restart loops.
+- Verification passed the full 2805-test Python suite, a focused 247-test
+  identity/cloud/realtime suite, Ruff, production-image prompt canaries, and
+  three real Provider ephemeral canaries. The answers correctly addressed a
+  factual question, an explanation request, and an emotional statement.
+- Chat-memory tables and SQLite integrity were identical before and after the
+  ephemeral canaries. No account, conversation, memory, usage, PostgreSQL, or
+  schema record was changed by acceptance.
+- Exact backups, hashes, data counts, local-device facts, rollback instructions,
+  and the remaining audible physical-voice observation are in
+  `state/project-data/personal-ai-companion/rollback/identity-card-20260812T215458+0800/MANIFEST.md`.
+
 ## 2026-08-10 Private Health/Calendar Hallucination Guard
 
 Task level: `L3 repair execution` after the owner reported a fabricated daily
