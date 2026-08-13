@@ -1,5 +1,39 @@
 # Personal AI Companion Deployment Ledger
 
+## 2026-08-13 Owner Memory Center Deployment
+
+Task level: `L3 repair execution` after explicit owner authorization. Scope was
+limited to the authenticated memory-center API and matching same-bundle iPhone
+App; robot, Mac realtime services, Provider routing, accounts, and database
+schema were unchanged.
+
+- The owner-only API now lists, confirms, dismisses, forgets, and revises active
+  memories. Revision is bounded, preserves atom identity/status, recomputes the
+  fact key, and writes an audit event. Non-owner and unauthenticated requests
+  fail closed.
+- The accepted cloud image is
+  `xiaoxin-cloud-api:20260813T-memory-center`, image ID
+  `sha256:e91b9402d283d6edecbbd0a75b2e4d751634845aa37284db8daacc5e8bebc05e`.
+  It is a five-file overlay on the prior accepted identity-card image, not a
+  rebuild of the existing dirty source tree.
+- API and database are healthy with zero restarts; public health/readiness/auth
+  capabilities return HTTP 200, unauthenticated memory access returns 401,
+  SQLite integrity remains `ok`, data counts are unchanged, and recent matching
+  error logs are zero.
+- The isolated image canary passed list/revise/confirm/forget with the expected
+  audit actions. Focused post-deployment Swift tests passed 4/4.
+- The matching signed App build passed strict validation for bundle
+  `xyz.nodezjc12348888.xiaoxin`, Team `Y38TU585HM`, executable SHA-256
+  `b7964722f9d73859058fed437ff309874cd7f801bdefd26ebdc14362fcd0c316`,
+  CDHash `09bbdb16e6352e12b2fb79c5e580a1ba461edc53`, with HealthKit entitlement
+  retained.
+- Both paired iPhones remained unavailable, so install, launch, and the
+  owner-visible add/revise/re-query flow are pending. No synthetic production
+  memory was inserted to claim acceptance.
+- Exact backups, hashes, counts, signed App path, pending gates, and rollback
+  instructions are in
+  `state/project-data/personal-ai-companion/rollback/memory-center-20260813T085718+0800/MANIFEST.md`.
+
 ## 2026-08-12 Shared Xiaoxin Identity Card And Answer Contract
 
 Task level: `L3 repair execution` after the owner reported that the prior
