@@ -38,3 +38,32 @@ No tunnel token, API key, visitor cookie, account identifier, or visitor data is
 2. Restart only `com.vocabatelier.public`; do not restart or alter unrelated services.
 3. If Access enforcement was enabled, disable the `vocab.nodezjc12348888.xyz` Access policy or set `IELTS_VOCAB_REQUIRE_ACCESS=0` before restarting the public service.
 4. Preserve all user databases and new note tables; schema migration is additive and rollback must not delete notes or backups.
+
+## 2026-08-14 — Vocab Authentik publication and single-user enforcement
+
+- Hostname: `vocab.nodezjc12348888.xyz`
+- Public route: proxied Cloudflare `A` record to the VPS, with the Vocab-only Origin Rule rewriting HTTPS origin traffic to port `8443`.
+- VPS route: the dedicated Nginx vhost performs Authentik forward authentication, then proxies only to the Mac reverse-SSH origin at `127.0.0.1:29148`.
+- Auth route: the embedded Authentik outpost is reached only through the existing private VPS listener at `127.0.0.1:29000`.
+- Identity: Authentik application `vocab-atelier` has a direct one-user policy binding and a 30-day session. The gateway remains fail-closed and derives the per-user data key from Authentik's stable UID when the upstream email attribute is empty.
+- Allowlist: the local runtime contains one approved email and its corresponding Authentik username. No plaintext account identifier is recorded in this ledger.
+- Security mitigation: the Vocab Nginx subrequest now overwrites `X-Original-URI`, and the application rejects Authentik responses without a stable UID or an allowlisted email. This is scoped mitigation for the installed Authentik `2026.2.1`; no shared Authentik upgrade was performed.
+- Legacy data: the authenticated account reports legacy anonymous data as available for explicit claim. It was not automatically merged.
+- Previous Cloudflare Tunnel: retained as an unused rollback path; the live `vocab` DNS record no longer targets it.
+
+### Verification
+
+- Unauthenticated public requests return `302` to the Vocab Authentik flow; a client-supplied `X-Original-URI` receives the same `302` and does not reach the app.
+- A real Chrome session loaded the complete Vocab Atelier notes workspace, and `/api/account/status` returned `authenticated=true` with `identity_mode=access`.
+- Direct local checks returned `401` for no identity and for an unapproved identity, and `200` for the approved Authentik identity path.
+- Nginx configuration validation passed and both private reverse listeners responded.
+- Product verification passed: 51 Python tests, Markdown renderer tests, Python compilation, and JavaScript syntax checks.
+
+### Backups and rollback
+
+- Authentik database backup on the NAS: `/var/backups/vocab-authentik/20260814T142203+0800/`.
+- VPS Nginx and Cloudflare DNS evidence: `/var/backups/vocabatelier-auth-20260814-125023/`.
+- Local LaunchAgent backup: `rollback/vocab-authentik-20260814-125023/com.vocabatelier.public.before-enforcement.plist`.
+- Pre-UID gateway files: `rollback/vocab-authentik-20260814-125023/local-product/`.
+- Roll back in this order: restore the Vocab Nginx vhost and DNS record from the VPS bundle, restore the public LaunchAgent and gateway files, reload only the Vocab services, then remove only the `vocab-atelier` application/provider binding if the Authentik change itself must be reverted.
+- Preserve all visitor databases and note data during rollback.
