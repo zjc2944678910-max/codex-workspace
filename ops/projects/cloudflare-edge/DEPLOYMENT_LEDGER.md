@@ -67,3 +67,24 @@ No tunnel token, API key, visitor cookie, account identifier, or visitor data is
 - Pre-UID gateway files: `rollback/vocab-authentik-20260814-125023/local-product/`.
 - Roll back in this order: restore the Vocab Nginx vhost and DNS record from the VPS bundle, restore the public LaunchAgent and gateway files, reload only the Vocab services, then remove only the `vocab-atelier` application/provider binding if the Authentik change itself must be reverted.
 - Preserve all visitor databases and note data during rollback.
+
+## 2026-08-14 — Learning notes interaction repair
+
+- Scope: repaired notes autosave races, immediate and last-click-wins note selection, bounded prefetch for the three most recent notes, repeated blank-note reuse, fixed-height notes workspace with internal editor/preview scrolling, preserved Markdown soft line breaks in note preview, and cleanup of cancelled or failed AI drafts.
+- Product root: `/Users/zhangjincheng/Documents/GitHub/antigravity-workspace/projects/ielts-vocab-hub`
+- Runtime action: restarted only `com.vocabatelier.public`; no vocabulary, study, Authentik, Nginx, DNS, or shared-service configuration was changed.
+- Rollback bundle: `rollback/vocab-notes-ui-20260814-160909/` (mode `0700`), containing the pre-repair product files and a full copy of the public visitor data directory.
+
+### Verification
+
+- All 53 Python tests passed, including blank-note reuse, AI draft disposal, public identity isolation, dictionary behavior, and study scheduling.
+- Markdown safety/compatibility tests and JavaScript/Python syntax checks passed.
+- Isolated desktop and mobile browser tests passed for fixed viewport layout, internal scrolling, soft line breaks, autosave during active typing, note switching, and double-click blank-note creation.
+- Authenticated public Chrome verification loaded both existing notes without modifying their content; cached note switching completed immediately, the document stayed within the viewport while editor and preview scrolled internally, and the browser console reported no errors.
+- Unauthenticated HTTPS remained fail-closed with a `302` redirect to the Authentik flow. The public LaunchAgent remained running with exit code `0`.
+
+### Rollback
+
+1. Restore `notes-app.js`, `markdown.js`, `styles.css`, `notes.py`, and `proxy.py` from the rollback bundle's `product/` directory.
+2. Restart only `com.vocabatelier.public`.
+3. Restore the backed-up visitor directory only if a separate data-integrity incident is confirmed; the repair itself did not migrate or delete user notes.
