@@ -80,3 +80,19 @@ slice decisions belong in that run's `05-decisions.md`.
     `github.com/zjc2944678910-max/{hotel-mgmt,pet-clinic}`, then symlinked back.
   - **gitnexus**: indexes moved with the dirs; the claude registry path resolves
     via symlink. Re-index at the codex path only if gitnexus misbehaves.
+
+## 2026-08-18
+
+- **Decision**: `grok-workspace` is a third front-desk index, same Plan A as
+  Claude. It does **not** own project code or shared ops. Code still lives
+  once here under `projects/`. Grok reaches it through its own local
+  git-ignored symlinks (`grok-workspace/tools/symlink-from-codex.sh`), not
+  through `symlink-projects-to-claude.sh`.
+- **Rationale**: Grok needs routing / L2–L3 / memory without inheriting Codex
+  GitNexus/worker policy or Claude's `.claude/rules`.
+- **How to apply**: new durable code is still registered here first. Then Grok
+  imports or registers a thin pointer and re-runs its symlink script. Do not
+  copy trees into `grok-workspace`.
+- **Affects**: future project placement; sibling awareness only. Claude remains
+  the primary `sibling_workspace` object in this registry so regen stays
+  compatible.

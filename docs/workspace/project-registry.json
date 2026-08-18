@@ -595,7 +595,7 @@
     "name": "claude-workspace",
     "root": "/Users/zhangjincheng/Documents/GitHub/claude-workspace",
     "registry": "registry/project-registry.json",
-    "note": "Projects below are routed/maintained by the sibling workspace (claude) for their ops/registry, but as of 2026-06-22 ALL project CODE physically lives in THIS codex repo under projects/ (single-copy model). hotel-mgmt/pet-clinic code is here at projects/products/{hotel-mgmt,pet-clinic} (own git repos = backup); claude only holds symlinks. So 'maintained by claude' = ownership/routing, not code location. Shared projects openclaw and sub2api are registered in both workspaces.",
+    "note": "Projects below are routed/maintained by the sibling workspace (claude) for their ops/registry, but as of 2026-06-22 ALL project CODE physically lives in THIS codex repo under projects/ (single-copy model). hotel-mgmt/pet-clinic code is here at projects/products/{hotel-mgmt,pet-clinic} (own git repos = backup); claude only holds symlinks. So 'maintained by claude' = ownership/routing, not code location. Shared projects openclaw and sub2api are registered in both workspaces. As of 2026-08-18, grok-workspace is another front-desk index at /Users/zhangjincheng/Documents/GitHub/grok-workspace (symlinks + thin ops pointers only; it does not own code).",
     "projects": [
       "hotel-mgmt",
       "pet-clinic"
