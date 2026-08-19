@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { existsSync } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
@@ -42,6 +43,7 @@ function parseArgs(argv = []) {
     dryRun: false,
     regen: false,
     symlink: true,
+    grokSync: true,
     help: false,
   };
   for (let index = 0; index < argv.length; index += 1) {
@@ -126,6 +128,10 @@ function parseArgs(argv = []) {
       options.symlink = false;
       continue;
     }
+    if (arg === "--no-grok-sync") {
+      options.grokSync = false;
+      continue;
+    }
     throw new Error(`Unknown argument: ${arg}`);
   }
   return options;
@@ -149,6 +155,7 @@ function usage() {
     "  --gitnexus-status <value>   unknown|indexed|not_indexed|not_targeted.",
     "  --dry-run                   Print the project record without writing files.",
     "  --no-symlink                Skip auto-creating the claude-workspace symlink.",
+    "  --no-grok-sync              Skip importing the new project into grok-workspace.",
     "",
   ].join("\n");
 }
@@ -537,6 +544,45 @@ function symlinkProjectToClaude(repoRoot, slug) {
   }
 }
 
+function grokWorkspaceRoot(repoRoot) {
+  return path.resolve(repoRoot, "..", "grok-workspace");
+}
+
+function notifyGrokWorkspace(repoRoot, slug) {
+  const grokRoot = grokWorkspaceRoot(repoRoot);
+  const importer = path.join(grokRoot, "tools", "register-project.py");
+  const linker = path.join(grokRoot, "tools", "symlink-from-codex.sh");
+  if (!existsSync(importer)) {
+    process.stdout.write(`Grok sync: skipped (importer missing at ${importer}).\n`);
+    return { skipped: true, reason: "missing-importer" };
+  }
+  try {
+    const imported = spawnSync("/usr/bin/python3", [importer, "--import-from-codex"], {
+      encoding: "utf8",
+      cwd: grokRoot,
+    });
+    if (imported.status !== 0) {
+      const detail = (imported.stderr || imported.stdout || "").trim();
+      process.stdout.write(`Grok sync: import failed for ${slug}${detail ? `: ${detail}` : ""}.\n`);
+      return { skipped: false, ok: false, step: "import" };
+    }
+    process.stdout.write(`Grok sync: imported registry into grok-workspace (${slug}).\n`);
+    if (existsSync(linker)) {
+      const linked = spawnSync("bash", [linker], { encoding: "utf8", cwd: grokRoot });
+      if (linked.status === 0) {
+        process.stdout.write("Grok sync: refreshed grok-workspace project symlinks.\n");
+      } else {
+        process.stdout.write(`Grok sync: symlink script exit ${linked.status}; run grok-workspace/tools/symlink-from-codex.sh manually.\n`);
+      }
+    }
+    return { skipped: false, ok: true };
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    process.stdout.write(`Grok sync: skipped (${msg}).\n`);
+    return { skipped: true, reason: msg };
+  }
+}
+
 async function main() {
   const options = parseArgs(process.argv.slice(2));
   if (options.help) {
@@ -566,6 +612,9 @@ async function main() {
   ) {
     symlinkProjectToClaude(repoRoot, result.project.slug);
   }
+  if (options.grokSync && repoRoot === defaultRepoRoot()) {
+    notifyGrokWorkspace(repoRoot, result.project.slug);
+  }
 }
 
 const entryPath = process.argv[1] ? path.resolve(process.argv[1]) : "";
@@ -581,6 +630,8 @@ export {
   buildProject,
   createSurfaces,
   defaultRepoRoot,
+  grokWorkspaceRoot,
+  notifyGrokWorkspace,
   parseArgs,
   registerProject,
   renderOpsReadme,

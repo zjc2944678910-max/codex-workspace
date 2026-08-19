@@ -5,17 +5,17 @@ This directory is the operator-facing surface for `pet-clinic`.
 ## Routing Evidence
 
 - Project name: `Pet Clinic Management System`
-- Aliases: `pet-clinic`, `宠物诊所管理系统`
-- Registry routing keywords: `pet-clinic`, `Pet Clinic Management System`, `宠物诊所管理系统`
+- Aliases: `pet-clinic`, `宠物诊所管理系统`, `宠物诊所`
+- Registry routing keywords: `pet-clinic`, `Pet Clinic Management System`, `宠物诊所管理系统`, `宠物诊所`, `niit`, `192.168.151.133`
 - Main code: `projects/products/pet-clinic`
 - Ops surface: `ops/projects/pet-clinic`
 - State/data: `state/project-data/pet-clinic`
 - Scratch: `scratch/projects/pet-clinic`
 - Reports: `reports/`
 - Runbooks: `runbooks/`
-- Live host aliases: -
+- Live host aliases: `niit`, `192.168.151.133`
 - Service names: -
-- Registry risk profile: `local`
+- Registry risk profile: `live_product`
 
 Route into this project only when the user explicitly names one of these
 entries, provides a matching path, or asks for a file that belongs to this
@@ -30,8 +30,8 @@ node docs/workspace/codex-register-project.mjs --regen
 
 ## Ops Quality Baseline
 
-- Current status: Registered product surface for `pet-clinic`. Day-to-day work is local/research unless a future task introduces live infrastructure evidence.
-- Risk gate: L0/L1 local docs/code/research work by default; no live infrastructure is registered for this project.
+- Current status: Registered product surface for `pet-clinic`. Local Tomcat/CSV work stays L0/L1. The NIIT lab VM `niit` (`192.168.151.133`) is a live HBase/Hadoop host.
+- Risk gate: L2 read-only by default when the task names `niit`, HBase, or the lab VM; L3 needs `进入修复阶段`. Pure local code/docs without the VM stay L0/L1.
 - Common commands:
   - `node docs/workspace/find-project.mjs pet-clinic`
   - `node docs/workspace/workspace-health.mjs --repo "$PWD" --limit 12`

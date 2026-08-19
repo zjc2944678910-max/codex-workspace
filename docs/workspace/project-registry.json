@@ -1,7 +1,7 @@
 {
   "$schema": "workspace-project-registry/v1",
   "description": "Machine-readable workspace project registry. Each registered project has an ops README under ops/projects/<slug>/README.md, one or more long-lived surfaces under projects/*/*, and zero or more concrete code roots used for day-to-day work and GitNexus targeting.",
-  "updated": "2026-07-04",
+  "updated": "2026-08-19",
   "projects": [
     {
       "slug": "bigdata-spark-research-workbench",
@@ -359,7 +359,7 @@
       "slug": "pet-clinic",
       "name": "Pet Clinic Management System",
       "kind": "product",
-      "risk_profile": "local",
+      "risk_profile": "live_product",
       "surfaces": [
         "projects/products/pet-clinic"
       ],
@@ -375,14 +375,21 @@
       "scratch": "scratch/projects/pet-clinic",
       "aliases": [
         "pet-clinic",
-        "宠物诊所管理系统"
+        "宠物诊所管理系统",
+        "宠物诊所"
       ],
       "routing_keywords": [
         "pet-clinic",
         "Pet Clinic Management System",
-        "宠物诊所管理系统"
+        "宠物诊所管理系统",
+        "宠物诊所",
+        "niit",
+        "192.168.151.133"
       ],
-      "live_host_aliases": [],
+      "live_host_aliases": [
+        "niit",
+        "192.168.151.133"
+      ],
       "service_names": [],
       "gitnexus_indexed": true
     },
