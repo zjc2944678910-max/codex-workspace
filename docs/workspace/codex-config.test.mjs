@@ -41,7 +41,12 @@ test("codex config defines workspace token budget defaults", () => {
   assert.equal(config.model_auto_compact_token_limit, 900000);
   assert.ok(config.model_auto_compact_token_limit < config.model_context_window);
   assert.match(config.developer_instructions, /lightest safe path/u);
+  assert.match(config.developer_instructions, /automatically delegate/u);
   assert.match(config.developer_instructions, /进入修复阶段/u);
+  assert.equal(config.agents.enabled, true);
+  assert.equal(config.agents.max_concurrent_threads_per_session, 4);
+  assert.equal(config.agents.default_subagent_model, "gpt-5.6-luna");
+  assert.equal(config.agents.default_subagent_reasoning_effort, "xhigh");
 });
 
 test("codex profile v2 files define token budget profiles", (context) => {

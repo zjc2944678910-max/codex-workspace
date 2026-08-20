@@ -121,13 +121,13 @@ Codex is the control plane.
 | Read-only mapping or pre-change risk review when the surface or contracts are unclear | Codex agents: `repo_mapper`, `review_guard`, `docs_checker` |
 | `L0 tiny` question, check, or isolated fix | Codex direct |
 | Small known-scope L0/L1 implementation with explicit files/tests and no risky surface | Codex direct |
-| Non-tiny L0/L1 implementation, repair, or test loop | Codex implements; Claude Code Opus 5 may advise read-only when diagnosis or review materially helps |
+| Non-tiny L0/L1 implementation, repair, or test loop | Codex automatically delegates one bounded slice to the appropriate Luna agent, then reviews and accepts the result |
 | Verification, regression judgment, final acceptance, user synthesis | Codex, optionally `verifier` |
 
-Default short-task path:
+Default non-tiny local-task path:
 
 ```text
-Codex route/judge -> inspect bounded evidence -> optionally ask Opus 5 for advice -> Codex implements -> focused verification -> Codex accepts
+Codex route/judge -> Luna handles a bounded execution slice -> Codex reviews -> focused verification -> Codex accepts
 ```
 
 Default multi-model workflow:
@@ -136,30 +136,40 @@ Default multi-model workflow:
    facts, one-file small edits, and small known-scope fixes.
 2. Small known-scope L0/L1 implementation stays in Codex when the files, tests,
    and acceptance criteria are explicit and no risky surface is involved.
-3. For a difficult local problem, Codex maps the scope and gathers bounded
-   evidence. Claude Code CLI with `claude-opus-5` may identify likely causes,
-   edge cases, or recommended checks, but Codex performs all edits and tests.
-4. Claude review is a proactive read-only second-opinion path for subtle
+3. For every non-tiny local L0/L1 task, Codex automatically spawns one
+   appropriate project Luna agent for a bounded mapping, implementation,
+   review, or verification slice. The user does not need to request delegation.
+   Codex waits for the result, checks the diff and evidence, and owns final
+   acceptance. Prefer `repo_mapper`, `docs_checker`, `surgical_fixer`,
+   `refactor_worker`, `review_guard`, or `verifier` according to the task.
+4. For a difficult local problem, Claude Code CLI with `claude-opus-5` may
+   identify likely causes, edge cases, or recommended checks, but remains a
+   bounded read-only advisor.
+5. Claude review is a proactive read-only second-opinion path for subtle
    evidence, architecture or root-cause judgment, L2 read-only audit conclusions,
    shared contracts, security-sensitive surfaces, user-facing behavior,
    hard-to-roll-back changes, and important pre-merge reviews.
-5. Codex owns the final synthesis every time: reconcile advice with local or
-   live evidence, perform authorized repairs, run focused tests, and report
-   residual risk.
+6. Codex owns the final synthesis every time: reconcile Luna results and any
+   advice with local or live evidence, perform authorized repairs, run focused
+   tests, and report residual risk.
 
-Keep the work in Codex when the task is `L0 tiny`, small known-scope L0/L1, the
-main value is diagnosis or judgment, or the request is L2/L3, live, deploy,
-auth, secrets, or config heavy. Use mapper/review/verifier only when an unknown
-call chain, cross-module change, unclear contract, likely repair loop, or messy
-handoff state makes the extra tokens worth it.
+Keep the work entirely in Codex when the task is `L0 tiny`, small known-scope
+L0/L1, the main value is diagnosis or judgment, or the request is L2/L3, live,
+deploy, auth, secrets, or config heavy. For other local L0/L1 work, the default
+is automatic Luna delegation without requiring a user prompt.
 
 Agent budget:
 
-- L0 and small known-scope L1 default to zero agents.
+- L0 tiny and small known-scope L1 default to zero agents.
+- Non-tiny local L0/L1 defaults to one Luna helper agent. The instruction in
+  this file is the standing request and authorization to spawn that agent
+  automatically; the user does not need to repeat it in each task.
 - Ordinary L1 should use at most one helper agent unless two or more risk
   signals are present: unknown call chain, cross-module contract, API route,
   security/auth/secret boundary, flaky or failing verification, broad refactor,
   or repeated repair.
+- At most two read-only Luna agents may run in parallel. Run at most one
+  workspace-writing Luna agent at a time to avoid edit conflicts.
 - Complex L1 and L2 read-only workflows may use mapper, Opus 5 review, and
   verifier passes when independent review materially reduces risk. Only
   exceptionally difficult reviews upgrade to Fable 5. Codex still performs
