@@ -19,6 +19,7 @@ Policy: `AGENTS.md`. Worker contract: `WORKER.md`.
 | `codex-hooks.md` | Repo-local Codex hook guardrails, verification, and rollback |
 | `codex-multi-agent-long-task-template.md` | Non-canonical prompt examples and layout reference |
 | `repo-hygiene.mjs` | Workspace root hygiene, project route metadata drift checks, and checkpointing |
+| `skill-hygiene.mjs` | Active local skill frontmatter, naming, duplicate, and stale-marker checks |
 | `workspace-disk-report.mjs` | Classify disk hotspots before cleanup |
 | `workspace-health.mjs` | Compact health summary for hygiene, disk hotspots, route drift, and Codex workflow drift checks |
 | `codex-run-retention.mjs` | Rotate `scratch/shared/codex-runs` into cleanup archive |
@@ -28,6 +29,7 @@ Policy: `AGENTS.md`. Worker contract: `WORKER.md`.
 | `workspace-health-acknowledgements.json` | Known nested git dirty reminders that stay visible without forcing attention |
 | `scratch-retention.json` | Scratch retention manifest with per-path policy |
 | `state-retention.json` | State retention manifest with per-path policy for ignored machine-local state |
+| `../reports/workspace-skill-audit-2026-08-20.md` | Active-skill inventory, archive map, and naming/risk policy |
 | `../../PROJECTS.md` | Generated short project map for session startup |
 | `../../DAILY.md` | Short-lived session/day notes before promotion |
 | `../decisions/workspace-decisions.md` | Durable workspace-level decisions |
@@ -46,6 +48,10 @@ Policy: `AGENTS.md`. Worker contract: `WORKER.md`.
   `audit`, or when evidence and command output may bloat the main context.
 - Escalate to `codex-long-task-runbook.md` only when work spans multiple slices,
   needs handoff state, or enters repeated repair loops.
+- Keep workspace-local active skills narrow and descriptive. Generated
+  cluster/timestamp snapshots belong in the local archive, not in active
+  discovery; use `node docs/workspace/skill-hygiene.mjs --json` before promoting
+  a new one.
 - Use `workspace-health.mjs` for policy, hygiene, or cleanup validation. It is
   not a required preflight for `L0 tiny` work.
 

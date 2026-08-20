@@ -1,6 +1,6 @@
 #:schema https://developers.openai.com/codex/config-schema.json
 
-review_model = "gpt-5.5"
+review_model = "gpt-5.6-sol"
 
 # Keep the repository-level budget contract aligned with the GPT-5.6 family.
 # User profiles may choose smaller per-task compaction limits.

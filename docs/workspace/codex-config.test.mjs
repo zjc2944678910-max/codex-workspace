@@ -37,6 +37,7 @@ function codexHome() {
 test("codex config defines workspace token budget defaults", () => {
   const config = loadToml(configPath);
 
+  assert.equal(config.review_model, "gpt-5.6-sol");
   assert.equal(config.model_context_window, 1000000);
   assert.equal(config.model_auto_compact_token_limit, 900000);
   assert.ok(config.model_auto_compact_token_limit < config.model_context_window);

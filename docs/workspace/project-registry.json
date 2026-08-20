@@ -353,7 +353,7 @@
         "xiaoxin-cloud-api",
         "xiaoxin-vps-tunnel.service"
       ],
-      "gitnexus_indexed": false
+      "gitnexus_indexed": true
     },
     {
       "slug": "pet-clinic",
