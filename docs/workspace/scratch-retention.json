@@ -1,7 +1,7 @@
 {
   "$schema": "workspace-scratch-retention/v1",
   "description": "Scratch retention manifest. Each entry declares a scratch path, owning project, purpose, retention intent, and disposition. The disk report flags scratch paths >=100MB without an entry.",
-  "updated": "2026-06-26",
+  "updated": "2026-08-20",
   "default_retention_days": 30,
   "entries": [
     {
@@ -13,7 +13,7 @@
       "retention_days": 30,
       "retention_intent": "retain container; child paths carry the concrete retention decisions",
       "disposition": "retain",
-      "last_active": "2026-06-26"
+      "last_active": "2026-08-20"
     },
     {
       "path": "scratch/shared",
@@ -24,18 +24,40 @@
       "retention_days": 30,
       "retention_intent": "retain container; child paths carry the concrete retention decisions",
       "disposition": "retain",
-      "last_active": "2026-06-26"
+      "last_active": "2026-08-20"
     },
     {
       "path": "scratch/projects/openai-responses-starter-sub2api",
       "owner": null,
       "project": null,
       "purpose": "OpenAI Responses starter prototype used for sub2api integration experiments",
+      "active": false,
+      "retention_days": 90,
+      "retention_intent": "inactive small prototype; review before archiving source and do not retain generated dependency/build outputs",
+      "disposition": "review",
+      "last_active": "2026-06-02"
+    },
+    {
+      "path": "scratch/projects/personal-ai-companion",
+      "owner": "personal-ai-companion",
+      "project": "personal-ai-companion",
+      "purpose": "Local build, QA, rollback, and evidence scratch for the active companion project",
       "active": true,
-      "retention_days": 30,
-      "retention_intent": "retain during current evaluation; archive or prune generated node_modules/.next outputs when inactive",
+      "retention_days": 90,
+      "retention_intent": "retain while the candidate worktree remains active; review project-scoped generated outputs separately before archiving",
       "disposition": "retain",
-      "last_active": "2026-06-26"
+      "last_active": "2026-08-16"
+    },
+    {
+      "path": "scratch/projects/proxy-nodes",
+      "owner": "proxy-nodes",
+      "project": "proxy-nodes",
+      "purpose": "Local validation and rollback scratch for proxy profile work",
+      "active": true,
+      "retention_days": 90,
+      "retention_intent": "retain current validation and rollback evidence; do not treat scratch presence as live health proof",
+      "disposition": "retain",
+      "last_active": "2026-08-12"
     },
     {
       "path": "scratch/projects/openclaw",
@@ -93,7 +115,7 @@
       "retention_days": 30,
       "retention_intent": "rotate; keep latest 1 shared run plus any explicit keep list entries",
       "disposition": "rotate",
-      "last_active": "2026-05-05",
+      "last_active": "2026-08-20",
       "keep_latest": 1,
       "keep": []
     },

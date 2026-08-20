@@ -8,6 +8,31 @@ import { fileURLToPath } from "node:url";
 const DEFAULT_LIMIT = 25;
 const DEFAULT_RETENTION_GAP_BYTES = 100 * 1024 * 1024; // 100MB
 const DEFAULT_STATE_RETENTION_GAP_BYTES = 100 * 1024 * 1024; // 100MB
+const DEFAULT_SCAN_SKIP_DIRS = new Set([
+  ".git",
+  ".build",
+  ".cache",
+  ".next",
+  ".pio",
+  ".pytest_cache",
+  ".venv",
+  "SourcePackages",
+  "Build",
+  "DerivedData",
+  "__pycache__",
+  "build",
+  "dist",
+  "node_modules",
+  "target",
+  "venv",
+  "vendor",
+]);
+const DEFAULT_GARBAGE_SCAN_SKIP_DIRS = new Set([
+  ...DEFAULT_SCAN_SKIP_DIRS,
+  "archive",
+  "scratch",
+  "state",
+]);
 
 function parseArgs(argv = []) {
   const options = {
@@ -130,7 +155,24 @@ async function collectInventoryPaths(repoRoot) {
   return existing.sort((left, right) => left.localeCompare(right));
 }
 
-async function directorySize(targetPath) {
+function shouldSkipDirectory(name, skipDirs = DEFAULT_SCAN_SKIP_DIRS) {
+  if (skipDirs.has(name)) return true;
+  const normalized = String(name || "").toLowerCase();
+  return normalized.startsWith(".build")
+    || normalized.endsWith("-venv")
+    || normalized === "deriveddata"
+    || normalized.includes("derived-data")
+    || normalized.endsWith("-derived")
+    || normalized.includes("-derived-")
+    || normalized.endsWith(".noindex");
+}
+
+async function directorySize(targetPath, options = {}) {
+  const cache = options.cache instanceof Map ? options.cache : new Map();
+  const skipDirs = options.skipDirs instanceof Set ? options.skipDirs : DEFAULT_SCAN_SKIP_DIRS;
+  const cacheKey = path.resolve(targetPath);
+  if (cache.has(cacheKey)) return cache.get(cacheKey);
+  if (typeof options.onVisitDirectory === "function") options.onVisitDirectory(cacheKey);
   let total = 0;
   let entries;
   try {
@@ -138,16 +180,21 @@ async function directorySize(targetPath) {
   } catch (error) {
     if (error?.code === "ENOTDIR") {
       const stats = await fs.lstat(targetPath);
+      cache.set(cacheKey, stats.size);
       return stats.size;
     }
-    if (error?.code === "ENOENT" || error?.code === "EACCES") return 0;
+    if (error?.code === "ENOENT" || error?.code === "EACCES") {
+      cache.set(cacheKey, 0);
+      return 0;
+    }
     throw error;
   }
 
   for (const entry of entries) {
     const absolute = path.join(targetPath, entry.name);
     if (entry.isDirectory()) {
-      total += await directorySize(absolute);
+      if (shouldSkipDirectory(entry.name, skipDirs)) continue;
+      total += await directorySize(absolute, { ...options, cache, skipDirs });
       continue;
     }
     try {
@@ -157,6 +204,7 @@ async function directorySize(targetPath) {
       if (error?.code !== "ENOENT" && error?.code !== "EACCES") throw error;
     }
   }
+  cache.set(cacheKey, total);
   return total;
 }
 
@@ -217,6 +265,8 @@ async function collectObviousGarbage(repoRoot, options = {}) {
     samples: [],
   };
   const sampleLimit = options.sampleLimit || 20;
+  const skipDirs = options.skipDirs instanceof Set ? options.skipDirs : DEFAULT_GARBAGE_SCAN_SKIP_DIRS;
+  const directorySizeOptions = options.directorySizeOptions || { skipDirs };
 
   async function walk(currentPath) {
     let entries;
@@ -232,12 +282,13 @@ async function collectObviousGarbage(repoRoot, options = {}) {
       const relative = path.relative(repoRoot, absolute);
       if (entry.isDirectory()) {
         if (isObviousGarbage(relative)) {
-          const bytes = await directorySize(absolute);
+          const bytes = await directorySize(absolute, directorySizeOptions);
           garbage.count += 1;
           garbage.bytes += bytes;
           if (garbage.samples.length < sampleLimit) garbage.samples.push(relative.replace(/\\/g, "/"));
           continue;
         }
+        if (shouldSkipDirectory(entry.name, skipDirs)) continue;
         await walk(absolute);
         continue;
       }
@@ -375,9 +426,12 @@ async function buildWorkspaceDiskReport(options = {}) {
   await ensureWorkspaceRoot(repoRoot);
   const inventoryPaths = await collectInventoryPaths(repoRoot);
   const entries = [];
+  const sizeCache = new Map();
+  const skipDirs = options.scanSkipDirs instanceof Set ? options.scanSkipDirs : DEFAULT_SCAN_SKIP_DIRS;
+  const directorySizeOptions = { cache: sizeCache, skipDirs };
   for (const relativePath of inventoryPaths) {
     const absolutePath = path.join(repoRoot, relativePath);
-    const bytes = await directorySize(absolutePath);
+    const bytes = await directorySize(absolutePath, directorySizeOptions);
     const classification = classifyCleanupBucket(relativePath);
     entries.push({
       path: relativePath,
@@ -393,7 +447,12 @@ async function buildWorkspaceDiskReport(options = {}) {
   });
 
   const limit = Number.isFinite(options.limit) && options.limit > 0 ? options.limit : DEFAULT_LIMIT;
-  const obviousGarbage = await collectObviousGarbage(repoRoot);
+  const obviousGarbage = await collectObviousGarbage(repoRoot, {
+    directorySizeOptions,
+    skipDirs: options.garbageScanSkipDirs instanceof Set
+      ? options.garbageScanSkipDirs
+      : DEFAULT_GARBAGE_SCAN_SKIP_DIRS,
+  });
   const retentionManifest = await loadScratchRetention(repoRoot);
   const stateRetentionManifest = await loadStateRetention(repoRoot);
   const retentionThreshold = Number.isFinite(options.retentionGapThreshold)
@@ -417,6 +476,8 @@ async function buildWorkspaceDiskReport(options = {}) {
   return {
     repo_root: repoRoot,
     limit,
+    scan_excluded_dir_names: [...skipDirs].sort(),
+    garbage_scan_excluded_roots: ["archive", "scratch", "state"],
     largest_paths: entries.slice(0, limit),
     cleanup_buckets: {
       keep: entries.filter((entry) => entry.bucket === "keep").slice(0, limit),
@@ -448,6 +509,7 @@ function renderReport(report) {
   const lines = [
     `repo_root: ${report.repo_root}`,
     `limit: ${report.limit}`,
+    `garbage_scan_excluded_roots: ${(report.garbage_scan_excluded_roots || []).join(", ") || "(none)"}`,
     "",
     "largest_paths:",
   ];
@@ -530,10 +592,12 @@ export {
   classifyCleanupBucket,
   collectObviousGarbage,
   collectInventoryPaths,
+  directorySize,
   findRetentionGaps,
   findRetentionOverdue,
   formatBytes,
   loadScratchRetention,
   loadStateRetention,
   renderReport,
+  shouldSkipDirectory,
 };

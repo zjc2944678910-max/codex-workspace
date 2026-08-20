@@ -26,6 +26,7 @@ Machine source of truth: `docs/workspace/project-registry.json`.
 | **MathorCup-D** (`mathorcup-d`) | research | research_local | `projects/products/MathorCup_D_repo`<br>`projects/research/mathorcup_D` | `ops/projects/mathorcup-d` |
 | **NAS Platform** (`nas-platform`) | infrastructure | live_infra | `projects/infrastructure/nas-platform` | `ops/projects/nas-platform` |
 | **OpenClaw** (`openclaw`) | infrastructure | live_infra | `projects/products/openclaw/nas-openclaw-v22`<br>`projects/migrations/openclaw-mac-migration` | `ops/projects/openclaw` |
+| **Paper 001 Research Workbench** (`paper-001`) | research | research_local | `projects/research/paper-001` | `ops/projects/paper-001` |
 | **Personal AI Companion** (`personal-ai-companion`) | product | live_product | `projects/products/personal-ai-companion` | `ops/projects/personal-ai-companion` |
 | **Pet Clinic Management System** (`pet-clinic`) | product | live_product | `projects/products/pet-clinic` | `ops/projects/pet-clinic` |
 | **Proxy Nodes VPS** (`proxy-nodes`) | infrastructure | live_infra | `ops-only` | `ops/projects/proxy-nodes` |

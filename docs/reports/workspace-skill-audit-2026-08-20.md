@@ -85,6 +85,9 @@ commit `c28884c` with 2,805 nodes, 3,883 edges, 66 clusters, 67 flows, and 516
 embeddings. `npx gitnexus status` reports the repository up to date.
 
 The analyzer printed repeated `.gitnexus/lbug` lock warnings and exited with a
-mutex-lock error after reporting successful repository indexing. The resulting
-metadata is current and readable; the CLI shutdown error remains an operational
-tooling risk to revisit separately.
+mutex-lock error after reporting successful repository indexing. The upstream
+shutdown defect remains, but the workspace now uses
+`node docs/workspace/gitnexus-refresh.mjs`: it preserves embeddings, passes
+`--skip-agents-md`, never requests generated community skills, and accepts the
+known nonzero exit only when the success marker precedes the exact mutex error,
+metadata matches `HEAD`, and `gitnexus status` is up to date.

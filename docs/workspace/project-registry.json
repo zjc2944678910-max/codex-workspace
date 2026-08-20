@@ -1,7 +1,7 @@
 {
   "$schema": "workspace-project-registry/v1",
   "description": "Machine-readable workspace project registry. Each registered project has an ops README under ops/projects/<slug>/README.md, one or more long-lived surfaces under projects/*/*, and zero or more concrete code roots used for day-to-day work and GitNexus targeting.",
-  "updated": "2026-08-19",
+  "updated": "2026-08-20",
   "projects": [
     {
       "slug": "bigdata-spark-research-workbench",
@@ -295,6 +295,41 @@
         "openclaw-socks-bridge.service"
       ],
       "gitnexus_indexed": true
+    },
+    {
+      "slug": "paper-001",
+      "name": "Paper 001 Research Workbench",
+      "kind": "research",
+      "risk_profile": "research_local",
+      "surfaces": [
+        "projects/research/paper-001"
+      ],
+      "code_roots": [
+        {
+          "path": "projects/research/paper-001",
+          "role": "main",
+          "gitnexus_status": "not_indexed"
+        }
+      ],
+      "ops_surface": "ops/projects/paper-001",
+      "state_data": "state/project-data/paper-001",
+      "scratch": "scratch/projects/paper-001",
+      "aliases": [
+        "paper-001",
+        "paper001",
+        "论文工作台"
+      ],
+      "routing_keywords": [
+        "paper-001",
+        "paper001",
+        "论文工作台",
+        "TabFact",
+        "可验证执行",
+        "Paper 001 Research Workbench"
+      ],
+      "live_host_aliases": [],
+      "service_names": [],
+      "gitnexus_indexed": false
     },
     {
       "slug": "personal-ai-companion",

@@ -8,6 +8,7 @@ import test from "node:test";
 import {
   buildCodexWorkflowSummary,
   buildNestedGitSummary,
+  buildWorkspaceHealth,
   overallStatus,
   renderHealthSummary,
 } from "./workspace-health.mjs";
@@ -87,6 +88,25 @@ test("buildNestedGitSummary reports dirty project repositories", async () => {
   assert.deepEqual(summary.errors, []);
 });
 
+test("buildNestedGitSummary stops at project repositories and ignores nested dependency repos", async () => {
+  const repo = await fs.mkdtemp(path.join(os.tmpdir(), "workspace-nested-dependency-git-"));
+  const projectRepo = path.join(repo, "projects", "app");
+  const dependencyRepo = path.join(projectRepo, ".build", "checkouts", "dependency");
+  await fs.mkdir(dependencyRepo, { recursive: true });
+  runGit(["init", "-q"], projectRepo);
+  runGit(["init", "-q"], dependencyRepo);
+
+  const summary = await buildNestedGitSummary({ repo });
+  assert.equal(summary.repo_count, 1);
+  const reportedPaths = [
+    ...summary.clean_repos,
+    ...summary.dirty_repos.map((entry) => entry.path),
+    ...summary.acknowledged_dirty_repos.map((entry) => entry.path),
+    ...summary.review_dirty_repos.map((entry) => entry.path),
+  ];
+  assert.deepEqual(reportedPaths, ["projects/app"]);
+});
+
 test("buildNestedGitSummary separates acknowledged and strict dirty repositories", async () => {
   const repo = await fs.mkdtemp(path.join(os.tmpdir(), "workspace-acknowledged-git-"));
   const dirtyRepo = path.join(repo, "projects", "dirty-app");
@@ -162,6 +182,95 @@ test("buildNestedGitSummary sends changed acknowledged dirty state to review", a
   assert.equal(summary.acknowledged_dirty_repos.length, 0);
   assert.equal(summary.review_dirty_repos.length, 1);
   assert.equal(summary.review_dirty_repos[0].acknowledgement_status, "expectation_mismatch");
+});
+
+test("buildNestedGitSummary sends overdue acknowledgements to review", async () => {
+  const repo = await fs.mkdtemp(path.join(os.tmpdir(), "workspace-overdue-ack-git-"));
+  const dirtyRepo = path.join(repo, "projects", "dirty-app");
+  const acknowledgementPath = path.join(repo, "acknowledgements.json");
+
+  await fs.mkdir(dirtyRepo, { recursive: true });
+  runGit(["init", "-q"], dirtyRepo);
+  await fs.writeFile(path.join(dirtyRepo, "note.txt"), "known local work\n", "utf8");
+  await fs.writeFile(
+    acknowledgementPath,
+    JSON.stringify({
+      nested_git: [{
+        path: "projects/dirty-app",
+        status: "acknowledged",
+        reason: "review periodically",
+        review_after: "2026-08-01",
+        expected: { dirty_count: 1, tracked_count: 0, untracked_count: 1 },
+      }],
+    }),
+    "utf8",
+  );
+
+  const summary = await buildNestedGitSummary({
+    repo,
+    acknowledgementPath,
+    now: "2026-08-20",
+  });
+  assert.equal(summary.acknowledged_dirty_repos.length, 0);
+  assert.equal(summary.review_dirty_repos.length, 1);
+  assert.equal(summary.review_dirty_repos[0].acknowledgement_status, "review_overdue");
+});
+
+test("buildNestedGitSummary fails closed for invalid review dates and keeps the boundary date current", async () => {
+  const repo = await fs.mkdtemp(path.join(os.tmpdir(), "workspace-invalid-ack-git-"));
+  const dirtyRepo = path.join(repo, "projects", "dirty-app");
+  const acknowledgementPath = path.join(repo, "acknowledgements.json");
+  await fs.mkdir(dirtyRepo, { recursive: true });
+  runGit(["init", "-q"], dirtyRepo);
+  await fs.writeFile(path.join(dirtyRepo, "note.txt"), "known local work\n", "utf8");
+
+  const writeAcknowledgement = (reviewAfter) => fs.writeFile(
+    acknowledgementPath,
+    JSON.stringify({ nested_git: [{
+      path: "projects/dirty-app",
+      status: "acknowledged",
+      review_after: reviewAfter,
+      expected: { dirty_count: 1, tracked_count: 0, untracked_count: 1 },
+    }] }),
+    "utf8",
+  );
+
+  await writeAcknowledgement("2026-99-99");
+  const invalidDate = await buildNestedGitSummary({ repo, acknowledgementPath, now: "2026-08-20" });
+  assert.equal(invalidDate.review_dirty_repos[0].acknowledgement_status, "review_date_invalid");
+
+  await writeAcknowledgement("2026-08-20");
+  const boundary = await buildNestedGitSummary({ repo, acknowledgementPath, now: "2026-08-20" });
+  assert.equal(boundary.acknowledged_dirty_repos.length, 1);
+
+  const invalidNow = await buildNestedGitSummary({ repo, acknowledgementPath, now: "not-a-date" });
+  assert.equal(invalidNow.review_dirty_repos[0].acknowledgement_status, "review_date_invalid");
+});
+
+test("buildWorkspaceHealth forwards the deterministic date to nested acknowledgement review", async () => {
+  const repo = await fs.mkdtemp(path.join(os.tmpdir(), "workspace-health-date-forward-"));
+  const dirtyRepo = path.join(repo, "projects", "dirty-app");
+  await fs.mkdir(path.join(repo, ".codex"), { recursive: true });
+  await fs.mkdir(path.join(repo, "docs", "workspace"), { recursive: true });
+  await fs.mkdir(dirtyRepo, { recursive: true });
+  await fs.writeFile(path.join(repo, "AGENTS.md"), "workspace policy\n", "utf8");
+  await fs.writeFile(path.join(repo, ".codex", "config.toml"), "model = \"gpt-5.6-sol\"\n", "utf8");
+  await fs.writeFile(path.join(repo, "docs", "workspace", "project-registry.json"), "{\"projects\":[]}", "utf8");
+  await fs.writeFile(path.join(repo, "docs", "workspace", "scratch-retention.json"), "{\"entries\":[]}", "utf8");
+  await fs.writeFile(path.join(repo, "docs", "workspace", "state-retention.json"), "{\"entries\":[]}", "utf8");
+  runGit(["init", "-q"], repo);
+  runGit(["init", "-q"], dirtyRepo);
+  await fs.writeFile(path.join(dirtyRepo, "note.txt"), "known local work\n", "utf8");
+  const acknowledgementPath = path.join(repo, "docs", "workspace", "workspace-health-acknowledgements.json");
+  await fs.writeFile(acknowledgementPath, JSON.stringify({ nested_git: [{
+    path: "projects/dirty-app",
+    status: "acknowledged",
+    review_after: "2026-08-19",
+    expected: { dirty_count: 1, tracked_count: 0, untracked_count: 1 },
+  }] }), "utf8");
+
+  const result = await buildWorkspaceHealth({ repo, acknowledgementPath, now: "2026-08-20" });
+  assert.equal(result.nested_git.review_dirty_repos[0].acknowledgement_status, "review_overdue");
 });
 
 test("renderHealthSummary gives a compact structure report", () => {

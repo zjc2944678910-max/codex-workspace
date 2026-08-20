@@ -15,7 +15,9 @@ const DEFAULT_ACKNOWLEDGEMENTS_PATH = "docs/workspace/workspace-health-acknowled
 const NESTED_GIT_SCAN_ROOTS = ["projects"];
 const NESTED_GIT_SKIP_DIRS = new Set([
   ".git",
+  ".build",
   ".hg",
+  ".pio",
   ".svn",
   "node_modules",
   ".venv",
@@ -25,6 +27,8 @@ const NESTED_GIT_SKIP_DIRS = new Set([
   "dist",
   "build",
   ".next",
+  "SourcePackages",
+  "vendor",
 ]);
 
 function parseArgs(argv = []) {
@@ -79,6 +83,7 @@ async function listNestedGitRoots(repo, options = {}) {
 
     if (entries.some((entry) => entry.name === ".git" && (entry.isDirectory() || entry.isFile()))) {
       roots.push(relDir);
+      return;
     }
 
     for (const entry of entries) {
@@ -162,10 +167,45 @@ function acknowledgedEntry(entry = {}, acknowledgement = {}, status = "acknowled
   };
 }
 
-function classifyNestedGitDirty(entry = {}, acknowledgements = []) {
+function dateOnlyMs(value) {
+  if (value instanceof Date && Number.isFinite(value.getTime())) {
+    return Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), value.getUTCDate());
+  }
+  const match = String(value || "").trim().match(/^(\d{4})-(\d{2})-(\d{2})$/u);
+  if (!match) return Number.NaN;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const result = Date.UTC(year, month - 1, day);
+  const normalized = new Date(result);
+  if (normalized.getUTCFullYear() !== year
+    || normalized.getUTCMonth() !== month - 1
+    || normalized.getUTCDate() !== day) {
+    return Number.NaN;
+  }
+  return result;
+}
+
+function acknowledgementReviewStatus(acknowledgement = {}, now = new Date()) {
+  const reviewAfter = String(acknowledgement.review_after || "").trim();
+  if (!reviewAfter) return "current";
+  const reviewAfterMs = dateOnlyMs(reviewAfter);
+  const nowMs = dateOnlyMs(now);
+  if (!Number.isFinite(reviewAfterMs) || !Number.isFinite(nowMs)) return "review_date_invalid";
+  return nowMs > reviewAfterMs ? "review_overdue" : "current";
+}
+
+function classifyNestedGitDirty(entry = {}, acknowledgements = [], options = {}) {
   const acknowledgement = acknowledgements.find((candidate) => candidate?.path === entry.path);
   if (!acknowledgement) return { bucket: "dirty", entry };
   if (acknowledgement.status === "acknowledged" && countMatchesExpectation(entry, acknowledgement.expected || {})) {
+    const reviewStatus = acknowledgementReviewStatus(acknowledgement, options.now || new Date());
+    if (reviewStatus !== "current") {
+      return {
+        bucket: "review",
+        entry: acknowledgedEntry(entry, acknowledgement, reviewStatus),
+      };
+    }
     return { bucket: "acknowledged", entry: acknowledgedEntry(entry, acknowledgement) };
   }
   return {
@@ -208,7 +248,7 @@ async function buildNestedGitSummary(options = {}) {
     review_dirty_repos: [],
   };
   for (const entry of summaries.filter((candidate) => !candidate.error && candidate.dirty_count > 0)) {
-    const classified = classifyNestedGitDirty(entry, acknowledgements.nested_git);
+    const classified = classifyNestedGitDirty(entry, acknowledgements.nested_git, { now: options.now });
     if (classified.bucket === "acknowledged") {
       dirtyBuckets.acknowledged_dirty_repos.push(classified.entry);
     } else if (classified.bucket === "review") {
@@ -366,12 +406,13 @@ async function buildWorkspaceHealth(options = {}) {
   const repo = path.resolve(options.repo || process.cwd());
   const limit = Number.isFinite(options.limit) && options.limit > 0 ? options.limit : DEFAULT_LIMIT;
   const hygiene = await buildRepoHygieneSummary({ repo });
-  const disk = await buildWorkspaceDiskReport({ repo, limit });
+  const disk = await buildWorkspaceDiskReport({ repo, limit, now: options.now });
   const codexWorkflow = await buildCodexWorkflowSummary(options);
   const nestedGit = await buildNestedGitSummary({
     repo,
     strictAcknowledgements: options.strictAcknowledgements,
     acknowledgementPath: options.acknowledgementPath,
+    now: options.now,
   });
   return {
     repo_root: repo,

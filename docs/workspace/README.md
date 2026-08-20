@@ -20,6 +20,7 @@ Policy: `AGENTS.md`. Worker contract: `WORKER.md`.
 | `codex-multi-agent-long-task-template.md` | Non-canonical prompt examples and layout reference |
 | `repo-hygiene.mjs` | Workspace root hygiene, project route metadata drift checks, and checkpointing |
 | `skill-hygiene.mjs` | Active local skill frontmatter, naming, duplicate, and stale-marker checks |
+| `gitnexus-refresh.mjs` | Refresh the workspace GitNexus index without regenerating stale agent docs; preserve embeddings and validate metadata against HEAD |
 | `workspace-disk-report.mjs` | Classify disk hotspots before cleanup |
 | `workspace-health.mjs` | Compact health summary for hygiene, disk hotspots, route drift, and Codex workflow drift checks |
 | `codex-run-retention.mjs` | Rotate `scratch/shared/codex-runs` into cleanup archive |
@@ -90,6 +91,11 @@ review, not automatic deletion targets. Scratch retention decisions come from
 `state-retention.json`. A healthy report should load both manifests and show
 `retention_gaps: 0` plus `state_retention_gaps: 0`, with unacknowledged
 `nested_git_dirty: 0`.
+
+For predictable runtime, size inventory excludes known dependency, build, and
+cache directories. Obvious-garbage sampling also excludes ignored bulk roots
+`archive/`, `scratch/`, and `state/`; the JSON field
+`garbage_scan_excluded_roots` makes that boundary explicit.
 
 ## Project Search
 

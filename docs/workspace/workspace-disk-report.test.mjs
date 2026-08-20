@@ -8,12 +8,14 @@ import {
   buildWorkspaceDiskReport,
   classifyCleanupBucket,
   collectObviousGarbage,
+  directorySize,
   findRetentionGaps,
   findRetentionOverdue,
   formatBytes,
   loadScratchRetention,
   loadStateRetention,
   renderReport,
+  shouldSkipDirectory,
 } from "./workspace-disk-report.mjs";
 
 async function createFixture() {
@@ -28,6 +30,7 @@ async function createFixture() {
   await fs.writeFile(path.join(root, ".codex", "config.toml"), "model = \"gpt-5.4\"\n", "utf8");
   await fs.writeFile(path.join(root, "projects", "products", "app", "source.txt"), "source\n", "utf8");
   await fs.writeFile(path.join(root, "scratch", "shared", "run", "artifact.bin"), "artifact\n", "utf8");
+  await fs.writeFile(path.join(root, "scratch", "shared", "run", ".DS_Store"), "ignored scratch trash\n", "utf8");
   await fs.writeFile(path.join(root, "ops", "projects", "sample-product", "rollback", "backup", "state.json"), "{}\n", "utf8");
   await fs.writeFile(path.join(root, ".DS_Store"), "trash\n", "utf8");
   await fs.writeFile(path.join(root, ".git", ".DS_Store"), "ignored internal trash\n", "utf8");
@@ -66,6 +69,8 @@ test("workspace disk report finds large paths and obvious garbage without scanni
   assert.ok(report.largest_paths.some((entry) => entry.path === "scratch/shared/run" && entry.bucket === "ask"));
   assert.ok(report.cleanup_buckets.keep.some((entry) => entry.path === "projects/products/app"));
   assert.match(renderReport(report), /cleanup_buckets/u);
+  assert.match(renderReport(report), /garbage_scan_excluded_roots: archive, scratch, state/u);
+  assert.ok(report.scan_excluded_dir_names.includes("node_modules"));
 });
 
 test("workspace disk report formats compact byte values", () => {
@@ -73,6 +78,31 @@ test("workspace disk report formats compact byte values", () => {
   assert.equal(formatBytes(512), "512B");
   assert.equal(formatBytes(1536), "1.5K");
   assert.equal(formatBytes(1024 * 1024), "1.0M");
+});
+
+test("directory size reuses cached child sizes and skips generated dependency trees", async () => {
+  const repoRoot = await createFixture();
+  const appRoot = path.join(repoRoot, "projects", "products", "app");
+  const venvRoot = path.join(appRoot, ".venv");
+  await fs.mkdir(venvRoot, { recursive: true });
+  await fs.writeFile(path.join(venvRoot, "large.bin"), "x".repeat(10000), "utf8");
+
+  let visits = 0;
+  const cache = new Map();
+  const size = await directorySize(path.join(repoRoot, "projects"), {
+    cache,
+    onVisitDirectory: () => { visits += 1; },
+  });
+  const visitsAfterParent = visits;
+  const childSize = await directorySize(appRoot, {
+    cache,
+    onVisitDirectory: () => { visits += 1; },
+  });
+
+  assert.equal(size, childSize);
+  assert.equal(visits, visitsAfterParent);
+  assert.equal(shouldSkipDirectory(".venv"), true);
+  assert.ok(childSize < 10000);
 });
 
 test("workspace disk report loads scratch retention manifest from fixture", async () => {

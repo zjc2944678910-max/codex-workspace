@@ -10,6 +10,7 @@ Source of truth for scripts: [`project-registry.json`](./project-registry.json).
 | Project | Registered Surface(s) | Working Code Root(s) | Ops Surface | GitNexus |
 | --- | --- | --- | --- | --- |
 | OpenClaw | `projects/products/openclaw`, `projects/migrations/openclaw-mac-migration` | `projects/products/openclaw/nas-openclaw-v22`; `projects/migrations/openclaw-mac-migration` | `ops/projects/openclaw` | mainline indexed; migration not targeted |
+| Paper 001 Research Workbench | `projects/research/paper-001` | `projects/research/paper-001` | `ops/projects/paper-001` | not indexed |
 | Personal AI Companion | `projects/products/personal-ai-companion` | `projects/products/personal-ai-companion` | `ops/projects/personal-ai-companion` | indexed at `aa8fd86` (2026-08-16) |
 | Hotel Management System | `projects/products/hotel-mgmt` | `projects/products/hotel-mgmt` | `ops/projects/hotel-mgmt` | indexed |
 | Love Letter Site | `projects/products/love-letter-site` | `projects/products/love-letter-site` | `ops/projects/love-letter-site` | not indexed |
@@ -54,6 +55,8 @@ docs; claude-workspace holds thin pointer READMEs only. The infra-layer projects
 | --- | --- | --- | --- |
 | `scratch/projects` | workspace | retain container | 30 |
 | `scratch/shared` | workspace | retain container | 30 |
+| `scratch/projects/personal-ai-companion` | personal-ai-companion | retain active local QA/build/evidence scratch | 90 |
+| `scratch/projects/proxy-nodes` | proxy-nodes | retain validation and rollback scratch | 90 |
 | `scratch/projects/openclaw` | openclaw | retain active scratch | 90 |
 | `scratch/projects/mathorcup-upload` | mathorcup-d | archived to `archive/cleanup/2026-05-11-scratch-retention/...` on 2026-05-11 | 60 |
 | `scratch/projects/mimo-100t-evidence` | (none) | archive after review | 30 |
@@ -68,12 +71,13 @@ Source of truth for scripts: [`scratch-retention.json`](./scratch-retention.json
 
 | State Path | Owning Project | Status | Retention (days) |
 | --- | --- | --- | --- |
+| `state/project-data/personal-ai-companion` | personal-ai-companion | retain active device/iOS/rollback/evidence state | 180 |
 | `state/project-data/bigdata-spark-research-workbench` | bigdata-spark-research-workbench | retain active research sidecar data | 180 |
 | `state/project-data/launchagent-repair` | workspace | review after repair window | 60 |
 | `state/project-data/telegram-dual-relay` | telegram-dual-relay | retain active relay state | 90 |
 | `state/project-data/telegram-claude-relay` | workspace | review legacy relay migration state | 90 |
 | `state/review` | workspace | review candidate bundles | 90 |
-| `state/staging` | workspace | review temporary staging monthly | 30 |
+| `state/staging` | workspace | review temporary staging after project ownership review | 90 |
 
 Source of truth for scripts: [`state-retention.json`](./state-retention.json).
 

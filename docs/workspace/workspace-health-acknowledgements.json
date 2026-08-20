@@ -1,14 +1,38 @@
 {
   "$schema": "workspace-health-acknowledgements/v1",
   "description": "Known local workspace-health reminders that should remain visible without turning the whole workspace status to attention. Expected counts make these acknowledgements fail closed if the dirty state changes.",
-  "updated": "2026-07-02",
+  "updated": "2026-08-20",
   "nested_git": [
+    {
+      "path": "projects/products/personal-ai-companion",
+      "status": "acknowledged",
+      "reason": "Read-only workspace audit confirmed a coherent active local candidate set across iOS, cloud/realtime, memory, tests, and device support. Review in a dedicated project task; do not clean or commit from workspace health.",
+      "last_reviewed": "2026-08-20",
+      "review_after": "2026-08-27",
+      "expected": {
+        "dirty_count": 156,
+        "tracked_count": 82,
+        "untracked_count": 74
+      }
+    },
+    {
+      "path": "projects/research/paper-001",
+      "status": "acknowledged",
+      "reason": "Active ARR research branch with synchronized manuscript, evidence, program-aware baseline, result, and test changes. Preserve for a separate project review and commit.",
+      "last_reviewed": "2026-08-20",
+      "review_after": "2026-09-03",
+      "expected": {
+        "dirty_count": 33,
+        "tracked_count": 20,
+        "untracked_count": 13
+      }
+    },
     {
       "path": "projects/products/pet-clinic",
       "status": "acknowledged",
       "reason": "User confirmed the Pet Clinic assignment is submitted; this local dirty state is not a current workspace cleanup target.",
-      "last_reviewed": "2026-07-02",
-      "review_after": "2026-08-02",
+      "last_reviewed": "2026-08-20",
+      "review_after": "2026-10-20",
       "expected": {
         "dirty_count": 19,
         "tracked_count": 14,
