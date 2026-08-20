@@ -10,7 +10,7 @@ No project file was edited, deleted, staged, committed, or deployed.
 | Project | Evidence | Decision | Review after |
 | --- | --- | --- | --- |
 | `personal-ai-companion` | `main` is one commit ahead of `origin/main`; 156 changes (82 tracked, 74 untracked) span iOS, cloud/realtime, memory, tests, device support, and deployment examples. | Preserve as an active local candidate set. L2 read-only at workspace level; require a dedicated project task before acceptance, cleanup, commit, or any live action. | 2026-08-27 |
-| `paper-001` | Active `codex/paper-001-arr` branch; 33 changes (20 tracked, 13 untracked) cover manuscript text, annotation material, evidence notes, program-aware baseline code/results, and tests. | Preserve as active research work. Registration is complete, but project changes remain for a separate evidence-synchronized review/commit task. | 2026-09-03 |
+| `paper-001` | Active `codex/paper-001-arr` branch; 34 changes (20 tracked, 14 untracked) cover manuscript text, annotation material, ARR submission material, evidence notes, program-aware baseline code/results, and tests. | Preserve as active research work. Registration is complete, but project changes remain for a separate evidence-synchronized review/commit task. | 2026-09-03 |
 | `pet-clinic` | 19 changes (14 tracked, 5 untracked) exactly match the previously acknowledged submitted assignment state. | Continue preserving without cleanup; extend the acknowledgement after confirming counts are unchanged. | 2026-10-20 |
 
 ## Safety boundary
