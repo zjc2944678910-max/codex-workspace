@@ -54,11 +54,11 @@ test("codex profile v2 files define token budget profiles", (context) => {
     },
     standard: {
       model_reasoning_effort: "high",
-      model_auto_compact_token_limit: 300000,
+      model_auto_compact_token_limit: 200000,
     },
     audit: {
       model_reasoning_effort: "xhigh",
-      model_auto_compact_token_limit: 450000,
+      model_auto_compact_token_limit: 220000,
     },
   };
   const missing = Object.keys(expectedProfiles)

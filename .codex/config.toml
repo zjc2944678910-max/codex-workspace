@@ -2,6 +2,11 @@
 
 review_model = "gpt-5.5"
 
+# Keep the repository-level budget contract aligned with the GPT-5.6 family.
+# User profiles may choose smaller per-task compaction limits.
+model_context_window = 1000000
+model_auto_compact_token_limit = 900000
+
 sandbox_mode = "danger-full-access"
 approval_policy = "never"
 
