@@ -7,6 +7,14 @@ review_model = "gpt-5.6-sol"
 model_context_window = 1000000
 model_auto_compact_token_limit = 900000
 
+# codex-cli 0.144.0 reads these as top-level subagent defaults. Keeping them
+# under a legacy [agents] table makes the whole project config fail to load.
+max_concurrent_threads_per_session = 4
+default_subagent_model = "gpt-5.6-luna"
+default_subagent_reasoning_effort = "xhigh"
+max_depth = 1
+job_max_runtime_seconds = 1800
+
 sandbox_mode = "danger-full-access"
 approval_policy = "never"
 
@@ -24,11 +32,3 @@ Sub2API advisor routing is disabled. For difficult diagnosis or review, Claude C
 
 [features]
 codex_hooks = true
-
-[agents]
-enabled = true
-max_concurrent_threads_per_session = 4
-default_subagent_model = "gpt-5.6-luna"
-default_subagent_reasoning_effort = "xhigh"
-max_depth = 1
-job_max_runtime_seconds = 1800

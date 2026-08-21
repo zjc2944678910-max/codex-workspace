@@ -18,6 +18,7 @@ Machine source of truth: `docs/workspace/project-registry.json`.
 
 | Project | Kind | Risk | Code Root(s) | Ops Surface |
 | --- | --- | --- | --- | --- |
+| **Antigravity MCP** (`antigravity-mcp`) | product | local | `projects/products/antigravity-mcp` | `ops/projects/antigravity-mcp` |
 | **BigData-Spark-Research-Workbench** (`bigdata-spark-research-workbench`) | research | research_local | `projects/research/bigdata-spark-research-workbench` | `ops/projects/bigdata-spark-research-workbench` |
 | **Cloudflare Edge / DNS** (`cloudflare-edge`) | infrastructure | live_infra | `ops-only` | `ops/projects/cloudflare-edge` |
 | **CUMCM-2026-Workbench** (`cumcm-2026-workbench`) | research | research_local | `projects/research/cumcm-2026-workbench` | `ops/projects/cumcm-2026-workbench` |

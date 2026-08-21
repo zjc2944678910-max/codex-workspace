@@ -1,8 +1,39 @@
 {
   "$schema": "workspace-project-registry/v1",
   "description": "Machine-readable workspace project registry. Each registered project has an ops README under ops/projects/<slug>/README.md, one or more long-lived surfaces under projects/*/*, and zero or more concrete code roots used for day-to-day work and GitNexus targeting.",
-  "updated": "2026-08-20",
+  "updated": "2026-08-21",
   "projects": [
+    {
+      "slug": "antigravity-mcp",
+      "name": "Antigravity MCP",
+      "kind": "product",
+      "risk_profile": "local",
+      "surfaces": [
+        "projects/products/antigravity-mcp"
+      ],
+      "code_roots": [
+        {
+          "path": "projects/products/antigravity-mcp",
+          "role": "main",
+          "gitnexus_status": "not_indexed"
+        }
+      ],
+      "ops_surface": "ops/projects/antigravity-mcp",
+      "state_data": "state/project-data/antigravity-mcp",
+      "scratch": "scratch/projects/antigravity-mcp",
+      "aliases": [
+        "antigravity-mcp",
+        "ag worker"
+      ],
+      "routing_keywords": [
+        "antigravity-mcp",
+        "ag worker",
+        "Antigravity MCP"
+      ],
+      "live_host_aliases": [],
+      "service_names": [],
+      "gitnexus_indexed": false
+    },
     {
       "slug": "bigdata-spark-research-workbench",
       "name": "BigData-Spark-Research-Workbench",
