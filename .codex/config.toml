@@ -24,6 +24,9 @@ This root is a workspace index. Route project work only from explicit project/pa
 Start substantive work with task level, rationale, and execution strategy.
 Use the lightest safe path; reserve xhigh/full agent chains for L2, architecture/root-cause, production audits, and hard regressions.
 For non-tiny local L0/L1 work, automatically delegate one bounded mapping, implementation, review, or verification slice to the appropriate Luna subagent; the user does not need to request delegation.
+For non-tiny L2/L3 work, keep Codex as the control plane and exclusive live-state executor, but allow bounded Luna sidecars for read-only mapping, local review, and non-production verification. After the L3 gate opens, one bounded local patch-preparation slice may be delegated for Codex review.
+Never delegate project routing, architecture/root-cause/safety judgment, repair authorization, secrets, deploys, firmware or device writes, service restarts, runtime mutations, rollbacks, live verification judgment, or final acceptance.
+Do not add commentary solely to explain that Luna was not used; mention delegation only when it materially changes ownership, status, risk, or user expectations.
 OpenClaw/NAS/live/production is L2 read-only; L3 state changes require "进入修复阶段".
 Use Route Lock for long tasks/handoffs and prefer compact file-pointer evidence.
 Workers follow WORKER.md and return compact results.

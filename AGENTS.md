@@ -76,6 +76,13 @@ before acting. Simple questions can be answered naturally.
 | `L2` | High-risk read-only audit: live/production/NAS/VPS/OpenClaw, logs, service status, config, slow replies, unclear root cause, expensive wrong conclusion | Codex keeps first pass read-only. Do not modify, restart, patch, deploy, or default into repair. |
 | `L3` | State-changing repair: config writes, service restarts, deploys, runtime changes, production file writes, rollback | Stop at the plan stage until the user explicitly says `进入修复阶段`. |
 
+The overall task keeps the highest applicable risk level, but delegation is
+scoped per work slice. An L2/L3 label does not block a bounded Luna sidecar from
+read-only mapping, local review, or non-production verification. After the L3
+gate opens, one bounded local patch-preparation slice may also be delegated.
+Codex alone performs live or external state changes and owns every safety,
+rollback, and final-acceptance decision.
+
 `L0 tiny` is the fast path for ordinary questions, lightweight state checks,
 typos, single-file small docs edits, or one localized script/test fix with no
 public contract change. For `L0 tiny`, Codex may answer or patch directly,
@@ -122,12 +129,15 @@ Codex is the control plane.
 | `L0 tiny` question, check, or isolated fix | Codex direct |
 | Small known-scope L0/L1 implementation with explicit files/tests and no risky surface | Codex direct |
 | Non-tiny L0/L1 implementation, repair, or test loop | Codex automatically delegates one bounded slice to the appropriate Luna agent, then reviews and accepts the result |
+| Bounded L2/L3 read-only mapping, local review, or non-production verification | Luna sidecar under a Codex-owned route and evidence boundary |
+| L3 local patch preparation after the repair gate opens | Codex or one bounded Luna worker; Codex reviews every change |
+| Live deploy, device write, restart, runtime mutation, or rollback | Codex only |
 | Verification, regression judgment, final acceptance, user synthesis | Codex, optionally `verifier` |
 
 Default non-tiny local-task path:
 
 ```text
-Codex route/judge -> Luna handles a bounded execution slice -> Codex reviews -> focused verification -> Codex accepts
+Codex route/judge -> Luna handles a safe bounded slice -> Codex reviews -> Codex performs any gated live step -> focused verification -> Codex accepts
 ```
 
 Default multi-model workflow:
@@ -142,21 +152,30 @@ Default multi-model workflow:
    Codex waits for the result, checks the diff and evidence, and owns final
    acceptance. Prefer `repo_mapper`, `docs_checker`, `surgical_fixer`,
    `refactor_worker`, `review_guard`, or `verifier` according to the task.
-4. For a difficult local problem, Claude Code CLI with `claude-opus-5` may
+4. For non-tiny L2/L3 work, Codex may delegate an independent read-only mapping,
+   local review, or non-production verification slice without weakening the
+   overall risk level. This is the default when the work is expected to exceed
+   ten minutes, crosses two or more modules, or has two or more independent
+   verification surfaces. After the L3 repair gate opens, one bounded local
+   patch-preparation slice may be delegated with a disjoint write scope. Luna
+   never performs the live or external state-changing step.
+5. For a difficult local problem, Claude Code CLI with `claude-opus-5` may
    identify likely causes, edge cases, or recommended checks, but remains a
    bounded read-only advisor.
-5. Claude review is a proactive read-only second-opinion path for subtle
+6. Claude review is a proactive read-only second-opinion path for subtle
    evidence, architecture or root-cause judgment, L2 read-only audit conclusions,
    shared contracts, security-sensitive surfaces, user-facing behavior,
    hard-to-roll-back changes, and important pre-merge reviews.
-6. Codex owns the final synthesis every time: reconcile Luna results and any
+7. Codex owns the final synthesis every time: reconcile Luna results and any
    advice with local or live evidence, perform authorized repairs, run focused
    tests, and report residual risk.
 
 Keep the work entirely in Codex when the task is `L0 tiny`, small known-scope
-L0/L1, the main value is diagnosis or judgment, or the request is L2/L3, live,
-deploy, auth, secrets, or config heavy. For other local L0/L1 work, the default
-is automatic Luna delegation without requiring a user prompt.
+L0/L1, the main value is architecture, root-cause, safety, or final judgment,
+or no safe independent slice exists. For L2/L3 work, Codex remains the control
+plane and exclusive live-state executor, while safe read-only and local
+non-production slices may use Luna. Auth, secrets, project routing, and
+config-heavy judgment remain in Codex.
 
 Agent budget:
 
@@ -164,6 +183,9 @@ Agent budget:
 - Non-tiny local L0/L1 defaults to one Luna helper agent. The instruction in
   this file is the standing request and authorization to spawn that agent
   automatically; the user does not need to repeat it in each task.
+- Non-tiny L2/L3 defaults to one bounded read-only Luna sidecar when mapping,
+  review, or local verification can proceed independently. After the L3 gate,
+  at most one Luna worker may prepare a bounded local patch for Codex review.
 - Ordinary L1 should use at most one helper agent unless two or more risk
   signals are present: unknown call chain, cross-module contract, API route,
   security/auth/secret boundary, flaky or failing verification, broad refactor,
@@ -178,10 +200,15 @@ Agent budget:
 Never delegate these outside Codex:
 
 - project routing from workspace residue
-- L2/L3 work
-- live or production changes
-- deploy, auth, secrets, or config-heavy work
 - architecture, root-cause, safety, or final acceptance judgment
+- L3 repair authorization, rollback choice, or live verification judgment
+- live or production writes, deploys, device or firmware writes, service
+  restarts, runtime parameter changes, database writes, or rollbacks
+- auth, credential, secret handling, or config-heavy safety judgment
+
+Do not add user-facing commentary solely to explain that Luna was not used.
+Mention delegation when it materially changes current ownership, status, risk,
+or what the user should expect next.
 
 `WORKER.md` and `CLAUDE.md` remain legacy execution contracts, not the default
 strategy. Do not treat Claude Code as an implementation worker.
