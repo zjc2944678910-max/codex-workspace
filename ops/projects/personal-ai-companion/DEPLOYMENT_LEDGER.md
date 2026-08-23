@@ -451,7 +451,7 @@ changed.
 - Detailed evidence and residual boundaries are in the
   [source, CI, and public-health reconciliation report](reports/source-ci-and-public-health-reconciliation-20260806.md).
 
-## Current Recorded Baseline
+## Historical Recorded Baseline (superseded by newer dated entries above)
 
 - The following 2026-07-21 statement is historical scope evidence, not a
   current public-health claim: that realtime slice recorded no accepted
@@ -460,7 +460,10 @@ changed.
 - The current public checkpoint above does not supersede any private deployment
   anchor below; it only records what the public control-plane returned on the
   probe date.
-- Latest completed owner-visible live verification in this ledger: 2026-07-17.
+- At the time this historical subsection was written, its latest completed
+  owner-visible live verification was 2026-07-17. The 2026-08-09 through
+  2026-08-13 entries above supersede that chronology; none is proof of current
+  live health without a fresh read-only check.
 - The owner-only custom Provider bridge is live in
   `xiaoxin-cloud-api:20260717T2150-provider-probe`, NAS image ID
   `sha256:5316d0234d1d09c97cd5559a9d89ece9dd446557959b59831548f2cdf56fbcc6`.

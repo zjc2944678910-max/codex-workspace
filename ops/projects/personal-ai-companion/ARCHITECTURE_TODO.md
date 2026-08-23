@@ -20,6 +20,35 @@ the iOS/cloud closeout snapshot plus a source-only memory addendum. The long
 `pending` labels are not the current queue when they conflict with this section
 or the project README.
 
+### 2026-08-24 Bounded Local Source Repair
+
+- Canonical product `main` and `origin/main` are synchronized at `ab490ee`.
+  The current dirty worktree remains a source candidate, not a deployable or
+  live-state authority.
+- The bounded repair addresses two confirmed private-data boundaries: local,
+  authenticated sync/stream, and realtime local-response Chat fail closed before
+  memory/model work when personal health or calendar evidence is absent; health
+  evidence unlocks only health questions. All registered owner Memory Center
+  responses use `Cache-Control: no-store` plus `Pragma: no-cache`.
+- `RealtimeBridgeConfig` and its protocol limits are extracted into
+  `api/realtime_config.py` while the old import remains compatible. Account
+  deletion and owner storage routes are extracted into
+  `cloud/account_storage_api.py`. Public route shapes and runtime defaults are
+  preserved; no live operation is included.
+- Robot microphone capture policy remains a separate decision gate. The current
+  candidate must not be used to reload a LaunchAgent until the owner selects
+  fully disabled capture or an explicit owner-authorized continuous-capture
+  mode that fails closed by default.
+- The broader dirty worktree contains a pre-existing Provider stream policy
+  change that bypasses the synchronous Provider when streaming is unavailable;
+  this repair does not accept that contract change for release.
+- Local source acceptance passed the architecture budget check, focused and full
+  Python suites (`2863` passed, one skipped, one existing warning), the current
+  Swift package (`172` XCTest plus `32` Swift Testing cases), Ruff, and diff
+  checks. GitNexus still classifies the complete dirty worktree as `critical`;
+  live image, LaunchAgent, iPhone, CoreS3, AEC, and microphone-policy acceptance
+  remain explicitly unconfirmed.
+
 ### 2026-08-06 Source And Risk Reconciliation
 
 - Canonical product source `main` and `origin/main` are synchronized at

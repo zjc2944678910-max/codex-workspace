@@ -1,7 +1,7 @@
 # OpenClaw Deployment Ledger
 
-Last updated: 2026-05-05
-Maintainer context: this file is the canonical runtime and deployment ledger for the production OpenClaw instance on `home-nas`.
+Last updated: 2026-08-23
+Maintainer context: this file is the canonical runtime and deployment ledger for OpenClaw. NAS benben/adminAI remain recorded below; VPS now also has an isolated next gateway.
 Companion architecture board: `OPENCLAW_ARCHITECTURE_TODO.md`
 
 ## Purpose
@@ -37,6 +37,21 @@ Use this contract as a hard operating rule:
 
 ## Current Truth Snapshot
 
+- 2026-08-23 VPS isolated next gateway (does **not** replace NAS benben or the old VPS `openclaw-gateway`):
+  - host: `home-vps-root`
+  - unit: `openclaw-next-gateway.service` (enabled)
+  - package: `/opt/openclaw-next` OpenClaw `2026.7.1-2` + private Node `v22.23.2`
+  - CLI: `/usr/local/sbin/openclaw-next`
+  - state: `/var/lib/openclaw-next/.openclaw`
+  - workspace: `/var/lib/openclaw-next/.openclaw/workspace`
+  - listen: `127.0.0.1:19789` (loopback only; nginx 20002 still points at old `18789`)
+  - default model: `openai-codex/gpt-5.4`
+  - session: `session.dmScope=main` (WeChat/DingTalk/Feishu DMs will share one rolling transcript once those channels are linked)
+  - WeChat plugin `@tencent-weixin/openclaw-weixin` installed and linked: account `07844b23c15f-im-bot` enabled/configured/running; `dmPolicy=pairing`
+  - Feishu and DingTalk left unconfigured (no new app credentials yet)
+  - old VPS `openclaw-gateway.service` (`2026.3.24`, `127.0.0.1:18789`, pid unchanged during this install) was not upgraded and not restarted
+  - do **not** `npm install -g openclaw`; do **not** `openclaw gateway restart` (it may target the old unit). Restart next with `systemctl restart openclaw-next-gateway.service`
+  - rollback: `systemctl disable --now openclaw-next-gateway.service`; remove `/etc/systemd/system/openclaw-next-gateway.service`, `/usr/local/sbin/openclaw-next`, `/opt/openclaw-next`, `/var/lib/openclaw-next`
 - host: `oc-nas`
 - instances:
   - benben vNext production consumer: `openclaw-benben.service`

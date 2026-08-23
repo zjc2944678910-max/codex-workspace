@@ -30,14 +30,47 @@ node docs/workspace/codex-register-project.mjs --regen
 
 ## Ops Quality Baseline
 
-- Current status: Mixed local/private-device/live-cloud product. The current
-  realtime repair is limited to the owner's Mac, iPhone, and private-LAN
-  StackChan; public cloud authority remains the dated deployment ledger.
+- Current status: mixed local/private-device/live-cloud product. Canonical
+  product `main` and `origin/main` are synchronized at `ab490ee`; the current
+  dirty worktree is a local source-repair candidate and is not deployment
+  evidence.
 - Historical reports and source hashes are not proof of current live health;
   recheck the named live surface read-only before making a current claim.
-- Next useful work: complete the first iPhone microphone/AEC field turn, then
-  replace the unavailable Relay/local REST fallback with a provider path that
-  can meet the measured 1-2 second first-audio objective.
+- The newest dated deployment entry is the 2026-08-13 Memory Center image, whose
+  signed-iPhone owner-visible flow remained pending at that checkpoint. The
+  actual current image, LaunchAgent, iPhone, and CoreS3 states remain
+  unconfirmed in this source-only repair.
+- Next useful work: converge the dirty source into reviewable slices, complete
+  Memory Center/iPhone and realtime acoustic field gates, and resolve the
+  explicit robot-microphone capture policy before any configuration reload.
+
+### Local Source Repair Candidate (2026-08-24, no deployment)
+
+- The owner opened the L3 repair gate for a bounded local/source repair. No live
+  service, database, credential, LaunchAgent, iPhone, or CoreS3 state is part of
+  this slice.
+- The candidate wires the health/calendar evidence guard before memory/model
+  execution for local, authenticated sync/stream, and realtime local-response
+  paths. Health evidence unlocks only health-family questions. It also adds
+  no-store responses to the owner Memory Center and extracts realtime
+  configuration plus account/storage routes from oversized composition modules
+  without changing their public imports or route shapes.
+- The Mac LaunchAgent candidate still represents an owner-continuous,
+  no-wake-word microphone configuration. That behavior is not inferred from
+  this source repair and must not be loaded until the owner selects the durable
+  capture policy and the matching fail-closed authorization gate is recorded.
+- The broader dirty worktree also contains a pre-existing Provider streaming
+  policy change: when Provider streaming is unavailable it goes directly to the
+  Relay instead of attempting the synchronous Provider. This bounded repair
+  neither introduced nor accepts that contract change; it needs its own release
+  decision before convergence.
+- Local verification passed `2863` Python tests with one skip and the existing
+  Starlette/TestClient warning, `172` XCTest cases plus `32` Swift Testing
+  cases, Ruff, diff checks, and all architecture budgets. GitNexus still rates
+  the complete dirty worktree `critical` because the broader in-progress change
+  spans `67` tracked files and `32` execution flows; this bounded repair does
+  not convert that worktree into a release candidate or claim current live
+  health.
 
 ### Source, CI, And Public Health Reconciliation (2026-08-06)
 
@@ -325,20 +358,23 @@ node docs/workspace/codex-register-project.mjs --regen
   run, live allowlist expansion, or additional hardware capability is a new task
   with a fresh risk gate. Keep every live change and rollback anchor in
   `DEPLOYMENT_LEDGER.md`.
-- Model review guidance: Use Sub2API/Claude review for architecture, code review, writing, research, or UX polish when the task is non-tiny. For live surfaces, provide only bounded, redacted, read-only evidence. Use [model-review-packets.md](../../../docs/workspace/model-review-packets.md) for packet shape.
+- Model review guidance: use bounded internal Codex review and, when materially
+  useful, Claude Code as a read-only advisor. Sub2API is unavailable. For live
+  surfaces, provide only bounded, redacted, read-only evidence. Use
+  [model-review-packets.md](../../../docs/workspace/model-review-packets.md) for
+  packet shape.
 
-## Current Program Control State (2026-07-21)
+## Historical Program Control State (2026-07-21, superseded)
 
-This section is the current ops-level fact index. It supersedes contradictory
-completion wording in older manifests, reports, and running logs; those older
-documents remain historical evidence, not an authorization to repeat live
-actions. Status labels are defined in the [continuous program
-runbook](runbooks/continuous-program-authorization-and-task-lifecycle.md).
+This section preserves the 2026-07-21 ops-level fact index. It is superseded by
+the 2026-08-23 source-repair boundary above and the newer dated deployment
+ledger entries. It remains historical evidence, not current live health or an
+authorization to repeat live actions. Status labels are defined in the
+[continuous program runbook](runbooks/continuous-program-authorization-and-task-lifecycle.md).
 
-For product-source status, the 2026-07-20 source-authority correction above
-supersedes embedded `main@1abf23a` and "uncommitted" wording retained in older
-field evidence. Live-state claims remain bounded by the deployment ledger and
-dated acceptance reports.
+For product-source status, use the 2026-08-23 source-repair section above.
+Live-state claims remain bounded by the deployment ledger, dated acceptance
+reports, and a fresh read-only check.
 
 | Surface | Current authority | Residual boundary |
 | --- | --- | --- |
@@ -354,8 +390,8 @@ dated acceptance reports.
 
 The table below preserves the dated implementation and field chronology. Its
 embedded source hashes, "current image", gate-default, and "uncommitted" phrases
-describe their original checkpoints and are superseded by the current authority
-table above and `DEPLOYMENT_LEDGER.md`.
+describe their original checkpoints and are superseded by the 2026-08-23
+source-repair boundary above and `DEPLOYMENT_LEDGER.md`.
 
 | Surface | Dated evidence retained | Residual at that checkpoint / still restricted unless superseded |
 | --- | --- | --- |
