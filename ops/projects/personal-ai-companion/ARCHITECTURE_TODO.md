@@ -35,15 +35,17 @@ or the project README.
   deletion and owner storage routes are extracted into
   `cloud/account_storage_api.py`. Public route shapes and runtime defaults are
   preserved; no live operation is included.
-- Robot microphone capture policy remains a separate decision gate. The current
-  candidate must not be used to reload a LaunchAgent until the owner selects
-  fully disabled capture or an explicit owner-authorized continuous-capture
-  mode that fails closed by default.
+- Robot microphone policy B is selected for the local candidate. No-wake
+  continuous capture requires the literal
+  `PAC_ROBOT_MIC_CONTINUOUS_CAPTURE_OWNER_AUTHORIZED=1`; the default is false and
+  missing authorization fails before startup. The Owner Mac template records
+  the decision, but no LaunchAgent load/reload or live microphone verification
+  is part of this source repair.
 - The broader dirty worktree contains a pre-existing Provider stream policy
   change that bypasses the synchronous Provider when streaming is unavailable;
   this repair does not accept that contract change for release.
 - Local source acceptance passed the architecture budget check, focused and full
-  Python suites (`2863` passed, one skipped, one existing warning), the current
+  Python suites (`2864` passed, one skipped, one existing warning), the current
   Swift package (`172` XCTest plus `32` Swift Testing cases), Ruff, and diff
   checks. GitNexus still classifies the complete dirty worktree as `critical`;
   live image, LaunchAgent, iPhone, CoreS3, AEC, and microphone-policy acceptance

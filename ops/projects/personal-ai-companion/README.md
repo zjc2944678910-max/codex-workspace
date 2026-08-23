@@ -41,8 +41,8 @@ node docs/workspace/codex-register-project.mjs --regen
   actual current image, LaunchAgent, iPhone, and CoreS3 states remain
   unconfirmed in this source-only repair.
 - Next useful work: converge the dirty source into reviewable slices, complete
-  Memory Center/iPhone and realtime acoustic field gates, and resolve the
-  explicit robot-microphone capture policy before any configuration reload.
+  Memory Center/iPhone and realtime acoustic field gates, and perform a separate
+  read-only preflight before any configuration reload.
 
 ### Local Source Repair Candidate (2026-08-24, no deployment)
 
@@ -55,20 +55,23 @@ node docs/workspace/codex-register-project.mjs --regen
   no-store responses to the owner Memory Center and extracts realtime
   configuration plus account/storage routes from oversized composition modules
   without changing their public imports or route shapes.
-- The Mac LaunchAgent candidate still represents an owner-continuous,
-  no-wake-word microphone configuration. That behavior is not inferred from
-  this source repair and must not be loaded until the owner selects the durable
-  capture policy and the matching fail-closed authorization gate is recorded.
+- The owner selected policy B for the Mac candidate: no-wake continuous capture
+  is allowed only when
+  `PAC_ROBOT_MIC_CONTINUOUS_CAPTURE_OWNER_AUTHORIZED=1` is explicit. The default
+  is false and validation fails before startup when a robot microphone is
+  enabled without wake gating or this authorization. The checked-in Owner Mac
+  template records `1`; this source decision does not load or authorize a live
+  LaunchAgent reload.
 - The broader dirty worktree also contains a pre-existing Provider streaming
   policy change: when Provider streaming is unavailable it goes directly to the
   Relay instead of attempting the synchronous Provider. This bounded repair
   neither introduced nor accepts that contract change; it needs its own release
   decision before convergence.
-- Local verification passed `2863` Python tests with one skip and the existing
+- Local verification passed `2864` Python tests with one skip and the existing
   Starlette/TestClient warning, `172` XCTest cases plus `32` Swift Testing
   cases, Ruff, diff checks, and all architecture budgets. GitNexus still rates
   the complete dirty worktree `critical` because the broader in-progress change
-  spans `67` tracked files and `32` execution flows; this bounded repair does
+  spans `68` tracked files and `34` execution flows; this bounded repair does
   not convert that worktree into a release candidate or claim current live
   health.
 
