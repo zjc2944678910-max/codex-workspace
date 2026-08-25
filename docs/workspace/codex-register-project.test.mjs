@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
-import { buildProject, notifyGrokWorkspace, parseArgs, renderProjectsMd, splitValues } from "./codex-register-project.mjs";
+import { buildProject, notifyAntigravityWorkspace, notifyGrokWorkspace, parseArgs, renderProjectsMd, splitValues } from "./codex-register-project.mjs";
 
 const scriptPath = path.resolve(import.meta.dirname, "codex-register-project.mjs");
 const repoRoot = path.resolve(import.meta.dirname, "..", "..");
@@ -48,10 +48,17 @@ test("register-project parses comma-separated values", () => {
   assert.deepEqual(splitValues(["alpha,beta", " beta ", "gamma"]), ["alpha", "beta", "gamma"]);
   assert.equal(parseArgs(["--slug", "demo", "--name", "Demo", "--kind", "product"]).slug, "demo");
   assert.equal(parseArgs(["--slug", "demo", "--name", "Demo", "--kind", "product", "--no-grok-sync"]).grokSync, false);
+  assert.equal(parseArgs(["--slug", "demo", "--name", "Demo", "--kind", "product", "--no-antigravity-sync"]).antigravitySync, false);
+  assert.equal(parseArgs(["--slug", "demo", "--name", "Demo", "--kind", "product"]).antigravitySync, true);
 });
 
 test("notifyGrokWorkspace skips when grok importer is missing", () => {
   const result = notifyGrokWorkspace("/tmp/not-a-codex-repo", "demo");
+  assert.equal(result.skipped, true);
+});
+
+test("notifyAntigravityWorkspace skips when antigravity importer is missing", () => {
+  const result = notifyAntigravityWorkspace("/tmp/not-a-codex-repo", "demo");
   assert.equal(result.skipped, true);
 });
 

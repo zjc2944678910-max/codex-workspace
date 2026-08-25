@@ -44,6 +44,7 @@ function parseArgs(argv = []) {
     regen: false,
     symlink: true,
     grokSync: true,
+    antigravitySync: true,
     help: false,
   };
   for (let index = 0; index < argv.length; index += 1) {
@@ -132,6 +133,10 @@ function parseArgs(argv = []) {
       options.grokSync = false;
       continue;
     }
+    if (arg === "--no-antigravity-sync") {
+      options.antigravitySync = false;
+      continue;
+    }
     throw new Error(`Unknown argument: ${arg}`);
   }
   return options;
@@ -156,6 +161,7 @@ function usage() {
     "  --dry-run                   Print the project record without writing files.",
     "  --no-symlink                Skip auto-creating the claude-workspace symlink.",
     "  --no-grok-sync              Skip importing the new project into grok-workspace.",
+    "  --no-antigravity-sync       Skip importing the new project into antigravity-workspace.",
     "",
   ].join("\n");
 }
@@ -545,42 +551,59 @@ function symlinkProjectToClaude(repoRoot, slug) {
 }
 
 function grokWorkspaceRoot(repoRoot) {
-  return path.resolve(repoRoot, "..", "grok-workspace");
+  return frontDeskRoot(repoRoot, "grok-workspace");
 }
 
-function notifyGrokWorkspace(repoRoot, slug) {
-  const grokRoot = grokWorkspaceRoot(repoRoot);
-  const importer = path.join(grokRoot, "tools", "register-project.py");
-  const linker = path.join(grokRoot, "tools", "symlink-from-codex.sh");
+function antigravityWorkspaceRoot(repoRoot) {
+  return frontDeskRoot(repoRoot, "antigravity-workspace");
+}
+
+function frontDeskRoot(repoRoot, folderName) {
+  return path.resolve(repoRoot, "..", folderName);
+}
+
+function notifyFrontDesk(repoRoot, slug, desk = {}) {
+  const label = desk.label || "Front desk";
+  const root = frontDeskRoot(repoRoot, desk.dir);
+  const importer = path.join(root, "tools", "register-project.py");
+  const linker = path.join(root, "tools", "symlink-from-codex.sh");
   if (!existsSync(importer)) {
-    process.stdout.write(`Grok sync: skipped (importer missing at ${importer}).\n`);
+    process.stdout.write(`${label} sync: skipped (importer missing at ${importer}).\n`);
     return { skipped: true, reason: "missing-importer" };
   }
   try {
     const imported = spawnSync("/usr/bin/python3", [importer, "--import-from-codex"], {
       encoding: "utf8",
-      cwd: grokRoot,
+      cwd: root,
     });
     if (imported.status !== 0) {
       const detail = (imported.stderr || imported.stdout || "").trim();
-      process.stdout.write(`Grok sync: import failed for ${slug}${detail ? `: ${detail}` : ""}.\n`);
+      process.stdout.write(`${label} sync: import failed for ${slug}${detail ? `: ${detail}` : ""}.\n`);
       return { skipped: false, ok: false, step: "import" };
     }
-    process.stdout.write(`Grok sync: imported registry into grok-workspace (${slug}).\n`);
+    process.stdout.write(`${label} sync: imported registry into ${desk.dir} (${slug}).\n`);
     if (existsSync(linker)) {
-      const linked = spawnSync("bash", [linker], { encoding: "utf8", cwd: grokRoot });
+      const linked = spawnSync("bash", [linker], { encoding: "utf8", cwd: root });
       if (linked.status === 0) {
-        process.stdout.write("Grok sync: refreshed grok-workspace project symlinks.\n");
+        process.stdout.write(`${label} sync: refreshed ${desk.dir} project symlinks.\n`);
       } else {
-        process.stdout.write(`Grok sync: symlink script exit ${linked.status}; run grok-workspace/tools/symlink-from-codex.sh manually.\n`);
+        process.stdout.write(`${label} sync: symlink script exit ${linked.status}; run ${desk.dir}/tools/symlink-from-codex.sh manually.\n`);
       }
     }
     return { skipped: false, ok: true };
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
-    process.stdout.write(`Grok sync: skipped (${msg}).\n`);
+    process.stdout.write(`${label} sync: skipped (${msg}).\n`);
     return { skipped: true, reason: msg };
   }
+}
+
+function notifyGrokWorkspace(repoRoot, slug) {
+  return notifyFrontDesk(repoRoot, slug, { dir: "grok-workspace", label: "Grok" });
+}
+
+function notifyAntigravityWorkspace(repoRoot, slug) {
+  return notifyFrontDesk(repoRoot, slug, { dir: "antigravity-workspace", label: "Antigravity" });
 }
 
 async function main() {
@@ -615,6 +638,9 @@ async function main() {
   if (options.grokSync && repoRoot === defaultRepoRoot()) {
     notifyGrokWorkspace(repoRoot, result.project.slug);
   }
+  if (options.antigravitySync && repoRoot === defaultRepoRoot()) {
+    notifyAntigravityWorkspace(repoRoot, result.project.slug);
+  }
 }
 
 const entryPath = process.argv[1] ? path.resolve(process.argv[1]) : "";
@@ -627,10 +653,13 @@ if (entryPath === modulePath) {
 }
 
 export {
+  antigravityWorkspaceRoot,
   buildProject,
   createSurfaces,
   defaultRepoRoot,
   grokWorkspaceRoot,
+  notifyAntigravityWorkspace,
+  notifyFrontDesk,
   notifyGrokWorkspace,
   parseArgs,
   registerProject,

@@ -1,7 +1,7 @@
 {
   "$schema": "workspace-project-registry/v1",
   "description": "Machine-readable workspace project registry. Each registered project has an ops README under ops/projects/<slug>/README.md, one or more long-lived surfaces under projects/*/*, and zero or more concrete code roots used for day-to-day work and GitNexus targeting.",
-  "updated": "2026-08-21",
+  "updated": "2026-08-25",
   "projects": [
     {
       "slug": "antigravity-mcp",
@@ -63,6 +63,36 @@
         "spark-research-workbench"
       ],
       "gitnexus_indexed": true
+    },
+    {
+      "slug": "claimflow",
+      "name": "ClaimFlow",
+      "kind": "research",
+      "risk_profile": "research_local",
+      "surfaces": [
+        "projects/research/claimflow"
+      ],
+      "code_roots": [
+        {
+          "path": "projects/research/claimflow",
+          "role": "main",
+          "gitnexus_status": "not_indexed"
+        }
+      ],
+      "ops_surface": "ops/projects/claimflow",
+      "state_data": "state/project-data/claimflow",
+      "scratch": "scratch/projects/claimflow",
+      "aliases": [
+        "claim-flow"
+      ],
+      "routing_keywords": [
+        "claimflow",
+        "ClaimFlow",
+        "claim-flow"
+      ],
+      "live_host_aliases": [],
+      "service_names": [],
+      "gitnexus_indexed": false
     },
     {
       "slug": "cloudflare-edge",
@@ -172,6 +202,55 @@
       "gitnexus_indexed": true
     },
     {
+      "slug": "ielts-vocab-hub",
+      "name": "IELTS Vocab Hub",
+      "kind": "product",
+      "risk_profile": "live_product",
+      "surfaces": [
+        "projects/products/ielts-vocab-hub"
+      ],
+      "code_roots": [
+        {
+          "path": "projects/products/ielts-vocab-hub",
+          "role": "main",
+          "gitnexus_status": "indexed"
+        }
+      ],
+      "ops_surface": "ops/projects/ielts-vocab-hub",
+      "state_data": "state/project-data/ielts-vocab-hub",
+      "scratch": "scratch/projects/ielts-vocab-hub",
+      "aliases": [
+        "ielts-vocab",
+        "ielts-dictionary",
+        "vocab-atelier",
+        "vocabatelier",
+        "雅思查词助手"
+      ],
+      "routing_keywords": [
+        "Vocab Atelier",
+        "雅思查词",
+        "vocab.nodezjc12348888.xyz",
+        "ielts-vocab-hub",
+        "IELTS Vocab Hub",
+        "ielts-vocab",
+        "ielts-dictionary",
+        "vocab-atelier",
+        "vocabatelier",
+        "雅思查词助手"
+      ],
+      "live_host_aliases": [
+        "vocab.nodezjc12348888.xyz"
+      ],
+      "service_names": [
+        "com.vocabatelier.public",
+        "com.vocabatelier.local-api",
+        "com.vocabatelier.local-page",
+        "com.vocabatelier.tunnel",
+        "com.vocabatelier.vps-reverse"
+      ],
+      "gitnexus_indexed": true
+    },
+    {
       "slug": "love-letter-site",
       "name": "Love Letter Site",
       "kind": "product",
@@ -238,6 +317,38 @@
       "gitnexus_indexed": true
     },
     {
+      "slug": "minesweeper",
+      "name": "Minesweeper Pro",
+      "kind": "product",
+      "risk_profile": "local",
+      "surfaces": [
+        "projects/products/minesweeper"
+      ],
+      "code_roots": [
+        {
+          "path": "projects/products/minesweeper",
+          "role": "main",
+          "gitnexus_status": "not_indexed"
+        }
+      ],
+      "ops_surface": "ops/projects/minesweeper",
+      "state_data": "state/project-data/minesweeper",
+      "scratch": "scratch/projects/minesweeper",
+      "aliases": [
+        "扫雷",
+        "minesweeper-pro"
+      ],
+      "routing_keywords": [
+        "minesweeper",
+        "Minesweeper Pro",
+        "扫雷",
+        "minesweeper-pro"
+      ],
+      "live_host_aliases": [],
+      "service_names": [],
+      "gitnexus_indexed": false
+    },
+    {
       "slug": "nas-platform",
       "name": "NAS Platform",
       "kind": "infrastructure",
@@ -266,6 +377,38 @@
         "nas-platform"
       ],
       "gitnexus_indexed": true
+    },
+    {
+      "slug": "neon-survivors",
+      "name": "Neon Survivors 2088",
+      "kind": "product",
+      "risk_profile": "local",
+      "surfaces": [
+        "projects/products/neon-survivors"
+      ],
+      "code_roots": [
+        {
+          "path": "projects/products/neon-survivors",
+          "role": "main",
+          "gitnexus_status": "not_indexed"
+        }
+      ],
+      "ops_surface": "ops/projects/neon-survivors",
+      "state_data": "state/project-data/neon-survivors",
+      "scratch": "scratch/projects/neon-survivors",
+      "aliases": [
+        "霓虹幸存者",
+        "neon-survivors-2088"
+      ],
+      "routing_keywords": [
+        "neon-survivors",
+        "Neon Survivors 2088",
+        "霓虹幸存者",
+        "neon-survivors-2088"
+      ],
+      "live_host_aliases": [],
+      "service_names": [],
+      "gitnexus_indexed": false
     },
     {
       "slug": "openclaw",
@@ -501,6 +644,68 @@
         "x-ui",
         "xray-wifi-fallback"
       ],
+      "gitnexus_indexed": false
+    },
+    {
+      "slug": "sla-sql",
+      "name": "SLA-SQL Research",
+      "kind": "research",
+      "risk_profile": "research_local",
+      "surfaces": [
+        "projects/research/sla-sql"
+      ],
+      "code_roots": [
+        {
+          "path": "projects/research/sla-sql",
+          "role": "main",
+          "gitnexus_status": "not_indexed"
+        }
+      ],
+      "ops_surface": "ops/projects/sla-sql",
+      "state_data": "state/project-data/sla-sql",
+      "scratch": "scratch/projects/sla-sql",
+      "aliases": [
+        "sla-aware-sql"
+      ],
+      "routing_keywords": [
+        "sla-sql",
+        "SLA-SQL Research",
+        "sla-aware-sql"
+      ],
+      "live_host_aliases": [],
+      "service_names": [],
+      "gitnexus_indexed": false
+    },
+    {
+      "slug": "space-shooter",
+      "name": "Cosmic Guardian",
+      "kind": "product",
+      "risk_profile": "local",
+      "surfaces": [
+        "projects/products/space-shooter"
+      ],
+      "code_roots": [
+        {
+          "path": "projects/products/space-shooter",
+          "role": "main",
+          "gitnexus_status": "not_indexed"
+        }
+      ],
+      "ops_surface": "ops/projects/space-shooter",
+      "state_data": "state/project-data/space-shooter",
+      "scratch": "scratch/projects/space-shooter",
+      "aliases": [
+        "cosmic-guardian",
+        "太空射击"
+      ],
+      "routing_keywords": [
+        "space-shooter",
+        "Cosmic Guardian",
+        "cosmic-guardian",
+        "太空射击"
+      ],
+      "live_host_aliases": [],
+      "service_names": [],
       "gitnexus_indexed": false
     },
     {

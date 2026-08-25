@@ -96,3 +96,23 @@ slice decisions belong in that run's `05-decisions.md`.
 - **Affects**: future project placement; sibling awareness only. Claude remains
   the primary `sibling_workspace` object in this registry so regen stays
   compatible.
+
+## 2026-08-25
+
+- **Decision**: `antigravity-workspace` is a fourth front-desk index, same Plan A
+  as Claude and Grok. It does **not** own project code or shared ops. Unique
+  Antigravity trees (`ielts-vocab-hub`, `minesweeper`, `neon-survivors`,
+  `space-shooter`, `sla-sql`, `claimflow`) now live under `projects/` here.
+  Antigravity reaches them through local git-ignored symlinks
+  (`antigravity-workspace/tools/symlink-from-codex.sh`).
+- **Rationale**: Multi-agent work needs one code owner. A second Codex-shaped
+  tree in Antigravity drifted (IELTS lived outside `products/`, games and
+  research were unregistered, ops/docs were cloned).
+- **How to apply**: register durable code here first. Codex
+  `codex-register-project.mjs` imports Grok and Antigravity unless
+  `--no-grok-sync` / `--no-antigravity-sync` is passed. Keep
+  `antigravity-workspace/projects/ielts-vocab-hub` as a compatibility symlink
+  for existing LaunchAgents; do not rewrite those plists without L3.
+- **Affects**: Antigravity routing, IELTS Oxford export scripts (now under
+  `projects/products/ielts-vocab-hub/scripts/oxford-export/`), and future
+  project placement. Claude remains the primary `sibling_workspace` object.

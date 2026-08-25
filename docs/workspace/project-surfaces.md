@@ -14,16 +14,22 @@ Source of truth for scripts: [`project-registry.json`](./project-registry.json).
 | Personal AI Companion | `projects/products/personal-ai-companion` | `projects/products/personal-ai-companion` | `ops/projects/personal-ai-companion` | indexed at `aa8fd86` (2026-08-16) |
 | Hotel Management System | `projects/products/hotel-mgmt` | `projects/products/hotel-mgmt` | `ops/projects/hotel-mgmt` | indexed |
 | Love Letter Site | `projects/products/love-letter-site` | `projects/products/love-letter-site` | `ops/projects/love-letter-site` | not indexed |
+| IELTS Vocab Hub | `projects/products/ielts-vocab-hub` | `projects/products/ielts-vocab-hub` | `ops/projects/ielts-vocab-hub` | indexed |
 | NAS Platform | `projects/infrastructure/nas-platform` | `projects/infrastructure/nas-platform` | `ops/projects/nas-platform` | unknown; local path is not a standalone git repo |
 | Pet Clinic Management System | `projects/products/pet-clinic` | `projects/products/pet-clinic` | `ops/projects/pet-clinic` | indexed |
 | Telegram Dual Relay | `projects/infrastructure/telegram-dual-relay` | `projects/infrastructure/telegram-dual-relay` | `ops/projects/telegram-dual-relay` | indexed |
+| SLA-SQL Research | `projects/research/sla-sql` | `projects/research/sla-sql` | `ops/projects/sla-sql` | not indexed |
 | Sub2API | ops-only live service | live source on VPS at `/opt/sub2api-src-fix`; no local tracked code root | `ops/projects/sub2api` | not indexed |
 | Proxy Nodes VPS | ops-only live service | live xray/sing-box on VPS; no local tracked code root | `ops/projects/proxy-nodes` | not indexed |
 | VPS Racknerd Box | ops-only (infra layer) | the racknerd VPS box itself; no code | `ops/projects/vps-racknerd` | not indexed |
 | Cloudflare Edge / DNS | ops-only (infra layer) | CF account + `nodezjc12348888.xyz` zone; no code | `ops/projects/cloudflare-edge` | not indexed |
 | MathorCup-D | `projects/research/mathorcup_D`, `projects/products/MathorCup_D_repo` | `projects/products/MathorCup_D_repo`; `projects/research/mathorcup_D` | `ops/projects/mathorcup-d` | submission repo indexed; research workspace not targeted |
+| Minesweeper Pro | `projects/products/minesweeper` | `projects/products/minesweeper` | `ops/projects/minesweeper` | not indexed |
+| Neon Survivors 2088 | `projects/products/neon-survivors` | `projects/products/neon-survivors` | `ops/projects/neon-survivors` | not indexed |
 | BigData-Spark-Research-Workbench | `projects/research/bigdata-spark-research-workbench` | `projects/research/bigdata-spark-research-workbench` | `ops/projects/bigdata-spark-research-workbench` | indexed |
 | CUMCM-2026-Workbench | `projects/research/cumcm-2026-workbench` | `projects/research/cumcm-2026-workbench` | `ops/projects/cumcm-2026-workbench` | indexed |
+| ClaimFlow | `projects/research/claimflow` | `projects/research/claimflow` | `ops/projects/claimflow` | not indexed |
+| Cosmic Guardian | `projects/products/space-shooter` | `projects/products/space-shooter` | `ops/projects/space-shooter` | not indexed |
 | Tianchi Purchase Redemption | `projects/research/tianchi-purchase-redemption` | `projects/research/tianchi-purchase-redemption` | `ops/projects/tianchi-purchase-redemption` | not indexed |
 
 Legacy GitNexus reference: the old workspace root `-/` remains a legacy-only
