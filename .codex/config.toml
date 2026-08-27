@@ -2,10 +2,11 @@
 
 review_model = "gpt-5.6-sol"
 
-# Keep the repository-level budget contract aligned with the GPT-5.6 family.
-# User profiles may choose smaller per-task compaction limits.
+# Keep the GPT-5.6 family max window (~872K raw / ~828K UI). Compact around 252K
+# so daily App usage stays under the 272K billing threshold; raise this to
+# 900000 only when a thread actually needs the long window.
 model_context_window = 1000000
-model_auto_compact_token_limit = 900000
+model_auto_compact_token_limit = 252000
 
 # codex-cli 0.144.0 reads these as top-level subagent defaults. Keeping them
 # under a legacy [agents] table makes the whole project config fail to load.

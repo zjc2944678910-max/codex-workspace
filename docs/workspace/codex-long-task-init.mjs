@@ -5,12 +5,22 @@ import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 
+import {
+  CONTINUATION_FILE,
+  FAILURE_LEDGER_FILE,
+  OPS_CANDIDATES_FILE,
+  commitRunFiles,
+  initializeRunState,
+  withRunLock,
+} from "./codex-long-task-state.mjs";
+
 function parseArgs(argv = []) {
   const options = {
     workspaceRoot: "",
     project: "",
     projectRoot: "",
     task: "",
+    routeEvidence: "",
     slug: "",
     timestamp: "",
     shared: false,
@@ -36,6 +46,11 @@ function parseArgs(argv = []) {
     }
     if (arg === "--task") {
       options.task = String(argv[index + 1] || "").trim();
+      index += 1;
+      continue;
+    }
+    if (arg === "--route-evidence") {
+      options.routeEvidence = String(argv[index + 1] || "").trim();
       index += 1;
       continue;
     }
@@ -76,6 +91,7 @@ function printHelp() {
 Options:
   --workspace-root <path>  Workspace root. Defaults to current working directory.
   --project-root <path>    Absolute project repo path for 01-confirmed-context.md.
+  --route-evidence <text>  Explicit user/path evidence that selected this target.
   --slug <slug>            Stable ASCII slug. Defaults to a slugified task.
   --timestamp <stamp>      Deterministic timestamp, e.g. 20260429-2315.
   --shared                 Use scratch/shared/codex-runs instead of scratch/projects/<project>.
@@ -139,7 +155,7 @@ function buildRouteLock(options = {}, run = buildRunRoot(options)) {
     project,
     targetSurface: projectRoot || "(fill in target surface before delegation)",
     projectRoot: projectRoot || "(fill in absolute project root, or N/A for workspace-index/shared work)",
-    routeEvidence: "(fill in exact user phrase, path, service, host alias, repo, or config surface that selected this target)",
+    routeEvidence: options.routeEvidence || (projectRoot ? `CLI --project ${project} --project-root ${projectRoot}` : "(fill in exact user phrase, path, service, host alias, repo, or config surface that selected this target)"),
     forbiddenSurfaces: "Any project, repo, ops surface, state path, or scratch path not listed in target_surface or project_root.",
   };
 }
@@ -594,21 +610,20 @@ async function createLongTaskRun(options = {}) {
       dry_run: true,
       run_root: run.runRoot,
       exists,
-      files: [...run.files.keys()],
+      files: [...run.files.keys(), CONTINUATION_FILE, FAILURE_LEDGER_FILE, OPS_CANDIDATES_FILE],
     };
   }
   if (exists) throw new Error(`run directory already exists: ${run.runRoot}`);
   await fs.mkdir(run.runRoot, { recursive: true });
-  for (const [relativePath, content] of run.files.entries()) {
-    const targetPath = path.join(run.runRoot, relativePath);
-    await fs.mkdir(path.dirname(targetPath), { recursive: true });
-    await fs.writeFile(targetPath, content, "utf8");
-  }
+  const state = await withRunLock(run.runRoot, async () => {
+    await commitRunFiles(run.runRoot, "initialize-markdown-run", [...run.files.entries()].map(([relativePath, content]) => ({ relativePath, content })));
+    return initializeRunState(run.runRoot, options);
+  });
   return {
     ok: true,
     dry_run: false,
     run_root: run.runRoot,
-    files: [...run.files.keys()],
+    files: [...run.files.keys(), ...state.files],
   };
 }
 

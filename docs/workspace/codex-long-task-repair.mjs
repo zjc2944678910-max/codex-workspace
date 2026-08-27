@@ -5,6 +5,29 @@ import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 
+import {
+  FAILURE_LEDGER_FILE,
+  MAX_REPAIRS_PER_EPOCH,
+  assertRouteLockUnchanged,
+  assertRunCanMutate,
+  buildAttemptKey,
+  buildFailureKey,
+  buildSliceKey,
+  currentOwnedFileDigest,
+  ensureFailureChain,
+  evidenceDigest,
+  extractFailureDescriptor,
+  isPathWithin,
+  loadContinuation,
+  normalizeList,
+  normalizeSemantic,
+  persistState,
+  readFailureEvents,
+  recoverPendingTransaction,
+  renderFailureEvents,
+  withRunLock,
+} from "./codex-long-task-state.mjs";
+
 function parseArgs(argv = []) {
   const options = {
     runRoot: "",
@@ -15,6 +38,8 @@ function parseArgs(argv = []) {
     maxRepairs: 3,
     evidence: [],
     expected: [],
+    hypothesis: "",
+    approach: "",
     dryRun: false,
     json: false,
   };
@@ -60,6 +85,16 @@ function parseArgs(argv = []) {
       index += 1;
       continue;
     }
+    if (arg === "--hypothesis") {
+      options.hypothesis = String(argv[index + 1] || "").trim();
+      index += 1;
+      continue;
+    }
+    if (arg === "--approach") {
+      options.approach = String(argv[index + 1] || "").trim();
+      index += 1;
+      continue;
+    }
     if (arg === "--dry-run") {
       options.dryRun = true;
       continue;
@@ -84,9 +119,11 @@ Options:
   --dev-task-id <id>       Explicit development task ID, e.g. T03.
   --verify-task-id <id>    Explicit verification task ID, e.g. T04.
   --repair-number <n>      Explicit repair attempt number. Defaults to next.
-  --max-repairs <n>        Maximum repair attempts. Defaults to 3.
+  --max-repairs <n>        Compatibility option; the only accepted value is 3.
   --evidence <text>        Repeatable failing evidence override.
   --expected <text>        Repeatable expected behavior line.
+  --hypothesis <text>      Normalized cause hypothesis for deduplication.
+  --approach <text>        Concrete repair approach for deduplication.
   --dry-run                Print planned file and ledger changes without writing.
   --json                   Print JSON.
 `);
@@ -125,7 +162,8 @@ function joinMarkdownRow(cells = []) {
 
 function inferTaskIdFromVerifyResult(verifyResultPath = "") {
   const normalized = String(verifyResultPath || "").replace(/\\/g, "/");
-  const match = normalized.match(/\/agents\/(T\d+)\/verify-result\.md$/u) || normalized.match(/^agents\/(T\d+)\/verify-result\.md$/u);
+  const match = normalized.match(/\/agents\/(T\d+)\/(?:verify-result|recheck-\d+-result)\.md$/u)
+    || normalized.match(/^agents\/(T\d+)\/(?:verify-result|recheck-\d+-result)\.md$/u);
   return match ? match[1] : "";
 }
 
@@ -166,11 +204,6 @@ async function readRequiredFile(targetPath, label) {
 }
 
 async function nextRepairNumber(runRoot, devTaskId, options = {}) {
-  if (options.repairNumber) {
-    const parsed = Number(options.repairNumber);
-    if (!Number.isInteger(parsed) || parsed < 1) throw new Error(`invalid repair number: ${options.repairNumber}`);
-    return parsed;
-  }
   const devDir = path.join(runRoot, "agents", devTaskId);
   let max = 0;
   try {
@@ -180,9 +213,15 @@ async function nextRepairNumber(runRoot, devTaskId, options = {}) {
       if (match) max = Math.max(max, Number(match[1]));
     }
   } catch {
-    return 1;
+    max = 0;
   }
-  return max + 1;
+  const expected = max + 1;
+  if (options.repairNumber) {
+    const parsed = Number(options.repairNumber);
+    if (!Number.isInteger(parsed) || parsed < 1) throw new Error(`invalid repair number: ${options.repairNumber}`);
+    if (parsed !== expected) throw new Error(`--repair-number must be the next sequential attempt: expected ${expected}, got ${parsed}`);
+  }
+  return expected;
 }
 
 function bulletList(values = [], fallback = "<fill in>") {
@@ -229,6 +268,14 @@ ${failingEvidenceBlock(options, verifyResultText)}
 ## Expected Behavior
 
 ${bulletList(options.expected, "<describe expected behavior>")}
+
+## Hypothesis
+
+${String(options.hypothesis || "").trim() || "Verifier-guided cause hypothesis derived from the stable failure signature."}
+
+## Approach
+
+${String(options.approach || "").trim() || "Make the smallest change that resolves the failed acceptance criterion."}
 
 ## Constraints
 
@@ -318,48 +365,229 @@ function resolveVerifyResultPath(runRoot, options = {}) {
   throw new Error("--verify-result or --verify-task-id is required");
 }
 
+function isFailedVerification(resultText = "") {
+  const statusLine = String(resultText || "").match(/^status\s*:\s*([a-z_ -]+)/imu)?.[1] || "";
+  const statusSection = String(resultText || "").match(/^##\s+Status\s*\r?\n+([\s\S]*?)(?:\r?\n##\s+|\s*$)/imu)?.[1] || "";
+  if (statusLine || statusSection) return /\bfail(?:ed|ure)?\b/iu.test(`${statusLine}\n${statusSection}`);
+  return /^\s*(?:fail|failed|failure)\s*$/imu.test(String(resultText || ""));
+}
+
 async function createRepair(options = {}) {
   const runRoot = normalizeRunRoot(options.runRoot);
-  const ledgerPath = path.join(runRoot, "03-task-ledger.md");
-  const ledgerText = await readRequiredFile(ledgerPath, "task ledger");
-  const verifyResultPath = resolveVerifyResultPath(runRoot, options);
-  const verifyResultText = await readRequiredFile(verifyResultPath, "verification result");
-  const verifyTaskId = options.verifyTaskId || inferTaskIdFromVerifyResult(verifyResultPath);
-  if (!verifyTaskId) throw new Error("could not infer verification task id; pass --verify-task-id");
-  validateTaskId(verifyTaskId);
-  const devTaskId = options.devTaskId || inferDevTaskIdFromLedger(ledgerText, verifyTaskId);
-  validateTaskId(devTaskId);
-  const repairNumber = await nextRepairNumber(runRoot, devTaskId, options);
-  const maxRepairs = Number.isInteger(options.maxRepairs) && options.maxRepairs > 0 ? options.maxRepairs : 3;
-  if (repairNumber > maxRepairs) throw new Error(`repair limit exceeded for ${devTaskId}: ${repairNumber} > ${maxRepairs}`);
+  const requestedMaxRepairs = options.maxRepairs === undefined ? MAX_REPAIRS_PER_EPOCH : Number(options.maxRepairs);
+  if (requestedMaxRepairs !== MAX_REPAIRS_PER_EPOCH) {
+    throw new Error(`--max-repairs is fixed at ${MAX_REPAIRS_PER_EPOCH}`);
+  }
+  const execute = async () => {
+    if (options.dryRun !== true) await recoverPendingTransaction(runRoot);
+    const loaded = await loadContinuation(runRoot, { persistLegacy: options.dryRun !== true });
+    const state = structuredClone(loaded.state);
+    assertRunCanMutate(state, "repair");
+    await assertRouteLockUnchanged(state);
 
-  const targetRelativePath = path.join("agents", devTaskId, `repair-${repairNumber}-brief.md`);
-  const targetPath = path.join(runRoot, targetRelativePath);
-  if (await pathExists(targetPath)) throw new Error(`repair brief already exists: ${targetPath}`);
+    const ledgerPath = path.join(runRoot, "03-task-ledger.md");
+    const ledgerText = await readRequiredFile(ledgerPath, "task ledger");
+    const verifyResultPath = resolveVerifyResultPath(runRoot, options);
+    if (!isPathWithin(verifyResultPath, runRoot)) throw new Error(`verification result is outside the run: ${verifyResultPath}`);
+    const verifyResultText = await readRequiredFile(verifyResultPath, "verification result");
+    if (!isFailedVerification(verifyResultText)) throw new Error("repair requires a verifier result with status: fail");
+    const verifyTaskId = options.verifyTaskId || inferTaskIdFromVerifyResult(verifyResultPath);
+    if (!verifyTaskId) throw new Error("could not infer verification task id; pass --verify-task-id");
+    validateTaskId(verifyTaskId);
+    const devTaskId = options.devTaskId || inferDevTaskIdFromLedger(ledgerText, verifyTaskId);
+    validateTaskId(devTaskId);
+    const repairNumber = await nextRepairNumber(runRoot, devTaskId, options);
+    if (repairNumber > MAX_REPAIRS_PER_EPOCH) {
+      throw new Error(`repair limit exceeded for ${devTaskId}: ${repairNumber} > ${MAX_REPAIRS_PER_EPOCH}`);
+    }
 
-  const ids = { devTaskId, verifyTaskId, repairNumber, verifyResultPath };
-  const repairBrief = buildRepairBrief(runRoot, options, ids, verifyResultText);
-  const nextLedgerText = updateLedgerForRepair(ledgerText, ids);
-  const result = {
-    ok: true,
-    dry_run: options.dryRun === true,
-    run_root: runRoot,
-    dev_task_id: devTaskId,
-    verify_task_id: verifyTaskId,
-    repair_number: repairNumber,
-    file: targetRelativePath,
-    next_action: `send ${targetPath} back to model_worker_delegate (same model worker if resumable) for ${devTaskId}`,
+    let sliceState = state.slices?.[devTaskId];
+    if (!sliceState) {
+      const devBrief = await readRequiredFile(path.join(runRoot, "agents", devTaskId, "dev-brief.md"), "development brief");
+      const task = devBrief.match(/^##\s+Task\s*\r?\n+([\s\S]*?)(?:\r?\n##\s+)/imu)?.[1]?.trim() || `legacy slice ${devTaskId}`;
+      const owned = [...devBrief.matchAll(/^[-*]\s+(.+)$/gmu)].map((match) => match[1].trim()).filter((value) => !value.startsWith("<"));
+      const acceptanceSection = devBrief.match(/^##\s+Acceptance Criteria\s*\r?\n+([\s\S]*?)(?:\r?\n##\s+)/imu)?.[1] || "";
+      const acceptance = [...acceptanceSection.matchAll(/^[-*]\s+(.+)$/gmu)].map((match) => match[1].trim());
+      sliceState = {
+        dev_task_id: devTaskId,
+        verify_task_id: verifyTaskId,
+        slice_key: buildSliceKey({ projectRoot: state.project_root, workspaceRoot: state.workspace_root, scope: task, owned, acceptance }),
+        scope: task,
+        owned,
+        acceptance,
+        epoch: 1,
+        status: "needs_fix",
+        legacy_reconstructed: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      state.slices[devTaskId] = sliceState;
+    }
+    if (sliceState.verify_task_id !== verifyTaskId) throw new Error(`verification task ${verifyTaskId} does not belong to slice ${devTaskId}`);
+
+    const existingChain = sliceState.failure_key ? state.failure_chains?.[sliceState.failure_key] : null;
+    const ingestInitialFailure = !state.legacy_migrated && sliceState.status === "pending" && !existingChain;
+    const closedFailureReady = sliceState.status === "needs_fix" && existingChain?.status === "open";
+    if (!state.legacy_migrated && !ingestInitialFailure && !closedFailureReady) {
+      throw new Error("repair requires a current initial verifier failure or a closed needs_fix failure chain");
+    }
+    if (existingChain && ["attempt_pending", "verifying"].includes(existingChain.status)) {
+      throw new Error(`repair is not allowed while failure chain is ${existingChain.status}`);
+    }
+    if (["verified", "done", "deferred", "superseded"].includes(sliceState.status)) {
+      throw new Error(`repair is not allowed for ${sliceState.status} slice ${devTaskId}`);
+    }
+    const expectedVerificationPath = existingChain && Number(existingChain.attempts_in_epoch || 0) > 0
+      ? path.join(runRoot, "agents", verifyTaskId, `recheck-${existingChain.attempts_in_epoch}-result.md`)
+      : path.join(runRoot, "agents", verifyTaskId, "verify-result.md");
+    if (path.resolve(verifyResultPath) !== path.resolve(expectedVerificationPath)) {
+      throw new Error(`repair requires the current failing verifier result: ${expectedVerificationPath}`);
+    }
+
+    const descriptor = extractFailureDescriptor(verifyResultText, sliceState.acceptance);
+    if (!state.legacy_migrated && !descriptor.explicit_fields_valid) {
+      throw new Error("new runs require verifier failure_signature and failed_acceptance fields");
+    }
+    const normalizedAcceptance = normalizeList(sliceState.acceptance || []);
+    if (!state.legacy_migrated && descriptor.failed_acceptance.some((item) => !normalizedAcceptance.includes(item))) {
+      throw new Error("failed_acceptance must exactly match an acceptance criterion from the slice");
+    }
+    const descriptorFailureKey = buildFailureKey({
+      sliceKey: sliceState.slice_key,
+      failureSignature: descriptor.failure_signature,
+      failedAcceptance: descriptor.failed_acceptance,
+    });
+    if (Number(sliceState.epoch || 1) === 2 && sliceState.failure_key && descriptorFailureKey !== sliceState.failure_key) {
+      throw new Error("reopened slice must retain the predecessor failure_signature and failed_acceptance identity");
+    }
+    const resultDigest = await evidenceDigest(verifyResultPath);
+    const chain = ensureFailureChain(state, sliceState, descriptor, {
+      facts: descriptor.failure_signature ? [descriptor.failure_signature] : [],
+      files: [verifyResultPath],
+      digests: [resultDigest],
+    });
+    if (state.legacy_migrated && Number(chain.attempts_in_epoch || 0) === 0 && repairNumber > 1) {
+      chain.attempts_in_epoch = repairNumber - 1;
+      chain.attempts_total = Math.max(Number(chain.attempts_total || 0), repairNumber - 1);
+      chain.status = "open";
+      chain.legacy_attempts_reconstructed = true;
+    }
+    if (chain.status === "exhausted" || Number(chain.attempts_in_epoch || 0) >= MAX_REPAIRS_PER_EPOCH) {
+      throw new Error(`repair epoch ${chain.epoch} is exhausted for ${devTaskId}`);
+    }
+    if (repairNumber !== Number(chain.attempts_in_epoch || 0) + 1) {
+      throw new Error(`repair state conflict for ${devTaskId}: expected attempt ${Number(chain.attempts_in_epoch || 0) + 1}, got ${repairNumber}`);
+    }
+
+    const hypothesis = normalizeSemantic(options.hypothesis || "verifier-guided cause hypothesis derived from the stable failure signature");
+    const approach = normalizeSemantic(options.approach || "make the smallest change that resolves the failed acceptance criterion");
+    const attemptKey = buildAttemptKey({
+      failureKey: chain.failure_key,
+      hypothesis,
+      approach,
+      owned: sliceState.owned,
+      projectRoot: state.project_root,
+      workspaceRoot: state.workspace_root,
+    });
+    if ((chain.attempt_keys || []).includes(attemptKey)) throw new Error(`duplicate repair attempt rejected: ${attemptKey}`);
+    const fileStateDigest = await currentOwnedFileDigest(state, sliceState);
+    if ((chain.file_state_digests || []).includes(fileStateDigest)) {
+      throw new Error("repair rejected because the unresolved failure has the same owned-file state as a prior attempt");
+    }
+
+    const targetRelativePath = path.join("agents", devTaskId, `repair-${repairNumber}-brief.md`);
+    const targetPath = path.join(runRoot, targetRelativePath);
+    if (await pathExists(targetPath)) throw new Error(`repair brief already exists: ${targetPath}`);
+
+    const ids = { devTaskId, verifyTaskId, repairNumber, verifyResultPath };
+    const repairBrief = buildRepairBrief(runRoot, { ...options, hypothesis, approach }, ids, verifyResultText);
+    const nextLedgerText = updateLedgerForRepair(ledgerText, ids);
+    const events = await readFailureEvents(runRoot);
+    const initialFailureEvent = ingestInitialFailure ? {
+      schema: "codex-long-task-failure-event/v1",
+      event: "verification_failed",
+      at: new Date().toISOString(),
+      run_id: state.run_id,
+      dev_task_id: devTaskId,
+      verify_task_id: verifyTaskId,
+      slice_key: sliceState.slice_key,
+      failure_key: chain.failure_key,
+      epoch: chain.epoch,
+      attempt_in_epoch: null,
+      attempts_total: chain.attempts_total,
+      failure_signature: descriptor.failure_signature,
+      failed_acceptance: descriptor.failed_acceptance,
+      verification_result: verifyResultPath,
+      verification_digest: resultDigest,
+      result: "failed",
+      ingested_by: "repair",
+    } : null;
+    const event = {
+      schema: "codex-long-task-failure-event/v1",
+      event: "attempt_created",
+      at: new Date().toISOString(),
+      run_id: state.run_id,
+      dev_task_id: devTaskId,
+      verify_task_id: verifyTaskId,
+      slice_key: sliceState.slice_key,
+      failure_key: chain.failure_key,
+      attempt_key: attemptKey,
+      epoch: chain.epoch,
+      attempt_in_epoch: repairNumber,
+      attempt_total: Number(chain.attempts_total || 0) + 1,
+      failure_signature: descriptor.failure_signature,
+      failed_acceptance: descriptor.failed_acceptance,
+      hypothesis,
+      approach,
+      owned_paths: sliceState.owned,
+      input_file_state_digest: fileStateDigest,
+      verification_result: verifyResultPath,
+      verification_digest: resultDigest,
+      result: "pending",
+      forbidden_repeat: { attempt_key: attemptKey, file_state_digest: fileStateDigest },
+    };
+    chain.attempts_in_epoch = repairNumber;
+    chain.attempts_total = Number(chain.attempts_total || 0) + 1;
+    chain.attempt_keys = [...(chain.attempt_keys || []), attemptKey];
+    chain.file_state_digests = [...(chain.file_state_digests || []), fileStateDigest];
+    chain.hypotheses = normalizeList([...(chain.hypotheses || []), hypothesis]);
+    chain.approaches = normalizeList([...(chain.approaches || []), approach]);
+    chain.status = "attempt_pending";
+    chain.updated_at = new Date().toISOString();
+    sliceState.status = "repairing";
+    sliceState.failure_key = chain.failure_key;
+    sliceState.updated_at = new Date().toISOString();
+    state.active_slice = devTaskId;
+    state.active_failure = chain.failure_key;
+    state.run_status = "active";
+    state.phase = "repair_ready";
+    state.next_action = `send ${targetPath} back to model_worker_delegate (same model worker if resumable) for ${devTaskId}`;
+
+    const result = {
+      ok: true,
+      dry_run: options.dryRun === true,
+      run_root: runRoot,
+      dev_task_id: devTaskId,
+      verify_task_id: verifyTaskId,
+      repair_number: repairNumber,
+      epoch: chain.epoch,
+      failure_key: chain.failure_key,
+      attempt_key: attemptKey,
+      file: targetRelativePath,
+      next_action: state.next_action,
+    };
+    if (options.dryRun === true) return { ...result, ledger_changed: nextLedgerText !== ledgerText };
+
+    await persistState(runRoot, "create-repair", state, [
+      { relativePath: targetRelativePath, content: repairBrief },
+      { relativePath: "03-task-ledger.md", content: nextLedgerText },
+      { relativePath: FAILURE_LEDGER_FILE, content: renderFailureEvents([...events, ...(initialFailureEvent ? [initialFailureEvent] : []), event]) },
+    ]);
+    return result;
   };
 
-  if (options.dryRun === true) return {
-    ...result,
-    ledger_changed: nextLedgerText !== ledgerText,
-  };
-
-  await fs.mkdir(path.dirname(targetPath), { recursive: true });
-  await fs.writeFile(targetPath, repairBrief, "utf8");
-  await fs.writeFile(ledgerPath, nextLedgerText, "utf8");
-  return result;
+  if (options.dryRun === true) return execute();
+  return withRunLock(runRoot, execute);
 }
 
 function isCliEntry() {

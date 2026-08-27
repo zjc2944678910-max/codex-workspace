@@ -6,6 +6,19 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 
 import { splitMarkdownRow } from "./codex-long-task-repair.mjs";
+import {
+  FAILURE_LEDGER_FILE,
+  assertRouteLockUnchanged,
+  assertRunCanMutate,
+  currentOwnedFileDigest,
+  isPathWithin,
+  loadContinuation,
+  persistState,
+  readFailureEvents,
+  recoverPendingTransaction,
+  renderFailureEvents,
+  withRunLock,
+} from "./codex-long-task-state.mjs";
 
 function parseArgs(argv = []) {
   const options = {
@@ -203,6 +216,8 @@ result: ${runPath("agents", verifyTaskId, `recheck-${repairNumber}-result.md`)}
 status: pass | fail | blocked
 tests_run: <commands or checks actually run>
 evidence_pointers: <path:line finding list>
+failure_signature: <stable normalized failure identity; required when status is fail>
+failed_acceptance: <exact failed acceptance criterion; repeat this line when more than one fails>
 risks: <residual risks or empty>
 followups: <optional next steps or empty>
 `;
@@ -237,45 +252,119 @@ function updateLedgerForRecheck(ledgerText = "", ids = {}) {
 
 async function createRecheck(options = {}) {
   const runRoot = normalizeRunRoot(options.runRoot);
-  const ledgerPath = path.join(runRoot, "03-task-ledger.md");
-  const ledgerText = await readRequiredFile(ledgerPath, "task ledger");
-  const repairResultPath = resolveRepairResultPath(runRoot, options);
-  const repairResultText = await readRequiredFile(repairResultPath, "repair result");
-  const devTaskId = options.devTaskId || inferDevTaskIdFromRepairResult(repairResultPath);
-  if (!devTaskId) throw new Error("could not infer development task id; pass --dev-task-id");
-  validateTaskId(devTaskId);
-  const verifyTaskId = options.verifyTaskId || inferVerifyTaskIdFromLedger(ledgerText, devTaskId);
-  validateTaskId(verifyTaskId);
-  const repairNumber = options.repairNumber ? Number(options.repairNumber) : inferRepairNumberFromRepairResult(repairResultPath);
-  if (!Number.isInteger(repairNumber) || repairNumber < 1) throw new Error("could not infer repair number; pass --repair-number");
+  const execute = async () => {
+    if (options.dryRun !== true) await recoverPendingTransaction(runRoot);
+    const loaded = await loadContinuation(runRoot, { persistLegacy: options.dryRun !== true });
+    const state = structuredClone(loaded.state);
+    assertRunCanMutate(state, "recheck");
+    await assertRouteLockUnchanged(state);
 
-  const targetRelativePath = path.join("agents", verifyTaskId, `recheck-${repairNumber}-brief.md`);
-  const targetPath = path.join(runRoot, targetRelativePath);
-  if (await pathExists(targetPath)) throw new Error(`recheck brief already exists: ${targetPath}`);
+    const ledgerPath = path.join(runRoot, "03-task-ledger.md");
+    const ledgerText = await readRequiredFile(ledgerPath, "task ledger");
+    const repairResultPath = resolveRepairResultPath(runRoot, options);
+    if (!isPathWithin(repairResultPath, runRoot)) throw new Error(`repair result is outside the run: ${repairResultPath}`);
+    const repairResultText = await readRequiredFile(repairResultPath, "repair result");
+    const devTaskId = options.devTaskId || inferDevTaskIdFromRepairResult(repairResultPath);
+    if (!devTaskId) throw new Error("could not infer development task id; pass --dev-task-id");
+    validateTaskId(devTaskId);
+    const verifyTaskId = options.verifyTaskId || inferVerifyTaskIdFromLedger(ledgerText, devTaskId);
+    validateTaskId(verifyTaskId);
+    const repairNumber = options.repairNumber ? Number(options.repairNumber) : inferRepairNumberFromRepairResult(repairResultPath);
+    if (!Number.isInteger(repairNumber) || repairNumber < 1) throw new Error("could not infer repair number; pass --repair-number");
 
-  const ids = { devTaskId, verifyTaskId, repairNumber, repairResultPath };
-  const recheckBrief = buildRecheckBrief(runRoot, ids, repairResultText);
-  const nextLedgerText = updateLedgerForRecheck(ledgerText, ids);
-  const result = {
-    ok: true,
-    dry_run: options.dryRun === true,
-    run_root: runRoot,
-    dev_task_id: devTaskId,
-    verify_task_id: verifyTaskId,
-    repair_number: repairNumber,
-    file: targetRelativePath,
-    next_action: `send ${targetPath} back to the same verifier for ${verifyTaskId}`,
+    const targetRelativePath = path.join("agents", verifyTaskId, `recheck-${repairNumber}-brief.md`);
+    const targetPath = path.join(runRoot, targetRelativePath);
+    if (await pathExists(targetPath)) throw new Error(`recheck brief already exists: ${targetPath}`);
+
+    const slice = state.slices?.[devTaskId];
+    if (!slice) throw new Error(`continuation conflict: slice ${devTaskId} is missing`);
+    if (slice.verify_task_id !== verifyTaskId) throw new Error(`verification task ${verifyTaskId} does not belong to slice ${devTaskId}`);
+    const chain = slice.failure_key ? state.failure_chains?.[slice.failure_key] : null;
+    if (!chain) throw new Error(`failure chain is missing for slice ${devTaskId}`);
+    if (slice.status !== "repairing" || chain.status !== "attempt_pending") {
+      throw new Error(`recheck is not allowed while slice/chain is ${slice.status}/${chain.status}`);
+    }
+    if (Number(chain.attempts_in_epoch || 0) !== repairNumber) {
+      throw new Error(`recheck must match the latest repair attempt ${chain.attempts_in_epoch}`);
+    }
+    const expectedRepairResultPath = path.join(runRoot, "agents", devTaskId, `repair-${repairNumber}-result.md`);
+    if (path.resolve(repairResultPath) !== path.resolve(expectedRepairResultPath)) {
+      throw new Error(`recheck requires the current repair result: ${expectedRepairResultPath}`);
+    }
+
+    const events = await readFailureEvents(runRoot);
+    const attempt = [...events].reverse().find((event) => event.event === "attempt_created"
+      && event.failure_key === chain.failure_key
+      && Number(event.epoch) === Number(chain.epoch)
+      && Number(event.attempt_in_epoch) === repairNumber);
+    if (!attempt) throw new Error(`failure ledger conflict: repair attempt ${repairNumber} is missing`);
+    const outputFileStateDigest = await currentOwnedFileDigest(state, slice);
+    let hasConcreteOwnedFile = false;
+    for (const owned of slice.owned || []) {
+      const target = path.isAbsolute(owned) ? owned : path.resolve(state.project_root || state.workspace_root, owned);
+      try {
+        const stat = await fs.stat(target);
+        if (stat.isFile()) { hasConcreteOwnedFile = true; break; }
+      } catch {
+        // Some legacy ownership entries name modules rather than concrete files.
+      }
+    }
+    if (hasConcreteOwnedFile && outputFileStateDigest === attempt.input_file_state_digest) {
+      throw new Error("recheck rejected because repair left the owned-file state unchanged");
+    }
+
+    const ids = { devTaskId, verifyTaskId, repairNumber, repairResultPath };
+    const recheckBrief = buildRecheckBrief(runRoot, ids, repairResultText);
+    const nextLedgerText = updateLedgerForRecheck(ledgerText, ids);
+    const event = {
+      schema: "codex-long-task-failure-event/v1",
+      event: "repair_submitted",
+      at: new Date().toISOString(),
+      run_id: state.run_id,
+      dev_task_id: devTaskId,
+      verify_task_id: verifyTaskId,
+      slice_key: slice.slice_key,
+      failure_key: chain.failure_key,
+      attempt_key: attempt.attempt_key,
+      epoch: chain.epoch,
+      attempt_in_epoch: repairNumber,
+      input_file_state_digest: attempt.input_file_state_digest,
+      output_file_state_digest: outputFileStateDigest,
+      owned_files_changed: outputFileStateDigest !== attempt.input_file_state_digest,
+      repair_result: repairResultPath,
+      result: "pending_recheck",
+    };
+    chain.status = "verifying";
+    chain.updated_at = new Date().toISOString();
+    slice.status = "verifying";
+    slice.updated_at = new Date().toISOString();
+    state.active_slice = devTaskId;
+    state.active_failure = chain.failure_key;
+    state.phase = "recheck_ready";
+    state.next_action = `send ${targetPath} back to the same verifier for ${verifyTaskId}`;
+    const result = {
+      ok: true,
+      dry_run: options.dryRun === true,
+      run_root: runRoot,
+      dev_task_id: devTaskId,
+      verify_task_id: verifyTaskId,
+      repair_number: repairNumber,
+      epoch: chain.epoch,
+      file: targetRelativePath,
+      next_action: state.next_action,
+    };
+
+    if (options.dryRun === true) return { ...result, ledger_changed: nextLedgerText !== ledgerText };
+    await persistState(runRoot, "create-recheck", state, [
+      { relativePath: targetRelativePath, content: recheckBrief },
+      { relativePath: "03-task-ledger.md", content: nextLedgerText },
+      { relativePath: FAILURE_LEDGER_FILE, content: renderFailureEvents([...events, event]) },
+    ]);
+    return result;
   };
 
-  if (options.dryRun === true) return {
-    ...result,
-    ledger_changed: nextLedgerText !== ledgerText,
-  };
-
-  await fs.mkdir(path.dirname(targetPath), { recursive: true });
-  await fs.writeFile(targetPath, recheckBrief, "utf8");
-  await fs.writeFile(ledgerPath, nextLedgerText, "utf8");
-  return result;
+  if (options.dryRun === true) return execute();
+  return withRunLock(runRoot, execute);
 }
 
 function isCliEntry() {

@@ -19,6 +19,7 @@ async function createVerifyingRun({ recheckStatus = "pass" } = {}) {
   const workspaceRoot = await fs.mkdtemp(path.join(os.tmpdir(), "codex-long-task-close-"));
   const run = await createLongTaskRun({
     workspaceRoot,
+    projectRoot: workspaceRoot,
     project: "demo",
     task: "Demo close slice",
     slug: "demo-close",
@@ -31,7 +32,7 @@ async function createVerifyingRun({ recheckStatus = "pass" } = {}) {
     acceptance: ["preference changes are persisted"],
   });
   await fs.writeFile(path.join(run.run_root, "agents", "T03", "dev-result.md"), "# Development Result\n\nChanged preferences.\n", "utf8");
-  await fs.writeFile(path.join(run.run_root, "agents", "T04", "verify-result.md"), "# Verification Result\n\n## Status\n\nfail\n", "utf8");
+  await fs.writeFile(path.join(run.run_root, "agents", "T04", "verify-result.md"), "# Verification Result\n\nstatus: fail\nfailure_signature: preference-state-not-persisted\nfailed_acceptance: preference changes are persisted\n", "utf8");
   await createRepair({
     runRoot: run.run_root,
     verifyResult: path.join(run.run_root, "agents", "T04", "verify-result.md"),
@@ -42,7 +43,7 @@ async function createVerifyingRun({ recheckStatus = "pass" } = {}) {
     runRoot: run.run_root,
     repairResult: path.join(run.run_root, "agents", "T03", "repair-1-result.md"),
   });
-  await fs.writeFile(path.join(run.run_root, "agents", "T04", "recheck-1-result.md"), `# Verification Result\n\n## Status\n\n${recheckStatus}\n`, "utf8");
+  await fs.writeFile(path.join(run.run_root, "agents", "T04", "recheck-1-result.md"), `# Verification Result\n\nstatus: ${recheckStatus}\nfailure_signature: preference-state-not-persisted\nfailed_acceptance: preference changes are persisted\n`, "utf8");
   return run;
 }
 

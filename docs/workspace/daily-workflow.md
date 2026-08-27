@@ -139,23 +139,29 @@ browser surface.
 
 ## Long Task
 
-Escalate to a run-directory workflow when the task spans multiple slices, needs
-handoff state, or enters repeated repair loops. Keep ordinary tasks on the
-short-task path above.
-
-Escalate from the short-task path when any of these apply: multiple slices,
-cross-repo or broad cross-module work, more than two continuation/recovery
-turns, worker repair is needed, or verification failure starts a repair loop.
+Initialize a run before the first applicable boundary: two or more expected
+implementation slices, the first cross-agent handoff, the first verification
+failure that needs repair, or a task known to continue beyond the current turn.
+These are mandatory triggers, not a judgment about whether chat still feels
+manageable.
 
 ```bash
 node docs/workspace/codex-long-task.mjs init --project <name> --task "<goal>"
 node docs/workspace/codex-long-task.mjs append --run-root <run-root> --scope "<slice>"
+node docs/workspace/codex-long-task.mjs checkpoint --run-root <run-root> --phase <phase> --next-action "<next>"
+node docs/workspace/codex-long-task.mjs status --run-root <run-root>
+node docs/workspace/codex-long-task.mjs resume --project <name>
 node docs/workspace/codex-long-task.mjs repair --run-root <run-root> --verify-result <path>
 node docs/workspace/codex-long-task.mjs recheck --run-root <run-root> --repair-result <path>
 node docs/workspace/codex-long-task.mjs close --run-root <run-root> --result <path>
+node docs/workspace/codex-long-task.mjs reopen --run-root <run-root> --evidence-fact "<new fact>" --evidence-file <path> --hypothesis "<new hypothesis>" --approach "<new approach>"
+node docs/workspace/codex-long-task.mjs finalize --run-root <run-root>
 ```
 
-Use a Route Lock before handoffs. Keep long logs in the run directory.
+Checkpoint after every slice result, verification failure, handoff, and before
+ending a turn. Use a Route Lock before handoffs and keep long logs in the run.
+Each failure epoch allows exactly 3 repairs; only new evidence, hypothesis, and
+approach open epoch two. Six failed attempts require a new user decision.
 
 ## Hygiene
 

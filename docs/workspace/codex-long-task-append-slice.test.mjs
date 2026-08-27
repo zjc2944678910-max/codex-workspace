@@ -11,6 +11,7 @@ async function createRun() {
   const workspaceRoot = await fs.mkdtemp(path.join(os.tmpdir(), "codex-long-task-slice-"));
   const run = await createLongTaskRun({
     workspaceRoot,
+    projectRoot: workspaceRoot,
     project: "demo",
     task: "Demo append slice",
     slug: "demo-append",
@@ -71,6 +72,8 @@ test("appendSlice writes dev and verify briefs and updates the ledger", async ()
   assert.match(verifyBrief, new RegExp(`${run.run_root.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&")}/agents/T03/dev-result\\.md`, "u"));
   assert.match(verifyBrief, /Decisions:/u);
   assert.match(verifyBrief, /evidence_pointers:/u);
+  assert.match(verifyBrief, /failure_signature:/u);
+  assert.match(verifyBrief, /failed_acceptance:/u);
 });
 
 test("appendSlice dry run does not write files or mutate the ledger", async () => {

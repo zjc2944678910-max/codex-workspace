@@ -53,6 +53,18 @@ the registry entry script-friendly.
 - `reports/`
 - `runbooks/`
 
+## OPS Promotion Gate
+
+A long-task candidate is not an OPS fact until review confirms:
+
+- verification evidence and verification time;
+- a concrete reason the fact remains valid across later tasks;
+- ownership by this project's current Route Lock;
+- a recheck condition and residual risk.
+
+Keep candidates in the run's `10-ops-promotion-candidates.md`. Do not copy
+running failures, raw logs, hypotheses, or temporary state into this surface.
+
 ## Subdirectories
 
 - `manifests/`: tracked operator manifests and inventory notes

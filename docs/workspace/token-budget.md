@@ -14,12 +14,13 @@ context, tooling, and delegation a task deserves.
 Codex CLI profile v2 loads these from `$CODEX_HOME/<profile>.config.toml`
 for example `$CODEX_HOME/fast.config.toml`, not from inline `[profiles.*]`
 blocks in this repo's `.codex/config.toml`. The tracked workspace config keeps
-the broad default context window (`1000000`) and auto-compact limit (`900000`);
-the profile files lower the budget for day-to-day use:
+the broad default context window (`1000000`) and auto-compact limit (`252000`).
+Long-task continuity lives on disk, so raising the compact threshold is not the
+recovery mechanism. The profile files lower the budget for day-to-day use:
 
 - `fast`: low reasoning, compact at `180000`
-- `standard`: high reasoning, compact at `300000`
-- `audit`: xhigh reasoning, compact at `450000`
+- `standard`: high reasoning, compact at `200000`
+- `audit`: xhigh reasoning, compact at `220000`
 
 CLI examples:
 
@@ -68,7 +69,8 @@ Only paste long excerpts when the exact text is the evidence under review.
 
 ## Decision Reuse
 
-- Long tasks store reusable facts in `05-decisions.md`.
+- Long tasks store reusable facts in `05-decisions.md`, current continuation in
+  `08-continuation.json`, and failed approaches in `09-failure-ledger.jsonl`.
 - Workspace-level durable decisions belong in
   `docs/decisions/workspace-decisions.md`.
 - Project routing, common commands, and stable architecture facts belong in the

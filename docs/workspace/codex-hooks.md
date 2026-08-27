@@ -20,8 +20,8 @@ commands, but they are not a complete security sandbox.
 
 | Event | Purpose | Behavior |
 | --- | --- | --- |
-| `SessionStart` | Load workspace rules | Adds compact context that this root is a workspace index, not a product repo. |
-| `UserPromptSubmit` | Route by prompt | Adds compact registry-derived route/risk hints and warns on shared live aliases such as `oc-nas`. |
+| `SessionStart` | Load workspace rules | Adds compact workspace context and read-only reminders for up to three active long-task runs. |
+| `UserPromptSubmit` | Route by prompt | Adds registry-derived route/risk hints and up to three matching active-run reminders. |
 | `PreToolUse` | Command guard | Blocks destructive local commands and L3-looking live mutations unless the repair gate is open, while allowing read-only inspection commands that merely mention blocked strings. |
 | `PermissionRequest` | Approval guard | Denies dangerous approval requests if approval prompts are enabled in a future profile. |
 | `PostToolUse` | Hygiene check | Runs workspace hygiene after file edits and only warns when policy-relevant issues appear. |
@@ -63,6 +63,14 @@ The project ops README remains the human-facing routing record. Shared live
 aliases should stay explicit in both places.
 `repo-hygiene.mjs` reports `project_route_metadata_mismatches` when registry
 fields drift from the matching ops README.
+
+## Long-Task Recovery Reminders
+
+`SessionStart` and `UserPromptSubmit` read the active-run indexes beneath
+project `state_data` directories. A reminder includes the run and its recorded
+next action, is capped at three relevant runs, and omits closed runs. Hooks do
+not create a run, checkpoint, repair a transaction, change an index, or write
+OPS; the CLI remains the source of truth for recovery and conflict handling.
 
 ## Command Policy
 

@@ -17,6 +17,7 @@ from typing import Any
 WORKSPACE_ROOT = Path("/Users/zhangjincheng/Documents/GitHub/codex-workspace")
 STATE_PATH = Path.home() / ".codex" / "state" / "codex-workspace-hooks.json"
 PROJECT_REGISTRY_PATH = WORKSPACE_ROOT / "docs" / "workspace" / "project-registry.json"
+LONG_TASK_STATE_ROOT = WORKSPACE_ROOT / "state" / "project-data"
 REPAIR_PHRASE = "进入修复阶段"
 REPAIR_AUTH_SCOPE = "task"
 
@@ -288,6 +289,7 @@ def route_hint_records() -> list[dict[str, str | list[str]]]:
         records.append(
             {
                 "project": name,
+                "slug": str(project.get("slug") or "").strip(),
                 "keywords": normalize_keywords(project),
                 "surface": project_surface_text(project),
                 "risk": risk_message_for_project(project),
@@ -349,12 +351,68 @@ def repair_auth_active(payload: dict[str, Any]) -> bool:
 
 
 def workspace_context() -> str:
-    return (
+    base = (
         "Workspace guardrails: codex-workspace is a workspace index, not a default product repo. "
         "For substantive work state level/rationale/strategy, and route only from explicit project/path/service evidence. "
         "OpenClaw/NAS/live/production is L2 read-only; L3 state changes require "
         f"{REPAIR_PHRASE!r}. Use Route Lock for long tasks."
     )
+    reminder = long_task_reminder()
+    return f"{base} {reminder}" if reminder else base
+
+
+def read_active_long_task_runs() -> list[dict[str, Any]]:
+    """Read lightweight indexes only; hooks never create or mutate long-task state."""
+    runs: list[dict[str, Any]] = []
+    try:
+        index_paths = sorted(LONG_TASK_STATE_ROOT.glob("*/codex-long-tasks/index.json"))
+    except Exception:
+        return []
+    for index_path in index_paths:
+        try:
+            raw = json.loads(index_path.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        indexed_runs = raw.get("runs") if isinstance(raw, dict) else None
+        if not isinstance(indexed_runs, list):
+            continue
+        for item in indexed_runs:
+            if not isinstance(item, dict):
+                continue
+            if item.get("status") not in {"active", "blocked", "needs_user_decision"}:
+                continue
+            runs.append(item)
+    return sorted(runs, key=lambda item: str(item.get("updated_at") or ""), reverse=True)
+
+
+def long_task_reminder(prompt: str | None = None, matches: list[dict[str, Any]] | None = None) -> str:
+    runs = read_active_long_task_runs()
+    if prompt is not None:
+        route_matches = matching_routes(prompt) if matches is None else matches
+        project_names = {
+            str(value).strip().lower()
+            for route in route_matches
+            for value in (route.get("project"), route.get("slug"))
+            if isinstance(value, str) and value.strip()
+        }
+        lowered = prompt.lower()
+        if "workspace" in lowered or "shared" in lowered or "工作库" in lowered:
+            project_names.update({"workspace", "shared", "codex-workspace"})
+        runs = [
+            item for item in runs
+            if str(item.get("project") or "").strip().lower() in project_names
+        ]
+    selected = runs[:3]
+    if not selected:
+        return ""
+    summaries = []
+    for item in selected:
+        project = str(item.get("project") or "shared").strip()
+        status = str(item.get("status") or "active").strip()
+        run_root = str(item.get("run_root") or "").strip()
+        next_action = str(item.get("next_action") or "inspect with codex-long-task resume").strip()
+        summaries.append(f"{project} [{status}] {run_root} -> {next_action}")
+    return "Active long-task reminder (read-only index): " + " | ".join(summaries)
 
 
 def matching_routes(prompt: str) -> list[dict[str, str]]:
@@ -414,6 +472,10 @@ def prompt_context(payload: dict[str, Any]) -> str:
 
     if ambiguity:
         parts.append(ambiguity)
+
+    reminder = long_task_reminder(prompt, matches)
+    if reminder:
+        parts.append(reminder)
 
     if any(term in lowered for term in (" live ", " production ", " prod ", " ssh ", " systemctl ", " restart ", " deploy ", " rollback ", " oc-nas ")):
         parts.append(

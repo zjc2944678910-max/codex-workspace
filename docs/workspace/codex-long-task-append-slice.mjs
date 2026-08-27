@@ -5,6 +5,17 @@ import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 
+import {
+  assertRouteLockUnchanged,
+  assertRunCanMutate,
+  buildSliceKey,
+  loadContinuation,
+  persistState,
+  readProjectIndex,
+  recoverPendingTransaction,
+  withRunLock,
+} from "./codex-long-task-state.mjs";
+
 function parseArgs(argv = []) {
   const options = {
     runRoot: "",
@@ -258,6 +269,8 @@ result: ${runPath("agents", verifyTaskId, "verify-result.md")}
 status: pass | fail | blocked
 tests_run: <commands or checks actually run>
 evidence_pointers: <path:line finding list>
+failure_signature: <stable normalized failure identity; required when status is fail>
+failed_acceptance: <exact failed acceptance criterion; repeat this line when more than one fails>
 risks: <residual risks or empty>
 followups: <optional next steps or empty>
 `;
@@ -278,39 +291,118 @@ followups: <optional next steps or empty>
 
 async function appendSlice(options = {}) {
   const runRoot = normalizeRunRoot(options.runRoot);
-  const ledgerPath = path.join(runRoot, "03-task-ledger.md");
-  const ledgerText = await readRequiredFile(ledgerPath, "task ledger");
-  const taskIds = resolveTaskIds(ledgerText, options);
-  const slice = buildSliceFiles(runRoot, options, taskIds);
+  const execute = async () => {
+    if (options.dryRun !== true) await recoverPendingTransaction(runRoot);
+    const loaded = await loadContinuation(runRoot, { persistLegacy: options.dryRun !== true });
+    const state = structuredClone(loaded.state);
+    if (!options._reopen) assertRunCanMutate(state, "append");
+    await assertRouteLockUnchanged(state);
 
-  const targetFiles = [...slice.files.keys()].map((relativePath) => path.join(runRoot, relativePath));
-  const existingFiles = [];
-  for (const targetPath of targetFiles) {
-    if (await pathExists(targetPath)) existingFiles.push(targetPath);
-  }
-  if (existingFiles.length > 0) throw new Error(`target files already exist: ${existingFiles.join(", ")}`);
+    if (!options._reopen && state.run_status === "blocked") {
+      throw new Error("run is blocked; use reopen with new evidence, hypothesis, and approach");
+    }
+    const ledgerPath = path.join(runRoot, "03-task-ledger.md");
+    const ledgerText = await readRequiredFile(ledgerPath, "task ledger");
+    const taskIds = resolveTaskIds(ledgerText, options);
+    const slice = buildSliceFiles(runRoot, options, taskIds);
+    const sliceKey = buildSliceKey({
+      projectRoot: state.project_root,
+      workspaceRoot: state.workspace_root,
+      scope: options.scope,
+      owned: options.owned,
+      acceptance: options.acceptance,
+    });
 
-  const result = {
-    ok: true,
-    dry_run: options.dryRun === true,
-    run_root: runRoot,
-    dev_task_id: taskIds.devTaskId,
-    verify_task_id: taskIds.verifyTaskId,
-    files: [...slice.files.keys()],
-    ledger_rows: slice.ledgerRows,
-    next_action: `send ${path.join(runRoot, "agents", taskIds.devTaskId, "dev-brief.md")} to ${options.devAgent || "model_worker_delegate"}${(options.devAgent || "model_worker_delegate") === "model_worker_delegate" ? " (model worker)" : ""}`,
+    const targetFiles = [...slice.files.keys()].map((relativePath) => path.join(runRoot, relativePath));
+    const existingFiles = [];
+    for (const targetPath of targetFiles) {
+      if (await pathExists(targetPath)) existingFiles.push(targetPath);
+    }
+    if (existingFiles.length > 0) throw new Error(`target files already exist: ${existingFiles.join(", ")}`);
+
+    const prior = state.active_slice ? state.slices?.[state.active_slice] : null;
+    if (!options._reopen && prior && !["verified", "done", "deferred", "superseded"].includes(prior.status)) {
+      throw new Error(`active slice ${prior.dev_task_id} is ${prior.status}; close or checkpoint it before append`);
+    }
+    const localDuplicate = Object.values(state.slices || {}).find((item) => item.slice_key === sliceKey);
+    if (localDuplicate && !options._reopen) {
+      throw new Error(`duplicate slice rejected: ${localDuplicate.dev_task_id} has the same normalized scope, ownership, and acceptance`);
+    }
+    if (!options._reopen) {
+      const { index } = await readProjectIndex({
+        workspaceRoot: state.workspace_root,
+        project: state.project,
+        shared: state.shared,
+      });
+      const crossRun = index.runs.find((record) => record.run_root !== runRoot
+        && (record.slices || []).some((item) => item.slice_key === sliceKey && !["verified", "done", "deferred", "superseded"].includes(item.status)));
+      if (crossRun) throw new Error(`duplicate unresolved slice exists in another run: ${crossRun.run_root}`);
+    }
+
+    const nextAction = `send ${path.join(runRoot, "agents", taskIds.devTaskId, "dev-brief.md")} to ${options.devAgent || "model_worker_delegate"}${(options.devAgent || "model_worker_delegate") === "model_worker_delegate" ? " (model worker)" : ""}`;
+    const epoch = options._reopen ? 2 : 1;
+    const sliceState = {
+      dev_task_id: taskIds.devTaskId,
+      verify_task_id: taskIds.verifyTaskId,
+      slice_key: sliceKey,
+      scope: String(options.scope || "").trim(),
+      owned: [...(options.owned || [])],
+      acceptance: [...(options.acceptance || [])],
+      epoch,
+      status: "pending",
+      predecessor_slice: options._reopen?.predecessorSlice || null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    state.slices[taskIds.devTaskId] = sliceState;
+    state.active_slice = taskIds.devTaskId;
+    state.run_status = "active";
+    state.phase = options._reopen ? "reopened_slice_ready" : "slice_ready";
+    state.next_action = nextAction;
+
+    if (options._reopen) {
+      const chain = state.failure_chains?.[options._reopen.failureKey];
+      if (!chain) throw new Error(`reopen failure chain not found: ${options._reopen.failureKey}`);
+      chain.epoch = 2;
+      chain.attempts_in_epoch = 0;
+      chain.status = "open";
+      chain.successor_slice = taskIds.devTaskId;
+      chain.evidence_facts = [...new Set([...(chain.evidence_facts || []), ...options._reopen.evidenceFacts])].sort();
+      chain.evidence_files = [...new Set([...(chain.evidence_files || []), ...options._reopen.evidenceFiles.map((item) => item.path)])].sort();
+      chain.evidence_digests = [...new Set([...(chain.evidence_digests || []), ...options._reopen.evidenceFiles.map((item) => item.digest)])].sort();
+      chain.hypotheses = [...new Set([...(chain.hypotheses || []), options._reopen.hypothesis])].sort();
+      chain.approaches = [...new Set([...(chain.approaches || []), options._reopen.approach])].sort();
+      chain.updated_at = new Date().toISOString();
+      sliceState.failure_key = chain.failure_key;
+      state.active_failure = chain.failure_key;
+      const predecessor = state.slices[options._reopen.predecessorSlice];
+      if (predecessor) predecessor.status = "superseded";
+    }
+
+    const nextLedgerText = `${ledgerText.trimEnd()}\n${slice.ledgerRows.join("\n")}\n`;
+    const result = {
+      ok: true,
+      dry_run: options.dryRun === true,
+      run_root: runRoot,
+      dev_task_id: taskIds.devTaskId,
+      verify_task_id: taskIds.verifyTaskId,
+      slice_key: sliceKey,
+      epoch,
+      files: [...slice.files.keys()],
+      ledger_rows: slice.ledgerRows,
+      next_action: nextAction,
+    };
+    if (options.dryRun === true) return result;
+
+    await persistState(runRoot, options._reopen ? "reopen-slice" : "append-slice", state, [
+      ...[...slice.files.entries()].map(([relativePath, content]) => ({ relativePath, content })),
+      { relativePath: "03-task-ledger.md", content: nextLedgerText },
+    ]);
+    return result;
   };
 
-  if (options.dryRun === true) return result;
-
-  for (const [relativePath, content] of slice.files.entries()) {
-    const targetPath = path.join(runRoot, relativePath);
-    await fs.mkdir(path.dirname(targetPath), { recursive: true });
-    await fs.writeFile(targetPath, content, "utf8");
-  }
-  const nextLedgerText = `${ledgerText.trimEnd()}\n${slice.ledgerRows.join("\n")}\n`;
-  await fs.writeFile(ledgerPath, nextLedgerText, "utf8");
-  return result;
+  if (options.dryRun === true || options._lockHeld === true) return execute();
+  return withRunLock(runRoot, execute);
 }
 
 function isCliEntry() {

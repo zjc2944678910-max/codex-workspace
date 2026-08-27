@@ -19,6 +19,7 @@ async function createRepairReadyRun() {
   const workspaceRoot = await fs.mkdtemp(path.join(os.tmpdir(), "codex-long-task-recheck-"));
   const run = await createLongTaskRun({
     workspaceRoot,
+    projectRoot: workspaceRoot,
     project: "demo",
     task: "Demo recheck loop",
     slug: "demo-recheck",
@@ -31,7 +32,7 @@ async function createRepairReadyRun() {
     acceptance: ["preference changes are persisted"],
   });
   await fs.writeFile(path.join(run.run_root, "agents", "T03", "dev-result.md"), "# Development Result\n\nChanged preferences.\n", "utf8");
-  await fs.writeFile(path.join(run.run_root, "agents", "T04", "verify-result.md"), "# Verification Result\n\nfail\n", "utf8");
+  await fs.writeFile(path.join(run.run_root, "agents", "T04", "verify-result.md"), "# Verification Result\n\nstatus: fail\nfailure_signature: preference-state-not-persisted\nfailed_acceptance: preference changes are persisted\n", "utf8");
   await createRepair({
     runRoot: run.run_root,
     verifyResult: path.join(run.run_root, "agents", "T04", "verify-result.md"),

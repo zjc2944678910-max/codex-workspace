@@ -94,8 +94,9 @@ Task shape decides which workflow to use.
   acceptance criteria are already explicit, and there is no risky surface.
 - Use the ordinary short-task workflow when the fast path does not apply but the
   work still fits in one focused slice.
-- Escalate to long-task run directories when work spans multiple slices, needs
-  handoff state, has repeated repair, or risks losing durable context.
+- Initialize a long-task run before two or more expected implementation slices,
+  the first cross-agent handoff, the first verification failure that needs
+  repair, or a task known to continue beyond the current turn.
 - Use the full mapper -> review -> worker -> verifier chain only when
   independent passes materially reduce risk.
 
@@ -121,10 +122,16 @@ Memory keeps work resumable and prevents the chat from becoming the system of
 record.
 
 - Put long-task state in the run directory created by
-  `docs/workspace/codex-long-task.mjs`.
+  `docs/workspace/codex-long-task.mjs`; `08-continuation.json` is the compact
+  continuation and `09-failure-ledger.jsonl` is the stable failure history.
+- Keep the active-run index under the routed project's `state_data` path; use
+  `state/project-data/workspace/codex-long-tasks/index.json` for shared runs.
+- Hooks may read that index and remind about at most three relevant runs. They
+  do not create runs, checkpoint, change state, or write OPS.
 - Store reusable decisions in `05-decisions.md` for long tasks.
-- Store stable project routing, commands, and architecture facts in the matching
-  `ops/projects/<project>/README.md`.
+- Store OPS promotion proposals in `10-ops-promotion-candidates.md`. Promote a
+  fact only after explicit review confirms it is verified, cross-task durable,
+  inside the Route Lock, evidence-backed, and paired with a recheck condition.
 - Store cleanup, audit, or hygiene evidence in project reports, manifests, or
   run directories as appropriate.
 - Keep temporary outputs under `scratch/` or approved project state paths, not

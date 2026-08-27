@@ -1,23 +1,29 @@
 # Codex Long Task Runbook
 
-Use this when chat-only memory would get messy or a task no longer fits the
-short-task workflow in `daily-workflow.md`. Policy gates live in `AGENTS.md`;
-this file only describes the run-directory workflow.
+Use this for durable long-task state that survives handoffs, interruptions, and
+context compaction. Policy gates live in `AGENTS.md`; this file describes the
+run-directory workflow.
 
 ## When To Use
 
-Use a long-task run for multi-step local engineering, broad debugging,
-map/review/implement/verify work, or tasks likely to need repair loops.
+Initialize a run before the first applicable boundary:
+
+- the task is expected to need two or more implementation slices;
+- the first cross-agent handoff is about to occur;
+- the first verification failure needs a repair;
+- the task is known to continue beyond the current turn.
+
+These triggers are mandatory even when the current chat context still looks
+large enough.
 
 Do not use this to bypass L2/L3 gates. Choose the target project from explicit
 user evidence first; do not default `--project` to any registered project.
 
 ## When To Escalate From Daily Workflow
 
-Stay on the short-task path for ordinary local work. Start a run directory when
-the task needs multiple implementation slices, spans repos or broad modules,
-needs more than two continuation/recovery turns, requires worker repair, or a
-verification failure starts a repair loop.
+Stay on the short-task path only while none of the mandatory triggers above
+applies. If a trigger appears mid-task, initialize before the handoff, repair,
+second slice, or turn boundary rather than reconstructing state afterward.
 
 Before creating the run, confirm the route and risk level. Live, NAS, OpenClaw,
 deploy, auth, secrets, and config-heavy work still follows `AGENTS.md`; a run
@@ -58,10 +64,19 @@ node docs/workspace/codex-long-task.mjs init \
 The init command creates:
 
 - state docs: `00-request.md` through `07-agent-registry.md`
+- compact continuation: `08-continuation.json`
+- append-only failure history: `09-failure-ledger.jsonl`
+- run-local OPS proposals: `10-ops-promotion-candidates.md`
 - first handoff briefs: `agents/T01/mapper-brief.md`,
   `agents/T02/review-brief.md`
 - reusable templates: `brief-templates/dev-brief.md`,
   `verify-brief.md`, `repair-brief.md`
+
+Project runs are registered below the project's registry `state_data` path.
+Shared runs use
+`state/project-data/workspace/codex-long-tasks/index.json`. The index keeps
+active state and failure-chain identity across runs so creating a new run does
+not reset the retry budget.
 
 Before any handoff, fill the Route Lock in `01-confirmed-context.md`:
 `target_project`, `target_surface`, `project_root`, `route_evidence`,
@@ -90,7 +105,9 @@ Update:
    is broad, repetitive, cross-module, or likely to need repair.
 5. Verify locally for known-scope slices; use `verifier` when reproduction,
    regression confidence, or independent validation is worth the extra context.
-6. Update ledger, decisions, and `06-final-summary.md` as state changes.
+6. Update ledger and decisions as state changes.
+7. Run `checkpoint` after every slice result, verification failure, handoff,
+   and before ending a turn.
 
 All agent briefs should request compact results: conclusion, changed files,
 commands run, key outcomes, evidence pointers, risks, and followups only. Keep
@@ -129,6 +146,38 @@ This creates `agents/Txx/dev-brief.md`, `agents/Tyy/verify-brief.md`, and
 appends both ledger rows. The default development executor remains
 `model_worker_delegate`.
 
+## Checkpoint And Resume
+
+Record the compact continuation:
+
+```bash
+node docs/workspace/codex-long-task.mjs checkpoint \
+  --run-root <run-root> \
+  --phase verification \
+  --active-slice T03 \
+  --next-action "Run the focused verifier" \
+  --evidence-file <run-root>/agents/T03/dev-result.md
+```
+
+Inspect or resume:
+
+```bash
+node docs/workspace/codex-long-task.mjs status --run-root <run-root>
+node docs/workspace/codex-long-task.mjs resume --project sample-product
+node docs/workspace/codex-long-task.mjs resume --run-root <run-root>
+```
+
+`resume --project` auto-selects only when exactly one active run exists. With
+multiple active runs, pass `--run-root`. Corrupt state, an unfinished
+transaction, or Route Lock drift returns an explicit conflict rather than
+guessing. Old markdown-only runs can be inspected without modification; the
+first later write lazily creates the new state files.
+
+The OpenAI compact-response reference defines the compacted response output,
+but does not document a guarantee that a local custom hook fires at compaction.
+Therefore the run state is authoritative and hook reminders are supplementary.
+See the [OpenAI compact response reference](https://developers.openai.com/api/reference/java/resources/responses/methods/compact).
+
 ## Repair Loop
 
 Default loop:
@@ -137,13 +186,21 @@ Default loop:
 Codex verifier/review finding -> worker repair brief -> Codex recheck
 ```
 
+Verifier failure results must include stable fields. Timestamps, log ordering,
+case-only changes, and whitespace must not change their identity:
+
+```text
+failure_signature: <stable normalized failure identity>
+failed_acceptance: <exact failed acceptance criterion>
+```
+
 If verification fails:
 
 1. Generate a focused repair brief with the exact failing evidence.
 2. Send it back to `model_worker_delegate`, preferably the same worker/thread.
 3. Send the repair result back to the same verifier when resumable.
-4. Stop after 3 failed repair attempts and mark the slice `blocked` or
-   `deferred`.
+4. Stop after exactly 3 failed repair attempts in epoch one and mark the run
+   `blocked`.
 
 Generate a repair brief:
 
@@ -151,7 +208,9 @@ Generate a repair brief:
 node docs/workspace/codex-long-task.mjs repair \
   --run-root <run-root> \
   --verify-result <run-root>/agents/T04/verify-result.md \
-  --expected "focused tests pass"
+  --expected "focused tests pass" \
+  --hypothesis "the persisted write is skipped" \
+  --approach "repair the persistence boundary"
 ```
 
 Codex may direct-patch only when a bypass reason from `AGENTS.md` applies. If
@@ -173,6 +232,28 @@ node docs/workspace/codex-long-task.mjs close \
   --result <run-root>/agents/T04/recheck-1-result.md
 ```
 
+`--max-repairs` remains parseable for old callers but only accepts `3`.
+`--repair-number` must equal the next sequential attempt. Reusing the same
+failure, hypothesis, approach, owned paths, or unchanged owned-file state is
+rejected.
+
+After the first three failures, epoch two can open only with all of: a new
+normalized fact, a new evidence file inside the Route Lock whose content is
+new, a new hypothesis, and a new approach:
+
+```bash
+node docs/workspace/codex-long-task.mjs reopen \
+  --run-root <run-root> \
+  --evidence-fact "the write races with shutdown" \
+  --evidence-file <run-root>/evidence/new-race-proof.txt \
+  --hypothesis "shutdown cancels the final write" \
+  --approach "serialize shutdown after persistence"
+```
+
+Epoch two also has exactly 3 attempts. If all fail, the run becomes
+`needs_user_decision`; the same slice cannot append or repair until the user
+sets a new target.
+
 ## Ledger Statuses
 
 Use:
@@ -190,8 +271,32 @@ Use:
 - `deferred`
 - `done`
 
-## Finalize
+## OPS Candidates And Finalize
 
-At the end, update `06-final-summary.md` with the outcome, changed files,
+OPS promotion has four gates: verified, useful across tasks, owned by the
+current Route Lock project, and backed by evidence plus a recheck condition.
+Running failures, raw logs, and temporary state never qualify.
+
+```bash
+node docs/workspace/codex-long-task.mjs ops-candidate \
+  --run-root <run-root> \
+  --type runbook \
+  --target ops/projects/sample-product/runbooks/persistence.md \
+  --fact "shutdown waits for the final persistence write" \
+  --evidence-file <run-root>/agents/T04/recheck-1-result.md \
+  --verified-at 2026-08-27T12:00:00+08:00 \
+  --durability-basis "the invariant is enforced by the shared shutdown path" \
+  --recheck-condition "recheck after shutdown or persistence changes" \
+  --residual-risk "platform-specific cancellation remains untested"
+
+node docs/workspace/codex-long-task.mjs finalize --run-root <run-root>
+```
+
+Allowed targets are the project README, reports, runbooks, architecture docs,
+or deployment ledger. Both commands only update the run-local
+`10-ops-promotion-candidates.md` and final summary. Codex must review a
+candidate before explicitly editing OPS.
+
+At the end, keep `06-final-summary.md` focused on outcome, changed files,
 verification, residual risks, and next steps. Keep detailed logs in the run
 directory, not the parent conversation.

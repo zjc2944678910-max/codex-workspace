@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -35,6 +35,77 @@ test("session hook injects workspace routing context", () => {
   assert.equal(output.hookSpecificOutput.hookEventName, "SessionStart");
   assert.match(output.hookSpecificOutput.additionalContext, /workspace index/u);
   assert.match(output.hookSpecificOutput.additionalContext, /L3 state changes/u);
+});
+
+test("session and prompt reminders read at most three relevant active runs without writing state or OPS", () => {
+  const tempRoot = mkdtempSync(path.join(tmpdir(), "codex-workspace-hook-long-task-"));
+  try {
+    const registryPath = path.join(tempRoot, "docs", "workspace", "project-registry.json");
+    const indexPath = path.join(tempRoot, "state", "project-data", "demo", "codex-long-tasks", "index.json");
+    const opsPath = path.join(tempRoot, "ops", "projects", "demo", "README.md");
+    mkdirSync(path.dirname(registryPath), { recursive: true });
+    mkdirSync(path.dirname(indexPath), { recursive: true });
+    mkdirSync(path.dirname(opsPath), { recursive: true });
+    writeFileSync(registryPath, `${JSON.stringify({ projects: [{
+      slug: "demo",
+      name: "Demo Project",
+      routing_keywords: ["demo"],
+      ops_surface: "ops/projects/demo",
+      state_data: "state/project-data/demo",
+      risk_profile: "local",
+    }] })}\n`);
+    writeFileSync(indexPath, `${JSON.stringify({
+      schema: "codex-long-task-index/v1",
+      runs: [
+        { project: "demo", status: "active", run_root: "/tmp/run-1", next_action: "step one", updated_at: "2026-08-27T12:05:00Z" },
+        { project: "demo", status: "blocked", run_root: "/tmp/run-2", next_action: "add new evidence", updated_at: "2026-08-27T12:04:00Z" },
+        { project: "demo", status: "needs_user_decision", run_root: "/tmp/run-3", next_action: "wait for user", updated_at: "2026-08-27T12:03:00Z" },
+        { project: "demo", status: "active", run_root: "/tmp/run-4", next_action: "older step", updated_at: "2026-08-27T12:02:00Z" },
+        { project: "demo", status: "completed", run_root: "/tmp/run-closed", next_action: "none", updated_at: "2026-08-27T12:06:00Z" },
+      ],
+    })}\n`);
+    writeFileSync(opsPath, "# Demo OPS\n");
+    const indexBefore = readFileSync(indexPath, "utf8");
+    const opsBefore = readFileSync(opsPath, "utf8");
+    const python = `
+import importlib.util
+import json
+import pathlib
+
+script = pathlib.Path(${JSON.stringify(hookScript)})
+spec = importlib.util.spec_from_file_location("workspace_guard", script)
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+
+module.WORKSPACE_ROOT = pathlib.Path(${JSON.stringify(tempRoot)})
+module.PROJECT_REGISTRY_PATH = pathlib.Path(${JSON.stringify(registryPath)})
+module.LONG_TASK_STATE_ROOT = pathlib.Path(${JSON.stringify(path.join(tempRoot, "state", "project-data"))})
+print(json.dumps({
+    "session": module.workspace_context(),
+    "prompt": module.prompt_context({"prompt": "continue demo long task"}),
+}))
+`;
+    const result = spawnSync("python3", ["-c", python], {
+      cwd: repoRoot,
+      env: { ...process.env, PYTHONDONTWRITEBYTECODE: "1" },
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    if (result.status !== 0) throw new Error((result.stderr || result.stdout).trim());
+    const output = JSON.parse(result.stdout);
+    for (const reminder of [output.session, output.prompt]) {
+      assert.match(reminder, /run-1/u);
+      assert.match(reminder, /run-2/u);
+      assert.match(reminder, /run-3/u);
+      assert.doesNotMatch(reminder, /run-4/u);
+      assert.doesNotMatch(reminder, /run-closed/u);
+      assert.match(reminder, /step one/u);
+    }
+    assert.equal(readFileSync(indexPath, "utf8"), indexBefore);
+    assert.equal(readFileSync(opsPath, "utf8"), opsBefore);
+  } finally {
+    rmSync(tempRoot, { recursive: true, force: true });
+  }
 });
 
 test("configured hook command resolves workspace script from nested git cwd", () => {

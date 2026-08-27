@@ -9,6 +9,20 @@ import { closeSlice, parseArgs as parseCloseArgs } from "./codex-long-task-close
 import { createLongTaskRun, parseArgs as parseInitArgs } from "./codex-long-task-init.mjs";
 import { createRecheck, parseArgs as parseRecheckArgs } from "./codex-long-task-recheck.mjs";
 import { createRepair, parseArgs as parseRepairArgs } from "./codex-long-task-repair.mjs";
+import {
+  addOpsCandidate,
+  checkpointLongTask,
+  finalizeLongTask,
+  parseCheckpointArgs,
+  parseFinalizeArgs,
+  parseOpsCandidateArgs,
+  parseReopenArgs,
+  parseResumeArgs,
+  parseStatusArgs,
+  reopenLongTask,
+  resumeLongTask,
+  statusLongTasks,
+} from "./codex-long-task-state-commands.mjs";
 
 const COMMANDS = new Map([
   ["init", { parse: parseInitArgs, run: createLongTaskRun }],
@@ -18,6 +32,12 @@ const COMMANDS = new Map([
   ["recheck", { parse: parseRecheckArgs, run: createRecheck }],
   ["close", { parse: parseCloseArgs, run: closeSlice }],
   ["close-slice", { parse: parseCloseArgs, run: closeSlice }],
+  ["status", { parse: parseStatusArgs, run: statusLongTasks }],
+  ["resume", { parse: parseResumeArgs, run: resumeLongTask }],
+  ["checkpoint", { parse: parseCheckpointArgs, run: checkpointLongTask }],
+  ["reopen", { parse: parseReopenArgs, run: reopenLongTask }],
+  ["ops-candidate", { parse: parseOpsCandidateArgs, run: addOpsCandidate }],
+  ["finalize", { parse: parseFinalizeArgs, run: finalizeLongTask }],
 ]);
 
 function printHelp() {
@@ -30,6 +50,12 @@ Commands:
   repair        Generate a repair brief after verification fails.
   recheck       Generate a verifier recheck brief after repair.
   close         Close a slice from verify/recheck result status.
+  status        List indexed active long-task runs or inspect one run.
+  resume        Recover a run from disk and print its next action.
+  checkpoint    Persist the current phase, evidence pointers, and next action.
+  reopen        Open the second and final repair epoch with genuinely new evidence.
+  ops-candidate Record a verified, run-local candidate for later OPS promotion.
+  finalize      Finalize run state without writing OPS.
 
 Examples:
   node docs/workspace/codex-long-task.mjs init --project sample-product --task "Implement feature flag sync"
@@ -37,6 +63,8 @@ Examples:
   node docs/workspace/codex-long-task.mjs repair --run-root <run-root> --verify-result <run-root>/agents/T04/verify-result.md
   node docs/workspace/codex-long-task.mjs recheck --run-root <run-root> --repair-result <run-root>/agents/T03/repair-1-result.md
   node docs/workspace/codex-long-task.mjs close --run-root <run-root> --result <run-root>/agents/T04/recheck-1-result.md
+  node docs/workspace/codex-long-task.mjs checkpoint --run-root <run-root> --phase implementing --next-action "run focused tests"
+  node docs/workspace/codex-long-task.mjs resume --run-root <run-root>
 `);
 }
 

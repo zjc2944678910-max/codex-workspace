@@ -273,13 +273,28 @@ read-only evidence packet to Claude Code Opus 5 for hypotheses or review,
 upgrading to Fable 5 only when the review is exceptionally difficult, then
 decides and applies the fix locally.
 
-Use long-task state only when chat memory would become messy.
+Long-task state is mandatory before the first boundary when any of these apply:
+
+- the task is expected to need two or more implementation slices;
+- the first cross-agent handoff is about to occur;
+- the first verification failure needs a repair;
+- the task is known to continue beyond the current turn.
+
+Use `node docs/workspace/codex-long-task.mjs init` before that boundary. Write a
+`checkpoint` after every slice result, verification failure, handoff, and before
+ending a turn. Resume from `08-continuation.json`, `09-failure-ledger.jsonl`,
+and the project long-task index instead of reconstructing state from chat.
 
 - Canonical runbook: `docs/workspace/codex-long-task-runbook.md`
 - CLI: `node docs/workspace/codex-long-task.mjs`
-- Keep repair loops to 3 attempts per slice before `blocked` or `deferred`.
-- Reconstruct continuation state from git status, recent outputs, relevant
-  files, and run directories after interruption or compaction.
+- A failure chain gets 3 repair attempts in epoch one. `reopen` may create one
+  successor epoch only with a new evidence fact backed by a new in-route file,
+  a new hypothesis, and a new approach.
+- A second set of 3 failed repairs sets `needs_user_decision`; do not append or
+  continue the same slice until the user sets a new target.
+- Running failures, raw logs, and temporary state remain in the run. Only
+  verified, cross-task-stable, in-route facts with evidence and a recheck
+  condition may become `ops-candidate` entries; `finalize` never edits OPS.
 
 ## Output And Closeout
 

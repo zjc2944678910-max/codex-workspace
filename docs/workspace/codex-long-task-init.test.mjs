@@ -60,6 +60,9 @@ test("createLongTaskRun writes the expected file protocol", async () => {
   assert.equal(result.ok, true);
   assert.equal(result.files.includes("00-request.md"), true);
   assert.equal(result.files.includes("07-agent-registry.md"), true);
+  assert.equal(result.files.includes("08-continuation.json"), true);
+  assert.equal(result.files.includes("09-failure-ledger.jsonl"), true);
+  assert.equal(result.files.includes("10-ops-promotion-candidates.md"), true);
   assert.equal(result.files.includes(path.join("agents", "T01", "mapper-brief.md")), true);
   assert.equal(result.files.includes(path.join("agents", "T02", "review-brief.md")), true);
   assert.equal(result.files.includes(path.join("brief-templates", "dev-brief.md")), true);
@@ -77,7 +80,11 @@ test("createLongTaskRun writes the expected file protocol", async () => {
   const devTemplate = await fs.readFile(path.join(result.run_root, "brief-templates", "dev-brief.md"), "utf8");
   const verifyTemplate = await fs.readFile(path.join(result.run_root, "brief-templates", "verify-brief.md"), "utf8");
   const repairTemplate = await fs.readFile(path.join(result.run_root, "brief-templates", "repair-brief.md"), "utf8");
+  const continuation = JSON.parse(await fs.readFile(path.join(result.run_root, "08-continuation.json"), "utf8"));
+  const candidates = await fs.readFile(path.join(result.run_root, "10-ops-promotion-candidates.md"), "utf8");
   assert.match(request, /Implement remembered preference sync/u);
+  assert.equal(continuation.run_status, "active");
+  assert.match(candidates, /never updates OPS by itself/u);
   assert.match(context, /## Route Lock/u);
   assert.match(context, /target_project: sample-product/u);
   assert.match(context, new RegExp(`target_surface: ${path.join(workspaceRoot, "projects", "products", "sample-product").replace(/[.*+?^${}()|[\]\\]/gu, "\\$&")}`, "u"));

@@ -18,6 +18,7 @@ async function createFailedRun() {
   const workspaceRoot = await fs.mkdtemp(path.join(os.tmpdir(), "codex-long-task-repair-"));
   const run = await createLongTaskRun({
     workspaceRoot,
+    projectRoot: workspaceRoot,
     project: "demo",
     task: "Demo repair loop",
     slug: "demo-repair",
@@ -30,7 +31,7 @@ async function createFailedRun() {
     acceptance: ["preference changes are persisted"],
   });
   await fs.writeFile(path.join(run.run_root, "agents", "T03", "dev-result.md"), "# Development Result\n\nChanged preferences.\n", "utf8");
-  await fs.writeFile(path.join(run.run_root, "agents", "T04", "verify-result.md"), "# Verification Result\n\n## Status\n\nfail\n\n## Failing Evidence\n\nExpected persisted state.\n", "utf8");
+  await fs.writeFile(path.join(run.run_root, "agents", "T04", "verify-result.md"), "# Verification Result\n\nstatus: fail\nfailure_signature: preference-state-not-persisted\nfailed_acceptance: preference changes are persisted\n\n## Failing Evidence\n\nExpected persisted state.\n", "utf8");
   return run;
 }
 
@@ -116,4 +117,18 @@ test("createRepair respects the repair limit", async () => {
     runRoot: run.run_root,
     verifyTaskId: "T04",
   }), /repair limit exceeded/u);
+});
+
+test("createRepair keeps legacy parameters but fixes the limit and sequence", async () => {
+  const run = await createFailedRun();
+  await assert.rejects(createRepair({
+    runRoot: run.run_root,
+    verifyTaskId: "T04",
+    repairNumber: 2,
+  }), /expected 1, got 2/u);
+  await assert.rejects(createRepair({
+    runRoot: run.run_root,
+    verifyTaskId: "T04",
+    maxRepairs: 4,
+  }), /fixed at 3/u);
 });
