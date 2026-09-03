@@ -8,6 +8,16 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 
 import { buildRepoHygieneSummary } from "./repo-hygiene.mjs";
+import {
+  loadLocalGitNexusMetadata,
+  renderMocProjectSection,
+  renderProjectSurfacesProjectSection,
+} from "./codex-register-project.mjs";
+import {
+  discoverRunRoots,
+  inspectRunDirectory,
+  loadRunIndexRecords,
+} from "./codex-run-retention.mjs";
 import { buildWorkspaceDiskReport } from "./workspace-disk-report.mjs";
 
 const DEFAULT_LIMIT = 8;
@@ -274,6 +284,219 @@ async function readTextIfExists(filePath) {
   }
 }
 
+async function pathExists(targetPath) {
+  try {
+    await fs.access(targetPath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function readJsonIfExists(filePath) {
+  const text = await readTextIfExists(filePath);
+  return text ? JSON.parse(text) : null;
+}
+
+function terminalNextAction(value = "") {
+  const text = String(value || "").trim().toLowerCase();
+  return /\bno further action\b/u.test(text)
+    || /\bnothing further\b/u.test(text)
+    || /\bimplementation complete\b/u.test(text)
+    || /\bwork complete\b/u.test(text)
+    || /^(?:none|done)(?:[.;:]|$)/u.test(text)
+    || /(?:无需|不需|没有|无)后续/u.test(text);
+}
+
+function isLongTaskCompletionCandidate(run = {}) {
+  const indexActionable = ["active", "blocked", "needs_user_decision"].includes(run.index_status);
+  const stateFinal = ["completed", "deferred"].includes(run.status);
+  if (indexActionable && stateFinal) return true;
+  if (run.status !== "active" || run.protected !== true) return false;
+  if (String(run.phase || "").includes("awaiting") || String(run.phase || "").includes("blocked")) return false;
+  return terminalNextAction(run.next_action)
+    || /(?:^|_)(?:accepted|completed|finalized)(?:_|$)/u.test(String(run.phase || ""));
+}
+
+async function findLongTaskCompletionCandidates(repo) {
+  const candidates = [];
+  const indexRecords = await loadRunIndexRecords(repo);
+  for (const runRoot of await discoverRunRoots(repo)) {
+    let entries = [];
+    try {
+      entries = await fs.readdir(runRoot, { withFileTypes: true });
+    } catch (error) {
+      if (error?.code === "ENOENT") continue;
+      throw error;
+    }
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue;
+      const run = await inspectRunDirectory(runRoot, entry.name, {
+        indexRecords: indexRecords.by_run_root,
+        requireIndex: true,
+      });
+      if (!isLongTaskCompletionCandidate(run)) continue;
+      const indexConflict = ["active", "blocked", "needs_user_decision"].includes(run.index_status)
+        && ["completed", "deferred"].includes(run.status);
+      candidates.push({
+        path: path.relative(repo, path.join(runRoot, entry.name)).replace(/\\/gu, "/"),
+        status: run.status,
+        phase: run.phase,
+        index_status: run.index_status,
+        index_phase: run.index_phase,
+        index_path: run.index_path ? path.relative(repo, run.index_path).replace(/\\/gu, "/") : "",
+        next_action: run.next_action,
+        candidate_type: indexConflict ? `finalize_${run.status}` : "terminal_phase_or_next_action",
+        confidence: indexConflict ? "high" : "medium",
+        reason: indexConflict
+          ? "long-task index is actionable while continuation state is terminal"
+          : "active run has an explicit terminal phase or next action",
+      });
+    }
+  }
+  return candidates.sort((left, right) => left.path.localeCompare(right.path));
+}
+
+function extractGeneratedSection(content = "", startMarker = "", endMarker = "") {
+  const lines = String(content || "").replace(/\r\n/gu, "\n").split("\n");
+  const starts = lines.flatMap((line, index) => line === startMarker ? [index] : []);
+  const ends = lines.flatMap((line, index) => line === endMarker ? [index] : []);
+  const valid = starts.length === 1 && ends.length === 1 && ends[0] > starts[0];
+  return {
+    valid,
+    start_count: starts.length,
+    end_count: ends.length,
+    lines: valid ? lines.slice(starts[0] + 1, ends[0]) : [],
+  };
+}
+
+function lineCount(lines = [], expected = "") {
+  return lines.reduce((total, line) => total + (line === expected ? 1 : 0), 0);
+}
+
+async function findProjectDocumentationMismatches(repo) {
+  const registry = await readJsonIfExists(path.join(repo, "docs", "workspace", "project-registry.json"));
+  if (!registry || !Array.isArray(registry.projects)) return [];
+  const [moc, surfaces, metadata] = await Promise.all([
+    readTextIfExists(path.join(repo, "MOC.md")),
+    readTextIfExists(path.join(repo, "docs", "workspace", "project-surfaces.md")),
+    loadLocalGitNexusMetadata(repo, registry),
+  ]);
+  const mismatches = [];
+  const specifications = [
+    {
+      document: "MOC.md",
+      content: moc,
+      start_marker: "<!-- BEGIN GENERATED PROJECT LINKS -->",
+      end_marker: "<!-- END GENERATED PROJECT LINKS -->",
+      expected: renderMocProjectSection(registry),
+    },
+    {
+      document: "docs/workspace/project-surfaces.md",
+      content: surfaces,
+      start_marker: "<!-- BEGIN GENERATED PROJECT SURFACES -->",
+      end_marker: "<!-- END GENERATED PROJECT SURFACES -->",
+      expected: renderProjectSurfacesProjectSection(registry, metadata),
+    },
+  ];
+  const sections = new Map();
+  for (const specification of specifications) {
+    const section = extractGeneratedSection(
+      specification.content,
+      specification.start_marker,
+      specification.end_marker,
+    );
+    sections.set(specification.document, section);
+    if (section.valid) continue;
+    mismatches.push({
+      project: "(workspace)",
+      document: specification.document,
+      field: "generated_section_markers",
+      expected: `one ordered ${specification.start_marker} ... ${specification.end_marker} section`,
+      actual: `start markers ${section.start_count}; end markers ${section.end_count}`,
+    });
+  }
+
+  for (const project of registry.projects) {
+    const slug = String(project.slug || "").trim();
+    const expectedMocLine = renderMocProjectSection({ projects: [project] });
+    const mocSection = sections.get("MOC.md");
+    const mocOccurrences = mocSection?.valid ? lineCount(mocSection.lines, expectedMocLine) : 0;
+    if (mocSection?.valid && mocOccurrences !== 1) {
+      mismatches.push({
+        project: slug,
+        document: "MOC.md",
+        field: "generated_project_line",
+        expected: expectedMocLine,
+        actual: mocOccurrences === 0 ? "missing" : `duplicate (${mocOccurrences})`,
+      });
+    }
+
+    const expectedSurfaceLine = renderProjectSurfacesProjectSection({ projects: [project] }, metadata)
+      .split("\n")
+      .at(-1);
+    const surfaceSection = sections.get("docs/workspace/project-surfaces.md");
+    const surfaceOccurrences = surfaceSection?.valid ? lineCount(surfaceSection.lines, expectedSurfaceLine) : 0;
+    if (surfaceSection?.valid && surfaceOccurrences !== 1) {
+      const opsSurface = String(project.ops_surface || `ops/projects/${slug}`).trim();
+      const actualLine = surfaceSection.lines.find((line) => line.startsWith("|") && line.includes(`\`${opsSurface}\``));
+      mismatches.push({
+        project: slug,
+        document: "docs/workspace/project-surfaces.md",
+        field: "generated_project_line",
+        expected: expectedSurfaceLine,
+        actual: surfaceOccurrences > 1 ? `duplicate (${surfaceOccurrences})` : actualLine || "missing",
+      });
+    }
+  }
+  for (const specification of specifications) {
+    const section = sections.get(specification.document);
+    if (!section?.valid || section.lines.join("\n") === specification.expected) continue;
+    const hasProjectMismatch = mismatches.some((entry) => (
+      entry.document === specification.document && entry.field === "generated_project_line"
+    ));
+    if (hasProjectMismatch) continue;
+    const expectedLines = specification.expected ? specification.expected.split("\n").length : 0;
+    mismatches.push({
+      project: "(workspace)",
+      document: specification.document,
+      field: "generated_section_content",
+      expected: `${expectedLines} ordered registry-derived lines`,
+      actual: `${section.lines.length} lines with extra, missing, or ordering drift`,
+    });
+  }
+  return mismatches.sort((left, right) => {
+    const projectOrder = left.project.localeCompare(right.project);
+    return projectOrder || left.document.localeCompare(right.document) || left.field.localeCompare(right.field);
+  });
+}
+
+async function buildWorkspaceGovernanceSummary(options = {}) {
+  const repo = path.resolve(options.repo || process.cwd());
+  const missingActiveRetentionPaths = [];
+  for (const fileName of ["scratch-retention.json", "state-retention.json"]) {
+    const manifest = await readJsonIfExists(path.join(repo, "docs", "workspace", fileName));
+    for (const entry of (manifest?.entries || [])) {
+      const relativePath = String(entry.path || "").replace(/\\/gu, "/");
+      if (entry.active !== true || !relativePath || await pathExists(path.join(repo, relativePath))) continue;
+      missingActiveRetentionPaths.push({
+        path: relativePath,
+        manifest: `docs/workspace/${fileName}`,
+        project: entry.project || null,
+        disposition: entry.disposition || "",
+        reason: "active retention entry points to a missing path",
+      });
+    }
+  }
+  missingActiveRetentionPaths.sort((left, right) => left.path.localeCompare(right.path));
+
+  return {
+    missing_active_retention_paths: missingActiveRetentionPaths,
+    long_task_completion_candidates: await findLongTaskCompletionCandidates(repo),
+    project_documentation_mismatches: await findProjectDocumentationMismatches(repo),
+  };
+}
+
 function parseTomlStringValue(text = "", key = "") {
   const escapedKey = String(key).replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
   const match = text.match(new RegExp(`^\\s*${escapedKey}\\s*=\\s*"([^"]*)"`, "mu"));
@@ -384,7 +607,7 @@ async function buildCodexWorkflowSummary(options = {}) {
   };
 }
 
-function overallStatus(hygiene = {}, disk = {}, codexWorkflow = {}, nestedGit = {}) {
+function overallStatus(hygiene = {}, disk = {}, codexWorkflow = {}, nestedGit = {}, governance = {}) {
   const structuralIssues = hygiene.git_clean !== true
     || count(hygiene.unregistered_project_surfaces) > 0
     || count(hygiene.nonexistent_project_references) > 0
@@ -398,7 +621,9 @@ function overallStatus(hygiene = {}, disk = {}, codexWorkflow = {}, nestedGit = 
     || count(codexWorkflow.issues) > 0
     || count(nestedGit.dirty_repos) > 0
     || count(nestedGit.review_dirty_repos) > 0
-    || count(nestedGit.errors) > 0;
+    || count(nestedGit.errors) > 0
+    || count(governance.missing_active_retention_paths) > 0
+    || count(governance.project_documentation_mismatches) > 0;
   return structuralIssues ? "attention" : "ok";
 }
 
@@ -414,13 +639,15 @@ async function buildWorkspaceHealth(options = {}) {
     acknowledgementPath: options.acknowledgementPath,
     now: options.now,
   });
+  const governance = await buildWorkspaceGovernanceSummary({ repo });
   return {
     repo_root: repo,
-    status: overallStatus(hygiene, disk, codexWorkflow, nestedGit),
+    status: overallStatus(hygiene, disk, codexWorkflow, nestedGit, governance),
     hygiene,
     disk,
     codex_workflow: codexWorkflow,
     nested_git: nestedGit,
+    ...governance,
   };
 }
 
@@ -430,7 +657,12 @@ function renderHealthSummary(result = {}) {
   const codexWorkflow = result.codex_workflow || {};
   const nestedGit = result.nested_git || {};
   const notifyOk = codexWorkflow.notify_routes_to_wrapper ?? codexWorkflow.notify_wrapper_only;
-  const status = result.status || overallStatus(hygiene, disk, codexWorkflow, nestedGit);
+  const governance = {
+    missing_active_retention_paths: result.missing_active_retention_paths || [],
+    long_task_completion_candidates: result.long_task_completion_candidates || [],
+    project_documentation_mismatches: result.project_documentation_mismatches || [],
+  };
+  const status = result.status || overallStatus(hygiene, disk, codexWorkflow, nestedGit, governance);
   const garbage = disk.cleanup_buckets?.delete?.[0] || null;
   const lines = [
     `repo_root: ${hygiene.repo_root || result.repo_root || ""}`,
@@ -439,6 +671,9 @@ function renderHealthSummary(result = {}) {
     `unregistered_project_surfaces: ${count(hygiene.unregistered_project_surfaces)}`,
     `nonexistent_project_references: ${count(hygiene.nonexistent_project_references)}`,
     `project_route_metadata_mismatches: ${count(hygiene.project_route_metadata_mismatches)}`,
+    `missing_active_retention_paths: ${count(governance.missing_active_retention_paths)}`,
+    `long_task_completion_candidates: ${count(governance.long_task_completion_candidates)}`,
+    `project_documentation_mismatches: ${count(governance.project_documentation_mismatches)}`,
     `retention_manifest_loaded: ${disk.retention_manifest_loaded ? "yes" : "no"}`,
     `retention_gaps: ${count(disk.retention_gaps)}`,
     `retention_overdue: ${count(disk.retention_overdue)}`,
@@ -492,6 +727,24 @@ function renderHealthSummary(result = {}) {
       lines.push(`- ${overdue.pretty}\t${overdue.path}\tage ${overdue.age_days}d > ${overdue.retention_days}d`);
     }
   }
+  if (count(governance.missing_active_retention_paths) > 0) {
+    lines.push("", "missing_active_retention_path_details:");
+    for (const entry of governance.missing_active_retention_paths) {
+      lines.push(`- ${entry.path}\t${entry.manifest}`);
+    }
+  }
+  if (count(governance.long_task_completion_candidates) > 0) {
+    lines.push("", "long_task_completion_candidate_details:");
+    for (const entry of governance.long_task_completion_candidates) {
+      lines.push(`- ${entry.path}\t${entry.phase || entry.status}`);
+    }
+  }
+  if (count(governance.project_documentation_mismatches) > 0) {
+    lines.push("", "project_documentation_mismatch_details:");
+    for (const entry of governance.project_documentation_mismatches) {
+      lines.push(`- ${entry.project}\t${entry.document}\t${entry.field}: expected ${entry.expected}; actual ${entry.actual}`);
+    }
+  }
   if (count(nestedGit.dirty_repos) > 0) {
     lines.push("", "nested_git_dirty_repos:");
     for (const entry of nestedGit.dirty_repos) {
@@ -543,7 +796,11 @@ if (entryPath === modulePath) {
 export {
   buildNestedGitSummary,
   buildCodexWorkflowSummary,
+  buildWorkspaceGovernanceSummary,
   buildWorkspaceHealth,
+  findLongTaskCompletionCandidates,
+  findProjectDocumentationMismatches,
+  isLongTaskCompletionCandidate,
   overallStatus,
   parseArgs,
   renderHealthSummary,

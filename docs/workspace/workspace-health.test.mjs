@@ -6,9 +6,15 @@ import path from "node:path";
 import test from "node:test";
 
 import {
+  renderMocProjectSection,
+  renderProjectSurfacesProjectSection,
+} from "./codex-register-project.mjs";
+import {
   buildCodexWorkflowSummary,
   buildNestedGitSummary,
+  buildWorkspaceGovernanceSummary,
   buildWorkspaceHealth,
+  findLongTaskCompletionCandidates,
   overallStatus,
   renderHealthSummary,
 } from "./workspace-health.mjs";
@@ -63,6 +69,175 @@ test("overallStatus flags structural issues before cleanup notes", () => {
   assert.equal(overallStatus(hygiene, disk, {}, { dirty_repos: [{ path: "projects/sample" }] }), "attention");
   assert.equal(overallStatus(hygiene, disk, {}, { review_dirty_repos: [{ path: "projects/sample" }] }), "attention");
   assert.equal(overallStatus(hygiene, disk, {}, { acknowledged_dirty_repos: [{ path: "projects/sample" }] }), "ok");
+  assert.equal(overallStatus(hygiene, disk, {}, {}, {
+    long_task_completion_candidates: [{ path: "scratch/shared/codex-runs/done" }],
+  }), "ok");
+  assert.equal(overallStatus(hygiene, disk, {}, {}, {
+    missing_active_retention_paths: [{ path: "scratch/projects/missing" }],
+  }), "attention");
+  assert.equal(overallStatus(hygiene, disk, {}, {}, {
+    project_documentation_mismatches: [{ project: "sample" }],
+  }), "attention");
+});
+
+test("buildWorkspaceGovernanceSummary reports deterministic retention and documentation drift", async () => {
+  const repo = await fs.mkdtemp(path.join(os.tmpdir(), "workspace-governance-health-"));
+  await fs.mkdir(path.join(repo, "docs", "workspace"), { recursive: true });
+  await fs.mkdir(path.join(repo, "scratch", "projects", "present"), { recursive: true });
+  await fs.writeFile(path.join(repo, "docs", "workspace", "scratch-retention.json"), JSON.stringify({
+    entries: [
+      { path: "scratch/projects/missing", project: "missing", active: true, disposition: "retain" },
+      { path: "scratch/projects/present", project: "present", active: true, disposition: "retain" },
+      { path: "scratch/projects/inactive", project: "inactive", active: false, disposition: "archive" },
+    ],
+  }), "utf8");
+  await fs.writeFile(path.join(repo, "docs", "workspace", "state-retention.json"), "{\"entries\":[]}", "utf8");
+  const registry = {
+    projects: [
+      {
+        slug: "alpha",
+        name: "Alpha",
+        ops_surface: "ops/projects/alpha",
+        code_roots: [{ path: "projects/products/alpha", gitnexus_status: "indexed" }],
+        gitnexus_indexed: true,
+      },
+      {
+        slug: "beta",
+        name: "Beta",
+        ops_surface: "ops/projects/beta",
+        code_roots: [{ path: "projects/products/beta", gitnexus_status: "not_indexed" }],
+        gitnexus_indexed: false,
+      },
+    ],
+  };
+  await fs.writeFile(path.join(repo, "docs", "workspace", "project-registry.json"), JSON.stringify(registry), "utf8");
+  await fs.writeFile(path.join(repo, "MOC.md"), [
+    "<!-- BEGIN GENERATED PROJECT LINKS -->",
+    renderMocProjectSection({ projects: [registry.projects[0]] }),
+    "<!-- END GENERATED PROJECT LINKS -->",
+  ].join("\n"), "utf8");
+  const surfaceSection = renderProjectSurfacesProjectSection(registry, {})
+    .replace("`main`: `indexed` (local metadata missing)", "`main`: `not_indexed`");
+  await fs.writeFile(path.join(repo, "docs", "workspace", "project-surfaces.md"), [
+    "<!-- BEGIN GENERATED PROJECT SURFACES -->",
+    surfaceSection,
+    "<!-- END GENERATED PROJECT SURFACES -->",
+  ].join("\n"), "utf8");
+
+  const summary = await buildWorkspaceGovernanceSummary({ repo });
+  assert.deepEqual(summary.missing_active_retention_paths.map((entry) => entry.path), [
+    "scratch/projects/missing",
+  ]);
+  assert.deepEqual(summary.project_documentation_mismatches.map((entry) => [entry.project, entry.field]), [
+    ["alpha", "generated_project_line"],
+    ["beta", "generated_project_line"],
+  ]);
+  assert.deepEqual(summary.long_task_completion_candidates, []);
+});
+
+test("project documentation checks stay inside unique generated marker sections", async () => {
+  const repo = await fs.mkdtemp(path.join(os.tmpdir(), "workspace-governance-doc-boundary-"));
+  await fs.mkdir(path.join(repo, "docs", "workspace"), { recursive: true });
+  const registry = {
+    projects: [{
+      slug: "alpha",
+      name: "Alpha",
+      ops_surface: "ops/projects/alpha",
+      code_roots: [],
+      gitnexus_indexed: false,
+    }],
+  };
+  const mocLine = renderMocProjectSection(registry);
+  const surfaceSection = renderProjectSurfacesProjectSection(registry, {});
+  await fs.writeFile(path.join(repo, "docs", "workspace", "project-registry.json"), JSON.stringify(registry), "utf8");
+  await fs.writeFile(path.join(repo, "docs", "workspace", "scratch-retention.json"), "{\"entries\":[]}", "utf8");
+  await fs.writeFile(path.join(repo, "docs", "workspace", "state-retention.json"), "{\"entries\":[]}", "utf8");
+  await fs.writeFile(path.join(repo, "MOC.md"), [
+    mocLine,
+    "<!-- BEGIN GENERATED PROJECT LINKS -->",
+    "<!-- END GENERATED PROJECT LINKS -->",
+  ].join("\n"), "utf8");
+  await fs.writeFile(path.join(repo, "docs", "workspace", "project-surfaces.md"), [
+    "<!-- BEGIN GENERATED PROJECT SURFACES -->",
+    surfaceSection,
+    surfaceSection.split("\n").at(-1),
+    "<!-- END GENERATED PROJECT SURFACES -->",
+  ].join("\n"), "utf8");
+
+  const summary = await buildWorkspaceGovernanceSummary({ repo });
+  assert.ok(summary.project_documentation_mismatches.some((entry) => (
+    entry.project === "alpha" && entry.document === "MOC.md" && entry.actual === "missing"
+  )));
+  assert.ok(summary.project_documentation_mismatches.some((entry) => (
+    entry.project === "alpha"
+      && entry.document === "docs/workspace/project-surfaces.md"
+      && entry.actual === "duplicate (2)"
+  )));
+
+  await fs.writeFile(path.join(repo, "MOC.md"), [
+    "<!-- BEGIN GENERATED PROJECT LINKS -->",
+    mocLine,
+    "<!-- END GENERATED PROJECT LINKS -->",
+    "<!-- BEGIN GENERATED PROJECT LINKS -->",
+    mocLine,
+    "<!-- END GENERATED PROJECT LINKS -->",
+  ].join("\n"), "utf8");
+  const duplicateMarkers = await buildWorkspaceGovernanceSummary({ repo });
+  assert.ok(duplicateMarkers.project_documentation_mismatches.some((entry) => (
+    entry.document === "MOC.md" && entry.field === "generated_section_markers"
+  )));
+});
+
+test("buildWorkspaceGovernanceSummary finds explicit active-run completion candidates", async () => {
+  const repo = await fs.mkdtemp(path.join(os.tmpdir(), "workspace-governance-runs-"));
+  const runRoot = path.join(repo, "scratch", "projects", "sample", "codex-runs");
+  const acceptedRun = path.join(runRoot, "20260820-0001-accepted");
+  const activeRun = path.join(runRoot, "20260820-0002-active");
+  await fs.mkdir(path.join(repo, "docs", "workspace"), { recursive: true });
+  await fs.mkdir(acceptedRun, { recursive: true });
+  await fs.mkdir(activeRun, { recursive: true });
+  await fs.writeFile(path.join(repo, "docs", "workspace", "scratch-retention.json"), "{\"entries\":[]}", "utf8");
+  await fs.writeFile(path.join(repo, "docs", "workspace", "state-retention.json"), "{\"entries\":[]}", "utf8");
+  await fs.writeFile(path.join(repo, "docs", "workspace", "project-registry.json"), "{\"projects\":[]}", "utf8");
+  await fs.writeFile(path.join(repo, "MOC.md"), [
+    "<!-- BEGIN GENERATED PROJECT LINKS -->",
+    "<!-- END GENERATED PROJECT LINKS -->",
+  ].join("\n"), "utf8");
+  await fs.writeFile(path.join(repo, "docs", "workspace", "project-surfaces.md"), [
+    "<!-- BEGIN GENERATED PROJECT SURFACES -->",
+    "<!-- END GENERATED PROJECT SURFACES -->",
+  ].join("\n"), "utf8");
+  await fs.writeFile(path.join(acceptedRun, "08-continuation.json"), JSON.stringify({
+    run_status: "active",
+    phase: "ci-repair-accepted",
+    next_action: "No further action; replacement run is green.",
+  }), "utf8");
+  await fs.writeFile(path.join(activeRun, "08-continuation.json"), JSON.stringify({
+    run_status: "active",
+    phase: "implementing",
+    next_action: "Run focused tests.",
+  }), "utf8");
+
+  const summary = await buildWorkspaceGovernanceSummary({ repo });
+  assert.deepEqual(summary.long_task_completion_candidates.map((entry) => entry.path), [
+    "scratch/projects/sample/codex-runs/20260820-0001-accepted",
+  ]);
+});
+
+test("long-task completion discovery never reads a codex-runs symlink outside the workspace", async () => {
+  const repo = await fs.mkdtemp(path.join(os.tmpdir(), "workspace-governance-symlink-"));
+  const external = await fs.mkdtemp(path.join(os.tmpdir(), "workspace-external-runs-"));
+  const externalRun = path.join(external, "20260820-escaped");
+  await fs.mkdir(path.join(repo, "scratch", "shared"), { recursive: true });
+  await fs.mkdir(externalRun, { recursive: true });
+  await fs.writeFile(path.join(externalRun, "08-continuation.json"), JSON.stringify({
+    run_status: "active",
+    phase: "implementation_completed",
+    next_action: "No further action.",
+  }), "utf8");
+  await fs.symlink(external, path.join(repo, "scratch", "shared", "codex-runs"));
+
+  assert.deepEqual(await findLongTaskCompletionCandidates(repo), []);
 });
 
 test("buildNestedGitSummary reports dirty project repositories", async () => {
@@ -318,6 +493,9 @@ test("renderHealthSummary gives a compact structure report", () => {
   assert.match(summary, /status: attention/u);
   assert.match(summary, /git_clean: yes/u);
   assert.match(summary, /project_route_metadata_mismatches: 0/u);
+  assert.match(summary, /missing_active_retention_paths: 0/u);
+  assert.match(summary, /long_task_completion_candidates: 0/u);
+  assert.match(summary, /project_documentation_mismatches: 0/u);
   assert.match(summary, /retention_gaps: 0/u);
   assert.match(summary, /retention_overdue: 0/u);
   assert.match(summary, /state_retention_manifest_loaded: yes/u);

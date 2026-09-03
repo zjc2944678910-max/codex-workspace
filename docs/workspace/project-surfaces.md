@@ -7,35 +7,34 @@ Source of truth for scripts: [`project-registry.json`](./project-registry.json).
 
 ## Registered Projects
 
+<!-- BEGIN GENERATED PROJECT SURFACES -->
 | Project | Registered Surface(s) | Working Code Root(s) | Ops Surface | GitNexus |
 | --- | --- | --- | --- | --- |
-| Antigravity MCP | `projects/products/antigravity-mcp` | `projects/products/antigravity-mcp` | `ops/projects/antigravity-mcp` | not indexed |
-| OpenClaw | `projects/products/openclaw`, `projects/migrations/openclaw-mac-migration` | `projects/products/openclaw/nas-openclaw-v22`; `projects/migrations/openclaw-mac-migration` | `ops/projects/openclaw` | mainline indexed; migration not targeted |
-| Paper 001 Research Workbench | `projects/research/paper-001` | `projects/research/paper-001` | `ops/projects/paper-001` | not indexed |
-| Personal AI Companion | `projects/products/personal-ai-companion` | `projects/products/personal-ai-companion` | `ops/projects/personal-ai-companion` | indexed at `aa8fd86` (2026-08-16) |
-| Hotel Management System | `projects/products/hotel-mgmt` | `projects/products/hotel-mgmt` | `ops/projects/hotel-mgmt` | indexed |
-| Love Letter Site | `projects/products/love-letter-site` | `projects/products/love-letter-site` | `ops/projects/love-letter-site` | not indexed |
-| IELTS Vocab Hub | `projects/products/ielts-vocab-hub` | `projects/products/ielts-vocab-hub` | `ops/projects/ielts-vocab-hub` | indexed |
-| NAS Platform | `projects/infrastructure/nas-platform` | `projects/infrastructure/nas-platform` | `ops/projects/nas-platform` | unknown; local path is not a standalone git repo |
-| Pet Clinic Management System | `projects/products/pet-clinic` | `projects/products/pet-clinic` | `ops/projects/pet-clinic` | indexed |
-| Personal Portfolio | `projects/products/personal-portfolio` | `projects/products/personal-portfolio` | `ops/projects/personal-portfolio` | not indexed |
-| Telegram Dual Relay | `projects/infrastructure/telegram-dual-relay` | `projects/infrastructure/telegram-dual-relay` | `ops/projects/telegram-dual-relay` | indexed |
-| SLA-SQL Research | `projects/research/sla-sql` | `projects/research/sla-sql` | `ops/projects/sla-sql` | not indexed |
-| Sub2API | ops-only live service | live source on VPS at `/opt/sub2api-src-fix`; no local tracked code root | `ops/projects/sub2api` | not indexed |
-| Proxy Nodes VPS | ops-only live service | live xray/sing-box on VPS; no local tracked code root | `ops/projects/proxy-nodes` | not indexed |
-| VPS Racknerd Box | ops-only (infra layer) | the racknerd VPS box itself; no code | `ops/projects/vps-racknerd` | not indexed |
-| Cloudflare Edge / DNS | ops-only (infra layer) | CF account + `nodezjc12348888.xyz` zone; no code | `ops/projects/cloudflare-edge` | not indexed |
-| MathorCup-D | `projects/research/mathorcup_D`, `projects/products/MathorCup_D_repo` | `projects/products/MathorCup_D_repo`; `projects/research/mathorcup_D` | `ops/projects/mathorcup-d` | submission repo indexed; research workspace not targeted |
-| Minesweeper Pro | `projects/products/minesweeper` | `projects/products/minesweeper` | `ops/projects/minesweeper` | not indexed |
-| Neon Survivors 2088 | `projects/products/neon-survivors` | `projects/products/neon-survivors` | `ops/projects/neon-survivors` | not indexed |
-| BigData-Spark-Research-Workbench | `projects/research/bigdata-spark-research-workbench` | `projects/research/bigdata-spark-research-workbench` | `ops/projects/bigdata-spark-research-workbench` | indexed |
-| CUMCM-2026-Workbench | `projects/research/cumcm-2026-workbench` | `projects/research/cumcm-2026-workbench` | `ops/projects/cumcm-2026-workbench` | indexed |
-| ClaimFlow | `projects/research/claimflow` | `projects/research/claimflow` | `ops/projects/claimflow` | not indexed |
-| Cosmic Guardian | `projects/products/space-shooter` | `projects/products/space-shooter` | `ops/projects/space-shooter` | not indexed |
-| Tianchi Purchase Redemption | `projects/research/tianchi-purchase-redemption` | `projects/research/tianchi-purchase-redemption` | `ops/projects/tianchi-purchase-redemption` | not indexed |
-
-Legacy GitNexus reference: the old workspace root `-/` remains a legacy-only
-reference after the active code roots above are indexed.
+| Antigravity MCP | `projects/products/antigravity-mcp` | `projects/products/antigravity-mcp` | `ops/projects/antigravity-mcp` | `main`: `not_indexed` |
+| BigData-Spark-Research-Workbench | `projects/research/bigdata-spark-research-workbench` | `projects/research/bigdata-spark-research-workbench` | `ops/projects/bigdata-spark-research-workbench` | `research-workspace`: `indexed` at `b94ab67` (2026-06-22) |
+| ClaimFlow | `projects/research/claimflow` | `projects/research/claimflow` | `ops/projects/claimflow` | `main`: `not_indexed` |
+| Cloudflare Edge / DNS | ops-only | ops-only | `ops/projects/cloudflare-edge` | `not_indexed` |
+| CUMCM-2026-Workbench | `projects/research/cumcm-2026-workbench` | `projects/research/cumcm-2026-workbench` | `ops/projects/cumcm-2026-workbench` | `research-workspace`: `indexed` at `111d7b2` (2026-06-22) |
+| Hotel Management System | `projects/products/hotel-mgmt` | `projects/products/hotel-mgmt` | `ops/projects/hotel-mgmt` | `main`: `indexed` at `d97ae53` (2026-07-04) |
+| IELTS Vocab Hub | `projects/products/ielts-vocab-hub` | `projects/products/ielts-vocab-hub` | `ops/projects/ielts-vocab-hub` | `main`: `indexed` at `aba9c33` (2026-08-15) |
+| Love Letter Site | `projects/products/love-letter-site` | `projects/products/love-letter-site` | `ops/projects/love-letter-site` | `main`: `not_indexed` |
+| MathorCup-D | `projects/research/mathorcup_D`<br>`projects/products/MathorCup_D_repo` | `projects/products/MathorCup_D_repo`<br>`projects/research/mathorcup_D` | `ops/projects/mathorcup-d` | `submission-repo`: `indexed` at `71acb62` (2026-05-11);<br>`research-workspace`: `not_targeted` |
+| Minesweeper Pro | `projects/products/minesweeper` | `projects/products/minesweeper` | `ops/projects/minesweeper` | `main`: `not_indexed` |
+| NAS Platform | `projects/infrastructure/nas-platform` | `projects/infrastructure/nas-platform` | `ops/projects/nas-platform` | `infrastructure-config-root`: `indexed` (2026-07-04) |
+| Neon Survivors 2088 | `projects/products/neon-survivors` | `projects/products/neon-survivors` | `ops/projects/neon-survivors` | `main`: `not_indexed` |
+| OpenClaw | `projects/products/openclaw`<br>`projects/migrations/openclaw-mac-migration` | `projects/products/openclaw/nas-openclaw-v22`<br>`projects/migrations/openclaw-mac-migration` | `ops/projects/openclaw` | `mainline`: `indexed` at `2dfe52f` (2026-06-22);<br>`migration-reference`: `not_targeted` |
+| Paper 001 Research Workbench | `projects/research/paper-001` | `projects/research/paper-001` | `ops/projects/paper-001` | `main`: `not_indexed` |
+| Personal AI Companion | `projects/products/personal-ai-companion` | `projects/products/personal-ai-companion` | `ops/projects/personal-ai-companion` | `main`: `indexed` at `50a067d` (2026-09-02) |
+| Personal Portfolio | `projects/products/personal-portfolio` | `projects/products/personal-portfolio` | `ops/projects/personal-portfolio` | `main`: `not_indexed` |
+| Pet Clinic Management System | `projects/products/pet-clinic` | `projects/products/pet-clinic` | `ops/projects/pet-clinic` | `main`: `indexed` (2026-06-09) |
+| Proxy Nodes VPS | ops-only | ops-only | `ops/projects/proxy-nodes` | `not_indexed` |
+| SLA-SQL Research | `projects/research/sla-sql` | `projects/research/sla-sql` | `ops/projects/sla-sql` | `main`: `not_indexed` |
+| Cosmic Guardian | `projects/products/space-shooter` | `projects/products/space-shooter` | `ops/projects/space-shooter` | `main`: `not_indexed` |
+| Sub2API | ops-only | ops-only | `ops/projects/sub2api` | `not_indexed` |
+| Telegram Dual Relay | `projects/infrastructure/telegram-dual-relay` | `projects/infrastructure/telegram-dual-relay` | `ops/projects/telegram-dual-relay` | `service-repo`: `indexed` at `3245726` (2026-06-22) |
+| Tianchi Purchase Redemption | `projects/research/tianchi-purchase-redemption` | `projects/research/tianchi-purchase-redemption` | `ops/projects/tianchi-purchase-redemption` | `research-workspace`: `not_indexed` |
+| VPS Racknerd Box | ops-only | ops-only | `ops/projects/vps-racknerd` | `not_indexed` |
+<!-- END GENERATED PROJECT SURFACES -->
 
 ## Sibling Workspace (claude-workspace)
 

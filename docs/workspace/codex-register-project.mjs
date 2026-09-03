@@ -224,6 +224,14 @@ function projectsMdPath(repoRoot) {
   return path.join(repoRoot, "PROJECTS.md");
 }
 
+function mocPath(repoRoot) {
+  return path.join(repoRoot, "MOC.md");
+}
+
+function projectSurfacesPath(repoRoot) {
+  return path.join(repoRoot, "docs", "workspace", "project-surfaces.md");
+}
+
 function defaultRepoRoot() {
   return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 }
@@ -510,6 +518,141 @@ function renderProjectsMd(registry = {}, repoRoot = "") {
   return `${lines.join("\n").trimEnd()}\n`;
 }
 
+const MOC_PROJECTS_START = "<!-- BEGIN GENERATED PROJECT LINKS -->";
+const MOC_PROJECTS_END = "<!-- END GENERATED PROJECT LINKS -->";
+const PROJECT_SURFACES_START = "<!-- BEGIN GENERATED PROJECT SURFACES -->";
+const PROJECT_SURFACES_END = "<!-- END GENERATED PROJECT SURFACES -->";
+
+function replaceGeneratedSection(document = "", options = {}) {
+  const heading = String(options.heading || "").trim();
+  const startMarker = String(options.startMarker || "").trim();
+  const endMarker = String(options.endMarker || "").trim();
+  const body = String(options.body || "").trim();
+  const fallbackPrefix = String(options.fallbackPrefix || "").trim();
+  const lines = String(document || "").replace(/\r\n/gu, "\n").split("\n");
+  const generatedLines = [startMarker, ...(body ? body.split("\n") : []), endMarker];
+  const existingStart = lines.indexOf(startMarker);
+  const existingEnd = lines.indexOf(endMarker);
+
+  if (existingStart >= 0 && existingEnd > existingStart) {
+    lines.splice(existingStart, existingEnd - existingStart + 1, ...generatedLines);
+    return `${lines.join("\n").trimEnd()}\n`;
+  }
+
+  const headingIndex = lines.indexOf(heading);
+  if (headingIndex >= 0) {
+    let nextHeading = lines.findIndex((line, index) => index > headingIndex && /^##\s+/u.test(line));
+    if (nextHeading < 0) nextHeading = lines.length;
+    lines.splice(headingIndex + 1, nextHeading - headingIndex - 1, "", ...generatedLines, "");
+    return `${lines.join("\n").trimEnd()}\n`;
+  }
+
+  const prefix = String(document || "").trim() || fallbackPrefix;
+  return `${[prefix, heading, "", ...generatedLines].filter((line, index, all) => line || all[index - 1] !== "").join("\n").trimEnd()}\n`;
+}
+
+function renderMocProjectSection(registry = {}) {
+  const projects = Array.isArray(registry.projects) ? registry.projects : [];
+  return [...projects]
+    .sort((left, right) => String(left.slug).localeCompare(String(right.slug)))
+    .map((project) => {
+      const opsSurface = project.ops_surface || `ops/projects/${project.slug}`;
+      return `- [[${opsSurface}/README|${project.name || project.slug} (${project.slug})]]`;
+    })
+    .join("\n");
+}
+
+function renderMoc(registry = {}, existing = "") {
+  return replaceGeneratedSection(existing, {
+    heading: "## 项目 (ops/projects)",
+    startMarker: MOC_PROJECTS_START,
+    endMarker: MOC_PROJECTS_END,
+    body: renderMocProjectSection(registry),
+    fallbackPrefix: [
+      "# 知识库总览 (MOC)",
+      "",
+      "> Map of Content — codex-workspace 的 Obsidian 图谱中心枢纽。",
+      "> 给人导航用;机器路由真源是 `docs/workspace/project-registry.json`。",
+    ].join("\n"),
+  });
+}
+
+async function loadLocalGitNexusMetadata(repoRoot, registry = {}) {
+  const metadata = {};
+  for (const project of Array.isArray(registry.projects) ? registry.projects : []) {
+    for (const codeRoot of Array.isArray(project.code_roots) ? project.code_roots : []) {
+      const codeRootPath = typeof codeRoot === "string" ? codeRoot : codeRoot?.path;
+      if (!codeRootPath || path.isAbsolute(codeRootPath)) continue;
+      const absoluteRoot = path.resolve(repoRoot, codeRootPath);
+      const relativeRoot = path.relative(repoRoot, absoluteRoot);
+      if (!relativeRoot || relativeRoot === ".." || relativeRoot.startsWith(`..${path.sep}`)) continue;
+      try {
+        metadata[codeRootPath] = JSON.parse(await fs.readFile(path.join(absoluteRoot, ".gitnexus", "meta.json"), "utf8"));
+      } catch (error) {
+        if (!["ENOENT", "ENOTDIR", "EACCES"].includes(error?.code)) throw error;
+      }
+    }
+  }
+  return metadata;
+}
+
+function formatGitNexusStatus(codeRoot = {}, metadata = null) {
+  const status = String(codeRoot?.gitnexus_status || "unknown").trim() || "unknown";
+  const role = String(codeRoot?.role || "main").trim() || "main";
+  if (status !== "indexed") return `${mdCode(role)}: ${mdCode(status)}`;
+  const commit = String(metadata?.lastCommit || "").trim();
+  const indexedDate = String(metadata?.indexedAt || "").slice(0, 10);
+  const details = [commit ? `at ${mdCode(commit.slice(0, 7))}` : "", indexedDate ? `(${indexedDate})` : ""]
+    .filter(Boolean)
+    .join(" ");
+  return `${mdCode(role)}: ${mdCode(status)}${details ? ` ${details}` : " (local metadata missing)"}`;
+}
+
+function renderProjectSurfacesProjectSection(registry = {}, metadata = {}) {
+  const projects = Array.isArray(registry.projects) ? registry.projects : [];
+  const lines = [
+    "| Project | Registered Surface(s) | Working Code Root(s) | Ops Surface | GitNexus |",
+    "| --- | --- | --- | --- | --- |",
+  ];
+  for (const project of [...projects].sort((left, right) => String(left.slug).localeCompare(String(right.slug)))) {
+    const surfaces = Array.isArray(project.surfaces) && project.surfaces.length > 0
+      ? tableCodeValues(project.surfaces)
+      : "ops-only";
+    const codeRoots = Array.isArray(project.code_roots) ? project.code_roots : [];
+    const workingRoots = codeRoots.length > 0
+      ? tableCodeValues(codeRoots.map((entry) => typeof entry === "string" ? entry : entry?.path).filter(Boolean))
+      : "ops-only";
+    const gitnexus = codeRoots.length > 0
+      ? codeRoots.map((entry) => {
+        const normalized = typeof entry === "string" ? { path: entry, role: "main", gitnexus_status: "unknown" } : entry;
+        return formatGitNexusStatus(normalized, metadata[normalized?.path] || null);
+      }).join(";<br>")
+      : mdCode(project.gitnexus_indexed === true ? "indexed" : "not_indexed");
+    lines.push([
+      tableCell(project.name || project.slug),
+      tableCell(surfaces),
+      tableCell(workingRoots),
+      tableCell(mdCode(project.ops_surface || `ops/projects/${project.slug}`)),
+      tableCell(gitnexus),
+    ].join(" | ").replace(/^/u, "| ").replace(/$/u, " |"));
+  }
+  return lines.join("\n");
+}
+
+function renderProjectSurfaces(registry = {}, metadata = {}, existing = "") {
+  return replaceGeneratedSection(existing, {
+    heading: "## Registered Projects",
+    startMarker: PROJECT_SURFACES_START,
+    endMarker: PROJECT_SURFACES_END,
+    body: renderProjectSurfacesProjectSection(registry, metadata),
+    fallbackPrefix: [
+      "# Project Surfaces Summary",
+      "",
+      "Human-readable overview generated from `project-registry.json` and local GitNexus metadata.",
+    ].join("\n"),
+  });
+}
+
 async function createSurfaces(project = {}, paths = {}) {
   for (const codeRoot of paths.code_roots || []) {
     await fs.mkdir(codeRoot, { recursive: true });
@@ -529,7 +672,20 @@ async function createSurfaces(project = {}, paths = {}) {
 }
 
 async function writeProjectsMd(repoRoot, registry) {
-  await fs.writeFile(projectsMdPath(repoRoot), renderProjectsMd(registry, repoRoot), "utf8");
+  const [existingMoc, existingProjectSurfaces, metadata] = await Promise.all([
+    fs.readFile(mocPath(repoRoot), "utf8").catch((error) => error?.code === "ENOENT" ? "" : Promise.reject(error)),
+    fs.readFile(projectSurfacesPath(repoRoot), "utf8").catch((error) => error?.code === "ENOENT" ? "" : Promise.reject(error)),
+    loadLocalGitNexusMetadata(repoRoot, registry),
+  ]);
+  await Promise.all([
+    fs.writeFile(projectsMdPath(repoRoot), renderProjectsMd(registry, repoRoot), "utf8"),
+    fs.writeFile(mocPath(repoRoot), renderMoc(registry, existingMoc), "utf8"),
+    fs.writeFile(
+      projectSurfacesPath(repoRoot),
+      renderProjectSurfaces(registry, metadata, existingProjectSurfaces),
+      "utf8",
+    ),
+  ]);
 }
 
 async function registerProject(repoRoot, options = {}) {
@@ -658,7 +814,7 @@ async function main() {
     return;
   }
   if (result.action === "regen") {
-    process.stdout.write(`Regenerated PROJECTS.md from ${path.relative(repoRoot, registryPath(repoRoot))}.\n`);
+    process.stdout.write(`Regenerated PROJECTS.md, MOC.md, and docs/workspace/project-surfaces.md from ${path.relative(repoRoot, registryPath(repoRoot))}.\n`);
     return;
   }
   process.stdout.write(`Registered project: ${result.project.name} (${result.project.slug})\n`);
@@ -704,7 +860,12 @@ export {
   notifyOpencodeWorkspace,
   parseArgs,
   registerProject,
+  renderMoc,
+  renderMocProjectSection,
   renderOpsReadme,
+  renderProjectSurfaces,
+  renderProjectSurfacesProjectSection,
   renderProjectsMd,
+  loadLocalGitNexusMetadata,
   splitValues,
 };

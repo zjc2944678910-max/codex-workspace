@@ -5,7 +5,19 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
-import { buildProject, notifyAntigravityWorkspace, notifyClaudeLiteWorkspace, notifyClaudeWorkspace, notifyGrokWorkspace, notifyOpencodeWorkspace, parseArgs, renderProjectsMd, splitValues } from "./codex-register-project.mjs";
+import {
+  buildProject,
+  notifyAntigravityWorkspace,
+  notifyClaudeLiteWorkspace,
+  notifyClaudeWorkspace,
+  notifyGrokWorkspace,
+  notifyOpencodeWorkspace,
+  parseArgs,
+  renderMoc,
+  renderProjectSurfacesProjectSection,
+  renderProjectsMd,
+  splitValues,
+} from "./codex-register-project.mjs";
 
 const scriptPath = path.resolve(import.meta.dirname, "codex-register-project.mjs");
 const repoRoot = path.resolve(import.meta.dirname, "..", "..");
@@ -148,6 +160,14 @@ test("register-project creates project surfaces and generated index", async () =
   assert.match(projectsMd, /Sample App/u);
   assert.match(projectsMd, /projects\/products\/sample-app/u);
 
+  const moc = await fs.readFile(path.join(repoRoot, "MOC.md"), "utf8");
+  assert.match(moc, /BEGIN GENERATED PROJECT LINKS/u);
+  assert.match(moc, /ops\/projects\/sample-app\/README\|Sample App \(sample-app\)/u);
+
+  const projectSurfaces = await fs.readFile(path.join(repoRoot, "docs", "workspace", "project-surfaces.md"), "utf8");
+  assert.match(projectSurfaces, /BEGIN GENERATED PROJECT SURFACES/u);
+  assert.match(projectSurfaces, /Sample App/u);
+
   await fs.access(path.join(repoRoot, "projects", "products", "sample-app"));
   await fs.access(path.join(repoRoot, "state", "project-data", "sample-app"));
   await fs.access(path.join(repoRoot, "scratch", "projects", "sample-app"));
@@ -177,6 +197,57 @@ test("register-project regen renders PROJECTS.md from existing registry", async 
   const projectsMd = await fs.readFile(path.join(repoRoot, "PROJECTS.md"), "utf8");
   assert.match(projectsMd, /Ops Only/u);
   assert.match(projectsMd, /`ops-only`/u);
+
+  const moc = await fs.readFile(path.join(repoRoot, "MOC.md"), "utf8");
+  assert.match(moc, /ops\/projects\/ops-only\/README\|Ops Only \(ops-only\)/u);
+
+  const projectSurfaces = await fs.readFile(path.join(repoRoot, "docs", "workspace", "project-surfaces.md"), "utf8");
+  assert.match(projectSurfaces, /\| Ops Only \| ops-only \| ops-only \| `ops\/projects\/ops-only` \| `not_indexed` \|/u);
+});
+
+test("MOC renderer replaces only the generated project section", () => {
+  const rendered = renderMoc({
+    projects: [{ slug: "sample-app", name: "Sample App", ops_surface: "ops/projects/sample-app" }],
+  }, [
+    "# Existing MOC",
+    "",
+    "## 工作区文档",
+    "",
+    "- keep this",
+    "",
+    "## 项目 (ops/projects)",
+    "",
+    "- stale project",
+    "",
+    "## 策略文档(不加双链,避免污染)",
+    "",
+    "- keep policy",
+  ].join("\n"));
+
+  assert.match(rendered, /- keep this/u);
+  assert.match(rendered, /BEGIN GENERATED PROJECT LINKS/u);
+  assert.match(rendered, /Sample App \(sample-app\)/u);
+  assert.doesNotMatch(rendered, /stale project/u);
+  assert.match(rendered, /- keep policy/u);
+});
+
+test("project-surfaces renderer uses registry status and current local metadata", () => {
+  const section = renderProjectSurfacesProjectSection({
+    projects: [{
+      slug: "sample-app",
+      name: "Sample App",
+      surfaces: ["projects/products/sample-app"],
+      code_roots: [{ path: "projects/products/sample-app", role: "main", gitnexus_status: "indexed" }],
+      ops_surface: "ops/projects/sample-app",
+    }],
+  }, {
+    "projects/products/sample-app": {
+      indexedAt: "2026-09-03T01:02:03.000Z",
+      lastCommit: "abcdef0123456789",
+    },
+  });
+
+  assert.match(section, /`main`: `indexed` at `abcdef0` \(2026-09-03\)/u);
 });
 
 test("register-project renderer includes sibling workspace context", () => {

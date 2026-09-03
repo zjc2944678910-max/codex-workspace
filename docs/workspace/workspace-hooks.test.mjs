@@ -287,6 +287,7 @@ spec.loader.exec_module(module)
 
 print(json.dumps({
     "PROJECTS.md": module.is_trackable_path("PROJECTS.md"),
+    "MOC.md": module.is_trackable_path("MOC.md"),
     "DAILY.md": module.is_trackable_path("DAILY.md"),
     "AGENTS.md": module.is_trackable_path("AGENTS.md"),
 }))
@@ -304,6 +305,7 @@ print(json.dumps({
 
   const trackable = JSON.parse(result.stdout);
   assert.equal(trackable["PROJECTS.md"], true);
+  assert.equal(trackable["MOC.md"], true);
   assert.equal(trackable["DAILY.md"], true);
   assert.equal(trackable["AGENTS.md"], true);
 });

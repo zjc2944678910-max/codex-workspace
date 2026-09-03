@@ -44,6 +44,7 @@ test("root hygiene trackable-path gate matches workspace policy", () => {
   assert.equal(isTrackablePath("WORKER.md"), true);
   assert.equal(isTrackablePath("CLAUDE.md"), true);
   assert.equal(isTrackablePath("PROJECTS.md"), true);
+  assert.equal(isTrackablePath("MOC.md"), true);
   assert.equal(isTrackablePath("DAILY.md"), true);
   assert.equal(isTrackablePath(".codex/agents/repo-mapper.toml"), true);
   assert.equal(isTrackablePath(".codex/hooks.json"), true);

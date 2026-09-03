@@ -17,18 +17,32 @@
 
 ## 项目 (ops/projects)
 
-- [[ops/projects/openclaw/README|OpenClaw 网关 (openclaw)]]
-- [[ops/projects/sub2api/README|Sub2API 中转站 (sub2api)]]
-- [[ops/projects/nas-platform/README|NAS 平台 (nas-platform)]]
-- [[ops/projects/telegram-dual-relay/README|Telegram 双中继 (telegram-dual-relay)]]
-- [[ops/projects/vps-racknerd/README|VPS RackNerd (vps-racknerd)]]
-- [[ops/projects/proxy-nodes/README|代理节点 (proxy-nodes)]]
-- [[ops/projects/cloudflare-edge/README|Cloudflare 边缘 (cloudflare-edge)]]
-- [[ops/projects/love-letter-site/README|情书站 (love-letter-site)]]
-- [[ops/projects/mathorcup-d/README|MathorCup D (mathorcup-d)]]
-- [[ops/projects/cumcm-2026-workbench/README|CUMCM 2026 (cumcm-2026-workbench)]]
-- [[ops/projects/bigdata-spark-research-workbench/README|大数据 Spark 研究台]]
-- [[ops/projects/tianchi-purchase-redemption/README|天池申赎 (tianchi-purchase-redemption)]]
+<!-- BEGIN GENERATED PROJECT LINKS -->
+- [[ops/projects/antigravity-mcp/README|Antigravity MCP (antigravity-mcp)]]
+- [[ops/projects/bigdata-spark-research-workbench/README|BigData-Spark-Research-Workbench (bigdata-spark-research-workbench)]]
+- [[ops/projects/claimflow/README|ClaimFlow (claimflow)]]
+- [[ops/projects/cloudflare-edge/README|Cloudflare Edge / DNS (cloudflare-edge)]]
+- [[ops/projects/cumcm-2026-workbench/README|CUMCM-2026-Workbench (cumcm-2026-workbench)]]
+- [[ops/projects/hotel-mgmt/README|Hotel Management System (hotel-mgmt)]]
+- [[ops/projects/ielts-vocab-hub/README|IELTS Vocab Hub (ielts-vocab-hub)]]
+- [[ops/projects/love-letter-site/README|Love Letter Site (love-letter-site)]]
+- [[ops/projects/mathorcup-d/README|MathorCup-D (mathorcup-d)]]
+- [[ops/projects/minesweeper/README|Minesweeper Pro (minesweeper)]]
+- [[ops/projects/nas-platform/README|NAS Platform (nas-platform)]]
+- [[ops/projects/neon-survivors/README|Neon Survivors 2088 (neon-survivors)]]
+- [[ops/projects/openclaw/README|OpenClaw (openclaw)]]
+- [[ops/projects/paper-001/README|Paper 001 Research Workbench (paper-001)]]
+- [[ops/projects/personal-ai-companion/README|Personal AI Companion (personal-ai-companion)]]
+- [[ops/projects/personal-portfolio/README|Personal Portfolio (personal-portfolio)]]
+- [[ops/projects/pet-clinic/README|Pet Clinic Management System (pet-clinic)]]
+- [[ops/projects/proxy-nodes/README|Proxy Nodes VPS (proxy-nodes)]]
+- [[ops/projects/sla-sql/README|SLA-SQL Research (sla-sql)]]
+- [[ops/projects/space-shooter/README|Cosmic Guardian (space-shooter)]]
+- [[ops/projects/sub2api/README|Sub2API (sub2api)]]
+- [[ops/projects/telegram-dual-relay/README|Telegram Dual Relay (telegram-dual-relay)]]
+- [[ops/projects/tianchi-purchase-redemption/README|Tianchi Purchase Redemption (tianchi-purchase-redemption)]]
+- [[ops/projects/vps-racknerd/README|VPS Racknerd Box (vps-racknerd)]]
+<!-- END GENERATED PROJECT LINKS -->
 
 ## 策略文档(不加双链,避免污染)
 

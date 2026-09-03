@@ -93,6 +93,36 @@ function findProjects(registry = {}, query = "", options = {}) {
     .slice(0, limit);
 }
 
+function routeEvidence(project = {}) {
+  return {
+    service_names: asArray(project.service_names),
+    project_paths: [
+      ...codeRootPaths(project),
+      project.ops_surface,
+    ].filter(Boolean),
+  };
+}
+
+function assessRouteAmbiguity(query = "", matches = []) {
+  const normalizedQuery = normalize(query);
+  const topScore = matches[0]?.score || 0;
+  const sharedHostMatches = matches.filter((match) => {
+    if (!topScore || match.score !== topScore) return false;
+    return asArray(match.project?.live_host_aliases)
+      .some((alias) => normalize(alias) === normalizedQuery);
+  });
+  const ambiguous = sharedHostMatches.length > 1;
+  return {
+    ambiguous,
+    ambiguity_reason: ambiguous ? "shared_host_alias_tie" : null,
+    ambiguous_projects: ambiguous ? sharedHostMatches.map((match) => match.project.slug) : [],
+    required_route_evidence: ambiguous ? ["service_name", "project_path"] : [],
+    candidate_route_evidence: ambiguous
+      ? Object.fromEntries(sharedHostMatches.map((match) => [match.project.slug, routeEvidence(match.project)]))
+      : {},
+  };
+}
+
 function riskGate(project = {}) {
   if (project.risk_profile === "live_infra" || project.risk_profile === "live_product") {
     return "L2 read-only first pass; L3 changes require `进入修复阶段`.";
@@ -155,11 +185,27 @@ async function enrichMatches(matches = []) {
   return enriched;
 }
 
-function renderProjectMatches(query = "", matches = []) {
+function renderProjectMatches(query = "", matches = [], route = assessRouteAmbiguity(query, matches)) {
   const lines = [
     `query: ${query}`,
     `matches: ${matches.length}`,
+    `ambiguous: ${route.ambiguous ? "yes" : "no"}`,
   ];
+  if (route.ambiguous) {
+    lines.push(
+      `ambiguity_reason: ${route.ambiguity_reason}`,
+      `required_route_evidence: ${route.required_route_evidence.join(" or ")}`,
+      "candidate_route_evidence:",
+    );
+    for (const slug of route.ambiguous_projects) {
+      const evidence = route.candidate_route_evidence?.[slug] || {};
+      lines.push(
+        `- ${slug}`,
+        `  service_names: ${evidence.service_names?.join(", ") || "-"}`,
+        `  project_paths: ${evidence.project_paths?.join("; ") || "-"}`,
+      );
+    }
+  }
   for (const match of matches) {
     const project = match.project;
     const entrypoints = match.entrypoints || {};
@@ -192,12 +238,14 @@ async function main() {
     return;
   }
   const registry = await loadProjectRegistry();
-  const matches = await enrichMatches(findProjects(registry, options.query, options));
+  const allMatches = findProjects(registry, options.query, { limit: Number.MAX_SAFE_INTEGER });
+  const route = assessRouteAmbiguity(options.query, allMatches);
+  const matches = await enrichMatches(allMatches.slice(0, options.limit));
   if (options.json) {
-    process.stdout.write(`${JSON.stringify({ query: options.query, matches }, null, 2)}\n`);
+    process.stdout.write(`${JSON.stringify({ query: options.query, ...route, matches }, null, 2)}\n`);
     return;
   }
-  process.stdout.write(renderProjectMatches(options.query, matches));
+  process.stdout.write(renderProjectMatches(options.query, matches, route));
 }
 
 const entryPath = process.argv[1] ? path.resolve(process.argv[1]) : "";
@@ -209,6 +257,7 @@ if (entryPath === modulePath) {
 }
 
 export {
+  assessRouteAmbiguity,
   enrichMatches,
   findProjects,
   loadProjectRegistry,

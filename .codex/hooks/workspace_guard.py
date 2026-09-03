@@ -39,6 +39,7 @@ TRACKABLE_EXACT_PATHS = {
     "WORKER.md",
     "CLAUDE.md",
     "PROJECTS.md",
+    "MOC.md",
     "DAILY.md",
     ".gitignore",
     ".codex/config.toml",

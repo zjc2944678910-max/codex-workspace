@@ -23,7 +23,8 @@ Policy: `AGENTS.md`. Worker contract: `WORKER.md`.
 | `gitnexus-refresh.mjs` | Refresh the workspace GitNexus index without regenerating stale agent docs; preserve embeddings and validate metadata against HEAD |
 | `workspace-disk-report.mjs` | Classify disk hotspots before cleanup |
 | `workspace-health.mjs` | Compact health summary for hygiene, disk hotspots, route drift, and Codex workflow drift checks |
-| `codex-run-retention.mjs` | Rotate `scratch/shared/codex-runs` into cleanup archive |
+| `workspace-deep-audit.mjs` | Read-only full disk inventory for generated caches, incomplete downloads, source snapshots, and completed runs |
+| `codex-run-retention.mjs` | Plan or explicitly apply status-aware rotation for shared or project `codex-runs` |
 | `playwright-scratch.sh` | Run Playwright CLI from `scratch/shared/playwright-cli/<label>/` instead of the repo root |
 | `project-registry.json` | Machine-readable workspace project registry and hook routing metadata |
 | `project-surfaces.md` | Human-readable project surfaces and GitNexus status |
@@ -92,10 +93,63 @@ review, not automatic deletion targets. Scratch retention decisions come from
 `retention_gaps: 0` plus `state_retention_gaps: 0`, with unacknowledged
 `nested_git_dirty: 0`.
 
+The compact report also exposes three low-cost governance fields:
+`missing_active_retention_paths`, `long_task_completion_candidates`, and
+`project_documentation_mismatches`. Missing active retention paths and
+deterministic registry/documentation drift affect overall health. Completion
+candidates are advisory only: they identify active runs whose phase or next
+action explicitly looks terminal, but never mark the workspace unhealthy by
+themselves. Here, a missing active retention path means an entry explicitly
+marked `active: true` in a retention manifest whose declared path is absent;
+it does not mean every on-disk path needs its own active entry.
+
 For predictable runtime, size inventory excludes known dependency, build, and
 cache directories. Obvious-garbage sampling also excludes ignored bulk roots
 `archive/`, `scratch/`, and `state/`; the JSON field
 `garbage_scan_excluded_roots` makes that boundary explicit.
+
+Run the separate deep audit when a real on-disk inventory is needed:
+
+```bash
+node docs/workspace/workspace-deep-audit.mjs --repo "$PWD" --limit 25
+node docs/workspace/workspace-deep-audit.mjs --repo "$PWD" --json
+```
+
+Unlike the fast health check, this walks generated/build/cache directories and
+reports actual allocated and logical usage. It separately classifies stale
+`*.incomplete` downloads, generated caches, source snapshots that contain
+generated children, and completed long-task artifacts. Its
+`estimated_reclaimable_bytes` is a deduplicated review estimate, not permission
+to delete anything; rollback and worktree paths are protected from cleanup
+candidacy. The command has no mutation flag and is always read-only.
+
+## Codex Run Retention
+
+Retention is dry-run by default. Inspect the shared run plan, or select a
+project-scoped/explicit run root:
+
+```bash
+node docs/workspace/codex-run-retention.mjs --repo "$PWD"
+node docs/workspace/codex-run-retention.mjs --repo "$PWD" --project personal-ai-companion
+node docs/workspace/codex-run-retention.mjs --repo "$PWD" --run-root scratch/projects/personal-ai-companion/codex-runs --json
+```
+
+Only an explicit `--apply` moves terminal runs into the cleanup archive:
+
+```bash
+node docs/workspace/codex-run-retention.mjs --repo "$PWD" --project personal-ai-companion --apply
+```
+
+Latest and manifest `keep` entries remain in place. Active, blocked,
+awaiting-user, non-terminal, missing-state, and invalid-state runs are protected
+regardless of age. `--run-root` and `--project` are mutually exclusive, and the
+run root must be a `codex-runs` directory inside this workspace. Apply mode
+rechecks the continuation, long-task index, and explicit keep list immediately
+before moving anything, recomputes the current `keep_latest` boundary, and
+requires every planned item to pass one complete preflight. Duplicate index
+records fail closed. Run and archive paths are resolved against symbolic links;
+the archive destination must remain under this workspace's `archive/` tree,
+and every destination is checked again immediately before its rename.
 
 ## Project Search
 
