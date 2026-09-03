@@ -45,6 +45,9 @@ function parseArgs(argv = []) {
     symlink: true,
     grokSync: true,
     antigravitySync: true,
+    claudeSync: true,
+    opencodeSync: true,
+    claudeLiteSync: true,
     help: false,
   };
   for (let index = 0; index < argv.length; index += 1) {
@@ -137,6 +140,18 @@ function parseArgs(argv = []) {
       options.antigravitySync = false;
       continue;
     }
+    if (arg === "--no-claude-sync") {
+      options.claudeSync = false;
+      continue;
+    }
+    if (arg === "--no-opencode-sync") {
+      options.opencodeSync = false;
+      continue;
+    }
+    if (arg === "--no-claude-lite-sync") {
+      options.claudeLiteSync = false;
+      continue;
+    }
     throw new Error(`Unknown argument: ${arg}`);
   }
   return options;
@@ -162,6 +177,9 @@ function usage() {
     "  --no-symlink                Skip auto-creating the claude-workspace symlink.",
     "  --no-grok-sync              Skip importing the new project into grok-workspace.",
     "  --no-antigravity-sync       Skip importing the new project into antigravity-workspace.",
+    "  --no-claude-sync            Skip importing the new project into claude-workspace.",
+    "  --no-opencode-sync          Skip importing the new project into opencode-workspace.",
+    "  --no-claude-lite-sync       Skip importing the new project into claude-lite-workspace.",
     "",
   ].join("\n");
 }
@@ -598,12 +616,32 @@ function notifyFrontDesk(repoRoot, slug, desk = {}) {
   }
 }
 
+const FRONT_DESKS = [
+  { dir: "grok-workspace", label: "Grok", flag: "grokSync" },
+  { dir: "antigravity-workspace", label: "Antigravity", flag: "antigravitySync" },
+  { dir: "claude-workspace", label: "Claude", flag: "claudeSync" },
+  { dir: "opencode-workspace", label: "Opencode", flag: "opencodeSync" },
+  { dir: "claude-lite-workspace", label: "Claude Lite", flag: "claudeLiteSync" },
+];
+
 function notifyGrokWorkspace(repoRoot, slug) {
   return notifyFrontDesk(repoRoot, slug, { dir: "grok-workspace", label: "Grok" });
 }
 
 function notifyAntigravityWorkspace(repoRoot, slug) {
   return notifyFrontDesk(repoRoot, slug, { dir: "antigravity-workspace", label: "Antigravity" });
+}
+
+function notifyClaudeWorkspace(repoRoot, slug) {
+  return notifyFrontDesk(repoRoot, slug, { dir: "claude-workspace", label: "Claude" });
+}
+
+function notifyOpencodeWorkspace(repoRoot, slug) {
+  return notifyFrontDesk(repoRoot, slug, { dir: "opencode-workspace", label: "Opencode" });
+}
+
+function notifyClaudeLiteWorkspace(repoRoot, slug) {
+  return notifyFrontDesk(repoRoot, slug, { dir: "claude-lite-workspace", label: "Claude Lite" });
 }
 
 async function main() {
@@ -635,11 +673,10 @@ async function main() {
   ) {
     symlinkProjectToClaude(repoRoot, result.project.slug);
   }
-  if (options.grokSync && repoRoot === defaultRepoRoot()) {
-    notifyGrokWorkspace(repoRoot, result.project.slug);
-  }
-  if (options.antigravitySync && repoRoot === defaultRepoRoot()) {
-    notifyAntigravityWorkspace(repoRoot, result.project.slug);
+  if (repoRoot === defaultRepoRoot()) {
+    for (const desk of FRONT_DESKS) {
+      if (options[desk.flag]) notifyFrontDesk(repoRoot, result.project.slug, desk);
+    }
   }
 }
 
@@ -653,14 +690,18 @@ if (entryPath === modulePath) {
 }
 
 export {
+  FRONT_DESKS,
   antigravityWorkspaceRoot,
   buildProject,
   createSurfaces,
   defaultRepoRoot,
   grokWorkspaceRoot,
   notifyAntigravityWorkspace,
+  notifyClaudeLiteWorkspace,
+  notifyClaudeWorkspace,
   notifyFrontDesk,
   notifyGrokWorkspace,
+  notifyOpencodeWorkspace,
   parseArgs,
   registerProject,
   renderOpsReadme,

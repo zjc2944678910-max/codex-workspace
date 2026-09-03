@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
-import { buildProject, notifyAntigravityWorkspace, notifyGrokWorkspace, parseArgs, renderProjectsMd, splitValues } from "./codex-register-project.mjs";
+import { buildProject, notifyAntigravityWorkspace, notifyClaudeLiteWorkspace, notifyClaudeWorkspace, notifyGrokWorkspace, notifyOpencodeWorkspace, parseArgs, renderProjectsMd, splitValues } from "./codex-register-project.mjs";
 
 const scriptPath = path.resolve(import.meta.dirname, "codex-register-project.mjs");
 const repoRoot = path.resolve(import.meta.dirname, "..", "..");
@@ -49,6 +49,9 @@ test("register-project parses comma-separated values", () => {
   assert.equal(parseArgs(["--slug", "demo", "--name", "Demo", "--kind", "product"]).slug, "demo");
   assert.equal(parseArgs(["--slug", "demo", "--name", "Demo", "--kind", "product", "--no-grok-sync"]).grokSync, false);
   assert.equal(parseArgs(["--slug", "demo", "--name", "Demo", "--kind", "product", "--no-antigravity-sync"]).antigravitySync, false);
+  assert.equal(parseArgs(["--slug", "demo", "--name", "Demo", "--kind", "product", "--no-claude-sync"]).claudeSync, false);
+  assert.equal(parseArgs(["--slug", "demo", "--name", "Demo", "--kind", "product", "--no-opencode-sync"]).opencodeSync, false);
+  assert.equal(parseArgs(["--slug", "demo", "--name", "Demo", "--kind", "product", "--no-claude-lite-sync"]).claudeLiteSync, false);
   assert.equal(parseArgs(["--slug", "demo", "--name", "Demo", "--kind", "product"]).antigravitySync, true);
 });
 
@@ -60,6 +63,12 @@ test("notifyGrokWorkspace skips when grok importer is missing", () => {
 test("notifyAntigravityWorkspace skips when antigravity importer is missing", () => {
   const result = notifyAntigravityWorkspace("/tmp/not-a-codex-repo", "demo");
   assert.equal(result.skipped, true);
+});
+
+test("other front-desk notifiers skip when importers are missing", () => {
+  assert.equal(notifyClaudeWorkspace("/tmp/not-a-codex-repo", "demo").skipped, true);
+  assert.equal(notifyOpencodeWorkspace("/tmp/not-a-codex-repo", "demo").skipped, true);
+  assert.equal(notifyClaudeLiteWorkspace("/tmp/not-a-codex-repo", "demo").skipped, true);
 });
 
 test("workspace project aliases are globally unique", async () => {

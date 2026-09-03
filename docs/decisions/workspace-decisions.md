@@ -109,8 +109,9 @@ slice decisions belong in that run's `05-decisions.md`.
   tree in Antigravity drifted (IELTS lived outside `products/`, games and
   research were unregistered, ops/docs were cloned).
 - **How to apply**: register durable code here first. Codex
-  `codex-register-project.mjs` imports Grok and Antigravity unless
-  `--no-grok-sync` / `--no-antigravity-sync` is passed. Keep
+  `codex-register-project.mjs` imports every Plan A front desk unless the
+  matching `--no-*-sync` flag is passed: Grok, Antigravity, Claude, Opencode,
+  and Claude Lite. Keep
   `antigravity-workspace/projects/ielts-vocab-hub` as a compatibility symlink
   for existing LaunchAgents; do not rewrite those plists without L3.
 - **Affects**: Antigravity routing, IELTS Oxford export scripts (now under
