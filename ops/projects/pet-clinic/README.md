@@ -39,6 +39,10 @@ node docs/workspace/codex-register-project.mjs --regen
 - Next useful work: Keep routing facts synced with the registry; add project-specific commands or runbooks when they become confirmed; promote durable conclusions out of scratch/session notes.
 - Model review guidance: Local architecture, code review, writing, research, or UX polish may use a bounded review. For the NIIT VM or HBase, provide only bounded, redacted, read-only evidence. Use [model-review-packets.md](../../../docs/workspace/model-review-packets.md) for packet shape.
 
+## Course / Assignment Notes
+
+大数据实践 Group6 项目三。数据集 `3.pet_data.csv`。第六组曾误做成 `hotel-mgmt` 后纠正。交付物在产品仓 `deliverables/`。NIIT 实验机细节以本 README 的 live 风险门为准，不要把凭据写入仓库。
+
 ## Stable Docs
 
 - `README.md`

@@ -39,6 +39,10 @@ node docs/workspace/codex-register-project.mjs --regen
 - Next useful work: Keep routing facts synced with the registry; add project-specific commands or runbooks when they become confirmed; promote durable conclusions out of scratch/session notes.
 - Model review guidance: Use Sub2API/Claude review for architecture, code review, writing, research, or UX polish when the task is non-tiny. Use [model-review-packets.md](../../../docs/workspace/model-review-packets.md) for packet shape.
 
+## Course / Assignment Notes
+
+大数据实践课 Group6 项目十。读取 `10.hotel_data.csv`（约 5000 行入住记录），Maven war / JDK 8 / Tomcat 9，HBase 表 `hotel_stay`。Mac 本机无 Maven；HBase/Hadoop 在课程 VM。
+
 ## Stable Docs
 
 - `README.md`
