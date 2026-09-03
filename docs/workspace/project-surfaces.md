@@ -9,6 +9,7 @@ Source of truth for scripts: [`project-registry.json`](./project-registry.json).
 
 | Project | Registered Surface(s) | Working Code Root(s) | Ops Surface | GitNexus |
 | --- | --- | --- | --- | --- |
+| Antigravity MCP | `projects/products/antigravity-mcp` | `projects/products/antigravity-mcp` | `ops/projects/antigravity-mcp` | not indexed |
 | OpenClaw | `projects/products/openclaw`, `projects/migrations/openclaw-mac-migration` | `projects/products/openclaw/nas-openclaw-v22`; `projects/migrations/openclaw-mac-migration` | `ops/projects/openclaw` | mainline indexed; migration not targeted |
 | Paper 001 Research Workbench | `projects/research/paper-001` | `projects/research/paper-001` | `ops/projects/paper-001` | not indexed |
 | Personal AI Companion | `projects/products/personal-ai-companion` | `projects/products/personal-ai-companion` | `ops/projects/personal-ai-companion` | indexed at `aa8fd86` (2026-08-16) |
@@ -17,6 +18,7 @@ Source of truth for scripts: [`project-registry.json`](./project-registry.json).
 | IELTS Vocab Hub | `projects/products/ielts-vocab-hub` | `projects/products/ielts-vocab-hub` | `ops/projects/ielts-vocab-hub` | indexed |
 | NAS Platform | `projects/infrastructure/nas-platform` | `projects/infrastructure/nas-platform` | `ops/projects/nas-platform` | unknown; local path is not a standalone git repo |
 | Pet Clinic Management System | `projects/products/pet-clinic` | `projects/products/pet-clinic` | `ops/projects/pet-clinic` | indexed |
+| Personal Portfolio | `projects/products/personal-portfolio` | `projects/products/personal-portfolio` | `ops/projects/personal-portfolio` | not indexed |
 | Telegram Dual Relay | `projects/infrastructure/telegram-dual-relay` | `projects/infrastructure/telegram-dual-relay` | `ops/projects/telegram-dual-relay` | indexed |
 | SLA-SQL Research | `projects/research/sla-sql` | `projects/research/sla-sql` | `ops/projects/sla-sql` | not indexed |
 | Sub2API | ops-only live service | live source on VPS at `/opt/sub2api-src-fix`; no local tracked code root | `ops/projects/sub2api` | not indexed |

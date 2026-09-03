@@ -33,6 +33,7 @@ Machine source of truth: `docs/workspace/project-registry.json`.
 | **OpenClaw** (`openclaw`) | infrastructure | live_infra | `projects/products/openclaw/nas-openclaw-v22`<br>`projects/migrations/openclaw-mac-migration` | `ops/projects/openclaw` |
 | **Paper 001 Research Workbench** (`paper-001`) | research | research_local | `projects/research/paper-001` | `ops/projects/paper-001` |
 | **Personal AI Companion** (`personal-ai-companion`) | product | live_product | `projects/products/personal-ai-companion` | `ops/projects/personal-ai-companion` |
+| **Personal Portfolio** (`personal-portfolio`) | product | local | `projects/products/personal-portfolio` | `ops/projects/personal-portfolio` |
 | **Pet Clinic Management System** (`pet-clinic`) | product | live_product | `projects/products/pet-clinic` | `ops/projects/pet-clinic` |
 | **Proxy Nodes VPS** (`proxy-nodes`) | infrastructure | live_infra | `ops-only` | `ops/projects/proxy-nodes` |
 | **SLA-SQL Research** (`sla-sql`) | research | research_local | `projects/research/sla-sql` | `ops/projects/sla-sql` |

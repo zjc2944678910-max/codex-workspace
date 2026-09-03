@@ -565,6 +565,42 @@
       "gitnexus_indexed": true
     },
     {
+      "slug": "personal-portfolio",
+      "name": "Personal Portfolio",
+      "kind": "product",
+      "risk_profile": "local",
+      "surfaces": [
+        "projects/products/personal-portfolio"
+      ],
+      "code_roots": [
+        {
+          "path": "projects/products/personal-portfolio",
+          "role": "main",
+          "gitnexus_status": "not_indexed"
+        }
+      ],
+      "ops_surface": "ops/projects/personal-portfolio",
+      "state_data": "state/project-data/personal-portfolio",
+      "scratch": "scratch/projects/personal-portfolio",
+      "aliases": [
+        "portfolio",
+        "作品集",
+        "个人主页"
+      ],
+      "routing_keywords": [
+        "个人网站",
+        "react portfolio",
+        "personal-portfolio",
+        "Personal Portfolio",
+        "portfolio",
+        "作品集",
+        "个人主页"
+      ],
+      "live_host_aliases": [],
+      "service_names": [],
+      "gitnexus_indexed": false
+    },
+    {
       "slug": "pet-clinic",
       "name": "Pet Clinic Management System",
       "kind": "product",
