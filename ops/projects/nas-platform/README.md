@@ -37,6 +37,8 @@ surface.
 - `reports/`
 - `runbooks/`
 - `runbooks/nas-wg-ssh-access.md`
+- `runbooks/zcode-nas-gui-automation.md`
+- `runbooks/nas-zcode-vnc-access.md`
 
 ## Subdirectories
 
