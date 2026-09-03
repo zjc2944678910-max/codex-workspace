@@ -28,6 +28,17 @@ Regenerate the short human index with:
 node docs/workspace/codex-register-project.mjs --regen
 ```
 
+## Ops Quality Baseline
+
+- Current status: Registered product surface for `antigravity-mcp`. Day-to-day work is local/research unless a future task introduces live infrastructure evidence.
+- Risk gate: L0/L1 local docs/code/research work by default; no live infrastructure is registered for this project.
+- Common commands:
+  - `node docs/workspace/find-project.mjs antigravity-mcp`
+  - `node docs/workspace/workspace-health.mjs --repo "$PWD" --limit 12`
+  - From the product root: `npm run check`
+- Next useful work: Keep routing facts synced with the registry; keep this worker on the authorized Antigravity account slot and the local sandbox path.
+- Model review guidance: Use Sub2API/Claude review for architecture, code review, writing, research, or UX polish when the task is non-tiny. Use [model-review-packets.md](../../../docs/workspace/model-review-packets.md) for packet shape.
+
 ## Stable Docs
 
 - `README.md`
