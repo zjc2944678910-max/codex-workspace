@@ -1,5 +1,38 @@
 # Personal AI Companion Deployment Ledger
 
+## 2026-09-05 Canonical Memory Profiles
+
+Scoped L3 release for the approved memory optimization plan, followed by owner
+confirmation that the Memory Center and new private conversation now work.
+
+- Stable profile, dated recent activities, and session digest now share a
+  permission-filtered projection. New capture validates original user evidence,
+  deduplicates known facts, and queues unsupported or conflicting claims.
+- Accepted image: `xiaoxin-cloud-api:20260905T-memory-profiles-r1`, image ID
+  `sha256:df9610bcbffb57a2fbbac1b71f90dc5740e4ce0e18463513b32cae07e9e55e1b`.
+  All 13 overlay hashes matched; API health/readiness passed with zero restarts;
+  unauthenticated memory endpoints returned 401 and `Cache-Control: no-store`.
+- Additive schema 8 was applied. Startup preserved all 16 original atom rows.
+  The protected backup rehearsal projected 11 active records into 7 facts,
+  preserved original times, and passed consolidation idempotence and integrity.
+  Production consolidation remains an explicit preview/confirm action in App.
+- Verification: 3208 Python tests passed, 1 skipped; 321 XCTest and 51 Swift
+  Testing cases passed; simulator build and signed device build succeeded.
+- iPhone 15 Pro Max install and launch succeeded at 2026-09-05 13:27 +08:00.
+  Executable SHA-256:
+  `a1f51b34cdd551dab9225388b05734af7c5781c3e70310833eecb3f74fb53a43`.
+  Bundle, team, and HealthKit entitlement were preserved. Automatic renewal
+  now uses `source-snapshot-20260905T-memory-profiles`.
+- Rollback image `xiaoxin-cloud-api:20260905T-memory-profiles-rollback-v8`
+  passed schema 8 and purge checks. It retains the prior application behavior
+  without requiring a stale database restore. Original signed Apps, source
+  marker, deployment settings, and a consistent SQLite backup were retained.
+- Evidence: `scratch/projects/personal-ai-companion/codex-runs/20260905-0934-memory-profile-consolidation/`.
+  Private backups stay outside version control. Recheck health, exact image,
+  source hashes, and current database state before any later rollback.
+- No commit or push was performed. The existing architecture ceiling failure
+  remains: `cloud/app.py` is 1875/1800 lines, versus 1874/1800 at task baseline.
+
 ## 2026-08-13 Owner Memory Center Deployment
 
 Task level: `L3 repair execution` after explicit owner authorization. Scope was
