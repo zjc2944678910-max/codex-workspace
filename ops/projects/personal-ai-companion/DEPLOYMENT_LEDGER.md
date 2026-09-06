@@ -1,5 +1,33 @@
 # Personal AI Companion Deployment Ledger
 
+## 2026-09-06 Bounded NetEase QR Overlay
+
+Task level: `L3 repair execution` after the owner said `进入修复阶段`. Scope was
+limited to `/v1/music/netease/*` on `xiaoxin-cloud-api-1` plus an internal-only
+adapter sidecar. MCP/toolpkg workbench, App reinstall, robot, and Mac Bridge
+were unchanged.
+
+- The already-installed iPhone App was calling production
+  `/v1/music/netease/status` and `/qr`; the previous live image returned FastAPI
+  `{"detail":"Not Found"}`.
+- Accepted API image: `xiaoxin-cloud-api:20260906T-netease-r1`, image ID
+  `sha256:0f22fcd06d3f3ecfe7d847c4bd8568cc226d609bc2bf6175b53da94dcf73a716`.
+  Overlay is a six-file patch on the running
+  `xiaoxin-cloud-api:20260905T-characters-r1` image, not the dirty worktree.
+  Cookies use a dedicated AES-GCM sqlite volume, not workbench.
+- Internal adapter: `xiaoxin-netease-adapter:20260906T-r1` on the compose
+  backend network, no published host port. Docker Hub pull was blocked by a
+  dead NAS daemon proxy on `127.0.0.1:18988`, so the sidecar is a small weapi
+  server built FROM the live Python image.
+- API and adapter are healthy with zero restarts after the music-store volume
+  was chowned to `xiaoxin`. Unauthenticated music and memory endpoints return
+  401 `Cache-Control: no-store`. Public `https://xiaoxin.nodezjc12348888.xyz`
+  matches. Internal `/login/qr/key` returns a unikey.
+- Rollback image remains `xiaoxin-cloud-api:20260905T-characters-r1`. Backup:
+  `/volume1/docker/stacks/apps-xiaoxin/backups/netease-20260906T1755`.
+- Owner-visible iPhone QR login is a separate acceptance gate. No commit or
+  push. `cloud/app.py` overlay is 1833/1800 lines.
+
 ## 2026-09-05 Canonical Memory Profiles
 
 Scoped L3 release for the approved memory optimization plan, followed by owner
