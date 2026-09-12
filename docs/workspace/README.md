@@ -7,7 +7,7 @@ Policy: `AGENTS.md`. Worker contract: `WORKER.md`.
 
 | Tool | Purpose |
 | --- | --- |
-| `codex-long-task.mjs` | Optional legacy CLI, used only on explicit request: init, append, repair, recheck, close |
+| `codex-long-task.mjs` | Optional legacy CLI; reads/status work by default, mutations require the exact current-task opt-in from its runbook |
 | `harness-contract.md` | Cross-cutting workspace harness contract for routing, permissions, tasks, verification, memory, and workers |
 | `daily-workflow.md` | Entry point for ordinary work, optional delegation, and manual workflow choices |
 | `project-knowledge-map.md` | Searchable map of project docs, route tokens, decisions, runbooks, and model-review playbooks |
@@ -50,7 +50,8 @@ Policy: `AGENTS.md`. Worker contract: `WORKER.md`.
   `audit`, or when evidence and command output may bloat the main context.
 - Use conversation plans and brief recovery notes for ordinary multi-stage work.
   Open `codex-long-task-runbook.md` only when the user explicitly requests the
-  legacy run-directory workflow; multiple slices or failures do not activate it.
+  legacy run-directory workflow; its writes require the complete prompt
+  `启用旧长任务流程`. Multiple slices or failures do not activate it.
 - Keep workspace-local active skills narrow and descriptive. Generated
   cluster/timestamp snapshots belong in the local archive, not in active
   discovery; use `node docs/workspace/skill-hygiene.mjs --json` before promoting

@@ -104,15 +104,20 @@ Verification proves the task outcome, not the agent's effort.
 ## Memory Layer
 
 Conversation context is the default. Durable notes can support recovery when
-needed; the old run-directory workflow remains available by explicit opt-in.
+needed; the old run-directory workflow remains read-only until the user sends
+the complete prompt `启用旧长任务流程` in the current task.
 
 - Preserve existing run directories, continuation records, failure histories
   and indexes. Read relevant records when continuing an explicitly identified
   old task; do not automatically update states, retry counts or checkpoints.
 - Session and prompt hooks do not read active-run indexes or inject task lists.
   Routing and live authorization hooks remain enabled.
+- Without opt-in, hooks deny mutating legacy CLI commands and direct control-state
+  writes while allowing record reads, `status`, and candidate source changes.
 - In an explicitly opted-in legacy run, its manual CLI still maintains
   `08-continuation.json`, `09-failure-ledger.jsonl` and the existing indexes.
+- The opt-in ends at task stop; native plans, compaction, helpers, and Route Lock
+  do not authorize legacy bookkeeping.
 - Store OPS promotion proposals in `10-ops-promotion-candidates.md`. Promote a
   fact only after explicit review confirms it is verified, cross-task durable,
   inside the Route Lock, evidence-backed, and paired with a recheck condition.

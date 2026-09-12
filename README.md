@@ -32,7 +32,7 @@ Use this repository as the default Codex workspace index. The legacy local `-/` 
 
 ## Workspace Tools
 
-- Long-task CLI:
+- Optional legacy long-task CLI (read-only by default; see its runbook before writes):
   - `node docs/workspace/codex-long-task.mjs --help`
 - Project registration:
   - `node docs/workspace/codex-register-project.mjs --help`

@@ -26,7 +26,7 @@ Policy source: [`../../AGENTS.md`](../../AGENTS.md).
 | Legacy path translation | [`WORKSPACE_MAP.md`](../../WORKSPACE_MAP.md) | Use when notes mention `-/` or `codex-workplace`. |
 | Durable workspace decisions | [`workspace-decisions.md`](../decisions/workspace-decisions.md) | Do not re-litigate decisions without drift evidence. |
 | Tooling and health | [`docs/workspace/README.md`](./README.md) | Long-task CLI, health checks, retention, Playwright wrapper. |
-| Long task protocol | [`codex-long-task-runbook.md`](./codex-long-task-runbook.md) | Route Lock, slices, repair loops, closeout. |
+| Optional legacy long-task protocol | [`codex-long-task-runbook.md`](./codex-long-task-runbook.md) | Read-only by default; exact current-task opt-in required for state writes. |
 | Worker contract | [`WORKER.md`](../../WORKER.md) | Scope, forbidden actions, output shape for local workers. |
 
 ## Durable Decisions To Reuse

@@ -4,6 +4,7 @@
 >
 > Policy lives in `AGENTS.md`.
 > Operational details live in `codex-long-task-runbook.md`.
+> State writes require the exact current-task opt-in documented there.
 
 Use this file only for compact prompt/layout examples.
 

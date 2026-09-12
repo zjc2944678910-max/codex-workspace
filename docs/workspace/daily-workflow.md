@@ -143,8 +143,9 @@ Do not automatically initialize runs, checkpoint, or show active-task indexes
 because a task spans turns or verification fails. Read relevant old records
 when the user continues a specific task; that alone does not opt into updates.
 
-Only when the user explicitly requests the legacy run-directory workflow,
-use the following manual commands and the runbook:
+Legacy state is read-only by default. Ordinary reads and `status` remain
+available. Only after the user sends the complete prompt `启用旧长任务流程` in
+the current task, use the following mutating commands and the runbook:
 
 ```bash
 node docs/workspace/codex-long-task.mjs init --project <name> --task "<goal>"
@@ -162,6 +163,8 @@ node docs/workspace/codex-long-task.mjs finalize --run-root <run-root>
 For explicitly opted-in runs, the CLI preserves its existing state protocol
 and retry limits. These constraints do not impose bookkeeping on other tasks.
 Keep existing run states and counters unchanged unless their update is requested.
+The opt-in ends when the task stops and can be revoked with `停用旧长任务流程`,
+`关闭旧长任务流程`, or `取消旧长任务流程`.
 
 ## Hygiene
 

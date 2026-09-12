@@ -173,15 +173,24 @@ turn boundaries, helpers and test failures do not require run directories,
 bookkeeping or checkpoints. When interruption recovery needs a durable note,
 keep it brief; no fixed file layout or per-turn update cadence is required.
 
-The legacy long-task CLI is opt-in: use it only when the user explicitly asks
-for that workflow. Its [manual runbook](docs/workspace/codex-long-task-runbook.md)
-describes the existing commands. Do not auto-initialize runs or inject active-run
-reminders. In Plan/read-only work, retain planning context in the conversation.
+The legacy long-task CLI is opt-in. It becomes writable only when the user says
+the exact phrase `启用旧长任务流程` in the current task; task stop or an explicit
+disable phrase closes that access. Its
+[manual runbook](docs/workspace/codex-long-task-runbook.md) describes the existing
+commands. Without opt-in, hooks deny mutating CLI commands and writes to legacy
+control files or indexes while allowing record reads. Do not auto-initialize
+runs or inject active-run reminders. In Plan/read-only work, retain planning
+context in the conversation.
 
 When the user continues a specific old task, read its relevant continuation and
 failure records. Preserve historical evidence, states and retry counts; do not
 automatically update them or re-enable the old workflow merely because a run
 exists. Never silently switch targets.
+
+Native Codex plans, context compaction, helpers, source work inside an old run's
+candidate directory, and Route Lock do not opt into legacy bookkeeping. They do
+not authorize updates to continuation, ledger, failure, transaction, or index
+state.
 
 Prefer compact evidence pointers. Report outcome, meaningful verification, and
 remaining limitations; separate facts from hypotheses. Mention delegation only

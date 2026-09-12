@@ -1,8 +1,9 @@
 # Codex Long Task Runbook
 
-This is the manual for the optional legacy run-directory workflow. Use it only
-when the user explicitly requests that workflow. Ordinary tasks use conversation
-plans and progress, with brief recovery notes when needed. AGENTS.md owns policy.
+This is the manual for the optional legacy run-directory workflow. Its state is
+read-only unless the user sends the exact prompt `启用旧长任务流程` in the
+current task. Ordinary tasks use conversation plans and progress, with brief
+recovery notes when needed. AGENTS.md owns policy.
 
 ## When To Use
 
@@ -15,10 +16,25 @@ automatically updating them or restarting this workflow. Preserve old states,
 retry budgets and evidence. The commands below remain compatible for explicit
 manual use.
 
+Without opt-in, ordinary file reads and `codex-long-task.mjs status` remain
+available, while hooks deny mutating CLI commands and direct writes to legacy
+control files and indexes. Native plans, context compaction, helpers, Route Lock,
+and edits under a run's `candidate/` source directory do not opt in.
+
 Do not use this to bypass L2/L3 gates. Choose the target project from explicit
 user evidence first; do not default `--project` to any registered project.
 
-## Before Explicit Opt-In
+## Explicit Opt-In
+
+Send this as the complete user prompt in the current task:
+
+```text
+启用旧长任务流程
+```
+
+The authorization ends at the task's `Stop` event. It can be revoked earlier
+with `停用旧长任务流程`, `关闭旧长任务流程`, or `取消旧长任务流程`.
+The authorization is task-scoped and does not carry to another task.
 
 Before creating the run, confirm the route and risk level. Live, NAS, OpenClaw,
 deploy, auth, secrets, and config-heavy work still follows `AGENTS.md`; a run

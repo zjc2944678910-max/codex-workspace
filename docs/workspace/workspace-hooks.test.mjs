@@ -9,10 +9,10 @@ const repoRoot = path.resolve(import.meta.dirname, "..", "..");
 const hookScript = path.join(repoRoot, ".codex", "hooks", "workspace_guard.py");
 const hooksConfigPath = path.join(repoRoot, ".codex", "hooks.json");
 
-function runHook(event, payload = {}) {
+function runHook(event, payload = {}, extraEnv = {}) {
   const result = spawnSync("python3", [hookScript, event], {
     cwd: repoRoot,
-    env: { ...process.env, PYTHONDONTWRITEBYTECODE: "1" },
+    env: { ...process.env, PYTHONDONTWRITEBYTECODE: "1", ...extraEnv },
     input: JSON.stringify(payload),
     encoding: "utf8",
     stdio: ["pipe", "pipe", "pipe"],
@@ -147,6 +147,14 @@ test("configured hook command resolves workspace script from nested git cwd", ()
   }
 });
 
+test("pre-tool matcher covers command and file-writing tools", () => {
+  const config = JSON.parse(readFileSync(hooksConfigPath, "utf8"));
+  const matcher = config.hooks?.PreToolUse?.[0]?.matcher || "";
+  for (const toolName of ["Bash", "exec_command", "functions.exec_command", "apply_patch", "functions.apply_patch", "Edit", "Write"]) {
+    assert.match(toolName, new RegExp(`^(?:${matcher})$`));
+  }
+});
+
 test("prompt hook emits route and risk hints for OpenClaw live work", () => {
   const output = runHook("user-prompt-submit", {
     session_id: "workspace-hooks-test",
@@ -205,6 +213,161 @@ test("pre-tool hook allows inspection searches that mention blocked text", () =>
     },
   });
   assert.deepEqual(output, {});
+});
+
+test("legacy long-task state is read-only until the current task explicitly opts in", () => {
+  const tempRoot = mkdtempSync(path.join(tmpdir(), "codex-workspace-hook-legacy-state-"));
+  try {
+    const statePath = path.join(tempRoot, "state.json");
+    const env = { CODEX_WORKSPACE_HOOK_STATE_PATH: statePath };
+    const runRoot = path.join(tempRoot, "state", "project-data", "demo", "codex-runs", "run-1");
+
+    for (const command of [
+      `node docs/workspace/codex-long-task.mjs checkpoint --run-root ${runRoot} --phase implementing --next-action test`,
+      `node docs/workspace/codex-long-task.mjs resume --run-root ${runRoot}`,
+      `python3 -c "from pathlib import Path; Path('08-continuation.json').write_text('{}')"`,
+    ]) {
+      const output = runHook("pre-tool-use", {
+        session_id: "legacy-task",
+        tool_name: "functions.exec_command",
+        tool_input: { command, workdir: runRoot },
+      }, env);
+      assert.equal(output.hookSpecificOutput.hookEventName, "PreToolUse");
+      assert.equal(output.hookSpecificOutput.permissionDecision, "deny");
+      assert.match(output.hookSpecificOutput.permissionDecisionReason, /启用旧长任务流程/u);
+    }
+
+    const missingWorkdirOutput = runHook("pre-tool-use", {
+      session_id: "legacy-task",
+      tool_name: "functions.exec_command",
+      tool_input: {
+        command: `python3 -c "from pathlib import Path; Path('08-continuation.json').write_text('{}')"`,
+      },
+    }, env);
+    assert.equal(missingWorkdirOutput.hookSpecificOutput.permissionDecision, "deny");
+
+    const statusOutput = runHook("pre-tool-use", {
+      session_id: "legacy-task",
+      tool_name: "functions.exec_command",
+      tool_input: {
+        command: `node docs/workspace/codex-long-task.mjs status --run-root ${runRoot}`,
+        workdir: repoRoot,
+      },
+    }, env);
+    assert.deepEqual(statusOutput, {});
+
+    for (const command of [
+      "node docs/workspace/codex-long-task.mjs --help",
+      `node docs/workspace/codex-long-task.mjs checkpoint --run-root ${runRoot} --help`,
+      `node docs/workspace/codex-long-task.mjs checkpoint --run-root ${runRoot} --phase test --next-action verify --dry-run`,
+    ]) {
+      assert.deepEqual(runHook("pre-tool-use", {
+        session_id: "legacy-task",
+        tool_name: "functions.exec_command",
+        tool_input: { command, workdir: repoRoot },
+      }, env), {});
+    }
+
+    const readOutput = runHook("pre-tool-use", {
+      session_id: "legacy-task",
+      tool_name: "functions.exec_command",
+      tool_input: { command: "cat 08-continuation.json", workdir: runRoot },
+    }, env);
+    assert.deepEqual(readOutput, {});
+
+    const searchOutput = runHook("pre-tool-use", {
+      session_id: "legacy-task",
+      tool_name: "functions.exec_command",
+      tool_input: {
+        command: "rg -n 'codex-long-task.mjs checkpoint|08-continuation.json|write_text' docs/workspace",
+        workdir: repoRoot,
+      },
+    }, env);
+    assert.deepEqual(searchOutput, {});
+  } finally {
+    rmSync(tempRoot, { recursive: true, force: true });
+  }
+});
+
+test("legacy long-task file tools block control state but allow candidate source", () => {
+  const tempRoot = mkdtempSync(path.join(tmpdir(), "codex-workspace-hook-legacy-files-"));
+  try {
+    const env = { CODEX_WORKSPACE_HOOK_STATE_PATH: path.join(tempRoot, "state.json") };
+    const runRoot = path.join(tempRoot, "state", "project-data", "demo", "codex-runs", "run-1");
+    const controlPatch = `*** Begin Patch\n*** Update File: ${runRoot}/03-task-ledger.md\n@@\n-old\n+new\n*** End Patch`;
+    const denied = runHook("pre-tool-use", {
+      session_id: "legacy-files",
+      tool_name: "apply_patch",
+      tool_input: { patch: controlPatch },
+    }, env);
+    assert.equal(denied.hookSpecificOutput.permissionDecision, "deny");
+    assert.match(denied.hookSpecificOutput.permissionDecisionReason, /control state/u);
+
+    const editDenied = runHook("pre-tool-use", {
+      session_id: "legacy-files",
+      tool_name: "Write",
+      tool_input: { file_path: `${runRoot}/09-failure-ledger.jsonl`, content: "{}\n" },
+    }, env);
+    assert.equal(editDenied.hookSpecificOutput.permissionDecision, "deny");
+
+    const candidateAllowed = runHook("pre-tool-use", {
+      session_id: "legacy-files",
+      tool_name: "apply_patch",
+      tool_input: {
+        patch: `*** Begin Patch\n*** Update File: ${runRoot}/candidate/src/example.py\n@@\n-old\n+new\n*** End Patch`,
+      },
+    }, env);
+    assert.deepEqual(candidateAllowed, {});
+  } finally {
+    rmSync(tempRoot, { recursive: true, force: true });
+  }
+});
+
+test("legacy long-task opt-in is task-scoped and stop or disable revokes it", () => {
+  const tempRoot = mkdtempSync(path.join(tmpdir(), "codex-workspace-hook-legacy-auth-"));
+  try {
+    const statePath = path.join(tempRoot, "state.json");
+    const env = { CODEX_WORKSPACE_HOOK_STATE_PATH: statePath };
+    const command = "node docs/workspace/codex-long-task.mjs checkpoint --run-root /tmp/demo/codex-runs/run-1 --phase test --next-action verify";
+    const payload = {
+      session_id: "opted-in-task",
+      tool_name: "functions.exec_command",
+      tool_input: { command, workdir: repoRoot },
+    };
+
+    const quotedPrompt = runHook("user-prompt-submit", {
+      session_id: "quoted-task",
+      prompt: "是不是说‘启用旧长任务流程’就可以？",
+    }, env);
+    assert.doesNotMatch(quotedPrompt.hookSpecificOutput?.additionalContext || "", /explicitly enabled/u);
+    assert.equal(runHook("pre-tool-use", { ...payload, session_id: "quoted-task" }, env).hookSpecificOutput.permissionDecision, "deny");
+
+    const enabled = runHook("user-prompt-submit", {
+      session_id: "opted-in-task",
+      prompt: "启用旧长任务流程",
+    }, env);
+    assert.match(enabled.hookSpecificOutput.additionalContext, /explicitly enabled/u);
+    assert.deepEqual(runHook("pre-tool-use", payload, env), {});
+    assert.equal(runHook("pre-tool-use", { ...payload, session_id: "other-task" }, env).hookSpecificOutput.permissionDecision, "deny");
+
+    runHook("user-prompt-submit", {
+      session_id: "opted-in-task",
+      prompt: "停用旧长任务流程",
+    }, env);
+    assert.equal(runHook("pre-tool-use", payload, env).hookSpecificOutput.permissionDecision, "deny");
+
+    runHook("user-prompt-submit", {
+      session_id: "opted-in-task",
+      prompt: "启用旧长任务流程",
+    }, env);
+    runHook("stop", {
+      session_id: "opted-in-task",
+      last_assistant_message: "completed\nconfirmed: done\nrisks: none",
+    }, env);
+    assert.equal(runHook("pre-tool-use", payload, env).hookSpecificOutput.permissionDecision, "deny");
+  } finally {
+    rmSync(tempRoot, { recursive: true, force: true });
+  }
 });
 
 test("pre-tool hook still denies shell wrapper execution of blocked commands", () => {
@@ -328,6 +491,23 @@ test("permission hook denies L3 approval requests without repair gate", () => {
   assert.equal(output.hookSpecificOutput.hookEventName, "PermissionRequest");
   assert.equal(output.hookSpecificOutput.decision.behavior, "deny");
   assert.match(output.hookSpecificOutput.decision.message, /进入修复阶段/u);
+});
+
+test("permission hook denies legacy state mutation without task opt-in", () => {
+  const tempRoot = mkdtempSync(path.join(tmpdir(), "codex-workspace-hook-legacy-permission-"));
+  try {
+    const output = runHook("permission-request", {
+      session_id: "legacy-permission-task",
+      tool_input: {
+        command: "node docs/workspace/codex-long-task.mjs checkpoint --run-root /tmp/demo/codex-runs/run-1 --phase test --next-action verify",
+      },
+    }, { CODEX_WORKSPACE_HOOK_STATE_PATH: path.join(tempRoot, "state.json") });
+    assert.equal(output.hookSpecificOutput.hookEventName, "PermissionRequest");
+    assert.equal(output.hookSpecificOutput.decision.behavior, "deny");
+    assert.match(output.hookSpecificOutput.decision.message, /启用旧长任务流程/u);
+  } finally {
+    rmSync(tempRoot, { recursive: true, force: true });
+  }
 });
 
 test("repair authorization state keeps task entries and prunes expired legacy entries", () => {

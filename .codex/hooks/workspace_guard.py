@@ -15,10 +15,63 @@ from typing import Any
 
 
 WORKSPACE_ROOT = Path("/Users/zhangjincheng/Documents/GitHub/codex-workspace")
-STATE_PATH = Path.home() / ".codex" / "state" / "codex-workspace-hooks.json"
+STATE_PATH = Path(
+    os.environ.get("CODEX_WORKSPACE_HOOK_STATE_PATH")
+    or Path.home() / ".codex" / "state" / "codex-workspace-hooks.json"
+)
 PROJECT_REGISTRY_PATH = WORKSPACE_ROOT / "docs" / "workspace" / "project-registry.json"
 REPAIR_PHRASE = "进入修复阶段"
 REPAIR_AUTH_SCOPE = "task"
+LEGACY_LONG_TASK_ENABLE_PHRASE = "启用旧长任务流程"
+LEGACY_LONG_TASK_DISABLE_PHRASES = (
+    "停用旧长任务流程",
+    "关闭旧长任务流程",
+    "取消旧长任务流程",
+)
+LEGACY_LONG_TASK_AUTH_SCOPE = "task"
+LEGACY_LONG_TASK_MUTATING_COMMANDS = {
+    "init",
+    "append",
+    "append-slice",
+    "repair",
+    "recheck",
+    "close",
+    "close-slice",
+    "resume",
+    "checkpoint",
+    "reopen",
+    "ops-candidate",
+    "finalize",
+}
+LEGACY_LONG_TASK_CONTROL_FILES = {
+    "00-request.md",
+    "01-confirmed-context.md",
+    "02-plan.md",
+    "03-task-ledger.md",
+    "04-risk-register.md",
+    "05-decisions.md",
+    "06-final-summary.md",
+    "07-agent-registry.md",
+    "08-continuation.json",
+    "09-failure-ledger.jsonl",
+    "10-ops-promotion-candidates.md",
+    ".codex-long-task-transaction.json",
+}
+LEGACY_LONG_TASK_DISTINCT_CONTROL_FILES = {
+    "03-task-ledger.md",
+    "07-agent-registry.md",
+    "08-continuation.json",
+    "09-failure-ledger.jsonl",
+    "10-ops-promotion-candidates.md",
+    ".codex-long-task-transaction.json",
+}
+LEGACY_LONG_TASK_HELPER_SCRIPTS = {
+    "codex-long-task-init.mjs",
+    "codex-long-task-append-slice.mjs",
+    "codex-long-task-repair.mjs",
+    "codex-long-task-recheck.mjs",
+    "codex-long-task-close-slice.mjs",
+}
 
 
 READ_ONLY_LIVE_TERMS = [
@@ -201,7 +254,7 @@ def write_state(state: dict[str, Any]) -> None:
     STATE_PATH.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
-def prune_expired_repair_auth(state: dict[str, Any], now: int | None = None) -> dict[str, Any]:
+def prune_expired_auth(state: dict[str, Any], now: int | None = None) -> dict[str, Any]:
     current_time = int(time.time()) if now is None else now
     return {
         key: value
@@ -209,9 +262,15 @@ def prune_expired_repair_auth(state: dict[str, Any], now: int | None = None) -> 
         if isinstance(value, dict)
         and (
             value.get("scope") == REPAIR_AUTH_SCOPE
+            or value.get("legacy_long_task_scope") == LEGACY_LONG_TASK_AUTH_SCOPE
             or int(value.get("expires_at") or 0) > current_time
         )
     }
+
+
+def prune_expired_repair_auth(state: dict[str, Any], now: int | None = None) -> dict[str, Any]:
+    """Compatibility alias for callers and older focused tests."""
+    return prune_expired_auth(state, now)
 
 
 def load_project_registry() -> list[dict[str, Any]]:
@@ -319,11 +378,10 @@ def shared_live_aliases() -> set[str]:
 
 def record_repair_auth(payload: dict[str, Any]) -> None:
     now = int(time.time())
-    state = prune_expired_repair_auth(read_state(), now)
-    state[session_key(payload)] = {
-        "authorized_at": now,
-        "scope": REPAIR_AUTH_SCOPE,
-    }
+    state = prune_expired_auth(read_state(), now)
+    key = session_key(payload)
+    entry = state.get(key) if isinstance(state.get(key), dict) else {}
+    state[key] = {**entry, "authorized_at": now, "scope": REPAIR_AUTH_SCOPE}
     write_state(state)
 
 
@@ -338,7 +396,7 @@ def clear_repair_auth(payload: dict[str, Any]) -> None:
 
 def repair_auth_active(payload: dict[str, Any]) -> bool:
     state = read_state()
-    pruned_state = prune_expired_repair_auth(state)
+    pruned_state = prune_expired_auth(state)
     if pruned_state != state:
         write_state(pruned_state)
     entry = pruned_state.get(session_key(payload))
@@ -350,12 +408,56 @@ def repair_auth_active(payload: dict[str, Any]) -> bool:
     )
 
 
+def record_legacy_long_task_auth(payload: dict[str, Any]) -> None:
+    now = int(time.time())
+    state = prune_expired_auth(read_state(), now)
+    key = session_key(payload)
+    entry = state.get(key) if isinstance(state.get(key), dict) else {}
+    state[key] = {
+        **entry,
+        "legacy_long_task_authorized_at": now,
+        "legacy_long_task_scope": LEGACY_LONG_TASK_AUTH_SCOPE,
+    }
+    write_state(state)
+
+
+def clear_legacy_long_task_auth(payload: dict[str, Any]) -> None:
+    state = read_state()
+    key = session_key(payload)
+    entry = state.get(key)
+    if not isinstance(entry, dict) or "legacy_long_task_scope" not in entry:
+        return
+    next_entry = {
+        field: value
+        for field, value in entry.items()
+        if field not in {"legacy_long_task_authorized_at", "legacy_long_task_scope"}
+    }
+    if next_entry:
+        state[key] = next_entry
+    else:
+        del state[key]
+    write_state(state)
+
+
+def legacy_long_task_auth_active(payload: dict[str, Any]) -> bool:
+    state = read_state()
+    pruned_state = prune_expired_auth(state)
+    if pruned_state != state:
+        write_state(pruned_state)
+    entry = pruned_state.get(session_key(payload))
+    return (
+        isinstance(entry, dict)
+        and entry.get("legacy_long_task_scope") == LEGACY_LONG_TASK_AUTH_SCOPE
+    )
+
+
 def workspace_context() -> str:
     return (
         "Workspace guardrails: codex-workspace is a workspace index, not a default product repo. "
         "For substantive work state level/rationale/strategy, and route only from explicit project/path/service evidence. "
         "OpenClaw/NAS/live/production is L2 read-only; L3 state changes require "
-        f"{REPAIR_PHRASE!r}. Use Route Lock for long tasks."
+        f"{REPAIR_PHRASE!r}. Use Route Lock when routing needs it. Legacy long-task state is read-only "
+        f"unless the user says {LEGACY_LONG_TASK_ENABLE_PHRASE!r} in the current task."
     )
 
 
@@ -430,6 +532,19 @@ def prompt_context(payload: dict[str, Any]) -> str:
             "preserve rollback evidence, and do not broaden the repair."
         )
 
+    if any(phrase in prompt for phrase in LEGACY_LONG_TASK_DISABLE_PHRASES):
+        clear_legacy_long_task_auth(payload)
+        parts.append(
+            "Legacy long-task workflow disabled for the current task. Existing run records remain readable, "
+            "but checkpoints, ledgers, indexes, and other legacy control state must not be changed."
+        )
+    elif prompt.strip() == LEGACY_LONG_TASK_ENABLE_PHRASE:
+        record_legacy_long_task_auth(payload)
+        parts.append(
+            "Legacy long-task workflow explicitly enabled for the current task. Its state may be updated until "
+            "the task stops; this does not open the L3 repair gate."
+        )
+
     return " ".join(parts)
 
 
@@ -441,6 +556,149 @@ def command_text(payload: dict[str, Any]) -> str:
         value = tool_input.get(key)
         if isinstance(value, str) and value.strip():
             return value.strip()
+    return ""
+
+
+def tool_input(payload: dict[str, Any]) -> dict[str, Any]:
+    value = payload.get("tool_input")
+    return value if isinstance(value, dict) else {}
+
+
+def command_workdir(payload: dict[str, Any]) -> Path:
+    values = tool_input(payload)
+    for value in (values.get("workdir"), values.get("cwd"), payload.get("cwd")):
+        if isinstance(value, str) and value.strip():
+            return Path(value).expanduser().resolve()
+    return Path.cwd().resolve()
+
+
+def path_is_inside_legacy_run(value: str, workdir: Path) -> bool:
+    normalized = str(value or "").strip().replace("\\", "/")
+    workdir_text = str(workdir).replace("\\", "/")
+    return "/codex-runs/" in normalized or "/codex-runs/" in workdir_text
+
+
+def is_legacy_long_task_control_path(value: str, workdir: Path) -> bool:
+    normalized = str(value or "").strip().replace("\\", "/")
+    if not normalized:
+        return False
+    if re.search(r"(?:^|/)codex-long-tasks/index\.json$", normalized):
+        return True
+    if Path(normalized).name in LEGACY_LONG_TASK_DISTINCT_CONTROL_FILES:
+        return True
+    return (
+        Path(normalized).name in LEGACY_LONG_TASK_CONTROL_FILES
+        and path_is_inside_legacy_run(normalized, workdir)
+    )
+
+
+def apply_patch_targets(patch: str) -> list[str]:
+    return re.findall(
+        r"^\*\*\* (?:Add|Update|Delete) File:\s*(.+?)\s*$|^\*\*\* Move to:\s*(.+?)\s*$",
+        patch,
+        re.MULTILINE,
+    )
+
+
+def flattened_patch_targets(patch: str) -> list[str]:
+    return [value for pair in apply_patch_targets(patch) for value in pair if value]
+
+
+def legacy_long_task_cli_mutation(command: str) -> bool:
+    tokens = tokenize_command(command)
+    direct_single_command = bool(
+        tokens
+        and not is_shell_wrapper(tokens)
+        and not any(token in PIPE_OPERATORS for token in tokens)
+    )
+    if direct_single_command and any(token in {"--dry-run", "--help", "-h"} for token in tokens):
+        return False
+
+    main_match = re.search(
+        r"(?:^|[\s'\"/])codex-long-task\.mjs\s+([a-z-]+)\b",
+        command,
+        re.IGNORECASE,
+    )
+    if main_match and main_match.group(1).lower() in LEGACY_LONG_TASK_MUTATING_COMMANDS:
+        return True
+
+    for script_name in LEGACY_LONG_TASK_HELPER_SCRIPTS:
+        if re.search(rf"(?:^|[\s'\"/]){re.escape(script_name)}\b", command, re.IGNORECASE):
+            return True
+
+    state_helper = re.search(
+        r"(?:^|[\s'\"/])codex-long-task-state-commands\.mjs\s+([a-z-]+)\b",
+        command,
+        re.IGNORECASE,
+    )
+    return bool(
+        state_helper
+        and state_helper.group(1).lower() in LEGACY_LONG_TASK_MUTATING_COMMANDS
+    )
+
+
+def command_mutates_legacy_control_state(command: str, workdir: Path) -> bool:
+    if not command or is_inspection_command(command):
+        return False
+    normalized_command = command.replace("\\", "/")
+    references_index = re.search(
+        r"(?:^|[/\s'\"])codex-long-tasks/index\.json(?:$|[\s'\"])",
+        normalized_command,
+        re.IGNORECASE,
+    )
+    references_distinct_control = any(
+        re.search(rf"(?<![A-Za-z0-9_.-]){re.escape(filename)}(?![A-Za-z0-9_.-])", normalized_command)
+        for filename in LEGACY_LONG_TASK_DISTINCT_CONTROL_FILES
+    )
+    references_run_control = path_is_inside_legacy_run(normalized_command, workdir) and any(
+        re.search(rf"(?<![A-Za-z0-9_.-]){re.escape(filename)}(?![A-Za-z0-9_.-])", normalized_command)
+        for filename in LEGACY_LONG_TASK_CONTROL_FILES
+    )
+    control_reference = bool(references_index or references_distinct_control or references_run_control)
+    if not control_reference:
+        return False
+    mutation_hint = re.search(
+        r"(?:"
+        r"\.write_(?:text|bytes)\s*\(|"
+        r"\b(?:writeFile|writeFileSync|appendFile|appendFileSync|json\.dump)\s*\(|"
+        r"\bopen\s*\([^\n]{0,320},\s*['\"][wax+][^'\"]*['\"]|"
+        r"\b(?:sed\s+-i|perl\s+-pi|tee|truncate|touch|rm|mv|cp|install)\b|"
+        r"(?:^|\s)(?:>|>>|1>|1>>|2>|2>>|&>|&>>)\s*"
+        r")",
+        command,
+        re.IGNORECASE | re.DOTALL,
+    )
+    return mutation_hint is not None
+
+
+def legacy_long_task_mutation_reason(payload: dict[str, Any]) -> str:
+    values = tool_input(payload)
+    workdir = command_workdir(payload)
+    command = command_text(payload)
+    if command and not is_inspection_command(command) and legacy_long_task_cli_mutation(command):
+        return "Legacy long-task CLI mutation is disabled for this task."
+    if command_mutates_legacy_control_state(command, workdir):
+        return "Legacy long-task control-state write is disabled for this task."
+
+    patch = values.get("patch") or values.get("input")
+    if isinstance(patch, str) and any(
+        is_legacy_long_task_control_path(path_value, workdir)
+        for path_value in flattened_patch_targets(patch)
+    ):
+        return "Editing legacy long-task control state is disabled for this task."
+
+    for key in (
+        "file_path",
+        "filePath",
+        "path",
+        "target_file",
+        "target_path",
+        "targetPath",
+        "filename",
+    ):
+        value = values.get(key)
+        if isinstance(value, str) and is_legacy_long_task_control_path(value, workdir):
+            return "Editing legacy long-task control state is disabled for this task."
     return ""
 
 
@@ -640,6 +898,14 @@ def summarize_hygiene_issues(summary: dict[str, Any]) -> str:
 
 
 def check_command(payload: dict[str, Any]) -> None:
+    legacy_reason = legacy_long_task_mutation_reason(payload)
+    if legacy_reason and not legacy_long_task_auth_active(payload):
+        deny_pre_tool(
+            f"{legacy_reason} Existing records remain readable. Ask the user to say "
+            f"{LEGACY_LONG_TASK_ENABLE_PHRASE!r} in this task before changing them."
+        )
+        return
+
     command = command_text(payload)
     policy, reason = classify_command(command)
     if policy == "hard_block":
@@ -665,6 +931,14 @@ def check_hygiene_after_edit() -> None:
 
 
 def check_permission_request(payload: dict[str, Any]) -> None:
+    legacy_reason = legacy_long_task_mutation_reason(payload)
+    if legacy_reason and not legacy_long_task_auth_active(payload):
+        deny_permission_request(
+            f"{legacy_reason} Existing records remain readable. Ask the user to say "
+            f"{LEGACY_LONG_TASK_ENABLE_PHRASE!r} in this task before approving the change."
+        )
+        return
+
     command = command_text(payload)
     policy, reason = classify_command(command)
     if policy == "hard_block":

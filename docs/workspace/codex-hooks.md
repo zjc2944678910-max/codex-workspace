@@ -20,12 +20,12 @@ commands, but they are not a complete security sandbox.
 
 | Event | Purpose | Behavior |
 | --- | --- | --- |
-| `SessionStart` | Load workspace rules | Adds compact workspace context and read-only reminders for up to three active long-task runs. |
-| `UserPromptSubmit` | Route by prompt | Adds registry-derived route/risk hints and up to three matching active-run reminders. |
-| `PreToolUse` | Command guard | Blocks destructive local commands and L3-looking live mutations unless the repair gate is open, while allowing read-only inspection commands that merely mention blocked strings. |
+| `SessionStart` | Load workspace rules | Adds compact workspace context without reading or listing legacy runs. |
+| `UserPromptSubmit` | Route and authorization | Adds registry-derived route/risk hints and records exact task-scoped repair or legacy-workflow opt-ins. |
+| `PreToolUse` | Command and file guard | Blocks destructive commands, gated L3 mutations, and non-opted-in legacy long-task state writes while allowing read-only inspection. |
 | `PermissionRequest` | Approval guard | Denies dangerous approval requests if approval prompts are enabled in a future profile. |
 | `PostToolUse` | Hygiene check | Runs workspace hygiene after file edits and only warns when policy-relevant issues appear. |
-| `Stop` | Closeout and repair-gate cleanup | Clears task-scoped repair authorization and reminds high-risk L2/L3/live answers to include evidence, risks, and next steps. |
+| `Stop` | Closeout and gate cleanup | Clears task-scoped repair and legacy-workflow authorization and reminds high-risk L2/L3/live answers to include evidence, risks, and next steps. |
 
 ## Repair Gate
 
@@ -64,13 +64,30 @@ aliases should stay explicit in both places.
 `repo-hygiene.mjs` reports `project_route_metadata_mismatches` when registry
 fields drift from the matching ops README.
 
-## Long-Task Recovery Reminders
+## Legacy Long-Task Gate
 
-`SessionStart` and `UserPromptSubmit` read the active-run indexes beneath
-project `state_data` directories. A reminder includes the run and its recorded
-next action, is capped at three relevant runs, and omits closed runs. Hooks do
-not create a run, checkpoint, repair a transaction, change an index, or write
-OPS; the CLI remains the source of truth for recovery and conflict handling.
+The legacy run-directory workflow is read-only by default. `SessionStart` and
+`UserPromptSubmit` do not read active-run indexes or inject task reminders.
+Existing state can still be inspected with ordinary read commands and the CLI's
+`status` command.
+
+Mutation is enabled only when the user sends this exact prompt in the current
+task:
+
+```text
+启用旧长任务流程
+```
+
+The opt-in allows the legacy CLI's mutating commands and writes to its control
+files and indexes until the task stops. `停用旧长任务流程`,
+`关闭旧长任务流程`, or `取消旧长任务流程` revokes it early. It does not open
+the L3 repair gate.
+
+Without that opt-in, `PreToolUse` denies mutating legacy CLI commands, direct
+command writes, and `apply_patch`/Edit/Write targets for the legacy control
+state. It still allows source changes under a run's `candidate/` directory.
+Native plans, context compaction, helpers, Route Lock, or reading an old task do
+not authorize legacy state writes.
 
 ## Command Policy
 
@@ -100,6 +117,9 @@ Read-only inspection commands, such as `rg`, `sed -n`, `git show`, `git status`,
 and `journalctl` probes, are not blocked just because they mention risky text.
 They still get an L2 read-only reminder when live terms are present.
 
+The hook is a guardrail rather than a filesystem sandbox. Keep the policy text
+and tests because tools outside configured Codex hook events can bypass it.
+
 ## Verification
 
 Run focused hook tests:
@@ -107,6 +127,11 @@ Run focused hook tests:
 ```bash
 node --test docs/workspace/workspace-hooks.test.mjs
 ```
+
+After changing `.codex/hooks.json`, open `/hooks` in a new task and confirm the
+project hook configuration is trusted. The Python guard script is loaded on
+each configured event; new matcher coverage depends on the updated hook config
+being accepted by the client.
 
 Run all workspace tests:
 
