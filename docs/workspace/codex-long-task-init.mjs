@@ -227,20 +227,10 @@ ${renderRouteLock(routeLock)}
 
 ## Strategy
 
-1. Choose the lightest safe path for each slice.
-2. Map with repo_mapper only when entry points, contracts, or impact are unclear.
-3. Review with review_guard only when correctness, regression, security, rollback, or missing-test risk needs a separate pass.
-4. Use docs_checker only if framework, API, or version semantics are unclear.
-5. Delegate to model_worker_delegate only when the slice is broad, repetitive, cross-module, or likely to need repair.
-   Use refactor_worker only after explicit refactor approval.
-   Use surgical_fixer only as a fallback for tiny or tightly coupled fixes.
-6. Verify locally for known-scope slices; use verifier when independent validation is worth the extra context.
-
-## Agent Budget
-
-- L0 and small known-scope L1 slices use zero agents by default.
-- Ordinary L1 slices use at most one helper agent unless two or more risk signals are present.
-- Run the full mapper/review/worker/verifier chain only for complex slices where independent passes materially reduce risk.
+1. Follow the current AGENTS.md for workflow, model, and concurrency choices.
+2. Root may inspect, implement, repair, and verify each slice directly.
+3. Helpers are optional and should be used only when they provide a useful bounded contribution; no mapper/review/worker/verifier chain is prescribed.
+4. Root must explicitly authorize any refactor in the applicable brief before assigning refactor_worker or starting the refactor.
 
 ## Evidence Budget
 
@@ -257,7 +247,7 @@ ${renderRouteLock(routeLock)}
 | ID | Status | Agent | Scope | Inputs | Outputs | Retries | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | T01 | deferred | repo_mapper | map task surface if delegation gate opens | 00-request.md, 01-confirmed-context.md | agents/T01/mapper-result.md | 0 | optional; use only when surface/contract/impact is unclear |
-| T02 | deferred | review_guard | pre-change risk review if risk gate opens | 02-plan.md, agents/T01/mapper-result.md | agents/T02/review-result.md | 0 | optional; use only for concrete correctness/security/rollback/test risk |
+| T02 | deferred | review_guard | pre-change risk review if risk gate opens | 01-confirmed-context.md, 02-plan.md | agents/T02/review-result.md | 0 | optional; use only for concrete correctness/security/rollback/test risk |
 `],
       ["04-risk-register.md", `# Risk Register
 
@@ -314,6 +304,12 @@ ${renderRouteLock(routeLock)}
 `],
       [path.join("agents", "T01", "mapper-brief.md"), `# Mapper Brief
 
+## Execution Policy
+
+- Root may inspect, implement, repair, and verify directly.
+- Helpers are optional under the current AGENTS.md; use this brief only if root delegates this bounded mapping task.
+- This brief is not a required stage in a prescribed agent chain.
+
 ## Role
 
 repo_mapper
@@ -358,6 +354,12 @@ followups: <optional next steps or empty>
 `],
       [path.join("agents", "T02", "review-brief.md"), `# Review Brief
 
+## Execution Policy
+
+- Root may inspect, implement, repair, and verify directly.
+- Helpers are optional under the current AGENTS.md; use this brief only if root delegates this bounded review task.
+- This brief is not a required stage in a prescribed agent chain.
+
 ## Role
 
 review_guard
@@ -369,12 +371,11 @@ review_guard
 - Route lock: ${runPath("01-confirmed-context.md")}
 - Plan: ${runPath("02-plan.md")}
 - Ledger: ${runPath("03-task-ledger.md")}
-- Mapper result: ${runPath("agents", "T01", "mapper-result.md")}
 - Decisions: ${runPath("05-decisions.md")}
 
 ## Task
 
-Review the plan and mapped surface for correctness, regressions, edge cases,
+Review the plan and available evidence for correctness, regressions, edge cases,
 security exposure, missing tests, rollback concerns, and unclear assumptions.
 
 ## Constraints
@@ -405,8 +406,13 @@ followups: <optional next steps or empty>
       [path.join("brief-templates", "dev-brief.md"), `# Development Brief Template
 
 Copy this file to ${runPath("agents", "<task-id>", "dev-brief.md")} and fill in
-the placeholders before sending it to model_worker_delegate or another
-explicitly selected executor.
+the placeholders before root executes it directly or delegates a bounded slice.
+
+## Execution Policy
+
+- Follow the current AGENTS.md for workflow, model, and concurrency choices.
+- Root may execute this brief directly. Helpers are optional, and no full agent chain is prescribed.
+- model_worker_delegate is a backward-compatible legacy role label; when delegation is useful, map it to an available worker and follow WORKER.md.
 
 ## Role
 
@@ -420,8 +426,6 @@ model_worker_delegate
 - Plan: ${runPath("02-plan.md")}
 - Ledger: ${runPath("03-task-ledger.md")}
 - Decisions: ${runPath("05-decisions.md")}
-- Mapper result: ${runPath("agents", "T01", "mapper-result.md")}
-- Review result: ${runPath("agents", "T02", "review-result.md")}
 
 ## Task
 
@@ -435,11 +439,10 @@ model_worker_delegate
 ## Constraints
 
 - Make the smallest defensible change.
-- If the role is model_worker_delegate, follow WORKER.md.
 - Honor ${routeLockReference}.
 - Change only files in target_surface/project_root and the assigned write set.
 - If the required fix belongs to another project or surface, return blocked and explain.
-- Do not refactor unless this brief explicitly switches the role to refactor_worker.
+- Do not refactor unless root explicitly authorizes it in this brief; refactor_worker labels that authorized path.
 - Preserve public behavior unless the acceptance criteria says otherwise.
 - Stop and report if the required change exceeds this slice.
 - Keep output compact.
@@ -469,7 +472,12 @@ followups: <optional next steps or empty>
       [path.join("brief-templates", "verify-brief.md"), `# Verification Brief Template
 
 Copy this file to ${runPath("agents", "<task-id>", "verify-brief.md")} and fill
-in the placeholders before sending it to verifier.
+in the placeholders before root verifies directly or delegates a bounded verification task.
+
+## Execution Policy
+
+- Follow the current AGENTS.md for workflow, model, and concurrency choices.
+- Root may verify directly. A verifier helper is optional, and this brief is not a required stage in a prescribed agent chain.
 
 ## Role
 
@@ -523,8 +531,13 @@ followups: <optional next steps or empty>
       [path.join("brief-templates", "repair-brief.md"), `# Repair Brief Template
 
 Copy this file to ${runPath("agents", "<dev-task-id>", "repair-<n>-brief.md")}
-and send it back to the same model worker (model_worker_delegate) when
-possible.
+before root repairs directly or delegates a bounded repair task.
+
+## Execution Policy
+
+- Follow the current AGENTS.md for workflow, model, and concurrency choices.
+- Root may repair directly. Helpers are optional, and no full agent chain is prescribed.
+- model_worker_delegate is a backward-compatible legacy role label; when delegation is useful, map it to an available worker and follow WORKER.md.
 
 ## Role
 
@@ -554,19 +567,13 @@ model_worker_delegate
 ## Constraints
 
 - Fix only the Codex verifier/review findings and failing evidence listed above.
-- Repair executor: model worker (model_worker_delegate). This is the
-  default; Codex must not direct-patch L0/L1 implementation defects unless a
-  bypass reason applies (tiny mechanical fix, worker unavailable, L2/L3/deploy
-  issue, explicit user request).
-- If Codex bypasses worker repair, the final output must include why_no_worker.
-- If the role is model_worker_delegate, follow WORKER.md.
 - Preserve the prior implementation unless a finding directly contradicts it.
 - Do not broaden scope, refactor, or clean up unrelated code.
 - Honor ${routeLockReference}.
 - Repair only target_surface/project_root from the Route Lock and the assigned write set.
 - If the fix belongs to another project or surface, return blocked and explain.
 - Prefer the same files changed in the original development attempt.
-- Do not start a refactor.
+- Do not start a refactor unless root explicitly authorizes it in this brief.
 - Stop after this repair if the fix would exceed the original task slice.
 - Keep output compact.
 - Do not paste long source excerpts, full diffs, or large logs.

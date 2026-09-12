@@ -1,5 +1,6 @@
 #:schema https://developers.openai.com/codex/config-schema.json
 
+# The user selects the primary model and effort; do not override them here.
 review_model = "gpt-5.6-sol"
 
 # Existing context and compaction values are intentionally preserved.
@@ -7,21 +8,22 @@ review_model = "gpt-5.6-sol"
 model_context_window = 1000000
 model_auto_compact_token_limit = 252000
 
-# codex-cli 0.144.0 reads these as top-level subagent defaults. Keeping them
-# under a legacy [agents] table makes the whole project config fail to load.
-max_concurrent_threads_per_session = 4
-default_subagent_model = "gpt-5.6-luna"
-default_subagent_reasoning_effort = "xhigh"
-max_depth = 1
-job_max_runtime_seconds = 1800
-
 sandbox_mode = "danger-full-access"
 approval_policy = "never"
 
 developer_instructions = """
-Workspace policy: AGENTS.md. Read it for routing, risk, Luna delegation and acceptance.
+Workspace policy: AGENTS.md. Read it for routing, risk, optional delegation and acceptance.
 Use WORKER.md only for a delegated handoff and task-specific runbooks only when needed.
 """
 
 [features]
 codex_hooks = true
+
+# Supported workspace client: ChatGPT desktop's bundled codex 0.153.4.
+# Counts spawned agents, excluding the primary. Runtime capacity may be lower.
+[agents]
+max_concurrent_threads_per_session = 6
+default_subagent_model = "gpt-5.6-luna"
+default_subagent_reasoning_effort = "medium"
+# V1 compatibility only; V2 relies on the no-recursive-delegation policy.
+max_depth = 1

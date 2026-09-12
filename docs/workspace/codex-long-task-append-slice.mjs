@@ -173,6 +173,12 @@ function buildSliceFiles(runRoot, options = {}, taskIds = {}) {
 
   const devBrief = `# Development Brief
 
+## Execution Policy
+
+- Follow the current AGENTS.md for workflow, model, and concurrency choices.
+- Root may execute this brief directly. Helpers are optional, and no full agent chain is prescribed.
+- model_worker_delegate is a backward-compatible legacy role label; when delegation is useful, map it to an available worker and follow WORKER.md.
+
 ## Role
 
 ${devAgent}
@@ -184,8 +190,6 @@ ${devAgent}
 - Plan: ${runPath("02-plan.md")}
 - Ledger: ${runPath("03-task-ledger.md")}
 - Decisions: ${runPath("05-decisions.md")}
-- Mapper result: ${runPath("agents", "T01", "mapper-result.md")}
-- Review result: ${runPath("agents", "T02", "review-result.md")}
 
 ## Task
 
@@ -198,8 +202,7 @@ ${bulletList(options.owned, "<explicit write set>")}
 ## Constraints
 
 - Make the smallest defensible change.
-- If the role is model_worker_delegate, follow WORKER.md.
-- Do not refactor unless the role is refactor_worker.
+- Do not refactor unless root explicitly authorizes it in this brief; refactor_worker labels that authorized path.
 - Preserve public behavior unless the acceptance criteria says otherwise.
 - Stop and report if the required change exceeds this slice.
 - Keep output compact.
@@ -227,6 +230,11 @@ followups: <optional next steps or empty>
 `;
 
   const verifyBrief = `# Verification Brief
+
+## Execution Policy
+
+- Follow the current AGENTS.md for workflow, model, and concurrency choices.
+- Root may verify directly. A verifier helper is optional, and this brief is not a required stage in a prescribed agent chain.
 
 ## Role
 
@@ -276,7 +284,7 @@ followups: <optional next steps or empty>
 `;
 
   const ledgerRows = [
-    `| ${devTaskId} | pending | ${escapeCell(devAgent)} | ${escapeCell(scope)} | 00-request.md, 02-plan.md, agents/T01/mapper-result.md, agents/T02/review-result.md | agents/${devTaskId}/dev-result.md | 0 | implementation slice |`,
+    `| ${devTaskId} | pending | ${escapeCell(devAgent)} | ${escapeCell(scope)} | 00-request.md, 01-confirmed-context.md, 02-plan.md, 05-decisions.md | agents/${devTaskId}/dev-result.md | 0 | implementation slice |`,
     `| ${verifyTaskId} | pending | verifier | verify ${escapeCell(scope)} | agents/${devTaskId}/dev-result.md | agents/${verifyTaskId}/verify-result.md | 0 | verifies ${devTaskId} |`,
   ];
 
@@ -339,7 +347,7 @@ async function appendSlice(options = {}) {
       if (crossRun) throw new Error(`duplicate unresolved slice exists in another run: ${crossRun.run_root}`);
     }
 
-    const nextAction = `send ${path.join(runRoot, "agents", taskIds.devTaskId, "dev-brief.md")} to ${options.devAgent || "model_worker_delegate"}${(options.devAgent || "model_worker_delegate") === "model_worker_delegate" ? " (model worker)" : ""}`;
+    const nextAction = `root execute ${path.join(runRoot, "agents", taskIds.devTaskId, "dev-brief.md")} directly or delegate it to ${options.devAgent || "model_worker_delegate"}${(options.devAgent || "model_worker_delegate") === "model_worker_delegate" ? " (legacy label mapped to an available worker when useful)" : ""}`;
     const epoch = options._reopen ? 2 : 1;
     const sliceState = {
       dev_task_id: taskIds.devTaskId,

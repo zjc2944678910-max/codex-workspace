@@ -87,7 +87,11 @@ test("createRepair writes repair brief and updates ledger", async () => {
   assert.match(brief, /Codex verifier\/review findings/u);
   assert.match(brief, /model_worker_delegate/u);
   assert.match(brief, /Do not broaden scope/u);
-  assert.match(brief, /why_no_worker|bypass/u);
+  assert.match(brief, /Root may repair directly/u);
+  assert.match(brief, /Helpers are optional/u);
+  assert.match(brief, /backward-compatible legacy role label/u);
+  assert.match(brief, /root explicitly authorizes it/u);
+  assert.doesNotMatch(brief, /why_no_worker|bypass reason|Repair executor:/u);
   assert.match(ledger, /\| T03 \| needs_fix/u);
   assert.match(ledger, /\| T04 \| blocked/u);
 });

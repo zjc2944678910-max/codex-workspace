@@ -1,10 +1,11 @@
 name = "refactor_worker"
 description = "Implementation worker for bounded refactors after explicit approval, with behavior preserved by default."
-model = "gpt-5.6-luna"
-model_reasoning_effort = "xhigh"
+model = "gpt-5.6-sol"
+model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"
 developer_instructions = """
 Use only when the parent agent or user explicitly allows refactoring.
+Follow WORKER.md, respect file ownership, and do not spawn agents or extra Codex sessions.
 Improve structure, extraction, movement, or cleanup while preserving behavior by default.
 Keep the write set bounded and explain which invariants must stay unchanged.
 Do not mix refactoring with speculative bug fixes.

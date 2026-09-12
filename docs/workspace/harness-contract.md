@@ -9,8 +9,7 @@ Authoritative sources:
   policy.
 - `WORKER.md` owns the bounded worker contract.
 - `docs/workspace/daily-workflow.md` is the day-to-day workflow entry point.
-- `docs/workspace/codex-long-task-runbook.md` is the canonical long-task
-  operating runbook.
+- `docs/workspace/codex-long-task-runbook.md` documents the optional legacy CLI.
 
 ## Purpose
 
@@ -24,10 +23,10 @@ while keeping workspace policy and project implementation separate.
 
 ## Operating Loop
 
-Every substantive task should move through this loop:
+Use the parts of this loop that the task needs:
 
 ```text
-route -> classify -> choose owner -> execute bounded work -> verify -> record durable facts -> close out
+route -> classify -> choose owner -> execute bounded work -> verify -> close out
 ```
 
 - `route`: select the target from explicit project, path, host, service, or
@@ -38,8 +37,8 @@ route -> classify -> choose owner -> execute bounded work -> verify -> record du
 - `execute bounded work`: stay inside the selected surface, task scope, and
   permission gate.
 - `verify`: run checks that match the risk and blast radius.
-- `record durable facts`: put reusable evidence and decisions in the right
-  workspace or project record.
+- Record reusable facts or a brief recovery note when needed; no fixed artifact
+  layout or per-turn updates are required.
 - `close out`: report confirmed facts, verification, residual risks, and next
   steps at the level the task deserves.
 
@@ -55,7 +54,8 @@ Routing decides where work is allowed to happen.
 - Use `ops/projects/<project>/README.md` as the human-facing route record.
 - Use `PROJECTS.md` as the short human project index and
   `docs/workspace/project-surfaces.md` as the richer surface summary.
-- For long tasks and worker handoffs, write and honor a Route Lock:
+- For multi-project-sensitive work and worker handoffs, state and honor a Route Lock
+  in the task context or brief, without requiring a run directory:
   `target_project`, `target_surface`, `project_root`, `route_evidence`, and
   `forbidden_surfaces`.
 - If new evidence points outside the Route Lock, stop as blocked instead of
@@ -79,12 +79,11 @@ Task shape decides which workflow to use.
   acceptance criteria are already explicit, and there is no risky surface.
 - Use the ordinary short-task workflow when the fast path does not apply but the
   work still fits in one focused slice.
-- Initialize a long-task run before two or more expected implementation slices,
-  the first verification failure that needs tracked repair, or a task known
-  to continue beyond the current turn. A short independent review alone is not
-  a trigger. Plan/read-only work keeps context in conversation without writes.
-- Use the full mapper -> review -> worker -> verifier chain only when
-  independent passes materially reduce risk.
+- Multiple stages, failures or turn boundaries do not trigger run creation.
+  The legacy CLI is used only at the user's explicit request. Plan/read-only
+  work keeps planning context in conversation without writes.
+- Delegate useful independent slices under AGENTS.md; there is no prescribed
+  role chain, minimum agent count or per-role quota.
 
 ## Verification Layer
 
@@ -104,17 +103,16 @@ Verification proves the task outcome, not the agent's effort.
 
 ## Memory Layer
 
-Memory keeps work resumable and prevents the chat from becoming the system of
-record.
+Conversation context is the default. Durable notes can support recovery when
+needed; the old run-directory workflow remains available by explicit opt-in.
 
-- Put long-task state in the run directory created by
-  `docs/workspace/codex-long-task.mjs`; `08-continuation.json` is the compact
-  continuation and `09-failure-ledger.jsonl` is the stable failure history.
-- Keep the active-run index under the routed project's `state_data` path; use
-  `state/project-data/workspace/codex-long-tasks/index.json` for shared runs.
-- Hooks may read that index and remind about at most three relevant runs. They
-  do not create runs, checkpoint, change state, or write OPS.
-- Store reusable decisions in `05-decisions.md` for long tasks.
+- Preserve existing run directories, continuation records, failure histories
+  and indexes. Read relevant records when continuing an explicitly identified
+  old task; do not automatically update states, retry counts or checkpoints.
+- Session and prompt hooks do not read active-run indexes or inject task lists.
+  Routing and live authorization hooks remain enabled.
+- In an explicitly opted-in legacy run, its manual CLI still maintains
+  `08-continuation.json`, `09-failure-ledger.jsonl` and the existing indexes.
 - Store OPS promotion proposals in `10-ops-promotion-candidates.md`. Promote a
   fact only after explicit review confirms it is verified, cross-task durable,
   inside the Route Lock, evidence-backed, and paired with a recheck condition.
@@ -131,7 +129,9 @@ Workers execute bounded slices. They do not own the harness.
 
 - Codex owns routing, risk classification, architecture judgment, safety,
   verification judgment, and final user synthesis.
-- Workers may implement or repair only the assigned scope.
+- Workers may implement or repair only the assigned scope. Parallel writers
+  require disjoint file ownership and settled interfaces; Codex observes the
+  same ownership and coordinates shared build/test resources.
 - Workers must honor Route Lock, inherited risk gates, approved write scope, and
   `WORKER.md`.
 - Workers must return compact results: summary, changed files, tests run,

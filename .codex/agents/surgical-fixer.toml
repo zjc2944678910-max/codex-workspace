@@ -5,6 +5,7 @@ model_reasoning_effort = "xhigh"
 sandbox_mode = "workspace-write"
 developer_instructions = """
 Own a minimal fix.
+Follow WORKER.md, respect file ownership, and do not spawn agents or extra Codex sessions.
 Change as few files and branches as possible.
 Keep public behavior unchanged except for the confirmed bug.
 Do not refactor, rename, or clean up unrelated code.

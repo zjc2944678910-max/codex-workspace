@@ -1,7 +1,18 @@
 # Daily Workflow Quickstart
 
 Policy: `AGENTS.md`. Worker contract: `WORKER.md`.
-Long-task details: `codex-long-task-runbook.md`.
+Optional legacy long-task CLI: `codex-long-task-runbook.md` (explicit opt-in only).
+
+## Supported Codex Client
+
+This workspace targets ChatGPT desktop's bundled Codex CLI 0.153.4. For CLI
+work here, invoke `/Applications/ChatGPT.app/Contents/Resources/codex` directly.
+The older Codex.app and PATH CLI 0.144 installations remain installed but do
+not support this workspace's current `[agents]` configuration. The user chooses
+the primary model and reasoning effort per task or through their global defaults;
+workspace config does not override either setting.
+Some CLI V2 sessions expose no named-role selector. Follow WORKER.md's explicit
+model/effort fallback rather than assuming custom role files were applied.
 
 ## Small Task Fast Path
 
@@ -45,8 +56,8 @@ Use this when the fast path does not apply.
 
 1. Route from explicit project/path/service evidence.
 2. Classify risk. Keep generic requests at workspace-index level.
-3. Apply AGENTS.md ownership: non-tiny local tasks get one useful Luna slice;
-   small known-scope tasks and work without an independent slice stay in Codex.
+3. Apply AGENTS.md ownership: work directly or delegate independent slices
+   when useful. Size alone does not require a helper.
 4. Send the helper owned files, constraints, acceptance criteria and a Route Lock
    in its brief; do not mandate a whole agent chain.
 5. Codex reviews evidence, runs focused checks and resolves remaining defects.
@@ -91,7 +102,7 @@ Codex acceptance.
 | Small known-scope L0/L1 edit with explicit files/tests and no risky surface | Codex handles directly with focused local verification. |
 | L1 multi-file change, shared core function, cross-module refactor, API route, unknown call chain, or unclear contract | Check GitNexus `list_repos`; if the target repo is indexed, use `query`, `context`, and `impact`. For API routes, prefer `api_impact`. |
 | GitNexus target missing or stale | Record `GitNexus unavailable/stale`, then fall back to `rg`, focused tests, and local review. |
-| Non-tiny local implementation with unknown call chain, cross-module risk, repetitive edits, mechanical refactor, or test/fix loop | Send a bounded slice to the appropriate Luna role, then verify locally before acceptance. |
+| Local implementation with useful independent work | Choose an appropriate helper under AGENTS.md, or implement directly; verify the result before acceptance. |
 | Workspace policy, hygiene, or routing metadata change | Use focused review plus `node --test docs/workspace/*.test.mjs` and `workspace-health` after edits. |
 | PDF, Word, spreadsheet, presentation, Figma, Sentry, Playwright, OpenAI docs, security, cleanup, or notification task | Use a matching skill when its actual workflow applies; apply workspace routing and risk gates. For Playwright CLI from this workspace root, launch via `docs/workspace/playwright-scratch.sh --label <label> -- ...` so `.playwright-cli/` stays under `scratch/shared/`. |
 | Review with a concrete file/line finding | Prefer `::code-comment{...}` for actionable line-specific feedback. |
@@ -105,13 +116,11 @@ browser surface.
 
 ## Token Budget
 
-- Use the `fast` profile for ordinary questions, tiny edits, and known-scope
-  local fixes; use `standard` for default development; use `audit` for L2,
-  architecture, complex root cause, production audits, and hard regressions.
-- L0 and small known-scope L1 use zero agents by default. Ordinary L1 should use
-  at most one helper agent unless two or more risk signals are present: unknown
-  call chain, cross-module contract, API route, security/auth/secret boundary,
-  flaky or failing verification, broad refactor, or repeated repair.
+- Keep the user's selected main model and reasoning strength. The optional
+  profiles in `token-budget.md` are explicit choices, not automatic overrides.
+- Use only as many helpers as useful independent work needs, within the
+  configured limit and actual runtime capacity. Follow AGENTS.md for models,
+  concurrent file ownership and batch scheduling; do not fill every role.
 - Agents and workers should return only conclusions, changed files, commands
   run, key outcomes, risks, followups, and evidence pointers. Do not request long
   source excerpts, full diffs, or large logs unless they are the evidence under
@@ -124,17 +133,18 @@ browser surface.
 - Reuse `docs/decisions/workspace-decisions.md`, long-task `05-decisions.md`,
   project ops READMEs, and GitNexus results before re-exploring; recheck only
   when there is drift evidence.
-- Prefer long-task run files for durable state before the chat context becomes
-  large.
+- Leave a brief recovery note when needed; there is no required layout or
+  per-turn bookkeeping cadence.
 
 ## Long Task
 
-Initialize a run before the first applicable boundary: two or more expected
-implementation slices, the first verification failure that needs tracked repair, or a task known to
-continue beyond the current turn. A short independent review alone is not a
-trigger. Plan/read-only work keeps context in conversation without state writes.
-These are mandatory triggers, not a judgment about whether chat still feels
-manageable.
+Use conversation plans and progress updates for ordinary multi-stage work.
+Do not automatically initialize runs, checkpoint, or show active-task indexes
+because a task spans turns or verification fails. Read relevant old records
+when the user continues a specific task; that alone does not opt into updates.
+
+Only when the user explicitly requests the legacy run-directory workflow,
+use the following manual commands and the runbook:
 
 ```bash
 node docs/workspace/codex-long-task.mjs init --project <name> --task "<goal>"
@@ -149,10 +159,9 @@ node docs/workspace/codex-long-task.mjs reopen --run-root <run-root> --evidence-
 node docs/workspace/codex-long-task.mjs finalize --run-root <run-root>
 ```
 
-Checkpoint after every slice result, verification failure, handoff, and before
-ending a turn. Use a Route Lock before handoffs and keep long logs in the run.
-Each failure epoch allows exactly 3 repairs; only new evidence, hypothesis, and
-approach open epoch two. Six failed attempts require a new user decision.
+For explicitly opted-in runs, the CLI preserves its existing state protocol
+and retry limits. These constraints do not impose bookkeeping on other tasks.
+Keep existing run states and counters unchanged unless their update is requested.
 
 ## Hygiene
 

@@ -5,6 +5,7 @@ model_reasoning_effort = "medium"
 sandbox_mode = "read-only"
 developer_instructions = """
 Verify framework, library, API, and version semantics before code changes.
+Follow WORKER.md. Do not spawn agents or extra Codex sessions.
 Use authoritative docs first. Quote or cite only what is needed.
 Call out version-sensitive behavior, deprecated paths, and integration constraints.
 Do not edit files. Do not guess from memory when documentation can answer it.

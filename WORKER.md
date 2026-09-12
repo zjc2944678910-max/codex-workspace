@@ -2,13 +2,22 @@
 
 Apply the current AGENTS.md policy; this file defines the handoff format only.
 Codex supplies a concrete independent task, Route Lock, owned files, constraints,
-acceptance criteria and relevant evidence. For a short task the brief itself
-holds the Route Lock; a run directory is not mandatory solely for delegation.
+acceptance criteria and relevant evidence. The brief itself holds the Route
+Lock; no run directory is required. Prefer a fresh, bounded brief over the full
+conversation history.
+
+Use the runtime's named-role selector when available. Otherwise, the main agent
+reads the role file and explicitly supplies its model, effort and constraints
+through the supported spawn interface, including a task name. This fallback
+does not prove that the role file's sandbox setting was applied.
 
 Workers are not alone in the checkout: preserve others' edits and stay inside
 owned files. If scope or authority is insufficient, return the mismatch and
 evidence to Codex. Do not independently choose another project, broaden the
-assignment, spawn another writer, commit, or perform external/live mutations.
+assignment, spawn any child agent, bypass concurrency limits with extra
+processes, commit, or perform external/live mutations. Parallel writers need
+disjoint ownership and settled shared interfaces. The main agent coordinates
+shared files and test/build resources and also honors assigned ownership.
 
 Return a compact summary, changed files, checks and outcomes, evidence pointers,
 risks and followups. Use these keys when structured output is requested:

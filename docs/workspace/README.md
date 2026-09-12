@@ -7,15 +7,15 @@ Policy: `AGENTS.md`. Worker contract: `WORKER.md`.
 
 | Tool | Purpose |
 | --- | --- |
-| `codex-long-task.mjs` | Unified long-task CLI: init, append, repair, recheck, close |
+| `codex-long-task.mjs` | Optional legacy CLI, used only on explicit request: init, append, repair, recheck, close |
 | `harness-contract.md` | Cross-cutting workspace harness contract for routing, permissions, tasks, verification, memory, and workers |
-| `daily-workflow.md` | Entry point for `L0 tiny` fast path, ordinary short-task workflow, capability defaults, and long-task escalation |
+| `daily-workflow.md` | Entry point for ordinary work, optional delegation, and manual workflow choices |
 | `project-knowledge-map.md` | Searchable map of project docs, route tokens, decisions, runbooks, and model-review playbooks |
 | `model-review-packets.md` | Reusable evidence packets for default Opus 5 and exceptional Fable 5 read-only review |
 | `codex-register-project.mjs` | Register a durable project surface and regenerate the root `PROJECTS.md` index |
 | `find-project.mjs` | Search the project registry by slug, alias, service, host, or route token |
 | `token-budget.md` | Profile selection, agent budget, output limits, evidence pointers, decision reuse, and GitNexus-first rules |
-| `codex-long-task-runbook.md` | **Canonical** operational long-task workflow for multi-slice work, handoff state, and repair loops |
+| `codex-long-task-runbook.md` | Manual reference for explicitly requested legacy runs and existing state compatibility |
 | `codex-hooks.md` | Repo-local Codex hook guardrails, verification, and rollback |
 | `codex-multi-agent-long-task-template.md` | Non-canonical prompt examples and layout reference |
 | `repo-hygiene.mjs` | Workspace root hygiene, project route metadata drift checks, and checkpointing |
@@ -48,8 +48,9 @@ Policy: `AGENTS.md`. Worker contract: `WORKER.md`.
   `daily-workflow.md` as the day-to-day entry point.
 - Use `token-budget.md` when deciding whether to use `fast`, `standard`, or
   `audit`, or when evidence and command output may bloat the main context.
-- Escalate to `codex-long-task-runbook.md` only when work spans multiple slices,
-  needs handoff state, or enters repeated repair loops.
+- Use conversation plans and brief recovery notes for ordinary multi-stage work.
+  Open `codex-long-task-runbook.md` only when the user explicitly requests the
+  legacy run-directory workflow; multiple slices or failures do not activate it.
 - Keep workspace-local active skills narrow and descriptive. Generated
   cluster/timestamp snapshots belong in the local archive, not in active
   discovery; use `node docs/workspace/skill-hygiene.mjs --json` before promoting

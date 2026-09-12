@@ -243,6 +243,12 @@ function buildRepairBrief(runRoot, options = {}, ids = {}, verifyResultText = ""
   const runPath = (...segments) => path.join(runRoot, ...segments);
   return `# Repair Brief
 
+## Execution Policy
+
+- Follow the current AGENTS.md for workflow, model, and concurrency choices.
+- Root may repair directly. Helpers are optional, and no full agent chain is prescribed.
+- model_worker_delegate is a backward-compatible legacy role label; when delegation is useful, map it to an available worker and follow WORKER.md.
+
 ## Role
 
 model_worker_delegate
@@ -280,16 +286,10 @@ ${String(options.approach || "").trim() || "Make the smallest change that resolv
 ## Constraints
 
 - Fix only the Codex verifier/review findings and failing evidence listed above.
-- Repair executor: model worker (model_worker_delegate). This is the
-  default; Codex must not direct-patch L0/L1 implementation defects unless a
-  bypass reason applies (tiny mechanical fix, worker unavailable, L2/L3/deploy
-  issue, explicit user request).
-- If Codex bypasses worker repair, the final output must include why_no_worker.
-- If the role is model_worker_delegate, follow WORKER.md.
 - Preserve the prior implementation unless a finding directly contradicts it.
 - Do not broaden scope, refactor, or clean up unrelated code.
 - Prefer the same files changed in the original development attempt.
-- Do not start a refactor.
+- Do not start a refactor unless root explicitly authorizes it in this brief.
 - Stop after this repair if the fix would exceed the original task slice.
 - Keep output compact.
 - Do not paste long source excerpts, full diffs, or large logs.
@@ -561,7 +561,7 @@ async function createRepair(options = {}) {
     state.active_failure = chain.failure_key;
     state.run_status = "active";
     state.phase = "repair_ready";
-    state.next_action = `send ${targetPath} back to model_worker_delegate (same model worker if resumable) for ${devTaskId}`;
+    state.next_action = `root execute ${targetPath} directly or delegate it via model_worker_delegate (legacy label mapped to an available worker when useful) for ${devTaskId}`;
 
     const result = {
       ok: true,

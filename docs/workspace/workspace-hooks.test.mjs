@@ -37,7 +37,7 @@ test("session hook injects workspace routing context", () => {
   assert.match(output.hookSpecificOutput.additionalContext, /L3 state changes/u);
 });
 
-test("session and prompt reminders read at most three relevant active runs without writing state or OPS", () => {
+test("session and prompt hooks omit active-run reminders without accessing task indexes", () => {
   const tempRoot = mkdtempSync(path.join(tmpdir(), "codex-workspace-hook-long-task-"));
   try {
     const registryPath = path.join(tempRoot, "docs", "workspace", "project-registry.json");
@@ -79,10 +79,21 @@ spec.loader.exec_module(module)
 
 module.WORKSPACE_ROOT = pathlib.Path(${JSON.stringify(tempRoot)})
 module.PROJECT_REGISTRY_PATH = pathlib.Path(${JSON.stringify(registryPath)})
-module.LONG_TASK_STATE_ROOT = pathlib.Path(${JSON.stringify(path.join(tempRoot, "state", "project-data"))})
+index_path = pathlib.Path(${JSON.stringify(indexPath)})
+index_accesses = []
+original_open = pathlib.Path.open
+
+def tracked_open(self, *args, **kwargs):
+    if self == index_path:
+        mode = args[0] if args else kwargs.get("mode", "r")
+        index_accesses.append(str(mode))
+    return original_open(self, *args, **kwargs)
+
+pathlib.Path.open = tracked_open
 print(json.dumps({
     "session": module.workspace_context(),
     "prompt": module.prompt_context({"prompt": "continue demo long task"}),
+    "index_accesses": index_accesses,
 }))
 `;
     const result = spawnSync("python3", ["-c", python], {
@@ -93,14 +104,12 @@ print(json.dumps({
     });
     if (result.status !== 0) throw new Error((result.stderr || result.stdout).trim());
     const output = JSON.parse(result.stdout);
-    for (const reminder of [output.session, output.prompt]) {
-      assert.match(reminder, /run-1/u);
-      assert.match(reminder, /run-2/u);
-      assert.match(reminder, /run-3/u);
-      assert.doesNotMatch(reminder, /run-4/u);
-      assert.doesNotMatch(reminder, /run-closed/u);
-      assert.match(reminder, /step one/u);
+    for (const context of [output.session, output.prompt]) {
+      assert.doesNotMatch(context, /Active long-task reminder/u);
+      assert.doesNotMatch(context, /run-[1-4]|run-closed/u);
+      assert.doesNotMatch(context, /step one|add new evidence|wait for user|older step/u);
     }
+    assert.deepEqual(output.index_accesses, []);
     assert.equal(readFileSync(indexPath, "utf8"), indexBefore);
     assert.equal(readFileSync(opsPath, "utf8"), opsBefore);
   } finally {

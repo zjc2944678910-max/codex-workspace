@@ -1,28 +1,24 @@
 # Codex Long Task Runbook
 
-Use this for durable long-task state that survives handoffs, interruptions, and
-context compaction. Policy gates live in `AGENTS.md`; this file describes the
-run-directory workflow.
+This is the manual for the optional legacy run-directory workflow. Use it only
+when the user explicitly requests that workflow. Ordinary tasks use conversation
+plans and progress, with brief recovery notes when needed. AGENTS.md owns policy.
 
 ## When To Use
 
-Initialize a run before the first applicable boundary:
+Multiple implementation slices, helpers, test failures and turn boundaries do
+not opt a task into this workflow. Do not initialize or checkpoint automatically.
+Plan/read-only tasks retain planning context in the conversation.
 
-- the task is expected to need two or more implementation slices;
-- the first verification failure needs a repair;
-- the task is known to continue beyond the current turn.
-
-These triggers apply to execution tasks. A short independent review does not
-require a run just because it uses a helper. Plan/read-only tasks keep a
-conversation checkpoint and must not initialize or update state files.
+When the user continues a specific old task, read the relevant records without
+automatically updating them or restarting this workflow. Preserve old states,
+retry budgets and evidence. The commands below remain compatible for explicit
+manual use.
 
 Do not use this to bypass L2/L3 gates. Choose the target project from explicit
 user evidence first; do not default `--project` to any registered project.
 
-## When To Escalate From Daily Workflow
-
-Stay on the short-task path only while none of the mandatory triggers above
-applies. If a trigger appears mid-task, initialize before the repair, second slice, or turn boundary rather than reconstructing state afterward.
+## Before Explicit Opt-In
 
 Before creating the run, confirm the route and risk level. Live, NAS, OpenClaw,
 deploy, auth, secrets, and config-heavy work still follows `AGENTS.md`; a run
@@ -100,13 +96,14 @@ Update:
 3. Review with `review_guard` only when correctness, regression, security,
    rollback, or missing-test risk needs a separate pass; use `docs_checker` only
    for unclear API, framework, or version semantics.
-4. For non-tiny local work, assign one useful bounded slice to the appropriate
-   Luna role under AGENTS.md; preserve the no-independent-slice exception.
+4. Implement directly or delegate useful independent slices under AGENTS.md.
+   Generated role placeholders are not a mandatory chain.
 5. Verify locally for known-scope slices; use `verifier` when reproduction,
    regression confidence, or independent validation is worth the extra context.
-6. Update ledger and decisions as state changes.
-7. Run `checkpoint` after every slice result, verification failure, handoff,
-   and before ending a turn.
+6. For explicitly requested manual state updates, keep the ledger and evidence
+   consistent with the CLI protocol.
+7. Use `checkpoint` when requested as part of this opted-in workflow; no
+   per-slice or per-turn checkpoint cadence applies to ordinary tasks.
 
 All agent briefs should request compact results: conclusion, changed files,
 commands run, key outcomes, evidence pointers, risks, and followups only. Keep
@@ -136,8 +133,10 @@ node docs/workspace/codex-long-task.mjs append \
 ```
 
 This creates `agents/Txx/dev-brief.md`, `agents/Tyy/verify-brief.md`, and
-appends both ledger rows. The generated briefs may retain the legacy `model_worker_delegate` label;
-route execution through the available Luna role under current AGENTS.md.
+appends both ledger rows. The legacy `model_worker_delegate` label is retained
+for compatibility; when delegation is useful, map it to the available `worker`
+role under current AGENTS.md. Codex may also implement a scoped local change
+directly. Unused mapper/review placeholders do not block implementation.
 
 ## Checkpoint And Resume
 
@@ -168,7 +167,8 @@ first later write lazily creates the new state files.
 
 The OpenAI compact-response reference defines the compacted response output,
 but does not document a guarantee that a local custom hook fires at compaction.
-Therefore the run state is authoritative and hook reminders are supplementary.
+For explicitly continued old tasks, read their relevant recorded state. Session
+and prompt hooks no longer inject active-run reminders.
 See the [OpenAI compact response reference](https://developers.openai.com/api/reference/java/resources/responses/methods/compact).
 
 ## Repair Loop
@@ -176,7 +176,7 @@ See the [OpenAI compact response reference](https://developers.openai.com/api/re
 Default loop:
 
 ```text
-Codex verifier/review finding -> worker repair brief -> Codex recheck
+Codex verifier/review finding -> scoped repair (Codex or helper) -> recheck
 ```
 
 Verifier failure results must include stable fields. Timestamps, log ordering,
@@ -190,7 +190,7 @@ failed_acceptance: <exact failed acceptance criterion>
 If verification fails:
 
 1. Generate a focused repair brief with the exact failing evidence.
-2. Assign the repair to the same Luna helper when useful, or let Codex repair
+2. Assign the repair to the same helper when useful, or let Codex repair
    a scoped local defect directly.
 3. Send the repair result back to the same verifier when resumable.
 4. Stop after exactly 3 failed repair attempts in epoch one and mark the run

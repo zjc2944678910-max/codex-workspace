@@ -69,9 +69,16 @@ test("appendSlice writes dev and verify briefs and updates the ledger", async ()
   assert.match(devBrief, /preference changes are persisted/u);
   assert.match(devBrief, /Decisions:/u);
   assert.match(devBrief, /evidence_pointers:/u);
+  assert.match(devBrief, /Root may execute this brief directly/u);
+  assert.match(devBrief, /Helpers are optional/u);
+  assert.match(devBrief, /backward-compatible legacy role label/u);
+  assert.doesNotMatch(devBrief, /Mapper result:|Review result:/u);
+  assert.match(devBrief, /root explicitly authorizes it/u);
   assert.match(verifyBrief, new RegExp(`${run.run_root.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&")}/agents/T03/dev-result\\.md`, "u"));
   assert.match(verifyBrief, /Decisions:/u);
   assert.match(verifyBrief, /evidence_pointers:/u);
+  assert.match(verifyBrief, /Root may verify directly/u);
+  assert.match(verifyBrief, /not a required stage in a prescribed agent chain/u);
   assert.match(verifyBrief, /failure_signature:/u);
   assert.match(verifyBrief, /failed_acceptance:/u);
 });

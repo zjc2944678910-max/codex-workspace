@@ -7,6 +7,10 @@
 
 Use this file only for compact prompt/layout examples.
 
+Follow the current `AGENTS.md` for workflow, model, and concurrency choices.
+Root may inspect, implement, repair, and verify directly. Helpers are optional;
+the files below do not prescribe a full agent chain.
+
 ## Minimal Run Layout
 
 ```text
@@ -37,11 +41,12 @@ node docs/workspace/codex-long-task.mjs init --project <name> --task "<goal>"
 node docs/workspace/codex-long-task.mjs append --run-root <run-root> --scope "<slice>"
 ```
 
-- Development brief: send to `model_worker_delegate` only when delegation is
-  worth the extra context.
-- Verification brief: send to `verifier` only when independent validation is
-  worth the extra context.
-- Repair brief: send back to the same worker when resumable.
+- Development brief: root may execute it directly or delegate when a bounded
+  helper contribution is useful. `model_worker_delegate` is a backward-compatible
+  legacy label mapped to an available worker when delegation is chosen.
+- Verification brief: root may verify directly or use an optional verifier.
+- Repair brief: root may repair directly or delegate it to an available worker.
+- Refactoring requires explicit root authorization in the applicable brief.
 - All results should stay compact: conclusion, changed files, commands run, key
   outcomes, evidence pointers, risks, and followups only.
 - Reuse `05-decisions.md` before re-exploring; recheck only when drift evidence
@@ -59,7 +64,6 @@ model_worker_delegate
 - Request: <run-root>/00-request.md
 - Route lock: <run-root>/01-confirmed-context.md
 - Plan: <run-root>/02-plan.md
-- Review result: <run-root>/agents/T02/review-result.md
 
 ## Task
 <smallest implementation slice>

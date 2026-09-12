@@ -44,9 +44,16 @@ test("codex config defines workspace token budget defaults", () => {
   // Runtime context points to policy instead of duplicating a second copy.
   assert.match(config.developer_instructions, /AGENTS\.md/u);
   assert.ok(fs.existsSync(path.join(repoRoot, "AGENTS.md")));
-  assert.equal(config.max_concurrent_threads_per_session, 4);
-  assert.equal(config.default_subagent_model, "gpt-5.6-luna");
-  assert.equal(config.default_subagent_reasoning_effort, "xhigh");
+  assert.equal(config.agents.max_concurrent_threads_per_session, 6);
+  assert.equal(config.agents.default_subagent_model, "gpt-5.6-luna");
+  assert.equal(config.agents.default_subagent_reasoning_effort, "medium");
+  assert.equal(config.agents.max_depth, 1);
+  for (const legacyKey of ["max_concurrent_threads_per_session", "default_subagent_model", "default_subagent_reasoning_effort", "max_depth", "job_max_runtime_seconds"]) {
+    assert.equal(Object.hasOwn(config, legacyKey), false, legacyKey);
+  }
+  // Primary model and effort belong to the user's selection, not workspace policy.
+  assert.equal(Object.hasOwn(config, "model"), false);
+  assert.equal(Object.hasOwn(config, "model_reasoning_effort"), false);
 });
 
 test("codex profile v2 files define token budget profiles", (context) => {
@@ -86,20 +93,30 @@ test("codex profile v2 files define token budget profiles", (context) => {
   assert.ok(loadedProfiles.audit.model_auto_compact_token_limit > loadedProfiles.standard.model_auto_compact_token_limit);
 });
 
-test("codex subagent roles keep Luna with task-appropriate reasoning and permissions", () => {
+test("codex roles retain identities with explicit model, reasoning and permission boundaries", () => {
   const agentFiles = fs
     .readdirSync(agentsDir)
     .filter((file) => file.endsWith(".toml"));
-  assert.ok(agentFiles.length > 0);
+  const expected = {
+    repo_mapper: ["gpt-5.6-luna", "medium", "read-only"],
+    docs_checker: ["gpt-5.6-luna", "medium", "read-only"],
+    surgical_fixer: ["gpt-5.6-luna", "xhigh", "workspace-write"],
+    verifier: ["gpt-5.6-luna", "xhigh", "workspace-write"],
+    refactor_worker: ["gpt-5.6-sol", "high", "workspace-write"],
+    review_guard: ["gpt-5.6-sol", "high", "read-only"],
+    worker: ["gpt-5.6-sol", "high", "workspace-write"],
+    independent_reviewer: ["gpt-6-astra", "xhigh", "read-only"],
+  };
+  const seen = new Set();
 
   for (const file of agentFiles) {
     const agent = loadToml(path.join(agentsDir, file));
-    assert.equal(agent.model, "gpt-5.6-luna", file);
-    const mappingRole = ["repo-mapper.toml", "docs-checker.toml"].includes(file);
-    assert.equal(agent.model_reasoning_effort, mappingRole ? "medium" : "xhigh", file);
-    // Verifier needs a writable sandbox for test artifacts; ownership still
-    // excludes unsolicited production-source changes.
-    const writesArtifacts = ["surgical-fixer.toml", "refactor-worker.toml", "verifier.toml"].includes(file);
-    assert.equal(agent.sandbox_mode, writesArtifacts ? "workspace-write" : "read-only", file);
+    assert.ok(Object.hasOwn(expected, agent.name), file);
+    assert.equal(seen.has(agent.name), false, `duplicate role: ${agent.name}`);
+    seen.add(agent.name);
+    assert.deepEqual([agent.model, agent.model_reasoning_effort, agent.sandbox_mode], expected[agent.name], file);
+    assert.ok(agent.description.trim(), file);
+    assert.ok(agent.developer_instructions.trim(), file);
   }
+  assert.deepEqual([...seen].sort(), Object.keys(expected).sort());
 });
