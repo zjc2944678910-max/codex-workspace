@@ -24,7 +24,7 @@ Source of truth for scripts: [`project-registry.json`](./project-registry.json).
 | Neon Survivors 2088 | `projects/products/neon-survivors` | `projects/products/neon-survivors` | `ops/projects/neon-survivors` | `main`: `not_indexed` |
 | OpenClaw | `projects/products/openclaw`<br>`projects/migrations/openclaw-mac-migration` | `projects/products/openclaw/nas-openclaw-v22`<br>`projects/migrations/openclaw-mac-migration` | `ops/projects/openclaw` | `mainline`: `indexed` at `2dfe52f` (2026-06-22);<br>`migration-reference`: `not_targeted` |
 | Paper 001 Research Workbench | `projects/research/paper-001` | `projects/research/paper-001` | `ops/projects/paper-001` | `main`: `not_indexed` |
-| Personal AI Companion | `projects/products/personal-ai-companion` | `projects/products/personal-ai-companion` | `ops/projects/personal-ai-companion` | `main`: `indexed` at `0438d1a` (2026-09-03) |
+| Personal AI Companion | `projects/products/personal-ai-companion` | `projects/products/personal-ai-companion` | `ops/projects/personal-ai-companion` | `main`: `indexed` at `3c9b142` (2026-09-08) |
 | Personal Portfolio | `projects/products/personal-portfolio` | `projects/products/personal-portfolio` | `ops/projects/personal-portfolio` | `main`: `not_indexed` |
 | Pet Clinic Management System | `projects/products/pet-clinic` | `projects/products/pet-clinic` | `ops/projects/pet-clinic` | `main`: `indexed` (2026-06-09) |
 | Proxy Nodes VPS | ops-only | ops-only | `ops/projects/proxy-nodes` | `not_indexed` |
