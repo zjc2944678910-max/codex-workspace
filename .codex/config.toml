@@ -2,9 +2,8 @@
 
 review_model = "gpt-5.6-sol"
 
-# Keep the GPT-5.6 family max window (~872K raw / ~828K UI). Compact around 252K
-# so daily App usage stays under the 272K billing threshold; raise this to
-# 900000 only when a thread actually needs the long window.
+# Existing context and compaction values are intentionally preserved.
+# Model/provider pricing and optimal thresholds require separate measurement.
 model_context_window = 1000000
 model_auto_compact_token_limit = 252000
 
@@ -20,18 +19,8 @@ sandbox_mode = "danger-full-access"
 approval_policy = "never"
 
 developer_instructions = """
-Runtime summary; full policy lives in AGENTS.md.
-This root is a workspace index. Route project work only from explicit project/path/service evidence.
-Start substantive work with task level, rationale, and execution strategy.
-Use the lightest safe path; reserve xhigh/full agent chains for L2, architecture/root-cause, production audits, and hard regressions.
-For non-tiny local L0/L1 work, automatically delegate one bounded mapping, implementation, review, or verification slice to the appropriate Luna subagent; the user does not need to request delegation.
-For non-tiny L2/L3 work, keep Codex as the control plane and exclusive live-state executor, but allow bounded Luna sidecars for read-only mapping, local review, and non-production verification. After the L3 gate opens, one bounded local patch-preparation slice may be delegated for Codex review.
-Never delegate project routing, architecture/root-cause/safety judgment, repair authorization, secrets, deploys, firmware or device writes, service restarts, runtime mutations, rollbacks, live verification judgment, or final acceptance.
-Do not add commentary solely to explain that Luna was not used; mention delegation only when it materially changes ownership, status, risk, or user expectations.
-OpenClaw/NAS/live/production is L2 read-only; L3 state changes require "进入修复阶段".
-Use Route Lock for long tasks/handoffs and prefer compact file-pointer evidence.
-Workers follow WORKER.md and return compact results.
-Sub2API advisor routing is disabled. For difficult diagnosis or review, Claude Code CLI defaults to claude-opus-5 as a bounded read-only advisor; reserve claude-fable-5 for exceptionally difficult reviews. Codex performs all edits, fixes, verification, and final acceptance.
+Workspace policy: AGENTS.md. Read it for routing, risk, Luna delegation and acceptance.
+Use WORKER.md only for a delegated handoff and task-specific runbooks only when needed.
 """
 
 [features]

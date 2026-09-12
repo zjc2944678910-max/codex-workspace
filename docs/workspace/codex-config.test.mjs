@@ -41,9 +41,9 @@ test("codex config defines workspace token budget defaults", () => {
   assert.equal(config.model_context_window, 1000000);
   assert.equal(config.model_auto_compact_token_limit, 252000);
   assert.ok(config.model_auto_compact_token_limit < config.model_context_window);
-  assert.match(config.developer_instructions, /lightest safe path/u);
-  assert.match(config.developer_instructions, /automatically delegate/u);
-  assert.match(config.developer_instructions, /进入修复阶段/u);
+  // Runtime context points to policy instead of duplicating a second copy.
+  assert.match(config.developer_instructions, /AGENTS\.md/u);
+  assert.ok(fs.existsSync(path.join(repoRoot, "AGENTS.md")));
   assert.equal(config.max_concurrent_threads_per_session, 4);
   assert.equal(config.default_subagent_model, "gpt-5.6-luna");
   assert.equal(config.default_subagent_reasoning_effort, "xhigh");
@@ -86,7 +86,7 @@ test("codex profile v2 files define token budget profiles", (context) => {
   assert.ok(loadedProfiles.audit.model_auto_compact_token_limit > loadedProfiles.standard.model_auto_compact_token_limit);
 });
 
-test("codex subagents default to gpt-5.6-luna xhigh", () => {
+test("codex subagent roles keep Luna with task-appropriate reasoning and permissions", () => {
   const agentFiles = fs
     .readdirSync(agentsDir)
     .filter((file) => file.endsWith(".toml"));
@@ -95,6 +95,11 @@ test("codex subagents default to gpt-5.6-luna xhigh", () => {
   for (const file of agentFiles) {
     const agent = loadToml(path.join(agentsDir, file));
     assert.equal(agent.model, "gpt-5.6-luna", file);
-    assert.equal(agent.model_reasoning_effort, "xhigh", file);
+    const mappingRole = ["repo-mapper.toml", "docs-checker.toml"].includes(file);
+    assert.equal(agent.model_reasoning_effort, mappingRole ? "medium" : "xhigh", file);
+    // Verifier needs a writable sandbox for test artifacts; ownership still
+    // excludes unsolicited production-source changes.
+    const writesArtifacts = ["surgical-fixer.toml", "refactor-worker.toml", "verifier.toml"].includes(file);
+    assert.equal(agent.sandbox_mode, writesArtifacts ? "workspace-write" : "read-only", file);
   }
 });

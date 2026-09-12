@@ -32,14 +32,16 @@ codex --profile audit
 
 ## Delegation Budget
 
-- L0 and small known-scope L1 default to zero agents.
-- Ordinary L1 should use at most one helper agent.
-- Use the full mapper -> review -> worker -> verifier chain only when at least
-  two risk signals are present: unknown call chain, cross-module contract, API
-  route, security/auth/secret boundary, flaky or failing verification, broad
-  refactor, repeated repair, or messy handoff state.
-- Keep `review_guard` as the high-cost risk pass; do not use it as routine
-  confidence padding.
+AGENTS.md owns the delegation policy: keep a useful Luna slice for non-tiny
+local work, with the small-task and no-independent-slice exceptions. Do not
+infer a full chain from task size or a fixed number of risk signals. Mapper and
+docs-checker use medium; other roles retain xhigh. These are defaults to verify
+against task quality, not a claim that extra reasoning always helps.
+
+The user-global auto-compact value is currently `900000`, while this workspace
+sets `252000`. Both values are intentionally preserved in the first policy
+optimization. This note does not claim the running App uses either without
+runtime evidence, or that a particular billing threshold still applies.
 
 ## Command Output Budget
 

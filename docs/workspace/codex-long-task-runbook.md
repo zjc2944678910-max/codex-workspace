@@ -9,12 +9,12 @@ run-directory workflow.
 Initialize a run before the first applicable boundary:
 
 - the task is expected to need two or more implementation slices;
-- the first cross-agent handoff is about to occur;
 - the first verification failure needs a repair;
 - the task is known to continue beyond the current turn.
 
-These triggers are mandatory even when the current chat context still looks
-large enough.
+These triggers apply to execution tasks. A short independent review does not
+require a run just because it uses a helper. Plan/read-only tasks keep a
+conversation checkpoint and must not initialize or update state files.
 
 Do not use this to bypass L2/L3 gates. Choose the target project from explicit
 user evidence first; do not default `--project` to any registered project.
@@ -22,8 +22,7 @@ user evidence first; do not default `--project` to any registered project.
 ## When To Escalate From Daily Workflow
 
 Stay on the short-task path only while none of the mandatory triggers above
-applies. If a trigger appears mid-task, initialize before the handoff, repair,
-second slice, or turn boundary rather than reconstructing state afterward.
+applies. If a trigger appears mid-task, initialize before the repair, second slice, or turn boundary rather than reconstructing state afterward.
 
 Before creating the run, confirm the route and risk level. Live, NAS, OpenClaw,
 deploy, auth, secrets, and config-heavy work still follows `AGENTS.md`; a run
@@ -101,8 +100,8 @@ Update:
 3. Review with `review_guard` only when correctness, regression, security,
    rollback, or missing-test risk needs a separate pass; use `docs_checker` only
    for unclear API, framework, or version semantics.
-4. Send bounded implementation slices to `model_worker_delegate` when the work
-   is broad, repetitive, cross-module, or likely to need repair.
+4. For non-tiny local work, assign one useful bounded slice to the appropriate
+   Luna role under AGENTS.md; preserve the no-independent-slice exception.
 5. Verify locally for known-scope slices; use `verifier` when reproduction,
    regression confidence, or independent validation is worth the extra context.
 6. Update ledger and decisions as state changes.
@@ -113,14 +112,8 @@ All agent briefs should request compact results: conclusion, changed files,
 commands run, key outcomes, evidence pointers, risks, and followups only. Keep
 long logs and source excerpts in files when they are needed as evidence.
 
-Agent budget:
-
-- L0 and small known-scope L1 slices use zero agents by default.
-- Ordinary L1 slices use at most one helper agent.
-- Run the full mapper/review/worker/verifier chain only when at least two risk
-  signals are present: unknown call chain, cross-module contract, API route,
-  security/auth/secret boundary, flaky or failing verification, broad refactor,
-  repeated repair, or messy handoff state.
+Agent choice and concurrency follow AGENTS.md. Do not automatically execute the
+full mapper/review/worker/verifier chain; choose passes for independent evidence.
 
 Decision reuse:
 
@@ -143,8 +136,8 @@ node docs/workspace/codex-long-task.mjs append \
 ```
 
 This creates `agents/Txx/dev-brief.md`, `agents/Tyy/verify-brief.md`, and
-appends both ledger rows. The default development executor remains
-`model_worker_delegate`.
+appends both ledger rows. The generated briefs may retain the legacy `model_worker_delegate` label;
+route execution through the available Luna role under current AGENTS.md.
 
 ## Checkpoint And Resume
 
@@ -197,7 +190,8 @@ failed_acceptance: <exact failed acceptance criterion>
 If verification fails:
 
 1. Generate a focused repair brief with the exact failing evidence.
-2. Send it back to `model_worker_delegate`, preferably the same worker/thread.
+2. Assign the repair to the same Luna helper when useful, or let Codex repair
+   a scoped local defect directly.
 3. Send the repair result back to the same verifier when resumable.
 4. Stop after exactly 3 failed repair attempts in epoch one and mark the run
    `blocked`.
@@ -213,8 +207,8 @@ node docs/workspace/codex-long-task.mjs repair \
   --approach "repair the persistence boundary"
 ```
 
-Codex may direct-patch only when a bypass reason from `AGENTS.md` applies. If
-that happens, final output must include `why_no_worker`.
+Codex owns the repair and verification decision under AGENTS.md. No ceremonial
+worker-bypass field is required. Preserve the existing failure budget.
 
 Recheck after worker repair:
 

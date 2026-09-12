@@ -32,14 +32,12 @@ Default behavior:
 2. Read only the relevant files and nearby tests.
 3. Make the scoped change directly.
 4. Run focused verification.
-5. Close out with concise changes, verification, residual risk, and `why_no_worker`
-   only when policy would otherwise expect a worker.
+5. Close out with concise changes, verification and residual risk.
 
 Escalate to the ordinary short-task workflow when the task touches multiple
 files or modules, shared core logic, API routes, dependency/build/CI behavior,
-unclear project routing, or a test/fix loop. Any live, NAS, OpenClaw,
-production, deploy, auth, secrets, or config-heavy signal still follows the
-`L2`/`L3` gates in `AGENTS.md`.
+unclear project routing, or a test/fix loop. Apply L2/L3 to the actual live target or effect, not
+keywords in local source, skill documents, tests or quoted examples.
 
 ## Short Task
 
@@ -47,20 +45,12 @@ Use this when the fast path does not apply.
 
 1. Route from explicit project/path/service evidence.
 2. Classify risk. Keep generic requests at workspace-index level.
-3. Choose the execution owner:
-   `Codex route/judge -> lightest safe path -> implement or delegate -> focused verification -> Codex accepts`.
-4. Keep the work in Codex when the task is tiny, known-scope, or the main value
-   is diagnosis, architecture, safety, L2/L3, live, deploy, auth, secrets, or
-   config-heavy judgment.
-5. Open `repo_mapper`, `review_guard`, `model_worker_delegate`, or `verifier`
-   only when the call chain, contracts, cross-module risk, repeated repair risk,
-   or handoff state justify the extra tokens.
-6. For delegated implementation, send a bounded slice to `model_worker_delegate`
-   with owned scope, acceptance criteria, constraints, and compact output
-   requirements.
-7. Verify locally or with `verifier`, then either accept or send a focused
-   repair brief back to the worker unless a `why_no_worker` bypass applies.
-8. Close out with confirmed facts, verification, residual risks, and next steps.
+3. Apply AGENTS.md ownership: non-tiny local tasks get one useful Luna slice;
+   small known-scope tasks and work without an independent slice stay in Codex.
+4. Send the helper owned files, constraints, acceptance criteria and a Route Lock
+   in its brief; do not mandate a whole agent chain.
+5. Codex reviews evidence, runs focused checks and resolves remaining defects.
+6. Close out with confirmed results and remaining limitations.
 
 ## Project Registration
 
@@ -101,9 +91,9 @@ Codex acceptance.
 | Small known-scope L0/L1 edit with explicit files/tests and no risky surface | Codex handles directly with focused local verification. |
 | L1 multi-file change, shared core function, cross-module refactor, API route, unknown call chain, or unclear contract | Check GitNexus `list_repos`; if the target repo is indexed, use `query`, `context`, and `impact`. For API routes, prefer `api_impact`. |
 | GitNexus target missing or stale | Record `GitNexus unavailable/stale`, then fall back to `rg`, focused tests, and local review. |
-| Non-tiny local implementation with unknown call chain, cross-module risk, repetitive edits, mechanical refactor, or test/fix loop | Send a bounded slice to `model_worker_delegate` when available, then verify locally before acceptance. |
+| Non-tiny local implementation with unknown call chain, cross-module risk, repetitive edits, mechanical refactor, or test/fix loop | Send a bounded slice to the appropriate Luna role, then verify locally before acceptance. |
 | Workspace policy, hygiene, or routing metadata change | Use focused review plus `node --test docs/workspace/*.test.mjs` and `workspace-health` after edits. |
-| PDF, Word, spreadsheet, presentation, Figma, Sentry, Playwright, OpenAI docs, security, cleanup, or notification task | Use the matching skill first, then apply workspace routing and risk gates. For Playwright CLI from this workspace root, launch via `docs/workspace/playwright-scratch.sh --label <label> -- ...` so `.playwright-cli/` stays under `scratch/shared/`. |
+| PDF, Word, spreadsheet, presentation, Figma, Sentry, Playwright, OpenAI docs, security, cleanup, or notification task | Use a matching skill when its actual workflow applies; apply workspace routing and risk gates. For Playwright CLI from this workspace root, launch via `docs/workspace/playwright-scratch.sh --label <label> -- ...` so `.playwright-cli/` stays under `scratch/shared/`. |
 | Review with a concrete file/line finding | Prefer `::code-comment{...}` for actionable line-specific feedback. |
 | Architecture, process, testing strategy, or cross-file review concern | Use normal review text with findings, residual risks, and testing gaps. |
 
@@ -140,8 +130,9 @@ browser surface.
 ## Long Task
 
 Initialize a run before the first applicable boundary: two or more expected
-implementation slices, the first cross-agent handoff, the first verification
-failure that needs repair, or a task known to continue beyond the current turn.
+implementation slices, the first verification failure that needs tracked repair, or a task known to
+continue beyond the current turn. A short independent review alone is not a
+trigger. Plan/read-only work keeps context in conversation without state writes.
 These are mandatory triggers, not a judgment about whether chat still feels
 manageable.
 

@@ -1,53 +1,17 @@
-# Model Worker Contract
+# Bounded Worker Handoff
 
-`model_worker_delegate` is a generic executor, not a policy authority. This
-contract applies regardless of the runtime adapter or model profile.
+Apply the current AGENTS.md policy; this file defines the handoff format only.
+Codex supplies a concrete independent task, Route Lock, owned files, constraints,
+acceptance criteria and relevant evidence. For a short task the brief itself
+holds the Route Lock; a run directory is not mandatory solely for delegation.
 
-## Role
+Workers are not alone in the checkout: preserve others' edits and stay inside
+owned files. If scope or authority is insufficient, return the mismatch and
+evidence to Codex. Do not independently choose another project, broaden the
+assignment, spawn another writer, commit, or perform external/live mutations.
 
-- Execute only the assigned bounded implementation or repair slice.
-- Edit only inside the approved scope.
-- Run focused verification when feasible.
-- Honor Route Lock and inherited risk gates.
-- Return concise implementation and verification results.
-- Do not paste long source excerpts, full diffs, or large logs.
-- Fit the worker-first short-task path: implement, verify, report back, and let
-  Codex own acceptance.
-
-## Forbidden
-
-The worker must not:
-
-- select the target project from workspace residue
-- change strategy, routing policy, or risk layering
-- make architecture, root-cause, safety, or final acceptance judgments
-- perform live, deploy, auth, secret, rollback, service restart, or production
-  state-changing work
-- broaden scope, opportunistically refactor, clean unrelated files, or delegate again
-
-If the task requires forbidden work, return blocked in `summary` and explain the
-mismatch in `risks` or `followups`.
-
-## Route Lock And Repair
-
-- Honor `target_project`, `target_surface`, `project_root`, `route_evidence`,
-  and `forbidden_surfaces` when provided.
-- Stop as blocked if evidence points outside the Route Lock.
-- For repair briefs, fix only Codex-listed findings and failing evidence.
-- Preserve prior implementation unless a finding directly contradicts it.
-- Do not add features, refactor, or expand tests beyond the repair target.
-
-## Output Shape
-
-Return exactly these fields when structured output is requested:
-
-1. `summary`
-2. `changed_files`
-3. `tests_run`
-4. `evidence_pointers`
-5. `risks`
-6. `followups`
-
-Use empty arrays when there is nothing to report.
-Keep each field compact and reference files or commands instead of copying large
-outputs.
+Return a compact summary, changed files, checks and outcomes, evidence pointers,
+risks and followups. Use these keys when structured output is requested:
+`summary`, `changed_files`, `tests_run`, `evidence_pointers`, `risks`, `followups`.
+Use empty arrays where appropriate; avoid pasting full diffs and logs.
+Codex reviews the work and owns acceptance.
