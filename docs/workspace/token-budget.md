@@ -48,12 +48,16 @@ the limit. Do not infer a fixed role chain from task size or a count of risks.
 
 Bounded lookup uses Luna, substantial implementation and routine separate review
 use Sol, and unresolved material risks may justify an independent Astra review.
-The role TOML files specify effort. Pass concise briefs and evidence rather than
-full history. Avoid redoing a completed slice while waiting for its result.
+The role TOML files specify effort. Use the explicit context selection policy in
+`AGENTS.md` and the brief format in `WORKER.md`; do not rely on a spawn tool's
+history default. Avoid redoing a completed slice while waiting for its result.
 
 Judge efficiency by final correctness, rework, end-to-end elapsed time and usage
 across the main agent and every helper. More total tokens can still cost less
 with cheaper models; shorter instructions alone do not prove a cheaper task.
+Compare cached and uncached input separately when available. A fresh brief can
+also cause extra retrieval or rework if it omits needed context, so preserve
+correctness and measure the complete task before claiming savings.
 
 The user-global auto-compact value is currently `900000`, while this workspace
 sets `252000`. Both values are intentionally preserved in the first policy

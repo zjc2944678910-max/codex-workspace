@@ -122,8 +122,18 @@ reassign or handle directly instead of repeatedly trying the same approach.
 Only the main agent may dispatch helpers. Helpers must not spawn descendants
 or use extra processes to bypass capacity limits.
 
-- Send a concise task brief and relevant evidence instead of the full history.
-- See [WORKER.md](WORKER.md) for the handoff format.
+- Choose context explicitly when spawning: default to `fork_turns: "none"`
+  when supported, with a self-contained brief and relevant evidence. Omitting
+  this parameter may inherit the full history. Include the user's relevant
+  requirements and settled decisions; a fresh helper has not seen the chat.
+- When exact prior exchanges or attachments are needed, inherit the smallest
+  sufficient number of recent turns. Use `fork_turns: "all"` only when a brief,
+  evidence pointers and a bounded fork cannot reliably preserve necessary
+  context; state the reason in the brief. No separate approval or record is needed.
+  For independent review, prefer fresh context with requirements and evidence
+  over the main agent's conclusions. Follow the actual runtime's supported fields.
+- Reuse a helper for related follow-ups when its context remains useful; send
+  only changed facts and scope. See [WORKER.md](WORKER.md) for the handoff format.
 - For a specifically useful external second opinion, read
   [advisor guidance](docs/workspace/advisor-review.md). Claude is read-only.
   If unavailable, Codex continues; do not use Sub2API or another relay pool.

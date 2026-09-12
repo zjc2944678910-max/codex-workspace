@@ -3,8 +3,20 @@
 Apply the current AGENTS.md policy; this file defines the handoff format only.
 Codex supplies a concrete independent task, Route Lock, owned files, constraints,
 acceptance criteria and relevant evidence. The brief itself holds the Route
-Lock; no run directory is required. Prefer a fresh, bounded brief over the full
-conversation history.
+Lock; no run directory is required. Apply AGENTS.md's context selection policy.
+Make the brief sufficient for a helper that has not seen the conversation:
+
+- State the goal, relevant user requirements, settled interfaces and decisions.
+- Give the Route Lock, owned files, allowed actions and acceptance checks.
+- Point to accessible files, symbols, focused evidence and needed attachments;
+  do not assume earlier chat content is available. Include relevant rejected
+  approaches when this prevents repeating failed work.
+
+Keep this in the spawn message; use only the detail the slice needs, with no
+fixed length or separate brief file. If critical context is missing, ask the
+main agent for the specific fact or evidence instead of guessing or rereading
+the whole task history. The main agent supplies the missing context or adjusts
+the assignment without an extra user approval step.
 
 Use the runtime's named-role selector when available. Otherwise, the main agent
 reads the role file and explicitly supplies its model, effort and constraints
