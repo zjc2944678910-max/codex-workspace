@@ -53,24 +53,30 @@ node docs/workspace/codex-register-project.mjs --regen
   passed 10/10, with every cold request reading zero, every warm request reading
   exactly its paired write, and zero warm rewrites. This makes the earlier image
   miss consistent with intermittent retrieval but does not erase the failed
-  threshold control or establish behavior after an edit.
+  threshold control. A separately frozen fixed-size local-edit replication then
+  completed 90/90 requests and passed all 30 cells. Both representations had
+  15/15 exact warm reads; normalized Text/Image edit reuse was `0%/0%` at 10%,
+  `17.64%/17.22%` at 50%, and `85.79%/85.79%` at 90%. The mechanism gate now
+  passes, but the current screenshot representation uses about 5.15 times the
+  Text input tokens and therefore does not establish an image-compression or
+  paper contribution.
 - Risk gate: Use L0/L1 for local research code and documentation; no live infrastructure is registered for this project.
 - Common commands:
   - `node docs/workspace/find-project.mjs code-representation-caching`
   - `node docs/workspace/workspace-health.mjs --repo "$PWD" --limit 12`
   - Run project-specific checks from
     `projects/research/code-representation-caching`.
-- Last verification: frozen runner commit `988532d` passed 22 unit tests and
-  Python syntax checks. Run `20260914T104846Z` completed 40/40 requests across
-  20 unique entries; text and image each produced 10/10 valid cold-write/warm-
-  read pairs with no warm misses or rewrites. The `$0.12718086` run cost
-  reconciled exactly; evidence hashes are recorded in
-  `projects/research/code-representation-caching/docs/independent-cache-entry-results-2026-09-14.md`.
-- Next useful work: If the user continues the edit-locality question,
-  pre-register a new fixed-size threshold-matched replication that completes
-  every planned cell through warm misses and reports cache-read reliability
-  alongside edit reuse. Do not overwrite the failed threshold-control run or
-  promote either stability screen into a paper claim.
+- Last verification: frozen runner commit `78f4364` completed run
+  `20260914T112310Z` with 90/90 requests and 30/30 valid cells for
+  `$0.29916150`. All response, order, boundary, identity, reliability, and
+  topology checks passed. The account delta reconciled exactly. The analyzer's
+  serialization-only repair passed 26 unit tests and Python syntax checks;
+  evidence hashes are recorded in
+  `projects/research/code-representation-caching/docs/edit-replication-results-2026-09-14.md`.
+- Next useful work: Pre-register a real coding-task/correctness pilot only after
+  designing a code-image representation that demonstrates a genuine cold token
+  or cost advantage over Text. Do not spend another run on the same synthetic
+  cache mechanism or relabel the earlier stopped control.
 - Model review guidance: Use
   [model-review-packets.md](../../../docs/workspace/model-review-packets.md) for
   bounded research, protocol, or code review. Never send credentials, private
