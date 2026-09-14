@@ -44,23 +44,29 @@ node docs/workspace/codex-register-project.mjs --regen
   complete-validation rule when the second image cell's identical warm request
   missed cache. The automatic stop left 14 of 18 requests complete. The final
   validation status is `FAIL`, with partial support for the text-threshold
-  explanation but no completed text/image result or paper contribution.
+  explanation but no completed text/image result or paper contribution. A
+  separately frozen unchanged-input stability screen then passed: ten
+  consecutive text repeats and ten consecutive image repeats all hit cache with
+  constant cached-token counts and zero rewrites. This supports stable reads
+  within each warmed sequence, while preserving the earlier miss as evidence
+  that reliability across independent cache writes is not perfect.
 - Risk gate: Use L0/L1 for local research code and documentation; no live infrastructure is registered for this project.
 - Common commands:
   - `node docs/workspace/find-project.mjs code-representation-caching`
   - `node docs/workspace/workspace-health.mjs --repo "$PWD" --limit 12`
   - Run project-specific checks from
     `projects/research/code-representation-caching`.
-- Last verification: project commit `9105be2` passed 14 unit tests and Python
-  syntax checks. Its analyzer verified the stopped run as 14/18 requests,
-  5/6 observed cells, one started-but-incomplete image cell, and one unstarted
-  image cell. Costs reconciled to `$0.04665142`; evidence hashes are recorded in
-  `projects/research/code-representation-caching/docs/threshold-matched-control-results-2026-09-14.md`.
-- Next useful work: Stop this validation sequence. If the direction is reopened,
-  pre-register a new cache-read reliability study using the direct OpenAI
-  Responses API, native breakpoints, and prompt-cache diagnostics. Do not rerun
-  the failed configuration to replace missing repetitions or expand to coding
-  tasks from the partial text evidence.
+- Last verification: project commit `850421c` passed 17 unit tests and Python
+  syntax checks. Run `20260914T102642Z` completed 22/22 requests; text and image
+  each produced 10/10 identical warm hits, no rewrites, one payload hash, and
+  one prompt-token count. The `$0.03086520` run cost reconciled exactly; evidence
+  hashes are recorded in
+  `projects/research/code-representation-caching/docs/cache-read-stability-results-2026-09-14.md`.
+- Next useful work: If the user continues the edit-locality question,
+  pre-register a new fixed-size replication that completes every planned cell
+  through warm misses and reports cache-read reliability alongside edit reuse.
+  Do not overwrite the failed threshold-control run or promote the stability
+  screen into a paper claim.
 - Model review guidance: Use
   [model-review-packets.md](../../../docs/workspace/model-review-packets.md) for
   bounded research, protocol, or code review. Never send credentials, private
