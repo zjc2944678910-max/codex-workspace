@@ -30,17 +30,19 @@ node docs/workspace/codex-register-project.mjs --regen
 
 ## Ops Quality Baseline
 
-- Current status: Registered local research workbench for the mechanism-pilot
-  stage. Registration and a passing dry-run do not validate provider cache
-  behavior or a paper contribution.
+- Current status: Registered local research workbench. The 2026-09-14 paid
+  preflight passed identical-input cache sanity for text and image, but the
+  whole-block local-edit comparison requires redesign before a full pilot; this
+  is not evidence of a paper contribution.
 - Risk gate: Use L0/L1 for local research code and documentation; no live infrastructure is registered for this project.
 - Common commands:
   - `node docs/workspace/find-project.mjs code-representation-caching`
   - `node docs/workspace/workspace-health.mjs --repo "$PWD" --limit 12`
   - Run project-specific checks from
     `projects/research/code-representation-caching`.
-- Next useful work: Reverify the provider API contract and primary literature
-  before authorizing the six-request paid preflight.
+- Next useful work: Redesign equal text/image chunk boundaries and explicit
+  cache breakpoints, then review the breakpoint-topology probe before another
+  paid run.
 - Model review guidance: Use
   [model-review-packets.md](../../../docs/workspace/model-review-packets.md) for
   bounded research, protocol, or code review. Never send credentials, private
