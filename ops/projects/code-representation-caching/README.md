@@ -48,25 +48,29 @@ node docs/workspace/codex-register-project.mjs --regen
   separately frozen unchanged-input stability screen then passed: ten
   consecutive text repeats and ten consecutive image repeats all hit cache with
   constant cached-token counts and zero rewrites. This supports stable reads
-  within each warmed sequence, while preserving the earlier miss as evidence
-  that reliability across independent cache writes is not perfect.
+  within each warmed sequence. A follow-on independent-entry screen then
+  completed 20 new cold-write/warm-read pairs: text passed 10/10 and image
+  passed 10/10, with every cold request reading zero, every warm request reading
+  exactly its paired write, and zero warm rewrites. This makes the earlier image
+  miss consistent with intermittent retrieval but does not erase the failed
+  threshold control or establish behavior after an edit.
 - Risk gate: Use L0/L1 for local research code and documentation; no live infrastructure is registered for this project.
 - Common commands:
   - `node docs/workspace/find-project.mjs code-representation-caching`
   - `node docs/workspace/workspace-health.mjs --repo "$PWD" --limit 12`
   - Run project-specific checks from
     `projects/research/code-representation-caching`.
-- Last verification: project commit `850421c` passed 17 unit tests and Python
-  syntax checks. Run `20260914T102642Z` completed 22/22 requests; text and image
-  each produced 10/10 identical warm hits, no rewrites, one payload hash, and
-  one prompt-token count. The `$0.03086520` run cost reconciled exactly; evidence
-  hashes are recorded in
-  `projects/research/code-representation-caching/docs/cache-read-stability-results-2026-09-14.md`.
+- Last verification: frozen runner commit `988532d` passed 22 unit tests and
+  Python syntax checks. Run `20260914T104846Z` completed 40/40 requests across
+  20 unique entries; text and image each produced 10/10 valid cold-write/warm-
+  read pairs with no warm misses or rewrites. The `$0.12718086` run cost
+  reconciled exactly; evidence hashes are recorded in
+  `projects/research/code-representation-caching/docs/independent-cache-entry-results-2026-09-14.md`.
 - Next useful work: If the user continues the edit-locality question,
-  pre-register a new fixed-size replication that completes every planned cell
-  through warm misses and reports cache-read reliability alongside edit reuse.
-  Do not overwrite the failed threshold-control run or promote the stability
-  screen into a paper claim.
+  pre-register a new fixed-size threshold-matched replication that completes
+  every planned cell through warm misses and reports cache-read reliability
+  alongside edit reuse. Do not overwrite the failed threshold-control run or
+  promote either stability screen into a paper claim.
 - Model review guidance: Use
   [model-review-packets.md](../../../docs/workspace/model-review-packets.md) for
   bounded research, protocol, or code review. Never send credentials, private
