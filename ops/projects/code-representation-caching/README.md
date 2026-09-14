@@ -39,23 +39,28 @@ node docs/workspace/codex-register-project.mjs --regen
   Every warm repeat hit cache; edited text/image reuse was `0%/0%` at 10%,
   `0%/17.14%` at 50%, and about `84%/84%` at 90%. The text-midpoint prediction
   failed and is consistent with a first text prefix below the provider's
-  1,024-token cache minimum. This is a partial mechanism pass, not evidence of
-  a paper contribution.
+  1,024-token cache minimum. A frozen threshold-matched control then made all
+  three edited text midpoints cacheable at 1,268–1,270 tokens, but failed its
+  complete-validation rule when the second image cell's identical warm request
+  missed cache. The automatic stop left 14 of 18 requests complete. The final
+  validation status is `FAIL`, with partial support for the text-threshold
+  explanation but no completed text/image result or paper contribution.
 - Risk gate: Use L0/L1 for local research code and documentation; no live infrastructure is registered for this project.
 - Common commands:
   - `node docs/workspace/find-project.mjs code-representation-caching`
   - `node docs/workspace/workspace-health.mjs --repo "$PWD" --limit 12`
   - Run project-specific checks from
     `projects/research/code-representation-caching`.
-- Last verification: project commit `5e46441` passed 12 unit tests, Python
-  syntax checks, a 54-request dry-run, and complete-result analysis for 18
-  three-stage cells. The paid result and evidence hashes are recorded in
-  `projects/research/code-representation-caching/docs/sentinel-pilot-results-2026-09-14.md`.
-- Next useful work: Design a bounded threshold-matched control in which the
-  first reusable boundary exceeds 1,024 visible input tokens for both
-  representations. Preserve equal source-line chunking as a separate condition;
-  do not expand to real coding tasks or treat the midpoint threshold effect as
-  a representation advantage.
+- Last verification: project commit `9105be2` passed 14 unit tests and Python
+  syntax checks. Its analyzer verified the stopped run as 14/18 requests,
+  5/6 observed cells, one started-but-incomplete image cell, and one unstarted
+  image cell. Costs reconciled to `$0.04665142`; evidence hashes are recorded in
+  `projects/research/code-representation-caching/docs/threshold-matched-control-results-2026-09-14.md`.
+- Next useful work: Stop this validation sequence. If the direction is reopened,
+  pre-register a new cache-read reliability study using the direct OpenAI
+  Responses API, native breakpoints, and prompt-cache diagnostics. Do not rerun
+  the failed configuration to replace missing repetitions or expand to coding
+  tasks from the partial text evidence.
 - Model review guidance: Use
   [model-review-packets.md](../../../docs/workspace/model-review-packets.md) for
   bounded research, protocol, or code review. Never send credentials, private
