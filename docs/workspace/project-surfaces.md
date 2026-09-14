@@ -14,6 +14,7 @@ Source of truth for scripts: [`project-registry.json`](./project-registry.json).
 | BigData-Spark-Research-Workbench | `projects/research/bigdata-spark-research-workbench` | `projects/research/bigdata-spark-research-workbench` | `ops/projects/bigdata-spark-research-workbench` | `research-workspace`: `indexed` at `b94ab67` (2026-06-22) |
 | ClaimFlow | `projects/research/claimflow` | `projects/research/claimflow` | `ops/projects/claimflow` | `main`: `not_indexed` |
 | Cloudflare Edge / DNS | ops-only | ops-only | `ops/projects/cloudflare-edge` | `not_indexed` |
+| Code Representation Caching Research Workbench | `projects/research/code-representation-caching` | `projects/research/code-representation-caching` | `ops/projects/code-representation-caching` | `main`: `not_indexed` |
 | CUMCM-2026-Workbench | `projects/research/cumcm-2026-workbench` | `projects/research/cumcm-2026-workbench` | `ops/projects/cumcm-2026-workbench` | `research-workspace`: `indexed` at `111d7b2` (2026-06-22) |
 | Hotel Management System | `projects/products/hotel-mgmt` | `projects/products/hotel-mgmt` | `ops/projects/hotel-mgmt` | `main`: `indexed` at `d97ae53` (2026-07-04) |
 | IELTS Vocab Hub | `projects/products/ielts-vocab-hub` | `projects/products/ielts-vocab-hub` | `ops/projects/ielts-vocab-hub` | `main`: `indexed` at `aba9c33` (2026-08-15) |

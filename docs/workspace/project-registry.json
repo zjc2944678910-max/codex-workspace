@@ -1,7 +1,7 @@
 {
   "$schema": "workspace-project-registry/v1",
   "description": "Machine-readable workspace project registry. Each registered project has an ops README under ops/projects/<slug>/README.md, one or more long-lived surfaces under projects/*/*, and zero or more concrete code roots used for day-to-day work and GitNexus targeting.",
-  "updated": "2026-08-25",
+  "updated": "2026-09-14",
   "projects": [
     {
       "slug": "antigravity-mcp",
@@ -138,6 +138,44 @@
         "cloudflare",
         "acme.sh"
       ],
+      "gitnexus_indexed": false
+    },
+    {
+      "slug": "code-representation-caching",
+      "name": "Code Representation Caching Research Workbench",
+      "kind": "research",
+      "risk_profile": "research_local",
+      "surfaces": [
+        "projects/research/code-representation-caching"
+      ],
+      "code_roots": [
+        {
+          "path": "projects/research/code-representation-caching",
+          "role": "main",
+          "gitnexus_status": "not_indexed"
+        }
+      ],
+      "ops_surface": "ops/projects/code-representation-caching",
+      "state_data": "state/project-data/code-representation-caching",
+      "scratch": "scratch/projects/code-representation-caching",
+      "aliases": [
+        "cache representation paper",
+        "code-as-image caching",
+        "代码表示缓存论文"
+      ],
+      "routing_keywords": [
+        "code-as-image",
+        "prompt caching",
+        "incremental code edits",
+        "cache reuse",
+        "code-representation-caching",
+        "Code Representation Caching Research Workbench",
+        "cache representation paper",
+        "code-as-image caching",
+        "代码表示缓存论文"
+      ],
+      "live_host_aliases": [],
+      "service_names": [],
       "gitnexus_indexed": false
     },
     {

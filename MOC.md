@@ -22,6 +22,7 @@
 - [[ops/projects/bigdata-spark-research-workbench/README|BigData-Spark-Research-Workbench (bigdata-spark-research-workbench)]]
 - [[ops/projects/claimflow/README|ClaimFlow (claimflow)]]
 - [[ops/projects/cloudflare-edge/README|Cloudflare Edge / DNS (cloudflare-edge)]]
+- [[ops/projects/code-representation-caching/README|Code Representation Caching Research Workbench (code-representation-caching)]]
 - [[ops/projects/cumcm-2026-workbench/README|CUMCM-2026-Workbench (cumcm-2026-workbench)]]
 - [[ops/projects/hotel-mgmt/README|Hotel Management System (hotel-mgmt)]]
 - [[ops/projects/ielts-vocab-hub/README|IELTS Vocab Hub (ielts-vocab-hub)]]

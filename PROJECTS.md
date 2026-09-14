@@ -22,6 +22,7 @@ Machine source of truth: `docs/workspace/project-registry.json`.
 | **BigData-Spark-Research-Workbench** (`bigdata-spark-research-workbench`) | research | research_local | `projects/research/bigdata-spark-research-workbench` | `ops/projects/bigdata-spark-research-workbench` |
 | **ClaimFlow** (`claimflow`) | research | research_local | `projects/research/claimflow` | `ops/projects/claimflow` |
 | **Cloudflare Edge / DNS** (`cloudflare-edge`) | infrastructure | live_infra | `ops-only` | `ops/projects/cloudflare-edge` |
+| **Code Representation Caching Research Workbench** (`code-representation-caching`) | research | research_local | `projects/research/code-representation-caching` | `ops/projects/code-representation-caching` |
 | **CUMCM-2026-Workbench** (`cumcm-2026-workbench`) | research | research_local | `projects/research/cumcm-2026-workbench` | `ops/projects/cumcm-2026-workbench` |
 | **Hotel Management System** (`hotel-mgmt`) | product | local | `projects/products/hotel-mgmt` | `ops/projects/hotel-mgmt` |
 | **IELTS Vocab Hub** (`ielts-vocab-hub`) | product | live_product | `projects/products/ielts-vocab-hub` | `ops/projects/ielts-vocab-hub` |
