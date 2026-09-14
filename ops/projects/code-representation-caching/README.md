@@ -34,21 +34,28 @@ node docs/workspace/codex-register-project.mjs --regen
   whole-block preflight passed identical-input cache sanity, and the subsequent
   text-sentinel topology probe produced partial-prefix cache reads after a
   chunk-6 edit for both text and image. Direct markers on image blocks did not
-  create cache writes on the tested OpenRouter → OpenAI route. The full
-  mechanism pilot has not run; none of this is evidence of a paper
-  contribution.
+  create cache writes on the tested OpenRouter → OpenAI route. The repeated
+  three-position mechanism pilot completed all 54 requests for `$0.06523551`.
+  Every warm repeat hit cache; edited text/image reuse was `0%/0%` at 10%,
+  `0%/17.14%` at 50%, and about `84%/84%` at 90%. The text-midpoint prediction
+  failed and is consistent with a first text prefix below the provider's
+  1,024-token cache minimum. This is a partial mechanism pass, not evidence of
+  a paper contribution.
 - Risk gate: Use L0/L1 for local research code and documentation; no live infrastructure is registered for this project.
 - Common commands:
   - `node docs/workspace/find-project.mjs code-representation-caching`
   - `node docs/workspace/workspace-health.mjs --repo "$PWD" --limit 12`
   - Run project-specific checks from
     `projects/research/code-representation-caching`.
-- Last verification: project commit `1324b95` passed 10 unit tests, Python
-  syntax checks, and a six-request dry-run; the paid sentinel probe is recorded
-  in `projects/research/code-representation-caching/docs/breakpoint-probe-2026-09-14.md`.
-- Next useful work: Review a repeated three-position sentinel-topology design
-  with boundaries after chunks 1, 3, and 5. Do not execute the retained
-  whole-block `config.json` as the next experiment.
+- Last verification: project commit `5e46441` passed 12 unit tests, Python
+  syntax checks, a 54-request dry-run, and complete-result analysis for 18
+  three-stage cells. The paid result and evidence hashes are recorded in
+  `projects/research/code-representation-caching/docs/sentinel-pilot-results-2026-09-14.md`.
+- Next useful work: Design a bounded threshold-matched control in which the
+  first reusable boundary exceeds 1,024 visible input tokens for both
+  representations. Preserve equal source-line chunking as a separate condition;
+  do not expand to real coding tasks or treat the midpoint threshold effect as
+  a representation advantage.
 - Model review guidance: Use
   [model-review-packets.md](../../../docs/workspace/model-review-packets.md) for
   bounded research, protocol, or code review. Never send credentials, private
